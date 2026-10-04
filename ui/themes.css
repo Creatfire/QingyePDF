@@ -1,0 +1,53 @@
+/* Qingye Markdown themes — original stylesheets. Names follow the familiar Typora set:
+   GitHub, Newsprint, Night, Pixyll, Whitey. Each theme re-tints the Markdown panel through the
+   same design tokens the rest of the app uses, then refines document typography. */
+.mdPanel { --md-size: 16px; --md-lh: 1.78; --md-width: 860px; --md-zoom: 1; }
+.mdPanel .mdDoc { font-size: calc(var(--md-size) * var(--md-zoom)); line-height: var(--md-lh); max-width: var(--md-width); }
+.mdPanel[data-font="custom"] .mdDoc, .mdPanel[data-font="custom"] .mdDoc :is(h1, h2, h3, h4, h5, h6) { font-family: var(--md-user-font); }
+.mdPanel .mdSourceView { font-size: calc(14px * var(--md-zoom)); }
+.mdPanel.indentFirst .mdDoc p { text-indent: 2em; }
+.mdPanel.showBr .mdDoc br::before { content: "↵"; color: var(--faint); font-size: .8em; }
+
+/* ——— GitHub ——— */
+.mdPanel[data-mdtheme="github"] { --surface: #fff; --surface-2: #f6f8fa; --surface-3: #eaeef2; --ink: #1f2328; --ink-2: #3d444d; --muted: #59636e; --faint: #818b98; --line: #d1d9e0; --line-strong: #d1d9e0; --accent: #0969da; --accent-soft: #ddf4ff; --accent-soft-2: #b6e3ff; --md-code-bg: #f6f8fa; --md-code-line: #d1d9e0; --md-inline-code: #eff1f3; --md-inline-code-ink: #1f2328; --md-font: -apple-system, "Segoe UI", "Noto Sans", Helvetica, Arial, "Microsoft YaHei UI", sans-serif; }
+.mdPanel[data-mdtheme="github"] .mdDoc { font-size: calc(16px * var(--md-zoom)); line-height: 1.6; }
+.mdPanel[data-mdtheme="github"] .mdDoc :is(h1, h2, h3, h4, h5, h6) { font-family: var(--md-font); font-weight: 600; line-height: 1.25; margin: 1.5em 0 1em; }
+.mdPanel[data-mdtheme="github"] .mdDoc h1 { font-size: 2em; } .mdPanel[data-mdtheme="github"] .mdDoc h2 { font-size: 1.5em; }
+.mdPanel[data-mdtheme="github"] .mdDoc h3 { font-size: 1.25em; } .mdPanel[data-mdtheme="github"] .mdDoc h6 { color: var(--muted); }
+.mdPanel[data-mdtheme="github"] .mdDoc blockquote { background: none; border-left: .25em solid #d1d9e0; color: var(--muted); border-radius: 0; }
+.mdPanel[data-mdtheme="github"] .mdDoc th { background: #f6f8fa; } .mdPanel[data-mdtheme="github"] .mdDoc tr:nth-child(even) td { background: #f6f8fa; }
+.mdPanel[data-mdtheme="github"] .mdCodeBlock { border-radius: 6px; }
+
+/* ——— Newsprint ——— */
+.mdPanel[data-mdtheme="newsprint"] { --surface: #f3f2ee; --surface-2: #ebe9e2; --surface-3: #e2dfd6; --ink: #1a1a1a; --ink-2: #333; --muted: #6b6b63; --faint: #8f8d84; --line: #d6d3c8; --line-strong: #bdb9aa; --accent: #7a1f1f; --accent-soft: #eddcd8; --accent-soft-2: #d8b8b0; --md-code-bg: #ebe9e2; --md-code-line: #d6d3c8; --md-inline-code: #e4e1d8; --md-inline-code-ink: #5a1a1a; --md-font: "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif; --font-display: "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", serif; }
+.mdPanel[data-mdtheme="newsprint"] .mdDoc { font-size: calc(17px * var(--md-zoom)); line-height: 1.7; max-width: 780px; }
+.mdPanel[data-mdtheme="newsprint"] .mdDoc :is(h1, h2, h3, h4) { font-weight: 700; letter-spacing: -.01em; border-bottom: 0 !important; }
+.mdPanel[data-mdtheme="newsprint"] .mdDoc h1 { text-align: center; font-size: 2.3em; border-bottom: 3px double var(--ink) !important; padding-bottom: .3em; }
+.mdPanel[data-mdtheme="newsprint"] .mdDoc h2 { border-bottom: 1px solid var(--ink) !important; padding-bottom: .15em; font-size: 1.5em; }
+.mdPanel[data-mdtheme="newsprint"] .mdDoc blockquote { border-left: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: none; font-style: italic; border-radius: 0; text-align: center; }
+.mdPanel[data-mdtheme="newsprint"] .mdDoc a { color: #7a1f1f; }
+
+/* ——— Night ——— */
+.mdPanel[data-mdtheme="night"] { --surface: #363b40; --surface-2: #2f3337; --surface-3: #292d31; --ink: #b8bfc6; --ink-2: #a3aab1; --muted: #8a9198; --faint: #6e757c; --line: #454b51; --line-strong: #555c63; --accent: #6dc4f5; --accent-soft: rgb(109 196 245 / .16); --accent-soft-2: rgb(109 196 245 / .3); --on-accent: #10151a; --danger: #ff8f8f; --md-code-bg: #2b2f33; --md-code-line: #454b51; --md-inline-code: #2f3438; --md-inline-code-ink: #e6b673; --md-math-ink: #d0b0ff; --hl-keyword: #d4a6ff; --hl-string: #7ee2b8; --hl-number: #ffb77a; --hl-comment: #7f948a; --hl-title: #8cc2ff; --hl-attr: #f0c674; --hl-type: #7fd0f0; --hl-meta: #9aaba2; color-scheme: dark; }
+.mdPanel[data-mdtheme="night"] .mdDoc :is(h1, h2, h3, h4, h5, h6), .mdPanel[data-mdtheme="night"] .mdDoc strong { color: #dfe4e8; }
+.mdPanel[data-mdtheme="night"] .mdDoc mark { background: rgb(230 180 60 / .35); color: #f3e3b0; }
+.mdPanel[data-mdtheme="night"] .mdMermaid svg { filter: none; }
+.mdPanel[data-mdtheme="night"] .mdOutline { background: #2f3337; }
+
+/* ——— Pixyll ——— */
+.mdPanel[data-mdtheme="pixyll"] { --surface: #fff; --surface-2: #fafafa; --surface-3: #f1f1f1; --ink: #333; --ink-2: #444; --muted: #777; --faint: #999; --line: #e6e6e6; --line-strong: #d0d0d0; --accent: #e63946; --accent-soft: #fde8ea; --accent-soft-2: #f8c4c9; --md-code-bg: #f8f8f8; --md-code-line: #e8e8e8; --md-inline-code: #f3f3f3; --md-inline-code-ink: #c7254e; --md-font: "Merriweather", "Georgia", "Noto Serif SC", "Songti SC", serif; --font-display: "Lato", "Helvetica Neue", "Microsoft YaHei UI", sans-serif; }
+.mdPanel[data-mdtheme="pixyll"] .mdDoc { font-size: calc(17px * var(--md-zoom)); line-height: 1.85; max-width: 720px; }
+.mdPanel[data-mdtheme="pixyll"] .mdDoc :is(h1, h2, h3, h4, h5, h6) { font-family: var(--font-display); font-weight: 700; border-bottom: 0 !important; line-height: 1.25; }
+.mdPanel[data-mdtheme="pixyll"] .mdDoc h1 { font-size: 2.2em; } .mdPanel[data-mdtheme="pixyll"] .mdDoc h2 { font-size: 1.7em; }
+.mdPanel[data-mdtheme="pixyll"] .mdDoc a { color: #e63946; text-decoration: none; border-bottom: 1px solid #f3a6ac; }
+.mdPanel[data-mdtheme="pixyll"] .mdDoc blockquote { border-left: 3px solid #e63946; background: none; font-style: italic; border-radius: 0; }
+
+/* ——— Whitey ——— */
+.mdPanel[data-mdtheme="whitey"] { --surface: #fff; --surface-2: #fafafa; --surface-3: #f0f0f0; --ink: #111; --ink-2: #333; --muted: #6a6a6a; --faint: #999; --line: #ececec; --line-strong: #d8d8d8; --accent: #1a1a1a; --accent-soft: #f0f0f0; --accent-soft-2: #dcdcdc; --on-accent: #fff; --md-code-bg: #fafafa; --md-code-line: #eaeaea; --md-inline-code: #f2f2f2; --md-inline-code-ink: #333; --md-font: "Helvetica Neue", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif; --font-display: "Helvetica Neue", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif; }
+.mdPanel[data-mdtheme="whitey"] .mdDoc { font-size: calc(16px * var(--md-zoom)); line-height: 1.75; max-width: 800px; }
+.mdPanel[data-mdtheme="whitey"] .mdDoc :is(h1, h2, h3, h4, h5, h6) { font-weight: 600; border-bottom: 0 !important; }
+.mdPanel[data-mdtheme="whitey"] .mdDoc a { color: #111; text-decoration-thickness: 1px; }
+.mdPanel[data-mdtheme="whitey"] .mdDoc blockquote { border-left: 2px solid #111; background: none; border-radius: 0; }
+.mdPanel[data-mdtheme="whitey"] .mdDoc th { background: #fafafa; }
+
+/* Export / print get the same theming through data-mdtheme on the exported <body>. */

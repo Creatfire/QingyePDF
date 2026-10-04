@@ -1,0 +1,19 @@
+name: 功能建议 / Feature request
+description: 希望青页能做到的事
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你想解决什么问题
+      description: 描述你正在做的事和现在卡在哪里，比直接描述功能更有帮助
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你设想的做法（可选）
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 现在是怎么绕过的（可选）

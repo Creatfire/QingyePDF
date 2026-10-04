@@ -1,0 +1,75 @@
+1340	Reading navigation	閱讀導覽	閲覧ナビゲーション	읽기 탐색
+1341	Back to reading position	返回閱讀位置	前の閲覧位置へ	이전 읽기 위치
+1342	Back to reading position · Alt+←	返回閱讀位置 · Alt+←	前の閲覧位置へ · Alt+←	이전 읽기 위치 · Alt+←
+1343	Forward to reading position	前進閱讀位置	次の閲覧位置へ	다음 읽기 위치
+1344	Forward to reading position · Alt+→	前進閱讀位置 · Alt+→	次の閲覧位置へ · Alt+→	다음 읽기 위치 · Alt+→
+1345	Export preset	匯出預設	書き出しプリセット	내보내기 프리셋
+1346	Choose a preset…	選擇預設…	プリセットを選択…	프리셋 선택…
+1347	Preset name	預設名稱	プリセット名	프리셋 이름
+1348	Custom preset name	自訂預設名稱	カスタムプリセット名	사용자 프리셋 이름
+1349	Save preset	儲存預設	プリセットを保存	프리셋 저장
+1350	Delete preset	刪除預設	プリセットを削除	프리셋 삭제
+1351	Export preset saved	匯出預設已儲存	書き出しプリセットを保存しました	내보내기 프리셋 저장됨
+1352	Export preset deleted	匯出預設已刪除	書き出しプリセットを削除しました	내보내기 프리셋 삭제됨
+1353	PDF with contents	含目錄 PDF	目次付き PDF	목차가 있는 PDF
+1354	EPUB ebook	EPUB 電子書	EPUB 電子書籍	EPUB 전자책
+1355	Built-in PDF layout	內建 PDF 排版	内蔵 PDF 組版	내장 PDF 조판
+1356	Margins (mm)	頁邊距（毫米）	余白（mm）	여백(mm)
+1357	Word / ODT margins use the reference document; external PDF layout uses engine options.	Word / ODT 頁邊距由參考文件決定；外部 PDF 排版使用引擎參數。	Word / ODT の余白は参照文書、外部 PDF 組版はエンジン設定を使用します。	Word / ODT 여백은 참조 문서를, 외부 PDF 조판은 엔진 옵션을 사용합니다.
+1358	Original	原文	原文	원문
+1359	After changes	修改後	変更後	수정 후
+1360	Accept changes	接受修改	変更を適用	수정 적용
+1361	Preview and insert	預覽並插入文件	プレビューして挿入	미리 보고 삽입
+1362	Preview is truncated. Review the full content before accepting.	預覽已截斷，請確認完整內容後再接受修改。	プレビューは一部です。全文を確認してから適用してください。	미리보기가 잘렸습니다. 전체 내용을 확인한 후 적용하세요.
+1363	The original changed or closed. Request the change again.	原文已變更或關閉，請重新發起修改。	原文が変更または閉じられました。変更を再度依頼してください。	원문이 변경되거나 닫혔습니다. 수정을 다시 요청하세요.
+1364	Visual table editing	視覺化表格編輯	ビジュアル表編集	시각적 표 편집
+1365	Edit table cell	編輯表格儲存格	表のセルを編集	표 셀 편집
+1366	Table source	表格原始碼	表のソース	표 소스
+1367	New column	新欄	新しい列	새 열
+1368	The header row cannot be deleted.	不能刪除表頭。	見出し行は削除できません。	머리글 행은 삭제할 수 없습니다.
+1369	Keep at least one column.	至少保留一欄。	少なくとも1列を残してください。	최소 한 열을 남겨두세요.
+1370	The table changed. Select the cell again.	表格已變更，請重新選擇儲存格。	表が変更されました。セルを選び直してください。	표가 변경되었습니다. 셀을 다시 선택하세요.
+1371	Visual tables support up to 200 rows and 50 columns.	視覺化表格最多支援 200 列和 50 欄。	ビジュアル表は最大200行・50列です。	시각적 표는 최대 200행, 50열을 지원합니다.
+1372	Table pasted. Undo with Ctrl+Z.	已貼上表格，可用 Ctrl+Z 復原。	表を貼り付けました。Ctrl+Z で元に戻せます。	표를 붙여넣었습니다. Ctrl+Z로 실행 취소할 수 있습니다.
+1373	Checking text layers…	正在檢查文字層…	テキストレイヤーを確認中…	텍스트 레이어 확인 중…
+1374	Checked {checked}/{total} pages · searchable {text} · without text {missing}	已檢查 {checked}/{total} 頁 · 可搜尋 {text} 頁 · 缺少文字層 {missing} 頁	確認 {checked}/{total} ページ · 検索可能 {text} · テキストなし {missing}	확인 {checked}/{total}페이지 · 검색 가능 {text} · 텍스트 없음 {missing}
+1375	OCR page range	文字辨識頁碼	OCR ページ範囲	OCR 페이지 범위
+1376	Pages, e.g. 1-3,5; blank for all	頁碼，例如 1-3,5；留空為全文	ページ（例：1-3,5）。空欄で全ページ	페이지(예: 1-3,5), 비우면 전체
+1377	Recognize selected pages	辨識指定頁	指定ページを認識	지정 페이지 인식
+1378	Recognize all pages	辨識全文	全ページを認識	전체 페이지 인식
+1379	Open password (if needed)	開啟密碼（若需要）	開くパスワード（必要な場合）	열기 암호(필요한 경우)
+1380	PDF open password	PDF 開啟密碼	PDF を開くパスワード	PDF 열기 암호
+1381	Processing	處理中	処理中	처리 중
+1382	Recognizing {name} · {progress}	辨識 {name} · {progress}	認識 {name} · {progress}	인식 {name} · {progress}
+1383	Text recognition complete	文字辨識完成	テキスト認識が完了しました	텍스트 인식 완료
+1384	Text recognition task ended	文字辨識工作已結束	テキスト認識処理が終了しました	텍스트 인식 작업 종료됨
+1385	Recognition completed. Save to keep the text layer.	文字辨識完成，儲存文件可保留文字層。	認識が完了しました。保存するとテキストレイヤーを保持できます。	인식이 완료되었습니다. 저장하면 텍스트 레이어를 유지합니다.
+1386	Recognition canceled; new results were not applied.	文字辨識已取消，未套用新的辨識結果。	認識をキャンセルしました。新しい結果は適用されていません。	인식을 취소했습니다. 새 결과는 적용되지 않았습니다.
+1387	Wait for the current processing to finish before OCR.	請等待目前處理完成後再辨識文字。	現在の処理が終わってから認識してください。	현재 처리가 끝난 후 인식하세요.
+1388	Checking text layers. Search results may omit scanned pages.	正在檢查文字層，目前搜尋結果可能不含掃描頁。	テキストを確認中です。検索結果にスキャンページが含まれない場合があります。	텍스트 레이어를 확인 중입니다. 검색 결과에 스캔 페이지가 없을 수 있습니다.
+1389	No matches yet. Pages without a text layer need recognition before searching.	目前未找到相符內容；缺少文字層的頁面需要先辨識。	一致がありません。テキストなしのページは検索前に認識が必要です。	일치 결과가 없습니다. 텍스트가 없는 페이지는 먼저 인식해야 합니다.
+1390	No matches in the document.	全文沒有相符內容。	文書に一致する内容がありません。	문서에 일치하는 내용이 없습니다.
+1391	Select filtered annotations	全選篩選結果	絞り込み結果をすべて選択	필터 결과 모두 선택
+1392	Clear annotation selection	清除註解選取	注釈の選択を解除	주석 선택 지우기
+1393	Create notes from selected annotations	將選取註解整理為筆記	選択した注釈からノートを作成	선택한 주석으로 노트 만들기
+1394	Select annotations to include first.	請先勾選要整理的註解。	含める注釈を選択してください。	포함할 주석을 먼저 선택하세요.
+1395	Located source annotation	已定位原文註解	原文の注釈を表示しました	원문 주석으로 이동함
+1396	The source PDF is closed. Reopen it to locate the annotation.	原 PDF 已關閉，請重新開啟後定位。	元の PDF は閉じられています。開き直してください。	원본 PDF가 닫혔습니다. 다시 열고 이동하세요.
+1397	The document is closed; the reading position is unavailable.	原文件已關閉，無法返回閱讀位置。	文書が閉じられたため閲覧位置へ戻れません。	문서가 닫혀 읽기 위치로 돌아갈 수 없습니다.
+1398	The document page numbers changed.	原文件頁碼已變更。	文書のページ番号が変更されました。	문서 페이지 번호가 변경되었습니다.
+1399	The source document changed. Locate it again.	原文件已變更，請重新定位。	原文が変更されました。再度移動してください。	원문이 변경되었습니다. 다시 이동하세요.
+1400	Invalid annotation area.	註解區域無效。	注釈範囲が無効です。	잘못된 주석 영역입니다.
+1401	Invalid source page.	原文頁碼無效。	原文ページが無効です。	잘못된 원문 페이지입니다.
+1402	Use a page range such as 1-3,5.	頁碼請使用 1-3,5 的格式。	1-3,5 のようにページを指定してください。	1-3,5와 같은 페이지 형식을 사용하세요.
+1403	OCR pages are outside the document range.	辨識頁碼超出文件範圍。	認識ページが文書範囲外です。	인식 페이지가 문서 범위를 벗어났습니다.
+1404	The engine does not support this preset format.	目前引擎不支援此預設格式。	エンジンがこのプリセット形式に対応していません。	엔진이 이 프리셋 형식을 지원하지 않습니다.
+1405	Preset names must contain 1–50 characters.	預設名稱需要 1–50 個字元。	プリセット名は1〜50文字です。	프리셋 이름은 1~50자여야 합니다.
+1406	Invalid preset format.	預設格式無效。	プリセット形式が無効です。	잘못된 프리셋 형식입니다.
+1407	Invalid preset reader extensions.	預設讀取擴充無效。	プリセットの読み込み拡張が無効です。	잘못된 프리셋 읽기 확장입니다.
+1408	Preset advanced options are too long.	預設進階參數過長。	プリセットの詳細オプションが長すぎます。	프리셋 고급 옵션이 너무 깁니다.
+1409	Up to 30 custom presets can be saved.	最多儲存 30 個自訂預設。	カスタムプリセットは最大30個です。	사용자 프리셋은 최대 30개입니다.
+1410	Invalid PDF paper size or margins.	PDF 紙張或頁邊距參數無效。	PDF の用紙サイズまたは余白が無効です。	잘못된 PDF 용지 또는 여백입니다.
+1411	Select PDF annotations.	請選擇 PDF 註解。	PDF の注釈を選択してください。	PDF 주석을 선택하세요.
+1412	Invalid annotation page.	註解頁碼無效。	注釈ページが無効です。	잘못된 주석 페이지입니다.
+1413	Annotation notes exceed 32 MB. Select fewer annotations.	註解筆記超過 32 MB，請減少選取的註解。	注釈ノートが32 MBを超えます。選択数を減らしてください。	주석 노트가 32MB를 넘습니다. 주석을 적게 선택하세요.
+1414	Up to 100000 annotations can be processed at once.	一次最多處理 100000 條註解。	一度に処理できる注釈は最大100000件です。	한 번에 최대 100000개 주석을 처리할 수 있습니다.

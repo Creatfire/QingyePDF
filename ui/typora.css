@@ -1,0 +1,124 @@
+/* Typora-style features: menu bar, sidebar tabs, file tree, palette, dialogs, modes. */
+/* ——— Modes ——— */
+.mdEditor.isFocusMode .mdDoc:has(.mdBlock.isActive) > .mdBlock:not(.isActive) { opacity: .28; transition: opacity .25s var(--ease, ease); }
+.mdEditor.isFocusMode .mdDoc > .mdBlock { transition: opacity .25s var(--ease, ease); }
+.mdEditor.isTypewriter .mdTail { min-height: 60vh; }
+.mdEditor.isTypewriter .mdDoc { padding-top: 40vh; }
+.mdEditor.isReadonly .mdDoc { cursor: default; }
+.mdEditor.isReadonly .mdDoc a { cursor: pointer; }
+.mdEditor.isReadonly input.mdTask { cursor: default; pointer-events: none; }
+.mdPanel .mdReadonlyBadge { position: absolute; top: 10px; right: 22px; z-index: 6; font-size: 11.5px; color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; pointer-events: none; }
+
+/* ——— Menu bar ——— */
+.mdMenubar { display: flex; align-items: center; gap: 1px; padding: 3px 8px; border-bottom: 1px solid var(--line); background: var(--surface); flex: none; min-height: 34px; }
+.mdMenubar > button.mdMenuTop { height: 27px; padding: 0 11px; border-radius: 7px; font-size: 12.5px; color: var(--ink-2); background: transparent; border: 0; }
+.mdMenubar > button.mdMenuTop:hover, .mdMenubar > button.mdMenuTop[aria-expanded="true"] { background: var(--surface-3); color: var(--ink); }
+.mdMenubar .spacer { flex: 1; }
+.mdMenubar .mdMenuIcon { width: 27px; height: 27px; padding: 0; --icon-size: 15px; border-radius: 7px; color: var(--muted); }
+.mdMenubar .mdMenuIcon[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.mdPanel.noMenubar .mdMenubar { display: none; }
+.mdDrop { position: fixed; z-index: 60; min-width: 236px; max-height: min(78vh, 720px); overflow: auto; padding: 5px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg); animation: pop-in .14s var(--ease); }
+.mdDrop[hidden] { display: none; }
+.mdDrop .menuItem { width: 100%; }
+.mdDrop .menuItem .shortcut { margin-left: auto; padding-left: 26px; color: var(--faint); font-size: 11.5px; }
+.mdDrop .menuItem[aria-checked="true"]::before { content: "✓"; position: absolute; left: 9px; color: var(--accent); font-weight: 700; }
+.mdDrop .menuItem { position: relative; padding-left: 28px; display: flex; align-items: center; text-align: left; }
+.mdDrop .menuItem.hasSub::after { content: "›"; margin-left: auto; color: var(--faint); padding-left: 14px; }
+.mdDrop .menuItem:disabled { opacity: .45; }
+.mdSub { position: fixed; z-index: 61; }
+.mdDropEmpty { padding: 8px 12px; color: var(--faint); font-size: 12px; }
+
+/* ——— Sidebar with tabs ——— */
+.mdOutline > header { padding-bottom: 4px; }
+.mdSideTabs { display: flex; gap: 2px; padding: 8px 10px 4px 12px; align-items: center; }
+.mdSideTabs button { height: 26px; padding: 0 10px; border-radius: 7px; font-size: 12.5px; color: var(--muted); border: 0; background: transparent; }
+.mdSideTabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.mdSideTabs .mdOutlineClose { margin-left: auto; width: 26px; height: 26px; padding: 0; --icon-size: 14px; }
+.mdSidePane[hidden] { display: none !important; }
+.mdSidePane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.mdOutlineItem .mdFold { display: inline-block; width: 14px; margin-left: -12px; margin-right: -2px; text-align: center; color: var(--faint); cursor: pointer; font-size: 10px; }
+.mdOutlineItem.isFolded .mdFold { transform: rotate(-90deg); }
+.mdFileTools { display: flex; gap: 4px; padding: 2px 10px 6px 12px; }
+.mdFileTools button { height: 26px; padding: 0 9px; font-size: 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+.mdFileRoot { padding: 2px 14px 4px; font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
+.mdFileList { flex: 1; min-height: 0; overflow: auto; padding: 2px 8px 70px; }
+.mdFileItem { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 4px 8px 4px calc(8px + var(--depth, 0) * 14px); border-radius: 7px; font-size: 12.5px; color: var(--ink-2); white-space: nowrap; overflow: hidden; }
+.mdFileItem:hover { background: var(--surface-3); }
+.mdFileItem.isCurrent { background: var(--accent-soft); color: var(--accent); }
+.mdFileItem .mdFileGlyph { flex: none; width: 14px; text-align: center; color: var(--faint); font-size: 11px; }
+.mdFileItem .mdFileName { overflow: hidden; text-overflow: ellipsis; }
+.mdFileEmpty { margin: 8px 18px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.mdRecentItem .mdRecentPath { display: block; font-size: 11px; color: var(--faint); overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; }
+
+/* ——— Status bar ——— */
+.mdPanel.noStatus .mdPill { display: none; }
+.mdStats { cursor: pointer; border-radius: 6px; padding: 2px 6px; }
+.mdStats:hover { background: var(--surface-3); }
+.mdPop { position: fixed; z-index: 62; width: 300px; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg); animation: pop-in .14s var(--ease); font-size: 13px; }
+.mdPop h4 { margin: 0 0 8px; font: 600 13px var(--font-display); }
+.mdPop table { width: 100%; border-collapse: collapse; }
+.mdPop td { padding: 3px 0; } .mdPop td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.mdPop .mdPopHint { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+
+/* ——— Dialog, palette, quick open ——— */
+.mdModalBack { position: fixed; inset: 0; z-index: 70; background: rgb(0 0 0 / .28); display: flex; align-items: flex-start; justify-content: center; padding-top: 12vh; animation: surface-in .12s var(--ease); }
+.mdModal { width: min(640px, calc(100vw - 32px)); max-height: 76vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg); overflow: hidden; }
+.mdModal.wide { width: min(860px, calc(100vw - 32px)); }
+.mdModal > header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.mdModal > header h3 { margin: 0; font: 600 14.5px var(--font-display); flex: 1; }
+.mdModal > header button { width: 28px; height: 28px; padding: 0; --icon-size: 15px; }
+.mdModal .mdModalBody { padding: 14px 16px; overflow: auto; flex: 1; min-height: 0; }
+.mdModal footer { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--line); }
+.mdModal footer button.primary { background: var(--accent); color: var(--on-accent, #fff); border-color: transparent; }
+.mdPaletteInput { width: 100%; border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; padding: 14px 16px !important; font-size: 15px; background: transparent !important; box-shadow: none !important; }
+.mdPaletteList { overflow: auto; padding: 6px; }
+.mdPaletteItem { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 7px 10px; border-radius: 8px; font-size: 13.5px; color: var(--ink-2); }
+.mdPaletteItem[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
+.mdPaletteItem .mdPaletteGroup { font-size: 11px; color: var(--faint); min-width: 40px; }
+.mdPaletteItem .shortcut { margin-left: auto; color: var(--faint); font-size: 11.5px; font-family: var(--md-mono); }
+.mdPaletteItem small { display: block; color: var(--faint); font-size: 11px; }
+.mdPaletteEmpty { padding: 18px; color: var(--muted); text-align: center; font-size: 13px; }
+.mdForm { display: grid; grid-template-columns: 180px 1fr; gap: 9px 14px; align-items: center; font-size: 13px; }
+.mdForm h5 { grid-column: 1 / -1; margin: 12px 0 0; font: 600 12px var(--font-display); color: var(--muted); letter-spacing: .06em; text-transform: none; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.mdForm label { color: var(--ink-2); }
+.mdForm input[type="text"], .mdForm input[type="number"], .mdForm select { width: 100%; min-height: 30px; }
+.mdForm .mdCheckRow { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.mdPrefTabs { display: flex; gap: 2px; padding: 8px 12px 0; border-bottom: 1px solid var(--line); }
+.mdPrefTabs button { height: 30px; padding: 0 12px; border-radius: 8px 8px 0 0; border: 0; background: transparent; color: var(--muted); font-size: 13px; }
+.mdPrefTabs button[aria-selected="true"] { color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); font-weight: 600; }
+.mdKeyRow { display: grid; grid-template-columns: 1fr 190px 30px; gap: 8px; align-items: center; padding: 3px 0; font-size: 12.5px; }
+.mdKeyRow input { min-height: 28px; font-family: var(--md-mono); font-size: 12px; }
+.mdKeyRow .isConflict { border-color: var(--danger) !important; }
+.mdKeyFilter { margin-bottom: 8px; width: 100%; }
+.mdVersionRow { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); margin-bottom: 6px; font-size: 13px; }
+.mdVersionRow .spacer { flex: 1; }
+.mdVersionRow small { color: var(--faint); }
+.mdEmojiGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 2px; max-height: 300px; overflow: auto; margin-top: 8px; }
+.mdEmojiGrid button { height: 38px; font-size: 22px; border-radius: 8px; padding: 0; font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; }
+.mdEmojiGrid button:hover { background: var(--surface-3); }
+
+/* Emoji completion popup */
+.mdEmojiPopup { position: fixed; z-index: 65; min-width: 200px; padding: 4px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg); }
+.mdEmojiItem { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; padding: 4px 8px; border-radius: 6px; font-size: 13px; }
+.mdEmojiItem span { font-size: 18px; font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; }
+.mdEmojiItem code { font: 12px var(--md-mono); color: var(--muted); }
+.mdEmojiItem[aria-selected="true"] { background: var(--accent-soft); }
+
+/* Table quick bar */
+.mdTableBar { position: fixed; z-index: 30; display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); font-size: 12px; }
+.mdTableBar[hidden] { display: none; }
+.mdTableBar button { height: 26px; min-width: 26px; padding: 0 7px; border-radius: 6px; font-size: 12px; color: var(--ink-2); border: 0; background: transparent; }
+.mdTableBar button:hover { background: var(--surface-3); }
+.mdTableBar button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.mdTableBar input { width: 44px; min-height: 26px !important; height: 26px; padding: 0 4px; text-align: center; font-size: 12px; }
+.mdTableBar .sep { width: 1px; height: 16px; background: var(--line-strong); margin: 0 3px; }
+.mdTableBar label { color: var(--muted); padding-left: 4px; }
+
+/* Image context/toolbar */
+.mdImageBar { position: fixed; z-index: 30; display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); }
+.mdImageBar[hidden] { display: none; }
+.mdImageBar button { height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12px; border: 0; background: transparent; color: var(--ink-2); }
+.mdImageBar button:hover { background: var(--surface-3); }
+
+/* Print / export themes should not include app chrome */
+@media print { .mdMenubar, .mdOutline, .mdPill, .mdFindBar, .mdTableBar, .mdImageBar { display: none !important; } }

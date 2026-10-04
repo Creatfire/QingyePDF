@@ -1,0 +1,108 @@
+1415	AI annotation · page {page}	AI 批註 · 第 {page} 頁	AI 注釈 · {page} ページ	AI 주석 · {page}쪽
+1416	The DOI is not valid.	DOI 格式無效。	DOI の形式が無効です。	DOI 형식이 잘못되었습니다.
+1417	doi.org has no record of this DOI.	doi.org 沒有這個 DOI 的記錄。	doi.org にこの DOI の記録はありません。	doi.org에 이 DOI의 기록이 없습니다.
+1418	Last paired	上次搭配	前回の組み合わせ	지난번 조합
+1419	The document it was last paired with	上次搭配的文件	前回組み合わせた文書	지난번에 함께 본 문서
+1420	The paired document is no longer in the recent list; open it manually.	上次搭配的文件不在最近清單中，請手動開啟它。	前回組み合わせた文書は最近使った一覧にありません。手動で開いてください。	지난번에 함께 본 문서가 최근 목록에 없습니다. 직접 여세요.
+1421	Swap the two panes	交換左右窗格	左右のペインを入れ替え	두 창 맞바꾸기
+1422	Conference paper	會議論文	会議論文	학회 논문
+1423	Authors (separate with semicolons)	作者（多位作者用分號隔開）	著者（複数の場合はセミコロンで区切る）	저자(여러 명은 세미콜론으로 구분)
+1424	Allow AI to annotate the PDF?	允許 AI 批註 PDF？	AI による PDF への注釈を許可しますか？	AI가 PDF에 주석을 달도록 허용할까요?
+1425	Open a PDF or Markdown document first, then enter notes mode.	先開啟一個 PDF 或 Markdown 文件，再進入筆記模式。	先に PDF または Markdown 文書を開いてから、ノートモードに入ってください。	먼저 PDF 또는 Markdown 문서를 연 다음 노트 모드로 들어가세요.
+1426	Library search	全庫搜尋	ライブラリ検索	라이브러리 검색
+1427	Library search terms	全庫搜尋關鍵字	ライブラリ検索キーワード	라이브러리 검색어
+1428	The library search index was rebuilt	全庫搜尋的索引已重建	ライブラリ検索の索引を再構築しました	라이브러리 검색 색인을 다시 만들었습니다
+1429	Library search: every PDF and note you have opened · Ctrl+Shift+F	全庫搜尋：所有開啟過的 PDF 和筆記 · Ctrl+Shift+F	ライブラリ検索：開いたことのあるすべての PDF とノート · Ctrl+Shift+F	라이브러리 검색: 열어 본 모든 PDF와 노트 · Ctrl+Shift+F
+1430	off	關	オフ	끔
+1431	Turn scroll sync off	關閉捲動聯動	スクロール連動をオフ	스크롤 연동 끄기
+1432	Other	其他	その他	기타
+1433	Publisher / school	出版者 / 學校	出版社 / 学校	출판사 / 학교
+1434	Delete the index and read every document again	刪除索引並重新讀取全部文件	索引を削除してすべての文書を読み込み直す	색인을 삭제하고 모든 문서를 다시 읽기
+1435	Region pictures are stored in a folder beside the note. Save the note first.	區域摘錄的圖片儲存在筆記旁的資料夾裡，請先儲存這份筆記。	範囲抜粋の画像はノートと同じ場所のフォルダーに保存されます。先にノートを保存してください。	영역 발췌 이미지는 노트 옆 폴더에 저장됩니다. 먼저 노트를 저장하세요.
+1436	Volume	卷	巻	권
+1437	Only the DOI is sent to doi.org; nothing else leaves this computer	只把 DOI 傳送到 doi.org 查詢，其餘內容不離開本機	DOI だけを doi.org に送信します。それ以外はこのコンピューターから出ません	DOI만 doi.org로 전송되며 그 외 내용은 이 컴퓨터를 벗어나지 않습니다
+1438	Only PDF documents can be annotated; use insert_markdown for Markdown.	只能批註 PDF 文件；Markdown 請使用 insert_markdown。	注釈できるのは PDF 文書のみです。Markdown には insert_markdown を使ってください。	PDF 문서에만 주석을 달 수 있습니다. Markdown은 insert_markdown을 사용하세요.
+1439	Open on the right	右側開啟	右側に開く	오른쪽에 열기
+1440	The same document cannot be on both sides.	同一個文件不能同時放在左右兩側。	同じ文書を左右両方に置くことはできません。	같은 문서를 양쪽에 둘 수 없습니다.
+1441	Sync PDF annotations into the note	同步 PDF 批註到筆記	PDF の注釈をノートへ同期	PDF 주석을 노트로 동기화
+1442	Book	圖書	書籍	도서
+1443	Drag on the PDF page to select the region to excerpt · Esc cancels	在 PDF 頁面上拖曳滑鼠框選要摘錄的區域 · Esc 取消	PDF のページ上をドラッグして抜粋する範囲を選択 · Esc でキャンセル	PDF 페이지에서 드래그하여 발췌할 영역 선택 · Esc 취소
+1444	Open on the right (notes mode)	在右側開啟（筆記模式）	右側に開く（ノートモード）	오른쪽에 열기(노트 모드)
+1445	New note on the right	在右側新增一份筆記	右側に新しいノートを作成	오른쪽에 새 노트 만들기
+1446	Open on the left (notes mode)	在左側開啟（筆記模式）	左側に開く（ノートモード）	왼쪽에 열기(노트 모드)
+1447	Copy BibTeX	複製 BibTeX	BibTeX をコピー	BibTeX 복사
+1448	Copy reference	複製引用	参考文献をコピー	참고문헌 복사
+1449	Thesis	學位論文	学位論文	학위 논문
+1450	Export library…	匯出文獻庫…	文献ライブラリを書き出す…	문헌 라이브러리 내보내기…
+1451	Saved reference details; you can keep editing them.	已儲存的引用資訊，可以繼續修改。	保存済みの文献情報です。引き続き編集できます。	저장된 인용 정보입니다. 계속 수정할 수 있습니다.
+1452	Region excerpt cancelled	已取消區域摘錄	範囲抜粋をキャンセルしました	영역 발췌를 취소했습니다
+1453	BibTeX copied	已複製 BibTeX	BibTeX をコピーしました	BibTeX를 복사했습니다
+1454	Reference copied	已複製引用	参考文献をコピーしました	참고문헌을 복사했습니다
+1455	On	已開啟	オン	켜짐
+1456	Detected from the PDF on this computer. Please check before use.	已根據 PDF 內容辨識，請核對後使用。辨識在本機完成。	PDF の内容からこのコンピューター上で検出しました。確認してから使用してください。	이 컴퓨터에서 PDF 내용으로 인식했습니다. 확인 후 사용하세요.
+1457	Reference details detected again from the PDF	已根據 PDF 內容重新辨識引用資訊	PDF の内容から文献情報を再検出しました	PDF 내용에서 인용 정보를 다시 인식했습니다
+1458	Completed from the doi.org record. Please check it.	已用 doi.org 的記錄補全，請核對。	doi.org の記録で補完しました。確認してください。	doi.org 기록으로 보완했습니다. 확인하세요.
+1459	Year	年份	年	연도
+1460	on	開	オン	켬
+1461	Turn scroll sync on	開啟捲動聯動	スクロール連動をオン	스크롤 연동 켜기
+1462	Open source · local reading · no membership⏎Tabs, search, outline, highlights, text, ink and signatures.⏎Reading engine: Mozilla PDF.js 6.3.289.⏎This version is open source under AGPL-3.0.	開源 · 本機閱讀 · 無會員⏎多分頁、搜尋、目錄、螢光標示、文字、筆跡與簽名。⏎閱讀引擎：Mozilla PDF.js 6.3.289。⏎本版本按 AGPL-3.0 開源。	オープンソース · ローカルで閲覧 · 会員登録なし⏎タブ、検索、目次、ハイライト、テキスト、インク、署名。⏎閲覧エンジン：Mozilla PDF.js 6.3.289。⏎このバージョンは AGPL-3.0 のオープンソースです。	오픈 소스 · 로컬 읽기 · 멤버십 없음⏎탭, 검색, 목차, 강조, 텍스트, 잉크, 서명.⏎읽기 엔진: Mozilla PDF.js 6.3.289.⏎이 버전은 AGPL-3.0 오픈 소스입니다.
+1463	Reference details	引用資訊	文献情報	인용 정보
+1464	Reference details / BibTeX…	引用資訊 / BibTeX…	文献情報 / BibTeX…	인용 정보 / BibTeX…
+1465	Reference style: APA	引用格式：APA	参考文献スタイル：APA	참고문헌 형식: APA
+1466	Reference style: GB/T 7714	引用格式：GB/T 7714	参考文献スタイル：GB/T 7714	참고문헌 형식: GB/T 7714
+1467	Citation key	引用鍵	引用キー	인용 키
+1468	Open another file…	開啟其他檔案…	他のファイルを開く…	다른 파일 열기…
+1469	Annotate PDF	批註 PDF	PDF に注釈	PDF 주석
+1470	Annotate {where} page {page}	批註{where}第 {page} 頁	{where}{page} ページに注釈	{where} {page}쪽에 주석
+1471	Sync PDF annotations into the note	把 PDF 批註同步到筆記	PDF の注釈をノートへ同期	PDF 주석을 노트로 동기화
+1472	Report	報告	レポート	보고서
+1473	Press Enter to search inside all documents	按 Enter 在所有文件的內容裡搜尋	Enter キーですべての文書の内容を検索	Enter 키로 모든 문서의 내용 검색
+1474	Insert into note	插入到筆記	ノートに挿入	노트에 삽입
+1475	Search all opened PDFs and notes; separate words with spaces, quote phrases	搜尋所有開啟過的 PDF 和筆記；多個詞用空格隔開，片語加引號	開いたことのあるすべての PDF とノートを検索。複数語は空白で区切り、語句は引用符で囲みます	열어 본 모든 PDF와 노트 검색. 여러 단어는 공백으로, 구문은 따옴표로
+1476	Excerpt to the note	摘錄到筆記	ノートに抜粋	노트에 발췌
+1477	Excerpt the selected text	摘錄選取的文字	選択したテキストを抜粋	선택한 텍스트 발췌
+1478	The document has not finished loading; try again in a moment.	文件尚未載入完成，請稍後再試。	文書の読み込みが完了していません。しばらくしてからお試しください。	문서를 아직 불러오는 중입니다. 잠시 후 다시 시도하세요.
+1479	The document could not be opened.	文件未能開啟。	文書を開けませんでした。	문서를 열 수 없습니다.
+1480	The reference library is still empty.	文獻庫還是空的。	文献ライブラリはまだ空です。	문헌 라이브러리가 비어 있습니다.
+1481	New note	新增一份筆記	新しいノート	새 노트
+1482	Cannot create the note.	無法新增筆記。	ノートを作成できません。	노트를 만들 수 없습니다.
+1483	The region picture could not be created.	無法產生區域圖片。	範囲の画像を作成できませんでした。	영역 이미지를 만들 수 없습니다.
+1484	Could not reach doi.org. Check the network and try again.	無法連線 doi.org，請檢查網路後重試。	doi.org に接続できません。ネットワークを確認して再試行してください。	doi.org에 연결할 수 없습니다. 네트워크를 확인하고 다시 시도하세요.
+1485	Issue	期	号	호
+1486	Journal / conference / source	期刊 / 會議 / 出處	雑誌 / 会議 / 出典	학술지 / 학회 / 출처
+1487	Journal article	期刊論文	雑誌論文	학술지 논문
+1488	Excerpt a region into the note	框選區域摘錄到筆記	範囲を選択してノートへ抜粋	영역을 선택해 노트로 발췌
+1489	Excerpt a region into the note · Ctrl+Shift+U	框選區域摘錄到筆記 · Ctrl+Shift+U	範囲を選択してノートへ抜粋 · Ctrl+Shift+U	영역을 선택해 노트로 발췌 · Ctrl+Shift+U
+1490	Select a region (formulas, figures, tables)	框選區域（公式、圖表、表格）	範囲を選択（数式・図・表）	영역 선택(수식, 그림, 표)
+1491	The selected region is too small. Drag again.	框選的區域太小，請重新拖曳。	選択範囲が小さすぎます。もう一度ドラッグしてください。	선택한 영역이 너무 작습니다. 다시 드래그하세요.
+1492	Asking doi.org…	正在向 doi.org 查詢…	doi.org に問い合わせています…	doi.org에 조회 중…
+1493	Reading PDF annotations…	正在讀取 PDF 批註…	PDF の注釈を読み込んでいます…	PDF 주석을 읽는 중…
+1494	Nothing found	沒有找到相符內容	一致する内容は見つかりませんでした	일치하는 내용이 없습니다
+1495	Scroll sync off	捲動聯動已關閉	スクロール連動オフ	스크롤 연동 꺼짐
+1496	Scroll sync on: the note follows the page being read	捲動聯動已開啟：翻頁時筆記跟到對應摘錄	スクロール連動オン：ページをめくるとノートが対応する抜粋へ移動します	스크롤 연동 켜짐: 페이지를 넘기면 노트가 해당 발췌로 이동합니다
+1497	Scroll sync: the note follows to the excerpts of the page shown	捲動聯動：翻頁時筆記跟到對應摘錄	スクロール連動：ページをめくるとノートが対応する抜粋へ移動	스크롤 연동: 페이지를 넘기면 노트가 해당 발췌로 이동
+1498	Click to switch between GB/T 7714 and APA	點擊在 GB/T 7714 與 APA 之間切換	クリックで GB/T 7714 と APA を切り替え	클릭하여 GB/T 7714와 APA 전환
+1499	The user declined this annotation.	使用者拒絕了這次批註。	ユーザーがこの注釈を拒否しました。	사용자가 이 주석을 거부했습니다.
+1500	Notes mode	筆記模式	ノートモード	노트 모드
+1501	Notes mode: AI can also read the document on the other side	筆記模式：AI 可以同時讀取另一側的文件	ノートモード：AI は反対側の文書も読めます	노트 모드: AI가 반대쪽 문서도 읽을 수 있습니다
+1502	Notes mode: two documents side by side · Ctrl+\	筆記模式：左右雙開 · Ctrl+\	ノートモード：左右に並べて表示 · Ctrl+\	노트 모드: 두 문서 나란히 보기 · Ctrl+\
+1503	Notes mode: click either side to work in it; Ctrl+\ leaves	筆記模式：點擊任一側即可在其中操作；Ctrl+\ 退出	ノートモード：どちらかをクリックして操作します。Ctrl+\ で終了	노트 모드: 한쪽을 클릭하면 그쪽에서 작업합니다. Ctrl+\ 로 종료
+1504	Page {page} · {label}	第 {page} 頁 · {label}	{page} ページ · {label}	{page}쪽 · {label}
+1505	Type	類型	種類	유형
+1506	The online lookup did not finish; you can still fill in the fields by hand.	連線查詢未完成，仍可手動填寫。	オンライン照会は完了しませんでした。手入力はできます。	온라인 조회가 완료되지 않았습니다. 직접 입력할 수 있습니다.
+1507	Look up online	連線補全	オンラインで補完	온라인으로 보완
+1508	Comment: 	評論：	コメント：	댓글: 
+1509	Select the text to excerpt in the PDF first.	請先在 PDF 中選取要摘錄的文字。	先に PDF で抜粋する文字を選択してください。	먼저 PDF에서 발췌할 텍스트를 선택하세요.
+1510	Enter a DOI first.	請先填寫 DOI。	先に DOI を入力してください。	먼저 DOI를 입력하세요.
+1511	Open a PDF first.	請先開啟一個 PDF。	先に PDF を開いてください。	먼저 PDF를 여세요.
+1512	Enter notes mode with a Markdown note on the other side first.	請先進入筆記模式，並在另一側開啟一份 Markdown 筆記。	先にノートモードに入り、反対側に Markdown ノートを開いてください。	먼저 노트 모드에서 반대쪽에 Markdown 노트를 여세요.
+1513	Resize the two panes	調整左右窗格寬度	左右のペインの幅を調整	두 창의 너비 조절
+1514	Type to search every PDF and note you have opened	輸入關鍵字，在所有開啟過的 PDF 和筆記裡搜尋	キーワードを入力して、開いたことのあるすべての PDF とノートを検索	키워드를 입력해 열어 본 모든 PDF와 노트에서 검색
+1515	This PDF needs a password and was left out of library search.	這個 PDF 有開啟密碼，未加入全庫搜尋。	この PDF にはパスワードがあるため、ライブラリ検索に含まれません。	이 PDF는 암호가 있어 라이브러리 검색에서 제외되었습니다.
+1516	This document is no longer in the recent list.	這個文件已不在最近清單中。	この文書は最近使ったファイルの一覧にありません。	이 문서는 최근 목록에 없습니다.
+1517	This PDF has no annotations yet	這份 PDF 還沒有批註	この PDF にはまだ注釈がありません	이 PDF에는 아직 주석이 없습니다
+1518	Leave notes mode	退出筆記模式	ノートモードを終了	노트 모드 종료
+1519	Rebuild index	重建索引	索引を再構築	색인 다시 만들기
+1520	Detect again	重新辨識	再検出	다시 인식
+1521	Pages	頁碼	ページ	쪽
+1522	Invalid page number.	頁碼無效。	ページ番号が無効です。	페이지 번호가 잘못되었습니다.

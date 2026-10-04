@@ -1,0 +1,4 @@
+node_modules/
+www/
+# Downloaded and checksum-verified by scripts/fetch-wheels.mjs
+vendor-mobile/wheels/*.whl

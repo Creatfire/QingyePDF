@@ -1,0 +1,34 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { createDiagnostics } = require('../diagnostics.cjs');
+
+test('diagnostics clears stale results and records matching success/failure run IDs before exit', () => {
+  const root = path.join(__dirname, '../test-output');
+  fs.mkdirSync(root, { recursive: true });
+  const directory = fs.mkdtempSync(path.join(root, 'diagnostics-'));
+  const resultFile = path.join(directory, 'editing-result.json');
+  fs.writeFileSync(resultFile, '{"old":"passed"}');
+  const first = createDiagnostics({ directory, mode:'edit-smoke', version:'0.5.1' });
+  assert.equal(fs.existsSync(resultFile), false);
+  first.stage('integration');
+  first.failure('render-process-gone', new Error('Renderer killed'), { reason:'killed', exitCode:9 });
+  const failure = JSON.parse(fs.readFileSync(path.join(directory, 'integration-error.json')));
+  assert.equal(failure.runId, first.runId);
+  assert.equal(failure.status, 'failed');
+  assert.equal(failure.exitCode, 1);
+  assert.equal(failure.phase, 'render-process-gone');
+  assert.equal(failure.details.reason, 'killed');
+  assert.match(failure.error.stack, /Renderer killed/);
+  assert.match(fs.readFileSync(path.join(directory, 'integration-error.txt'), 'utf8'), /Renderer killed/);
+  const second = createDiagnostics({ directory, mode:'edit-smoke', version:'0.5.1' });
+  assert.notEqual(second.runId, first.runId);
+  assert.equal(fs.existsSync(path.join(directory, 'integration-error.json')), false);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(directory, `run-${first.runId}.json`))).status, 'failed');
+  second.success();
+  const success = JSON.parse(fs.readFileSync(path.join(directory, 'test-run.json')));
+  assert.equal(success.runId, second.runId);
+  assert.equal(success.status, 'passed');
+  assert.equal(success.exitCode, 0);
+});

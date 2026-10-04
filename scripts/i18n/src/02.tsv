@@ -1,0 +1,150 @@
+290	Diagram syntax error: 	圖表語法有誤：	図の構文エラー：	다이어그램 문법 오류: 
+291	Insert paragraph above	在上方插入段落	上に段落を挿入	위에 단락 삽입
+292	Insert row above	在上方插入列	上に行を挿入	위에 행 삽입
+293	Insert paragraph below	在下方插入段落	下に段落を挿入	아래에 단락 삽입
+294	Insert row below	在下方插入列	下に行を挿入	아래에 행 삽입
+295	Insert column right	在右側插入欄	右に列を挿入	오른쪽에 열 삽입
+296	Highlight the current heading in the outline	在大綱中醒目提示目前標題	アウトラインで現在の見出しを強調	개요에서 현재 제목 강조
+297	Insert column left	在左側插入欄	左に列を挿入	왼쪽에 열 삽입
+298	Writes a text watermark into the selected area on the chosen pages; opacity is adjustable.	在所選頁面的框選區域寫入文字浮水印，可調整透明度。	選択したページの範囲にテキストの透かしを書き込みます。不透明度は調整できます。	선택한 페이지의 영역에 텍스트 워터마크를 씁니다. 불투명도를 조정할 수 있습니다.
+299	Show in file tree	在檔案樹中顯示	ファイルツリーで表示	파일 트리에서 보기
+300	Open the current document in a new window	在新視窗中開啟目前文件	現在の文書を新しいウィンドウで開く	새 창에서 현재 문서 열기
+301	Writes a bordered text stamp into the selected area. This is not a certificate-based digital signature.	在框選區域寫入帶邊框的文字印章，不是憑證數位簽章。	選択範囲に枠付きのテキストスタンプを書き込みます。証明書によるデジタル署名ではありません。	선택 영역에 테두리가 있는 텍스트 스탬프를 씁니다. 인증서 기반 디지털 서명이 아닙니다.
+302	Creates fillable text or checkbox fields in the selected area; field names are distinguished by page number.	在框選區域建立可填寫的文字或核取方塊欄位，欄位名稱按頁碼區分。	選択範囲に入力可能なテキストまたはチェックボックスのフィールドを作成します。フィールド名はページ番号で区別されます。	선택 영역에 입력 가능한 텍스트 또는 확인란 필드를 만듭니다. 필드 이름은 페이지 번호로 구분됩니다.
+303	Draws a shape in the selected area; a line connects its top-left and bottom-right corners.	在框選區域繪製圖形；直線連接區域的左上與右下。	選択範囲に図形を描きます。直線は範囲の左上と右下を結びます。	선택 영역에 도형을 그립니다. 직선은 영역의 왼쪽 위와 오른쪽 아래를 잇습니다.
+304	Show in Explorer	在檔案總管中顯示	エクスプローラーで表示	탐색기에서 보기
+305	Fill shape	填滿圖形	図形を塗りつぶす	도형 채우기
+306	Increase indent	增加縮排	インデントを増やす	들여쓰기 늘리기
+307	Ink gray	墨灰	墨グレー	먹색 회색
+308	Ink	筆跡	インク	잉크
+309	Process	處理	処理	처리
+310	Process and export a copy	處理並匯出副本	処理してコピーを書き出す	처리 후 사본 내보내기
+311	Copy	複製	コピー	복사
+312	Copy as HTML code	複製為 HTML 程式碼	HTML コードとしてコピー	HTML 코드로 복사
+313	Copy as Markdown	複製為 Markdown	Markdown としてコピー	Markdown으로 복사
+314	Copy as plain text	複製為純文字	プレーンテキストとしてコピー	일반 텍스트로 복사
+315	Copy code	複製程式碼內容	コードをコピー	코드 복사
+316	Copy formula as MathML	複製公式 MathML	数式を MathML でコピー	수식 MathML 복사
+317	Copy formula TeX	複製公式 TeX 程式碼	数式の TeX をコピー	수식 TeX 코드 복사
+318	Copy with simplified formatting	複製內容並簡化格式	書式を簡略化してコピー	서식을 단순화하여 복사
+319	Copy to ./assets	複製到 ./assets	./assets にコピー	./assets에 복사
+320	Copy to ./<document name>.assets	複製到 ./文件名稱.assets	./文書名.assets にコピー	./문서이름.assets에 복사
+321	Copy to a custom folder	複製到自訂資料夾	カスタムフォルダーにコピー	사용자 지정 폴더에 복사
+322	Copy image path	複製圖片路徑	画像のパスをコピー	이미지 경로 복사
+323	Copy all local images to the document folder…	複製所有本機圖片到文件資料夾…	すべてのローカル画像を文書フォルダーにコピー…	모든 로컬 이미지를 문서 폴더에 복사…
+324	Copy file path	複製檔案路徑	ファイルのパスをコピー	파일 경로 복사
+325	Copy Markdown source by default	複製時預設使用 Markdown 原始碼	コピー時は既定で Markdown ソースを使用	복사 시 기본으로 Markdown 소스 사용
+326	Copy table	複製表格	表をコピー	표 복사
+327	Copy path	複製路徑	パスをコピー	경로 복사
+328	Checkbox	核取方塊	チェックボックス	확인란
+329	Appearance	外觀	外観	모양
+330	It's late — read slowly	夜深了，慢慢讀	夜更けです。ゆっくり読みましょう	밤이 깊었어요, 천천히 읽어요
+331	Night	夜間	夜間	야간
+332	Size…	大小…	サイズ…	크기…
+333	Outline	大綱	アウトライン	개요
+334	Outline, bookmarks, pages and annotations	大綱、書籤、頁面與批註	アウトライン・しおり・ページ・注釈	개요, 책갈피, 페이지 및 주석
+335	Outline display	大綱顯示方式	アウトラインの表示方法	개요 표시 방식
+336	Outline view: no folding	大綱檢視：不摺疊	アウトライン表示：折りたたみなし	개요 보기: 접기 없음
+337	Outline options	大綱選項	アウトラインのオプション	개요 옵션
+338	Outline: expand all	大綱：全部展開	アウトライン：すべて展開	개요: 모두 펼치기
+339	Outline: collapse all	大綱：全部摺疊	アウトライン：すべて折りたたむ	개요: 모두 접기
+340	-	-	-	-
+341	Sky	天空	スカイ	하늘
+342	Fonts and typography	字型與排版	フォントと組版	글꼴 및 조판
+343	Font and typography settings…	字型與排版設定…	フォントと組版の設定…	글꼴 및 조판 설정…
+344	Font size	字級	文字サイズ	글꼴 크기
+345	Font size pt	字級 pt	文字サイズ pt	글꼴 크기 pt
+346	Font size must be between 6 and 100; please change it and try again.	字級應在 6–100 之間，請修改後重試。	文字サイズは 6～100 にしてください。修正してから再試行してください。	글꼴 크기는 6–100 사이여야 합니다. 수정 후 다시 시도하세요.
+347	Font size (px)	字級（px）	文字サイズ（px）	글꼴 크기(px)
+348	Words	字數	文字数	단어 수
+349	Word count	字數統計	文字数カウント	단어 수 세기
+350	Word count window	字數統計視窗	文字数ウィンドウ	단어 수 창
+351	Word count (including selection)	字數統計（含選取內容）	文字数（選択範囲を含む）	단어 수(선택 내용 포함)
+352	Fields	欄位	フィールド	필드
+353	Field type	欄位類型	フィールドの種類	필드 유형
+354	Characters (no spaces)	字元數（不含空白）	文字数（空白を除く）	문자 수(공백 제외)
+355	Characters (with spaces)	字元數（含空白）	文字数（空白を含む）	문자 수(공백 포함)
+356	Security	安全	セキュリティ	보안
+357	Fully local conversion. DOCX exports editable text and images; XLSX detects tables; PPTX uses page images. Complex layouts and formulas are not guaranteed to be faithful.	完全本機轉換。DOCX 匯出可編輯文字與圖片；XLSX 辨識表格；PPTX 為頁面影像。複雜版面和公式不保證保真。	完全にローカルで変換します。DOCX は編集可能なテキストと画像、XLSX は表を認識、PPTX はページ画像になります。複雑なレイアウトや数式の再現性は保証されません。	완전히 로컬에서 변환합니다. DOCX는 편집 가능한 텍스트와 이미지, XLSX는 표 인식, PPTX는 페이지 이미지로 내보냅니다. 복잡한 레이아웃과 수식은 원본과 같지 않을 수 있습니다.
+358	Done	完成	完了	완료
+359	Actual PDF preview · not applied yet; updates after you move the box or change the text	實際 PDF 預覽 · 尚未套用；拖曳框或修改文字後自動更新	実際の PDF プレビュー · 未適用。枠を動かすかテキストを変えると自動更新されます	실제 PDF 미리보기 · 아직 적용 안 됨. 상자를 옮기거나 텍스트를 바꾸면 자동으로 갱신됩니다
+360	Actual size	實際大小	実際のサイズ	실제 크기
+361	Width	寬度	幅	너비
+362	Width, e.g. 320 or 50%	寬度，例如 320 或 50%	幅（例：320 または 50%）	너비(예: 320 또는 50%)
+363	Wide (30 mm)	寬（30 mm）	広い（30 mm）	넓게(30 mm)
+364	Password and permissions	密碼加密與權限	パスワードと権限	암호 및 권한
+365	Re-run OCR on pages that already have text	對已有文字的頁面也重新 OCR	テキストのあるページも再度 OCR	텍스트가 있는 페이지도 다시 OCR
+366	Run OCR on this document	對本文件執行 OCR	この文書で OCR を実行	이 문서에 OCR 실행
+367	Adds standard PDF annotations to the selected area that other readers can recognize.	對框選區域新增可被其他閱讀器辨識的標準 PDF 批註。	他の閲覧ソフトでも認識できる標準の PDF 注釈を選択範囲に追加します。	다른 뷰어에서도 인식되는 표준 PDF 주석을 선택 영역에 추가합니다.
+368	Contrast	對比	コントラスト	대비
+369	Page offset between documents	對比文件頁差	文書間のページ差	문서 간 페이지 차이
+370	Import	匯入	読み込み	가져오기
+371	Import… (requires Pandoc)	匯入…（需要 Pandoc）	読み込み…（Pandoc が必要）	가져오기…(Pandoc 필요)
+372	Import theme (.css)…	匯入主題（.css）…	テーマを読み込み（.css）…	테마 가져오기(.css)…
+373	Import theme (CSS)	匯入主題（CSS）	テーマを読み込み（CSS）	테마 가져오기(CSS)
+374	Import into outline draft	匯入到目錄草稿	目次の下書きに読み込む	목차 초안으로 가져오기
+375	Export	匯出	書き出し	내보내기
+376	Export Markdown	匯出 Markdown	Markdown を書き出す	Markdown 내보내기
+377	Export Word	匯出 Word	Word を書き出す	Word 내보내기
+378	Export as	匯出為	書き出し形式	내보내기 형식
+379	Export as AsciiDoc… (Pandoc)	匯出為 AsciiDoc…（Pandoc）	AsciiDoc として書き出し…（Pandoc）	AsciiDoc으로 내보내기…(Pandoc)
+380	Export as HTML…	匯出為 HTML…	HTML として書き出し…	HTML로 내보내기…
+381	Export as HTML (unstyled)…	匯出為 HTML（無樣式）…	HTML（スタイルなし）として書き出し…	HTML(스타일 없음)로 내보내기…
+382	Export as LaTeX…	匯出為 LaTeX…	LaTeX として書き出し…	LaTeX로 내보내기…
+383	Export as MediaWiki… (Pandoc)	匯出為 MediaWiki…（Pandoc）	MediaWiki として書き出し…（Pandoc）	MediaWiki로 내보내기…(Pandoc)
+384	Export as OPML… (Pandoc)	匯出為 OPML…（Pandoc）	OPML として書き出し…（Pandoc）	OPML로 내보내기…(Pandoc)
+385	Export as OpenOffice (.odt)… (Pandoc)	匯出為 OpenOffice (.odt)…（Pandoc）	OpenOffice (.odt) として書き出し…（Pandoc）	OpenOffice(.odt)로 내보내기…(Pandoc)
+386	Export as Org-mode… (Pandoc)	匯出為 Org-mode…（Pandoc）	Org-mode として書き出し…（Pandoc）	Org-mode로 내보내기…(Pandoc)
+387	Export as PDF…	匯出為 PDF…	PDF として書き出し…	PDF로 내보내기…
+388	Export as PowerPoint (.pptx)… (Pandoc)	匯出為 PowerPoint (.pptx)…（Pandoc）	PowerPoint (.pptx) として書き出し…（Pandoc）	PowerPoint(.pptx)로 내보내기…(Pandoc)
+389	Export as RTF…	匯出為 RTF…	RTF として書き出し…	RTF로 내보내기…
+390	Export as Textile… (Pandoc)	匯出為 Textile…（Pandoc）	Textile として書き出し…（Pandoc）	Textile로 내보내기…(Pandoc)
+391	Export as Word (.docx)…	匯出為 Word (.docx)…	Word (.docx) として書き出し…	Word(.docx)로 내보내기…
+392	Export as ePub…	匯出為 ePub…	ePub として書き出し…	ePub으로 내보내기…
+393	Export as reStructuredText… (Pandoc)	匯出為 reStructuredText…（Pandoc）	reStructuredText として書き出し…（Pandoc）	reStructuredText로 내보내기…(Pandoc)
+394	Export as image (.png)…	匯出為 圖片 (.png)…	画像 (.png) として書き出し…	이미지(.png)로 내보내기…
+395	Export as plain text (.txt)…	匯出為 純文字 (.txt)…	テキスト (.txt) として書き出し…	일반 텍스트(.txt)로 내보내기…
+396	Export processing result	匯出處理結果	処理結果を書き出す	처리 결과 내보내기
+397	Export annotation excerpts	匯出批註摘錄	注釈の抜粋を書き出す	주석 발췌 내보내기
+398	Export order	匯出排序	並び順で書き出す	정렬 순서로 내보내기
+399	Export text difference report	匯出文字差異報告	テキスト差分レポートを書き出す	텍스트 차이 보고서 내보내기
+400	Export format	匯出格式	書き出し形式	내보내기 형식
+401	Export settings…	匯出設定…	書き出し設定…	내보내기 설정…
+402	Exports a page-by-page text or image difference report (HTML). The page offset aligns different cover pages; image comparison aligns at the top-left, so font antialiasing and layout shifts also show up as differences.	匯出逐頁文字或影像差異 HTML。頁差用於對齊不同封面頁；影像比較按左上角對齊，字型反鋸齒與排版移動也會產生差異。	ページごとのテキストまたは画像の差分 HTML を書き出します。ページ差は表紙の違いを揃えるためのものです。画像比較は左上揃えのため、フォントのアンチエイリアスやレイアウトのずれも差分になります。	페이지별 텍스트 또는 이미지 차이 HTML을 내보냅니다. 페이지 차이는 서로 다른 표지를 맞추는 데 씁니다. 이미지 비교는 왼쪽 위 기준이므로 글꼴 안티앨리어싱과 레이아웃 이동도 차이로 나타납니다.
+403	Navigation and tools	導覽與工具	ナビゲーションとツール	탐색 및 도구
+404	Show cover separately	封面單獨顯示	表紙を単独で表示	표지 따로 표시
+405	Scales the chosen pages of another open PDF into the selected area as a vector page stamp.	將另一個已開啟 PDF 的指定頁面縮放到框選區域，作為向量頁面印章。	開いている別の PDF の指定ページを選択範囲に縮小し、ベクターのページスタンプにします。	열려 있는 다른 PDF의 지정 페이지를 선택 영역에 맞춰 벡터 페이지 스탬프로 넣습니다.
+406	Move image file to Recycle Bin…	將圖片檔案移到資源回收筒…	画像ファイルをごみ箱へ移動…	이미지 파일을 휴지통으로 이동…
+407	Bookmark the current page	將目前頁面加入書籤	現在のページをしおりに追加	현재 페이지를 책갈피에 추가
+408	Writes annotations, visible signatures and form appearances into the page; they are no longer editable annotations or fields.	將批註、可視簽名和表單外觀寫入頁面，不再作為可編輯批註或欄位。	注釈・表示署名・フォームの外観をページに書き込みます。以後は編集可能な注釈やフィールドではなくなります。	주석, 보이는 서명, 양식 모양을 페이지에 기록합니다. 이후에는 편집 가능한 주석이나 필드가 아닙니다.
+409	Writes a local image into the selected area as a stamp, keeping its proportions and centered by default. This is not a certificate-based digital signature.	將本機圖片作為印章寫入框選區域，預設保持圖片比例、在框內置中，不是憑證數位簽章。	ローカル画像をスタンプとして選択範囲に書き込みます。既定で比率を保ち中央に配置します。証明書によるデジタル署名ではありません。	로컬 이미지를 스탬프로 선택 영역에 씁니다. 기본적으로 비율을 유지하고 가운데 배치합니다. 인증서 기반 디지털 서명이 아닙니다.
+410	Bookmark this page	將本頁加入書籤	このページをしおりに追加	이 페이지를 책갈피에 추가
+411	Sets the selected area as the page's CropBox. Content outside stays in the file; use permanent redaction to remove sensitive content.	將框選區域設為 PDF 頁面的 CropBox。區域外內容仍在檔案中；刪除敏感內容請用永久塗黑。	選択範囲を PDF ページの CropBox に設定します。範囲外の内容はファイルに残ります。機密情報の削除には永久墨消しを使ってください。	선택 영역을 PDF 페이지의 CropBox로 설정합니다. 영역 밖의 내용은 파일에 남으며, 민감한 내용을 지우려면 영구 가리기를 사용하세요.
+412	Maps the page's light and dark to the chosen background and text colors; page images and annotations are recolored too.	將頁面的明暗映射到所選背景與文字顏色；頁面影像與批註也會參與配色。	ページの明暗を選んだ背景色と文字色に対応させます。ページ画像と注釈も配色されます。	페이지의 밝기를 선택한 배경색과 글자색에 대응시킵니다. 페이지 이미지와 주석도 함께 색이 바뀝니다.
+413	Caution	小心 (Caution)	注意喚起 (Caution)	주의 (Caution)
+414	Center	置中	中央	가운데
+415	Align center	置中對齊	中央揃え	가운데 정렬
+416	Tool categories	工具分類	ツールの分類	도구 분류
+417	Toolbar (menu bar)	工具列（功能表列）	ツールバー（メニューバー）	도구 모음(메뉴 표시줄)
+418	Toolbox	工具箱	ツールボックス	도구 상자
+419	Left	左	左	왼쪽
+420	Left %	左 %	左 %	왼쪽 %
+421	Align left	靠左對齊	左揃え	왼쪽 정렬
+422	Move column left	左移該欄	列を左へ移動	열 왼쪽으로 이동
+423	Left margin %	左邊距 %	左余白 %	왼쪽 여백 %
+424	-	-	-	-
+425	Saved	已儲存	保存済み	저장됨
+426	-	-	-	-
+427	Saved to the local stamp library	已儲存到本機印章庫	ローカルのスタンプライブラリに保存しました	로컬 스탬프 라이브러리에 저장했습니다
+428	Files that have been saved before are saved automatically at an interval.	已儲存過的檔案按間隔自動儲存。	一度保存したファイルは一定間隔で自動保存します。	한 번 저장한 파일은 일정 간격으로 자동 저장합니다.
+429	Kept your current content; saving will ask again before overwriting.	已保留目前內容；儲存時會再次確認是否覆寫。	現在の内容を残しました。保存時に上書きするか再確認します。	현재 내용을 유지했습니다. 저장할 때 덮어쓸지 다시 확인합니다.
+430	Copy created	已建立副本	複製を作成しました	사본을 만들었습니다
+431	Save canceled	已取消儲存	保存をキャンセルしました	저장을 취소했습니다
+432	Export canceled	已取消匯出	書き出しをキャンセルしました	내보내기를 취소했습니다
+433	Text recognition canceled.	已取消文字辨識。	文字認識をキャンセルしました。	텍스트 인식을 취소했습니다.
+434	Unregistered	已取消註冊	登録を解除しました	등록을 해제했습니다
+435	No longer on top	已取消置頂	最前面表示を解除しました	항상 위 해제
+436	The linked file was shown in Explorer	已在檔案總管中顯示連結的檔案	リンク先のファイルをエクスプローラーで表示しました	링크된 파일을 탐색기에서 표시했습니다
+437	MathML copied	已複製 MathML	MathML をコピーしました	MathML을 복사했습니다
+438	TeX code copied	已複製 TeX 程式碼	TeX コードをコピーしました	TeX 코드를 복사했습니다
+439	Copied as HTML code	已複製為 HTML 程式碼	HTML コードとしてコピーしました	HTML 코드로 복사했습니다

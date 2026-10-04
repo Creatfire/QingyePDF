@@ -1,0 +1,46 @@
+name: 问题报告 / Bug report
+description: 某个功能没有按预期工作
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: 青页版本
+      description: 设置 → 关于 中显示的版本号
+      placeholder: 0.11.0
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: 操作系统
+      placeholder: Windows 11 23H2 / Android 14
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 重现步骤
+      placeholder: |
+        1. 打开一个 PDF
+        2. ……
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望的结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际的结果
+      description: 有截图或错误提示请一并贴上
+    validations:
+      required: true
+  - type: textarea
+    id: document
+    attributes:
+      label: 文档的特点（可选）
+      description: 文件不便公开时，说明它是扫描件还是文字版、是否加密、页数、由什么软件生成

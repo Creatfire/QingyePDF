@@ -1,0 +1,26 @@
+node_modules/
+dist/
+test-output/
+.downloads/
+.backend-build/
+backend/bin/
+__pycache__/
+third-party-source/
+# 0.9.5: downloaded / generated at build time (see scripts/prepare-pandoc.ps1, prepare-pdfjs.mjs)
+vendor/pandoc/pandoc.exe
+*.log
+.ci-profile/
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+# Local signing material — never commit
+*.pfx
+*.p12
+*.jks
+*.keystore
+# A Linux / macOS Pandoc placed here for local testing
+vendor/pandoc/pandoc
+# Records which macOS Pandoc archive vendor/pandoc/pandoc came from
+vendor/pandoc/.macos-asset

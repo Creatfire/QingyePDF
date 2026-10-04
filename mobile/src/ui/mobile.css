@@ -1,0 +1,203 @@
+/* Qingye PDF for Android: touch and small-screen layer over the shared desktop interface.
+   Loaded after every desktop stylesheet. `html.qyMobile` is set by mobile/bridge.js.
+   Phone rules live under (max-width: 760px); tablets keep the desktop layout with touch sizing. */
+
+html.qyMobile { --caption-space: 6px; --caption-left: 6px; -webkit-text-size-adjust: 100%; }
+html.qyMobile, html.qyMobile body { overscroll-behavior: none; }
+html.qyMobile body { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+html.qyMobile .titlebar, html.qyMobile .appbar, html.qyMobile .status, html.qyMobile .mdMenubar, html.qyMobile .pager, html.qyMobile #navigationPanel > nav { user-select: none; -webkit-user-select: none; }
+html.qyMobile .titlebarDrag, html.qyMobile .dropCue, html.qyMobile .homeHint, html.qyMobile .aiResize { display: none !important; }
+/* No hover on a touch screen: controls that only appear on hover stay visible. */
+html.qyMobile .tab .close { opacity: .75; }
+html.qyMobile .mdCodeBlock .mdCopy { opacity: 1; }
+/* Desktop-only settings: window style, Windows "open with" registration, the loopback AI interface. */
+html.qyMobile :is(.styleHeading, .styleChoices, #setVibrancyRow, .styleRestart, .assocRows, #assocRegister, #assocSystem, #assocRemove, #newWindowButton) { display: none !important; }
+html.qyMobile .settingsPane[data-pane="files"] > h3:first-child + .settingsNote { display: none; }
+html.qyMobile .settingsPane[data-pane="ai"] h3:last-of-type, html.qyMobile .settingsPane[data-pane="ai"] h3:last-of-type ~ * { display: none !important; }
+
+/* ——— "More" menu (title bar tools on a phone) ——— */
+#qmMore { display: none; }
+#qmMoreMenu { position: fixed; z-index: 900; top: calc(var(--titlebar-h) + 4px); right: 8px; min-width: 210px; max-width: calc(100vw - 16px); margin: 0; padding: 6px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow-lg); inset-inline-start: auto; }
+#qmMoreMenu button { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: flex-start; gap: 12px; padding: 0 12px; border-radius: 10px; font-size: 14.5px; text-align: left; color: var(--ink); --icon-size: 18px; }
+#qmMoreMenu button:disabled { color: var(--faint); }
+#qmMoreMenu hr { height: 1px; margin: 4px 8px; border: 0; background: var(--line); }
+
+/* ——— dialogs drawn by the Android bridge (message box, file browser, toast) ——— */
+.qmDialog { width: min(440px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow-lg); }
+.qmDialog::backdrop { background: rgb(12 36 26 / .42); }
+.qmDialog h2 { margin: 0 0 8px; font: 600 17px/1.4 var(--font-display); overflow-wrap: anywhere; }
+.qmDialog .qmDetail { margin: 0 0 4px; color: var(--muted); font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.qmDialog .qmButtons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.qmDialog .qmButtons button { min-height: 42px; padding: 0 16px; border-radius: 11px; font-size: 14.5px; border: 1px solid var(--line); }
+.qmDialog .qmButtons button.primary { border-color: transparent; }
+.qmMessage input[type="text"] { width: 100%; min-height: 44px; margin-top: 6px; font-size: 16px; }
+.qmMessage .qmButtons button { flex: 1 1 auto; }
+.qmFiles { display: none; flex-direction: column; width: min(640px, 100vw); height: min(820px, 100dvh); max-height: 100dvh; padding: 0; overflow: hidden; }
+.qmFiles[open] { display: flex; }
+.qmFiles > header { display: flex; align-items: center; gap: 8px; padding: 14px 10px 8px 18px; }
+.qmFiles > header h2 { flex: 1; margin: 0; }
+.qmFiles .qmClose { width: 40px; height: 40px; padding: 0; border-radius: 10px; color: var(--muted); font-size: 16px; }
+.qmNotice { display: flex; flex-direction: column; gap: 8px; margin: 0 14px 8px; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); color: var(--ink-2); font-size: 13px; line-height: 1.55; }
+.qmNotice[hidden] { display: none; }
+.qmNotice button { align-self: flex-start; min-height: 36px; padding: 0 14px; border-radius: 9px; }
+.qmPlaces { display: flex; gap: 6px; padding: 0 14px 8px; overflow-x: auto; scrollbar-width: none; }
+.qmPlaces::-webkit-scrollbar, .qmCrumbs::-webkit-scrollbar { display: none; }
+.qmPlaces button { flex: none; min-height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--ink-2); }
+.qmPlaces button.isCurrent { background: var(--accent-soft); border-color: transparent; color: var(--accent); font-weight: 600; }
+.qmCrumbs { display: flex; align-items: center; gap: 2px; padding: 0 12px 6px; overflow-x: auto; scrollbar-width: none; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.qmCrumbs button { flex: none; min-height: 30px; padding: 0 6px; border-radius: 7px; color: var(--ink-2); font-size: 13px; }
+.qmCrumbs button:last-child { color: var(--ink); font-weight: 600; }
+.qmList { flex: 1; min-height: 0; overflow-y: auto; padding: 2px 8px; border-top: 1px solid var(--line); overscroll-behavior: contain; }
+.qmEmpty { margin: 40px 16px; text-align: center; color: var(--muted); font-size: 14px; }
+.qmRow { display: flex; width: 100%; min-height: 54px; align-items: center; justify-content: flex-start; gap: 12px; padding: 6px 10px; border-radius: 12px; text-align: left; color: var(--ink); }
+.qmRow.isDim { opacity: .5; }
+.qmRow.isSelected { background: var(--accent-soft); }
+.qmRow .qmIcon { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: var(--surface-3); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+.qmRow .qmIcon[data-icon] { --icon-size: 20px; }
+.qmRow[data-kind="folder"] .qmIcon { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); color: var(--accent); }
+.qmRow[data-kind="pdf"] .qmIcon { background: color-mix(in srgb, #d9482b 14%, var(--surface)); color: #c2401f; }
+.qmRow[data-kind="md"] .qmIcon { background: var(--accent-soft); color: var(--accent); }
+.qmRow .qmText { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.qmRow .qmText strong { font-weight: 500; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qmRow .qmText small { color: var(--muted); font-size: 12px; }
+.qmFooter { padding: 10px 14px 14px; border-top: 1px solid var(--line); background: var(--surface-2); }
+.qmFooter .qmName { width: 100%; min-height: 44px; margin-bottom: 4px; font-size: 16px; }
+.qmFooter .qmButtons { margin-top: 6px; }
+.qmFooter .qmButtons .qmConfirm { margin-left: auto; min-width: 96px; }
+.qmToast { position: fixed; z-index: 100000; left: 50%; bottom: calc(var(--status-h) + 72px); translate: -50% 0; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 92%, transparent); color: var(--surface); font-size: 13.5px; line-height: 1.5; overflow-wrap: anywhere; box-shadow: var(--shadow-lg); pointer-events: none; animation: qm-toast .2s ease-out; }
+@keyframes qm-toast { from { opacity: 0; translate: -50% 8px; } }
+
+/* ——— touch sizing (phones and tablets) ——— */
+html.qyMobile input, html.qyMobile textarea, html.qyMobile select { font-size: max(16px, 1em); } /* no zoom-on-focus */
+html.qyMobile .pager input.pageInput, html.qyMobile .pager select.zoomSelect { font-size: 14px; }
+html.qyMobile dialog { max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+html.qyMobile #pageContextMenu button, html.qyMobile .mdMenu button, html.qyMobile .menuPopover button { min-height: 42px; font-size: 14.5px; }
+
+/* ——— phone layout ——— */
+@media (max-width: 760px) {
+  html.qyMobile { --titlebar-h: 48px; --appbar-h: 52px; --status-h: 24px; --nav-w: 100vw; --ai-w: 100vw !important; }
+
+  /* Title bar: home, tabs, more. */
+  html.qyMobile .titlebar { align-items: center; gap: 4px; }
+  html.qyMobile .titlebar .brand { flex: none; width: 40px; height: 40px; justify-content: center; }
+  html.qyMobile .titlebar .readingTrail, html.qyMobile .titlebar .titlebarTools { display: none; }
+  html.qyMobile #qmMore { display: flex; flex: none; width: 40px; height: 40px; padding: 0; border-radius: 10px; color: var(--ink-2); --icon-size: 20px; -webkit-app-region: no-drag; }
+  html.qyMobile .tabs { flex: 1 1 0; align-items: center; height: 100%; padding-top: 0; gap: 4px; scroll-snap-type: x proximity; }
+  html.qyMobile .tab { flex: 0 0 auto; min-width: 0; max-width: 62vw; height: 36px; border-radius: 10px; font-size: 13.5px; scroll-snap-align: center; }
+  html.qyMobile .tab.active { box-shadow: 0 0 0 1px var(--line); }
+  html.qyMobile .tab:not(.active)::after { display: none; }
+  html.qyMobile .tab:not(.active) .close { display: none; }
+  html.qyMobile .tab .close { width: 30px; height: 30px; }
+  html.qyMobile button.tab { height: 36px; }
+
+  /* PDF toolbar: one scrolling row of full-size touch targets. */
+  html.qyMobile .appbar { flex-wrap: nowrap; gap: 2px; padding: 0 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; }
+  html.qyMobile .appbar::-webkit-scrollbar, html.qyMobile .mdMenubar::-webkit-scrollbar { display: none; }
+  html.qyMobile .appbar .barGroup { flex: none; gap: 2px; }
+  html.qyMobile .appbar .spacer { flex: 0 0 4px; }
+  html.qyMobile .appbar button, html.qyMobile .appbar button:not(.primary):not(#annotateButton):not(#selectTextButton) { flex: none; width: 42px; height: 42px; min-width: 42px; padding: 0; --icon-size: 20px; }
+  html.qyMobile .appbar #annotateButton { width: 56px; }
+  html.qyMobile .appbar #aiButton .label { display: none; }
+  html.qyMobile .appbar .barSep { flex: none; margin: 0 3px; }
+
+  /* Side panels cover the document instead of squeezing it. */
+  html.qyMobile body.navigationOpen #viewers, html.qyMobile body.aiOpen:not([data-mode="home"]) #viewers { left: 0; right: 0; }
+  html.qyMobile #navigationPanel { width: 100%; border-right: 0; z-index: 14; }
+  html.qyMobile #navigationPanel > header button, html.qyMobile #aiPanel .aiHead button { width: 40px; height: 40px; }
+  html.qyMobile #navigationPanel nav button { padding: 8px 2px; font-size: 12.5px; }
+  html.qyMobile #aiPanel { width: 100% !important; border-left: 0; z-index: 15; }
+  html.qyMobile .pager { left: 50%; translate: -50% 0; bottom: 12px; max-width: calc(100vw - 16px); }
+  html.qyMobile .pager button { width: 36px; height: 38px; }
+  html.qyMobile .pager .pagerPage { white-space: nowrap; flex: none; }
+  html.qyMobile .pager .pagerSep { margin: 0 2px; }
+  html.qyMobile .pager select.zoomSelect { width: 86px; min-height: 34px; height: 34px; }
+  html.qyMobile .pager input.pageInput { min-height: 34px; height: 34px; }
+  html.qyMobile .status { padding: 0 10px; font-size: 11px; }
+  html.qyMobile #statusDetail { display: none; }
+
+  /* Popovers and dialogs use the whole width. */
+  html.qyMobile #viewPanel { left: 8px; right: 8px; width: auto; top: calc(var(--titlebar-h) + var(--appbar-h) + 4px); max-height: calc(100dvh - var(--titlebar-h) - var(--appbar-h) - 16px); }
+  html.qyMobile #directEditor { left: 8px; right: 8px; width: auto; top: auto; bottom: calc(var(--status-h) + 8px); max-height: 46dvh; overflow: auto; }
+  html.qyMobile #toolsDialog, html.qyMobile #converterDialog, html.qyMobile #settingsDialog, html.qyMobile #historyDialog, html.qyMobile #aiConfirm, html.qyMobile .mdModal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; inset: 0; border-radius: 0; border: 0; }
+  html.qyMobile #toolsDialog { inset-block-start: 0; }
+  html.qyMobile .toolsHeading { flex-wrap: wrap; gap: 8px; padding: 14px 12px 10px 16px; }
+  html.qyMobile .toolsHeading > div:first-child { flex: 1 1 100%; order: 0; padding-right: 44px; }
+  html.qyMobile .toolsHeading > button:last-child, html.qyMobile .toolsHeading .toolsClose { position: absolute; top: 10px; right: 8px; width: 40px; height: 40px; }
+  html.qyMobile .toolsColumns { padding: 6px 14px 0; gap: 14px; }
+  html.qyMobile .toolsColumns > #toolFields { min-width: 0; grid-template-columns: 1fr; }
+  html.qyMobile #newWindowButton { display: none; }
+
+  /* Settings: sections as a scrolling strip above the content. */
+  html.qyMobile .settingsBody { flex-direction: column; }
+  html.qyMobile .settingsNav { flex-direction: row; width: auto; padding: 8px 10px; gap: 6px; overflow-x: auto; overflow-y: hidden; border-right: 0; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  html.qyMobile .settingsNav::-webkit-scrollbar { display: none; }
+  html.qyMobile .settingsNav button { flex: none; min-height: 38px; white-space: nowrap; }
+  html.qyMobile .settingsPanes { min-height: 0; padding: 4px 16px 20px; }
+  html.qyMobile #converterDialog[open] { display: flex; flex-direction: column; }
+  html.qyMobile #converterDialog > :last-child { margin-top: auto; }
+
+  /* Markdown: scrolling menu row; the outline is a drawer. */
+  html.qyMobile .mdPanel .mdMenubar { height: 48px; min-height: 48px; padding: 0 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; overscroll-behavior-x: contain; }
+  html.qyMobile .mdPanel .mdMenubar > * { flex: none; }
+  html.qyMobile .mdPanel .mdMenubar > button.mdMenuTop { height: 38px; padding: 0 10px; font-size: 14px; }
+  html.qyMobile .mdMenubar .mdMenuIcon { width: 40px; height: 40px; --icon-size: 19px; }
+  html.qyMobile .mdMenubar .mdModes button { height: 32px; padding: 0 11px; font-size: 13.5px; }
+  html.qyMobile .mdMenubar .mdSaveButton { width: 40px; height: 40px; }
+  html.qyMobile .mdOutline { width: min(86vw, 340px); z-index: 20; }
+  html.qyMobile .mdPanel .mdDoc { padding: 22px 18px 8px; }
+  html.qyMobile .mdPanel.isReading .mdDoc { padding-top: 26px; }
+  html.qyMobile .mdPanel .mdFindBar { left: 8px; right: 8px; width: auto; top: 54px; }
+  html.qyMobile .mdStatusBar { font-size: 11px; }
+  html.qyMobile .mdMenu { max-width: calc(100vw - 16px); max-height: calc(100dvh - 120px); overflow-y: auto; }
+
+  /* Home */
+  html.qyMobile .homeContent { padding-left: 16px; padding-right: 16px; }
+}
+
+/* ——— 0.12.0: notes mode, library search and touch reading ——— */
+/* Keyboard hints mean nothing on a touch screen (their text is removed by platform-text.mjs). */
+html.qyMobile .shortcut:empty, html.qyMobile kbd { display: none; }
+html.qyMobile #citationLookup { display: none !important; } /* the Android build never goes online for references */
+
+/* Tap the page: the bars above and below it step aside. */
+html.qyMobile body.qyImmersive :is(.titlebar, .appbar, .status, #compareBar) { display: none !important; }
+html.qyMobile body.qyImmersive .pager, html.qyMobile body.qyImmersive #qmSelection { display: none !important; }
+html.qyMobile body.qyImmersive .mdPanel.isReading :is(.mdMenubar, .mdStatusBar) { display: none !important; }
+
+/* Actions for selected PDF text (what a right click offers on a desktop). */
+#qmSelection { position: fixed; z-index: 600; left: 50%; bottom: calc(var(--status-h) + 68px); translate: -50% 0; display: flex; gap: 2px; max-width: calc(100vw - 16px); padding: 5px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-lg); overflow-x: auto; scrollbar-width: none; }
+#qmSelection[hidden] { display: none; }
+#qmSelection button { flex: none; display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--ink); white-space: nowrap; --icon-size: 17px; }
+#qmSelection button:active { background: var(--hover); }
+
+/* Notes mode: the divider is a touch target and its buttons are always there. */
+html.qyMobile #notesDivider { width: 22px; margin-left: -11px; }
+html.qyMobile #notesDivider::before { left: 10px; width: 2px; background: var(--accent); opacity: .55; }
+/* Its buttons would sit on top of the page bar and the note's menu: on a touch screen the same
+   commands are in "More → notes mode commands", and the divider shows a grab handle instead. */
+html.qyMobile .notesDividerTools { display: none; }
+html.qyMobile #notesDivider::after { content: ""; position: relative; z-index: 1; width: 6px; height: 44px; border-radius: 3px; background: var(--accent); box-shadow: 0 0 0 3px var(--surface); }
+html.qyMobile body.notesRows #notesDivider::after { width: 44px; height: 6px; }
+html.qyMobile body.notesRows #notesDivider { width: auto; height: 22px; margin-left: 0; margin-top: -11px; }
+html.qyMobile body.notesRows #notesDivider::before { left: 0; top: 10px; width: auto; height: 2px; }
+html.qyMobile #notesMenu { max-height: calc(100dvh - 96px); }
+html.qyMobile #notesMenu .menuItem { min-height: 46px; }
+html.qyMobile #notesMenu .notesMenuText { white-space: normal; }
+html.qyMobile body.notesMode .mdPanel .mdDoc { padding-left: 16px; padding-right: 16px; }
+/* The focused pane is marked on its whole edge: a 2px top line is easy to miss under a finger. */
+html.qyMobile .viewerPanel.noteFocus::after { border: 2px solid color-mix(in srgb, var(--accent) 60%, transparent); border-top-color: var(--accent); }
+
+html.qyMobile #libraryDialog .libraryHit { min-height: 44px; font-size: 13.5px; }
+html.qyMobile #libraryDialog .libraryDocHead { min-height: 44px; }
+html.qyMobile #libraryQuery { height: 46px; }
+html.qyMobile .citationActions button { min-height: 42px; }
+
+@media (max-width: 760px) {
+  html.qyMobile #libraryDialog, html.qyMobile #citationDialog { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; inset: 0; border-radius: 0; border: 0; }
+  html.qyMobile .citationGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html.qyMobile .citationGrid label.half { grid-column: 1 / -1; }
+  /* Half a phone screen has no room for the floating page bar of the PDF and the status row of the note. */
+  html.qyMobile body.notesRows .viewerPanel .pager { left: 8px; translate: none; bottom: 8px; scale: .86; transform-origin: left bottom; }
+  html.qyMobile body.notesRows .mdPanel .mdMenubar { height: 42px; min-height: 42px; }
+  html.qyMobile body.notesMode .status { display: none; }
+}

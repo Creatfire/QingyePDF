@@ -1,0 +1,150 @@
+440	Copied as Markdown	已複製為 Markdown	Markdown としてコピーしました	Markdown으로 복사했습니다
+441	Copied as plain text	已複製為純文字	プレーンテキストとしてコピーしました	일반 텍스트로 복사했습니다
+442	Code copied	已複製程式碼	コードをコピーしました	코드를 복사했습니다
+443	Content copied (without theme styles)	已複製內容（無主題樣式）	内容をコピーしました（テーマのスタイルなし）	내용을 복사했습니다(테마 스타일 없음)
+444	Rich text copied	已複製豐富文字	リッチテキストをコピーしました	서식 있는 텍스트를 복사했습니다
+445	Table copied as Markdown	已複製表格 Markdown	表を Markdown でコピーしました	표를 Markdown으로 복사했습니다
+446	Path copied: 	已複製路徑：	パスをコピーしました：	경로를 복사했습니다: 
+447	Copied: 	已複製：	コピーしました：	복사했습니다: 
+448	Reviewed	已審核	確認済み	검토됨
+449	Imported: 	已匯入：	読み込みました：	가져왔습니다: 
+450	Exported to	已匯出到	書き出し先：	내보낸 위치:
+451	Exported: 	已匯出：	書き出しました：	내보냈습니다: 
+452	-	-	-	-
+453	-	-	-	-
+454	Pasted with formatting (Ctrl+Shift+V pastes plain text)	已按格式貼上（Ctrl+Shift+V 貼上為純文字）	書式付きで貼り付けました（Ctrl+Shift+V でプレーンテキスト）	서식과 함께 붙여 넣었습니다(Ctrl+Shift+V는 일반 텍스트로 붙여넣기)
+455	Registered as an app for opening PDF and Markdown	已註冊為 PDF 與 Markdown 的開啟方式	PDF と Markdown を開くアプリとして登録しました	PDF와 Markdown을 여는 앱으로 등록했습니다
+456	Recent list cleared	已清除最近開啟清單	最近使ったファイルの一覧を消去しました	최근 목록을 지웠습니다
+457	Result ready	已產生結果	結果を作成しました	결과가 생성되었습니다
+458	-	-	-	-
+459	Moved to Recycle Bin	已移到資源回收筒	ごみ箱へ移動しました	휴지통으로 이동했습니다
+460	Loaded the latest version from disk	已載入磁碟上的最新版本	ディスク上の最新版を読み込みました	디스크의 최신 버전을 불러왔습니다
+461	Help	說明	ヘルプ	도움말
+462	Common stamps	常用印章	よく使うスタンプ	자주 쓰는 스탬프
+463	General	一般	一般	일반
+464	Flat (no folding)	平鋪（不摺疊）	フラット（折りたたみなし）	평면(접기 없음)
+465	Side-by-side comparison	並排比較	並べて比較	나란히 비교
+466	Sequence diagram	循序圖	シーケンス図	시퀀스 다이어그램
+467	The sequence diagram library is unavailable.	循序圖庫無法使用。	シーケンス図ライブラリを利用できません。	시퀀스 다이어그램 라이브러리를 사용할 수 없습니다.
+468	Apply	套用	適用	적용
+469	Apply · undoable	套用 · 可復原	適用 · 元に戻せます	적용 · 실행 취소 가능
+470	Apply to current document · undoable	套用到目前文件 · 可復原	現在の文書に適用 · 元に戻せます	현재 문서에 적용 · 실행 취소 가능
+471	Apply order · undoable	套用排序 · 可復原	並び順を適用 · 元に戻せます	순서 적용 · 실행 취소 가능
+472	Start editing	開始編輯	編集を開始	편집 시작
+473	Open source · local reading · no membership\nTabs, search, outline, highlights, text, ink and signatures.\nReading engine: Mozilla PDF.js 6.3.289.\nThis version is open source under AGPL-3.0.	開源 · 本機閱讀 · 無會員\n多分頁、搜尋、目錄、螢光標示、文字、筆跡與簽名。\n閱讀引擎：Mozilla PDF.js 6.3.289。\n本版本按 AGPL-3.0 開源。	オープンソース · ローカルで閲覧 · 会員登録なし\nタブ、検索、目次、ハイライト、テキスト、インク、署名。\n閲覧エンジン：Mozilla PDF.js 6.3.289。\nこのバージョンは AGPL-3.0 のオープンソースです。	오픈 소스 · 로컬 읽기 · 멤버십 없음\n탭, 검색, 목차, 강조, 텍스트, 잉크, 서명.\n읽기 엔진: Mozilla PDF.js 6.3.289.\n이 버전은 AGPL-3.0 오픈 소스입니다.
+474	Quote	引用	引用	인용
+475	The current document has unsaved changes (including annotations). History keeps the last 20 document operations, up to 128 MB.	目前文件有未儲存的修改（包括批註）。歷史保留最近 20 次文件操作，上限 128 MB。	現在の文書には未保存の変更（注釈を含む）があります。履歴には最近の 20 件の操作を最大 128 MB まで保持します。	현재 문서에 저장되지 않은 변경 사항(주석 포함)이 있습니다. 기록은 최근 20개의 문서 작업을 최대 128 MB까지 보관합니다.
+476	The current document has no unsaved changes.	目前文件沒有未儲存的修改。	現在の文書に未保存の変更はありません。	현재 문서에 저장되지 않은 변경 사항이 없습니다.
+477	Current page; type a number and press Enter to jump	目前頁碼，輸入後按 Enter 跳轉	現在のページ。番号を入力して Enter で移動	현재 페이지. 번호를 입력하고 Enter로 이동
+478	The current page edit has not been applied. Discard it and continue?	目前頁面編輯尚未套用。是否放棄並繼續？	現在のページ編集は未適用です。破棄して続行しますか？	현재 페이지 편집이 적용되지 않았습니다. 버리고 계속할까요?
+479	Shortcuts	快速鍵	ショートカット	단축키
+480	Shortcut settings…	快速鍵設定…	ショートカット設定…	단축키 설정…
+481	Quick start	快速入門	クイックスタート	빠른 시작
+482	Quick open…	快速開啟…	クイックオープン…	빠른 열기…
+483	Restore last tabs	還原上次分頁	前回のタブを復元	지난 탭 복원
+484	Restore original size	還原原始大小	元のサイズに戻す	원래 크기로
+485	Restore full page	還原完整頁面	ページ全体に戻す	전체 페이지 복원
+486	Restore this version	還原此版本	この版を復元	이 버전 복원
+487	Restore defaults	還原預設值	既定値に戻す	기본값 복원
+488	All changes are saved	所有修改都已儲存	すべての変更は保存済みです	모든 변경 사항이 저장되었습니다
+489	All files	所有檔案	すべてのファイル	모든 파일
+490	WYSIWYG editing	所見即所得編輯	WYSIWYG 編集	WYSIWYG 편집
+491	Selected text	所選文字	選択したテキスト	선택한 텍스트
+492	Flatten annotations and forms	平面化批註與表單	注釈とフォームを平坦化	주석 및 양식 병합
+493	Signature	手寫簽名	手書き署名	손글씨 서명
+494	Print…	列印…	印刷…	인쇄…
+495	Print background colors	列印背景色	背景色を印刷	배경색 인쇄
+496	Typewriter mode	打字機模式	タイプライターモード	타자기 모드
+497	Open	開啟	開く	열기
+498	Open a PDF or Markdown document · Ctrl+O	開啟 PDF 或 Markdown 文件 · Ctrl+O	PDF または Markdown 文書を開く · Ctrl+O	PDF 또는 Markdown 문서 열기 · Ctrl+O
+499	Opens Windows' "Open with" window; choose Qingye PDF and tick "Always use"	開啟 Windows 的「選擇開啟方式」視窗，選取青頁 PDF 並勾選「一律使用」	Windows の「プログラムから開く」ウィンドウを開きます。青頁 PDF を選び「常に使う」をオンにしてください	Windows의 "연결 프로그램" 창을 엽니다. 칭예 PDF를 선택하고 "항상 사용"을 체크하세요
+500	Open Windows default apps settings	開啟 Windows 預設應用程式設定	Windows の既定のアプリ設定を開く	Windows 기본 앱 설정 열기
+501	Open…	開啟…	開く…	열기…
+502	Open a PDF or Markdown file, or try one of the samples on the right.	開啟一個 PDF 或 Markdown，或先看看右側的範例。	PDF または Markdown を開くか、右側のサンプルを見てみましょう。	PDF나 Markdown을 열거나 오른쪽 예제를 먼저 살펴보세요.
+503	Open themes folder	開啟主題資料夾	テーマフォルダーを開く	테마 폴더 열기
+504	Open password	開啟密碼	閲覧パスワード	열기 암호
+505	Open existing files in Read mode first	開啟已有檔案時先進入閱讀模式	既存のファイルは閲覧モードで開く	기존 파일은 읽기 모드로 먼저 열기
+506	Open existing files in Read mode first (double-click or press E to edit)	開啟已有檔案時先進入閱讀模式（雙擊或按 E 開始編輯）	既存のファイルは閲覧モードで開く（ダブルクリックか E で編集）	기존 파일은 읽기 모드로 먼저 열기(더블클릭 또는 E로 편집)
+507	Open file	開啟檔案	ファイルを開く	파일 열기
+508	Open folder	開啟資料夾	フォルダーを開く	폴더 열기
+509	Open folder…	開啟資料夾…	フォルダーを開く…	폴더 열기…
+510	Open document	開啟文件	文書を開く	문서 열기
+511	Open document · Ctrl+O	開啟文件 · Ctrl+O	文書を開く · Ctrl+O	문서 열기 · Ctrl+O
+512	Open recent file	開啟最近檔案	最近使ったファイルを開く	최근 파일 열기
+513	Deskew scans and clean background	掃描件校正與背景清理	スキャンの傾き補正と背景除去	스캔 기울기 보정 및 배경 정리
+514	Annotate	批註	注釈	주석
+515	Annotation / form	批註 / 表單	注釈 / フォーム	주석 / 양식
+516	Annotation · page 	批註 · 第	注釈 · ページ 	주석 · 페이지 
+517	Annotation list	批註清單	注釈一覧	주석 목록
+518	Annotation list and export	批註清單與匯出	注釈一覧と書き出し	주석 목록 및 내보내기
+519	Annotation tools	批註工具	注釈ツール	주석 도구
+520	Annotation type	批註類型	注釈の種類	주석 유형
+521	Batch process all open documents	批次處理所有已開啟文件	開いているすべての文書を一括処理	열려 있는 모든 문서 일괄 처리
+522	Image not found: 	找不到圖片：	画像が見つかりません：	이미지를 찾을 수 없습니다: 
+523	Drag a PDF or Markdown file anywhere into the window to open it	把 PDF 或 Markdown 拖進視窗任意位置即可開啟	PDF や Markdown をウィンドウのどこかにドラッグすると開きます	PDF나 Markdown을 창 아무 곳에나 끌어다 놓으면 열립니다
+524	Register Qingye as the app for PDF and Markdown files so double-clicking a file opens it in Qingye. Windows 10/11 do not let programs change default apps directly: after registering, choose "Qingye PDF" in the system window that appears and confirm "Always use".	把青頁註冊為 PDF 與 Markdown 檔案的開啟程式，雙擊檔案即可在青頁中開啟。Windows 10/11 不允許程式直接變更預設應用程式：註冊後請在彈出的系統視窗中選擇「青頁 PDF」並確認「一律使用」。	青頁を PDF と Markdown ファイルを開くアプリとして登録すると、ダブルクリックで青頁で開けます。Windows 10/11 ではアプリが既定のアプリを直接変更できないため、登録後に表示されるシステムの画面で「青頁 PDF」を選び「常に使う」を確定してください。	칭예를 PDF와 Markdown 파일을 여는 프로그램으로 등록하면 파일을 더블클릭해 칭예에서 열 수 있습니다. Windows 10/11은 프로그램이 기본 앱을 직접 바꿀 수 없으므로, 등록 후 나타나는 시스템 창에서 "칭예 PDF"를 선택하고 "항상 사용"을 확인하세요.
+525	Hand tool	手形工具	手のひらツール	손 도구
+526	Eye care	護眼	目に優しい	눈 보호
+527	Drag the box to move it and its corner to resize; an actual PDF preview is generated automatically.	拖曳框移動，拖曳右下角縮放；自動產生實際 PDF 預覽。	枠をドラッグで移動、右下の角でサイズ変更。実際の PDF プレビューを自動生成します。	상자를 끌어 이동하고 오른쪽 아래 모서리로 크기를 조정합니다. 실제 PDF 미리보기가 자동으로 생성됩니다.
+528	Spelling and input	拼字與輸入	スペルと入力	맞춤법 및 입력
+529	Open source under AGPL-3.0, no account, no usage quotas.	按 AGPL-3.0 開源，無帳號、無會員次數配額。	AGPL-3.0 のオープンソース。アカウントも利用回数の制限もありません。	AGPL-3.0 오픈 소스, 계정과 사용 횟수 제한이 없습니다.
+530	Previews in the PDF's original orientation. Drag to select an area; the same relative position is applied to the chosen pages.	按原 PDF 方向預覽。拖曳框選區域；相同相對位置套用到指定頁。	元の PDF の向きでプレビューします。ドラッグで範囲を選ぶと、同じ相対位置を指定ページに適用します。	원래 PDF 방향으로 미리 봅니다. 끌어서 영역을 선택하면 같은 상대 위치가 지정한 페이지에 적용됩니다.
+531	Reorder / duplicate pages by the page list	按所填頁碼重排 / 複製頁面	入力したページ番号で並べ替え / 複製	입력한 페이지 번호로 재정렬 / 복제
+532	Quick open by file name…	按檔名快速開啟…	ファイル名ですばやく開く…	파일 이름으로 빠르게 열기…
+533	Fill in bulk from text	按文字批次填寫	テキストで一括入力	텍스트로 일괄 입력
+534	Remembered per document; the original is not changed	按文件記憶，不改動原文	文書ごとに記憶し、原文は変更しません	문서별로 기억하며 원본은 바꾸지 않습니다
+535	Filter by type	按類型篩選	種類で絞り込み	유형별 필터
+536	Try another keyword or type.	換個關鍵字或類型試試。	別のキーワードや種類を試してください。	다른 키워드나 유형으로 시도해 보세요.
+537	Line endings	換行符號	改行コード	줄 끝
+538	Line endings will change at the next save to	換行符號將在下次儲存時改為	次回の保存時に改行コードを次に変更：	다음 저장 시 줄 끝을 다음으로 변경:
+539	Line endings: Unix (LF)	換行符號：Unix (LF)	改行コード：Unix (LF)	줄 끝: Unix(LF)
+540	Line endings: Windows (CRLF)	換行符號：Windows (CRLF)	改行コード：Windows (CRLF)	줄 끝: Windows(CRLF)
+541	Promote heading	提升標題層級	見出しレベルを上げる	제목 수준 올리기
+542	Extract	擷取	抽出	추출
+543	Extract selected pages	擷取指定頁面	指定ページを抽出	지정 페이지 추출
+544	Tip	提示 (Tip)	ヒント (Tip)	팁 (Tip)
+545	Insert	插入	挿入	삽입
+546	Insert image…	插入影像…	画像を挿入…	이미지 삽입…
+547	Insert image	插入圖片	画像を挿入	이미지 삽입
+548	When inserting or dropping images	插入或拖入圖片時	画像の挿入・ドロップ時	이미지를 삽입하거나 끌어다 놓을 때
+549	Insert local image	插入本機圖片	ローカル画像を挿入	로컬 이미지 삽입
+550	When inserting local images: do nothing	插入本機圖片時：不處理	ローカル画像の挿入時：何もしない	로컬 이미지 삽입 시: 처리 안 함
+551	When inserting local images: copy to ./assets	插入本機圖片時：複製到 ./assets 資料夾	ローカル画像の挿入時：./assets フォルダーにコピー	로컬 이미지 삽입 시: ./assets 폴더에 복사
+552	When inserting local images: copy to ./<document name>.assets	插入本機圖片時：複製到 ./文件名稱.assets 資料夾	ローカル画像の挿入時：./文書名.assets フォルダーにコピー	로컬 이미지 삽입 시: ./문서이름.assets 폴더에 복사
+553	When inserting local images: copy to a custom folder…	插入本機圖片時：複製到自訂資料夾…	ローカル画像の挿入時：カスタムフォルダーにコピー…	로컬 이미지 삽입 시: 사용자 지정 폴더에 복사…
+554	Insert blank page	插入空白頁	空白ページを挿入	빈 페이지 삽입
+555	Search	搜尋	検索	검색
+556	Search text in the document	搜尋文件中的文字	文書内のテキストを検索	문서에서 텍스트 검색
+557	Search emoji	搜尋表情符號	絵文字を検索	이모지 검색
+558	Search emoji, e.g. smile, heart, rocket	搜尋表情符號，例如 smile、heart、rocket	絵文字を検索（例：smile、heart、rocket）	이모지 검색(예: smile, heart, rocket)
+559	Undo	復原	元に戻す	실행 취소
+560	Undo · Ctrl+Z	復原 · Ctrl+Z	元に戻す · Ctrl+Z	실행 취소 · Ctrl+Z
+561	Action	操作	操作	작업
+562	Operation not completed	操作未完成	操作は完了しませんでした	작업을 완료하지 못했습니다
+563	Operation not completed, please try again.	操作未完成，請重試。	操作は完了しませんでした。もう一度お試しください。	작업을 완료하지 못했습니다. 다시 시도하세요.
+564	Save current colors as favorite	收藏目前配色	現在の配色をお気に入りに追加	현재 색 구성을 즐겨찾기에 추가
+565	Use Markdown syntax	改用 Markdown 語法	Markdown 構文に切り替え	Markdown 문법으로 전환
+566	Zoom in	放大	拡大	확대
+567	Zoom in · Ctrl+=	放大 · Ctrl+=	拡大 · Ctrl+=	확대 · Ctrl+=
+568	Discard unapplied content	放棄未套用內容	未適用の内容を破棄	적용하지 않은 내용 버리기
+569	Math tools	數學工具	数式ツール	수식 도구
+570	Data and privacy	資料與隱私	データとプライバシー	데이터 및 개인정보
+571	Data folder	資料資料夾	データフォルダー	데이터 폴더
+572	Data rows (excluding header)	資料列數（不含標題列）	データ行数（見出し行を除く）	데이터 행 수(머리글 제외)
+573	Tidy table source	整理表格原始碼	表のソースを整形	표 소스 정리
+574	Organize pages	整理頁面	ページを整理	페이지 정리
+575	File	檔案	ファイル	파일
+576	File changed outside Qingye	檔案已在外部修改	ファイルが外部で変更されました	파일이 외부에서 수정되었습니다
+577	File tree	檔案樹	ファイルツリー	파일 트리
+578	Text	文字	テキスト	텍스트
+579	Text stamp	文字印章	テキストスタンプ	텍스트 스탬프
+580	Text watermark	文字浮水印	テキストの透かし	텍스트 워터마크
+581	Text watermark (all pages)	文字浮水印（全部頁面）	テキストの透かし（全ページ）	텍스트 워터마크(모든 페이지)
+582	Text recognition	文字辨識	文字認識	텍스트 인식
+583	Reflow text for reading	文字重排閱讀	テキストをリフローして読む	텍스트 재배치 읽기
+584	Text reading view · extracted in the PDF's text order, without the original figures and annotations.	文字閱讀檢視 · 按 PDF 文字順序擷取，不保留原頁面圖表與批註。	テキスト閲覧表示 · PDF のテキスト順に抽出し、元の図や注釈は含みません。	텍스트 읽기 보기 · PDF의 텍스트 순서로 추출하며 원래 그림과 주석은 포함하지 않습니다.
+585	Text color	文字顏色	文字の色	글자 색
+586	Text box	文字方塊	テキストボックス	텍스트 상자
+587	Text input field	文字輸入框	テキスト入力欄	텍스트 입력 필드
+588	Select text	文字選取	テキスト選択	텍스트 선택
+589	Document theme	文件主題	文書テーマ	문서 테마

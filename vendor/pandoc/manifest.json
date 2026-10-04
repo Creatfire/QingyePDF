@@ -1,0 +1,11 @@
+{
+  "name": "Pandoc",
+  "version": "3.12",
+  "license": "GPL-2.0-or-later",
+  "upstream": "https://github.com/jgm/pandoc/tree/3.12",
+  "commit": "381230ee36d8fa871c28f8982e22579f1a8f723b",
+  "executable": "pandoc.exe",
+  "sha256": "6543a474521423e9a61217ae518679ce7655d76ab59b2c3e17938ae7ce4ed6a3",
+  "engineModified": false,
+  "build": "pandoc 3.12\r\nFeatures: +server +lua\r\nScripting engine: Lua 5.4\r\nUser data directory: per-user Pandoc default\nCopyright (C) 2006-2025 John MacFarlane. Web:  https://pandoc.org\r\nThis is free software; see the source for copying conditions. There is no\r\nwarranty, not even for merchantability or fitness for a particular purpose.\r\n"
+}

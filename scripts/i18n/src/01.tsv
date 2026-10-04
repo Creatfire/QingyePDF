@@ -1,0 +1,150 @@
+140	Save all open files	儲存所有開啟的檔案	開いているファイルをすべて保存	열린 파일 모두 저장
+141	Save to stamp library	儲存到印章庫	スタンプライブラリに保存	스탬프 라이브러리에 저장
+142	Review changes before saving	儲存前檢查修改	保存前に変更を確認	저장 전 변경 사항 확인
+143	Ensure a trailing newline when saving	儲存時在文末保證一個換行符號	保存時に末尾の改行を保証	저장 시 끝에 줄바꿈 보장
+144	Add a trailing blank line when saving	儲存時在文末新增空行	保存時に末尾に空行を追加	저장 시 끝에 빈 줄 추가
+145	Keep image proportions (centered, not stretched)	保持圖片比例（框內置中，不拉伸）	画像の比率を保つ（枠内中央、引き伸ばさない）	이미지 비율 유지(가운데 배치, 늘이지 않음)
+146	Keep window on top	保持視窗在最上層	ウィンドウを常に手前に表示	창을 항상 위에 유지
+147	Preserve single line breaks (render as <br>)	保留單一換行符號（轉譯為 <br>）	単一の改行を保持（<br> として表示）	단일 줄바꿈 유지(<br>로 렌더링)
+148	Preserve single line breaks	保留單一換行符號	単一の改行を保持	단일 줄바꿈 유지
+149	Keep original image colors	保留圖片原色	画像の元の色を保持	이미지 원래 색 유지
+150	Keep my version	保留我的版本	自分の版を残す	내 버전 유지
+151	Change PDF crop box	修改 PDF 裁切區域	PDF のトリミング範囲を変更	PDF 자르기 영역 변경
+152	Preview of changes: 	修改預覽：	変更のプレビュー：	변경 미리보기: 
+153	Preferences	偏好設定	環境設定	환경설정
+154	Preferences…	偏好設定…	環境設定…	환경설정…
+155	Allow copying	允許複製	コピーを許可	복사 허용
+156	Allow printing	允許列印	印刷を許可	인쇄 허용
+157	Allow editing	允許編輯	編集を許可	편집 허용
+158	Select a section first.	請先選擇一個章節。	先に章を選択してください。	먼저 장을 선택하세요.
+159	Full screen	全螢幕	全画面	전체 화면
+160	Full screen / exit full screen	全螢幕 / 結束全螢幕	全画面 / 全画面を終了	전체 화면 / 전체 화면 종료
+161	Full text	全文	全文	전문
+162	Search all text	全文搜尋	全文検索	전체 텍스트 검색
+163	Search all text · Ctrl+F	全文搜尋 · Ctrl+F	全文検索 · Ctrl+F	전체 텍스트 검색 · Ctrl+F
+164	Whole word	全字拼寫須相符	単語単位	단어 단위로
+165	Select all	全選	すべて選択	모두 선택
+166	All	全部	すべて	전체
+167	Expand all	全部展開	すべて展開	모두 펼치기
+168	Collapse all	全部摺疊	すべて折りたたむ	모두 접기
+169	Replace all	全部取代	すべて置換	모두 바꾸기
+170	All types	全部類型	すべての種類	모든 유형
+171	Select all	全部選取	すべて選択	모두 선택
+172	All pages	全部頁面	全ページ	모든 페이지
+173	All colors	全部顏色	すべての色	모든 색
+174	Full-page watermark	全頁浮水印	全ページの透かし	전체 페이지 워터마크
+175	Math block	公式區塊	数式ブロック	수식 블록
+176	Heading 6	六級標題	見出し 6	제목 6
+177	Total	共	合計	총
+178	About	關於	バージョン情報	정보
+179	About Qingye PDF	關於青頁 PDF	青頁 PDF について	칭예 PDF 정보
+180	Close	關閉	閉じる	닫기
+181	-	-	-	-
+182	Close · Esc	關閉 · Esc	閉じる · Esc	닫기 · Esc
+183	Close sidebar	關閉側欄	サイドバーを閉じる	사이드바 닫기
+184	Close navigation	關閉導覽	ナビゲーションを閉じる	탐색 닫기
+185	Close toolbox	關閉工具箱	ツールボックスを閉じる	도구 상자 닫기
+186	Close document · Ctrl+W	關閉文件 · Ctrl+W	文書を閉じる · Ctrl+W	문서 닫기 · Ctrl+W
+187	Documents still open at exit are reopened at the next start.	關閉時仍開啟的文件會在下次啟動時重新開啟。	終了時に開いていた文書を次回の起動時に再び開きます。	종료할 때 열려 있던 문서를 다음 시작 시 다시 엽니다.
+188	Close find	關閉尋找	検索を閉じる	찾기 닫기
+189	Close tab	關閉分頁	タブを閉じる	탭 닫기
+190	Other open documents	其他已開啟文件	開いている他の文書	열려 있는 다른 문서
+191	Table of contents	內容目錄	目次	목차
+192	Inline math	行內公式	インライン数式	인라인 수식
+193	Cool gray	冷灰	クールグレー	쿨 그레이
+194	Ready	準備就緒	準備完了	준비됨
+195	Decrease indent	減少縮排	インデントを減らす	들여쓰기 줄이기
+196	min	分鐘	分	분
+197	Divider	分隔線	区切り線	구분선
+198	Toggle task status	切換工作狀態	タスクの状態を切り替え	작업 상태 전환
+199	Switch to light interface	切換淺色介面	ライトテーマに切り替え	밝은 테마로 전환
+200	Switch to dark interface	切換深色介面	ダークテーマに切り替え	어두운 테마로 전환
+201	Col −	欄−	列−	열 −
+202	Columns	欄數	列数	열 수
+203	The list shows the first 300 matches; Previous / Next go through all of them.	清單顯示前 300 處；上一個 / 下一個可逐一檢視全部結果。	一覧には最初の 300 件を表示します。前へ / 次へですべての一致を移動できます。	목록에는 처음 300개가 표시되며, 이전 / 다음으로 모든 결과를 이동할 수 있습니다.
+204	List indent	清單縮排	リストのインデント	목록 들여쓰기
+205	List item	清單項目	リスト項目	목록 항목
+206	Duplicate	建立副本	複製を作成	사본 만들기
+207	Duplicate…	建立副本…	複製を作成…	사본 만들기…
+208	Create form fields	建立表單欄位	フォームフィールドを作成	양식 필드 만들기
+209	Delete	刪除	削除	삭제
+210	Delete branch	刪除分支	分岐を削除	분기 삭제
+211	Delete column	刪除欄	列を削除	열 삭제
+212	Delete image reference	刪除圖片參照	画像参照を削除	이미지 참조 삭제
+213	Delete image file	刪除圖片檔案	画像ファイルを削除	이미지 파일 삭제
+214	Delete block	刪除區塊	ブロックを削除	블록 삭제
+215	Delete backup	刪除備份	バックアップを削除	백업 삭제
+216	Delete current column	刪除目前欄	現在の列を削除	현재 열 삭제
+217	Delete current styled text	刪除目前格式文字	現在の書式付きテキストを削除	현재 서식 텍스트 삭제
+218	Delete current row	刪除目前列	現在の行を削除	현재 행 삭제
+219	Delete current line or sentence	刪除目前行或句	現在の行または文を削除	현재 줄 또는 문장 삭제
+220	Delete current word	刪除目前詞	現在の単語を削除	현재 단어 삭제
+221	Delete selected pages	刪除指定頁面	指定ページを削除	지정한 페이지 삭제
+222	Delete the whole table	刪除整個表格	表全体を削除	표 전체 삭제
+223	Deletes text, images and intersecting shapes in the selected area, cleans metadata, attachments and scripts, and flattens annotations and forms. Check the area and nearby content after exporting.	刪除框選區域內文字、影像及相交圖形，同時清理中繼資料、附件、指令碼，並平面化批註與表單。匯出後請檢查區域和相鄰內容。	選択範囲内のテキスト・画像・交差する図形を削除し、メタデータ・添付ファイル・スクリプトを消去して、注釈とフォームを平坦化します。書き出し後に範囲と周囲の内容を確認してください。	선택 영역의 텍스트, 이미지, 겹치는 도형을 삭제하고 메타데이터, 첨부 파일, 스크립트를 정리하며 주석과 양식을 병합합니다. 내보낸 뒤 영역과 주변 내용을 확인하세요.
+224	Deletes the original text in the selected area and writes the replacement. This is not Word-style paragraph editing; fonts and layout may change.	刪除框選區域內的原文字，再寫入取代文字。不是 Word 式段落編輯；字型和版面可能變化。	選択範囲内の元のテキストを削除し、置換テキストを書き込みます。Word のような段落編集ではなく、フォントやレイアウトが変わる場合があります。	선택 영역의 원래 텍스트를 지우고 바꿀 텍스트를 씁니다. Word식 단락 편집이 아니며 글꼴과 레이아웃이 바뀔 수 있습니다.
+225	Strikethrough	刪除線	取り消し線	취소선
+226	Delete row	刪除列	行を削除	행 삭제
+227	Delete table	刪除表	表を削除	표 삭제
+228	Delete table	刪除表格	表を削除	표 삭제
+229	Delete selected stamp	刪除選取的印章	選択したスタンプを削除	선택한 스탬프 삭제
+230	Delete pages	刪除頁面	ページを削除	페이지 삭제
+231	Refresh	重新整理	更新	새로 고침
+232	Refresh all math	重新整理所有數學公式	すべての数式を更新	모든 수식 새로 고침
+233	Refresh file tree	重新整理檔案樹	ファイルツリーを更新	파일 트리 새로 고침
+234	Cut	剪下	切り取り	잘라내기
+235	Bold	粗體	太字	굵게
+236	Match case	大小寫須相符	大文字と小文字を区別	대/소문자 구분
+237	Single page	單頁	単一ページ	한 페이지
+238	Stamp / image	印章 / 圖片	スタンプ / 画像	스탬프 / 이미지
+239	History	歷史	履歴	기록
+240	Compress PDF	壓縮 PDF	PDF を圧縮	PDF 압축
+241	Compress	壓縮文件	文書を圧縮	문서 압축
+242	Original	原始	元のサイズ	원본
+243	Original size	原始大小	元のサイズ	원래 크기
+244	Text blocks	原文區塊	元のテキストブロック	원문 블록
+245	Double-click the text or press E to start editing.	雙擊內文或按 E 開始編輯。	本文をダブルクリックするか E キーで編集を開始します。	본문을 더블클릭하거나 E를 눌러 편집을 시작하세요.
+246	Two pages	雙頁	見開き	두 페이지
+247	Cancel	取消	キャンセル	취소
+248	Cancel task	取消工作	タスクを取り消す	작업 취소
+249	Unregister	取消註冊	登録を解除	등록 해제
+250	Cancel editing	取消編輯	編集をキャンセル	편집 취소
+251	Cancel recognition	取消辨識	認識をキャンセル	인식 취소
+252	Save as	另存新檔	名前を付けて保存	다른 이름으로 저장
+253	Save Markdown as	另存 Markdown	Markdown に名前を付けて保存	Markdown 다른 이름으로 저장
+254	Save PDF as	另存 PDF	PDF に名前を付けて保存	PDF 다른 이름으로 저장
+255	Save as…	另存新檔…	名前を付けて保存…	다른 이름으로 저장…
+256	Importable documents	可匯入的文件	読み込み可能な文書	가져올 수 있는 문서
+257	Collapsible levels	可摺疊層級	折りたためる階層	접을 수 있는 수준
+258	Convertible files	可轉換檔案	変換可能なファイル	변환 가능한 파일
+259	Right	右	右	오른쪽
+260	Right %	右 %	右 %	오른쪽 %
+261	Right-side page offset	右側頁差	右側のページ差	오른쪽 페이지 차이
+262	Right page = left page + offset	右側頁碼 = 左側頁碼 + 頁差	右ページ = 左ページ + ページ差	오른쪽 페이지 = 왼쪽 페이지 + 차이
+263	Align right	靠右對齊	右揃え	오른쪽 정렬
+264	Move column right	右移該欄	列を右へ移動	열 오른쪽으로 이동
+265	Right margin %	右邊距 %	右余白 %	오른쪽 여백 %
+266	Merge / compare / stamp source	合併 / 比較 / 印章來源	結合 / 比較 / スタンプの元	병합 / 비교 / 스탬프 원본
+267	Merge, split and reorder	合併、分割與重新排列	結合・分割・並べ替え	병합, 분할 및 재정렬
+268	Merge, split and manage pages	合併、分割與頁面管理	結合・分割とページ管理	병합, 분할 및 페이지 관리
+269	Merge other open PDFs	合併其他已開啟的 PDF	開いている他の PDF を結合	열려 있는 다른 PDF 병합
+270	Sync pages	同步頁碼	ページを同期	페이지 동기화
+271	Startup	啟動	起動	시작
+272	Restore last tabs on startup	啟動時自動還原上次的分頁	起動時に前回のタブを自動で復元	시작할 때 지난 탭 자동 복원
+273	Command palette	命令面板	コマンドパレット	명령 팔레트
+274	Command palette · Ctrl+Shift+P	命令面板 · Ctrl+Shift+P	コマンドパレット · Ctrl+Shift+P	명령 팔레트 · Ctrl+Shift+P
+275	Command palette…	命令面板…	コマンドパレット…	명령 팔레트…
+276	Coffee	咖啡	コーヒー	커피
+277	Heading 4	四級標題	見出し 4	제목 4
+278	Return to the last reading position	回到上次閱讀的位置	前回読んでいた位置に戻る	마지막 읽은 위치로 돌아가기
+279	Images	影像	画像	이미지
+280	Image DPI	影像 DPI	画像 DPI	이미지 DPI
+281	Image tools	影像工具	画像ツール	이미지 도구
+282	Shapes	圖形	図形	도형
+283	Shape preview	圖形預覽	図形のプレビュー	도형 미리보기
+284	Image	圖片	画像	이미지
+285	Image (.png)	圖片 (.png)	画像 (.png)	이미지(.png)
+286	Image…	圖片…	画像…	이미지…
+287	Image stamp	圖片印章	画像スタンプ	이미지 스탬프
+288	Invalid diagram size.	圖表尺寸無效。	図のサイズが無効です。	다이어그램 크기가 잘못되었습니다.
+289	The diagram library produced no SVG.	圖表庫未輸出 SVG。	図ライブラリが SVG を出力しませんでした。	다이어그램 라이브러리가 SVG를 출력하지 않았습니다.

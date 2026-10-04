@@ -1,0 +1,160 @@
+740	Browse all versions	瀏覽所有版本	すべての版を表示	모든 버전 보기
+741	Browse all versions…	瀏覽所有版本…	すべての版を表示…	모든 버전 보기…
+742	Deep sea blue	深海藍	ディープシーブルー	심해 파랑
+743	Dark	深色	ダーク	어둡게
+744	Add column	新增欄	列を追加	열 추가
+745	Add text	新增文字	テキストを追加	텍스트 추가
+746	Add text / watermark	新增文字 / 浮水印	テキスト / 透かしを追加	텍스트 / 워터마크 추가
+747	Add row	新增列	行を追加	행 추가
+748	Removes unused objects and compresses streams and fonts. Optional image downsampling; keeps the original data when it cannot get smaller.	清理未使用物件並壓縮串流、字型。可選影像降採樣；無法變小時保留原始資料。	未使用のオブジェクトを削除し、ストリームとフォントを圧縮します。画像のダウンサンプリングも選べます。小さくならない場合は元のデータを保持します。	사용하지 않는 개체를 정리하고 스트림과 글꼴을 압축합니다. 이미지 다운샘플링을 선택할 수 있으며, 더 작아지지 않으면 원본 데이터를 유지합니다.
+749	Clean light background	清理淺色背景	明るい背景を除去	밝은 배경 정리
+750	Clear list	清除清單	一覧を消去	목록 지우기
+751	Clear formatting	清除樣式	書式をクリア	서식 지우기
+752	Clear selection	清除選取	選択を解除	선택 해제
+753	Clears the "Recent files" list on the home page; no files are deleted.	清除首頁「最近開啟」清單，不會刪除任何檔案。	ホームの「最近使ったファイル」を消去します。ファイルは削除されません。	홈의 "최근 파일" 목록을 지웁니다. 파일은 삭제되지 않습니다.
+754	Source PDF password (if any)	來源 PDF 密碼（如有）	元の PDF のパスワード（ある場合）	원본 PDF 암호(있는 경우)
+755	Source · Ctrl+/	原始碼 · Ctrl+/	ソース · Ctrl+/	소스 · Ctrl+/
+756	Source mode	原始碼模式	ソースモード	소스 모드
+757	Source	原始碼	ソース	소스
+758	Source mode · Ctrl+/ to return to editing	原始碼模式 · Ctrl+/ 返回編輯	ソースモード · Ctrl+/ で編集に戻る	소스 모드 · Ctrl+/로 편집으로 돌아가기
+759	Grayscale	灰階	グレースケール	회색조
+760	Click an input and press the new key combination; Backspace clears it (unbinds). Combinations used by global app actions (such as save, new, find) are handled by the app and not listed here.	點擊輸入框後直接按下新的組合鍵；Backspace 清除（取消繫結）。與系統全域操作相同的組合鍵（如儲存、新增、尋找）由應用程式處理，不在此列。	入力欄をクリックして新しいキーの組み合わせを押します。Backspace で消去（割り当て解除）します。保存・新規・検索などアプリ全体の操作に使う組み合わせはアプリが処理するため、ここには表示されません。	입력란을 클릭하고 새 키 조합을 누르세요. Backspace로 지웁니다(할당 해제). 저장, 새로 만들기, 찾기 등 앱 전체 동작에 쓰는 조합은 앱이 처리하므로 여기에 없습니다.
+761	Click page numbers to multi-select; drag cards to reorder, then export a copy.	點擊頁碼多選；拖曳卡片排序，處理後匯出副本。	ページ番号をクリックして複数選択し、カードをドラッグして並べ替えてからコピーを書き出します。	페이지 번호를 눌러 여러 개 선택하고, 카드를 끌어 정렬한 뒤 사본을 내보냅니다.
+762	Status bar	狀態列	ステータスバー	상태 표시줄
+763	Rose	玫瑰	ローズ	로즈
+764	Open PDF and Markdown with Qingye	用青頁開啟 PDF 和 Markdown	PDF と Markdown を青頁で開く	칭예로 PDF와 Markdown 열기
+765	Interface	介面	インターフェイス	인터페이스
+766	Interface theme	介面主題	インターフェイスのテーマ	인터페이스 테마
+767	Interface language changed	介面語言已切換	表示言語を切り替えました	인터페이스 언어가 바뀌었습니다
+768	Leave empty for all; e.g. 1-3,5	留空表示全部；例如 1-3,5	空欄ですべて（例：1-3,5）	비워 두면 전체, 예: 1-3,5
+769	-	-	-	-
+770	Outline	目錄	目次	목차
+771	Outline format: level | page | title	目錄格式：層級 | 頁碼 | 標題	目次の形式：レベル | ページ | タイトル	목차 형식: 수준 | 페이지 | 제목
+772	Target page	目標頁碼	移動先ページ	대상 페이지
+773	Line	直線	直線	직선
+774	Relative to the document or an absolute path:	相對文件或絕對路徑：	文書からの相対パスまたは絶対パス：	문서 기준 상대 경로 또는 절대 경로:
+775	OK	知道了	OK	확인
+776	Rectangle	矩形	長方形	사각형
+777	Rectangles, ellipses and lines	矩形、橢圓與直線	長方形・楕円・直線	사각형, 타원 및 직선
+778	Graphite	石墨	グラファイト	흑연
+779	OK	確定	OK	확인
+780	The file on disk was moved or deleted. Saving will recreate it; you can also save as a new file.	磁碟上的檔案已被移動或刪除。儲存時會重新建立該檔案，也可以另存新檔。	ディスク上のファイルは移動または削除されました。保存すると再作成されます。新しいファイルとして保存することもできます。	디스크의 파일이 이동되었거나 삭제되었습니다. 저장하면 다시 만들어지며, 새 파일로 저장할 수도 있습니다.
+781	Offline mode does not load web images: 	離線模式不載入網路圖片：	オフラインモードではネット上の画像を読み込みません：	오프라인 모드에서는 웹 이미지를 불러오지 않습니다: 
+782	Move to Recycle Bin	移到資源回收筒	ごみ箱へ移動	휴지통으로 이동
+783	Move to Recycle Bin…	移到資源回收筒…	ごみ箱へ移動…	휴지통으로 이동…
+784	Move	移動	移動	이동
+785	Move to…	移動到…	移動先…	이동…
+786	Remove password (owner password required)	移除密碼（需管理密碼）	パスワードを解除（管理パスワードが必要）	암호 제거(관리 암호 필요)
+787	The owner password is required to remove restrictions	移除限制需填寫管理密碼	制限の解除には管理パスワードが必要です	제한을 해제하려면 관리 암호가 필요합니다
+788	Spaces and line breaks	空格與換行	空白と改行	공백 및 줄바꿈
+789	Blank document · Ctrl+N	空白文件 · Ctrl+N	空白の文書 · Ctrl+N	빈 문서 · Ctrl+N
+790	Where to insert blank pages	空白頁插入位置	空白ページの挿入位置	빈 페이지 삽입 위치
+791	Narrow (10 mm)	窄（10 mm）	狭い（10 mm）	좁게(10 mm)
+792	Window kept on top	視窗已置頂	ウィンドウを最前面に表示しました	창을 항상 위에 표시합니다
+793	Section title	章節標題	章のタイトル	장 제목
+794	-	-	-	-
+795	Used the first time a PDF is opened; after that it is remembered per file.	第一次開啟某個 PDF 時使用；之後按檔案記憶。	PDF を初めて開くときに使用し、以降はファイルごとに記憶します。	PDF를 처음 열 때 사용하며, 이후에는 파일별로 기억합니다.
+796	Filter commands	篩選命令	コマンドを絞り込み	명령 필터
+797	Filter annotations or excerpts	篩選批註或摘錄	注釈や抜粋を絞り込み	주석 또는 발췌 필터
+798	Filter by file name	篩選檔案名稱	ファイル名で絞り込み	파일 이름 필터
+799	Filter recent files	篩選最近檔案	最近使ったファイルを絞り込み	최근 파일 필터
+800	Filter headings	篩選標題	見出しを絞り込み	제목 필터
+801	Filter outline titles	篩選目錄標題	目次のタイトルを絞り込み	목차 제목 필터
+802	Owner password (required)	管理密碼（必填）	管理パスワード（必須）	관리 암호(필수)
+803	Paste	貼上	貼り付け	붙여넣기
+804	Paste as plain text	貼上為純文字	プレーンテキストとして貼り付け	일반 텍스트로 붙여넣기
+805	Pasted clipboard images have no source file and are saved to the location above ("do nothing" saves to ./assets). The document must be saved first.	貼上的剪貼簿圖片沒有原始檔，會按上面的位置儲存（選擇「不處理」時儲存到 ./assets）。文件需要先儲存。	貼り付けたクリップボードの画像には元ファイルがないため、上の場所に保存されます（「何もしない」の場合は ./assets）。先に文書を保存してください。	붙여 넣은 클립보드 이미지는 원본 파일이 없으므로 위의 위치에 저장됩니다("처리 안 함"이면 ./assets). 문서를 먼저 저장해야 합니다.
+806	-	-	-	-
+807	Plain text	純文字	プレーンテキスト	일반 텍스트
+808	Plain text (.txt)	純文字 (.txt)	テキスト (.txt)	일반 텍스트(.txt)
+809	Plain text TXT	純文字 TXT	テキスト TXT	일반 텍스트 TXT
+810	Paper	紙張	用紙	용지
+811	Bind to current page	綁定目前頁	現在のページに関連付け	현재 페이지에 연결
+812	End comparison	結束比較	比較を終了	비교 종료
+813	Draw shapes	繪製圖形	図形を描く	도형 그리기
+814	Continue saving	繼續儲存	保存を続ける	계속 저장
+815	Continue the current page edit	繼續目前頁面編輯	現在のページ編集を続ける	현재 페이지 편집 계속
+816	Keep editing	繼續編輯	編集を続ける	계속 편집
+817	Edit	編輯	編集	편집
+818	Edit PDF outline	編輯 PDF 大綱	PDF のアウトラインを編集	PDF 개요 편집
+819	Edit history	編輯歷史	編集履歴	편집 기록
+820	Edit mode · click a paragraph to edit it	編輯模式 · 點擊段落即可編輯	編集モード · 段落をクリックすると編集できます	편집 모드 · 단락을 클릭하면 편집됩니다
+821	Edit outline	編輯目錄	目次を編集	목차 편집
+822	Edit type	編輯類型	編集の種類	편집 유형
+823	Zoom out	縮小	縮小	축소
+824	Zoom out · Ctrl+-	縮小 · Ctrl+-	縮小 · Ctrl+-	축소 · Ctrl+-
+825	Zoom	縮放比例	倍率	확대/축소 비율
+826	Resize edit area	縮放編輯區域	編集範囲の拡大縮小	편집 영역 크기 조정
+827	Thumbnails	縮圖	サムネイル	축소판
+828	Thumbnail columns	縮圖欄數	サムネイルの列数	축소판 열 수
+829	Thumbnail not loaded; click to open the page.	縮圖未載入，可點擊開啟頁面。	サムネイルは未読み込みです。クリックでページを開きます。	축소판을 불러오지 않았습니다. 클릭하여 페이지를 여세요.
+830	Parchment	羊皮紙	羊皮紙	양피지
+831	Background	背景	背景	배경
+832	Footnote	註腳	脚注	각주
+833	Auto save	自動儲存	自動保存	자동 저장
+834	Automatically save files that have a path	自動儲存已有路徑的檔案	パスのあるファイルを自動保存	경로가 있는 파일 자동 저장
+835	Auto save interval (seconds)	自動儲存間隔（秒）	自動保存の間隔（秒）	자동 저장 간격(초)
+836	Straighten slight tilts automatically (±5°)	自動校正輕微傾斜（±5°）	軽い傾きを自動補正（±5°）	약간의 기울기 자동 보정(±5°)
+837	Automatic zoom	自動縮放	自動ズーム	자동 확대/축소
+838	Detection replaces the current outline draft; check the result before exporting.	自動辨識將取代目前目錄草稿，請檢查辨識結果後再匯出。	自動検出は現在の目次の下書きを置き換えます。書き出す前に結果を確認してください。	자동 인식은 현재 목차 초안을 대체합니다. 내보내기 전에 결과를 확인하세요.
+839	Detect headings	自動辨識標題	見出しを自動検出	제목 자동 인식
+840	Auto-pair brackets and quotes	自動配對括號和引號	括弧と引用符を自動で閉じる	괄호와 따옴표 자동 짝 맞추기
+841	Custom themes	自訂主題	カスタムテーマ	사용자 지정 테마
+842	Custom image folder	自訂圖片資料夾	カスタム画像フォルダー	사용자 지정 이미지 폴더
+843	Custom folder (relative to the document or absolute)	自訂資料夾（相對文件或絕對路徑）	カスタムフォルダー（文書からの相対または絶対パス）	사용자 지정 폴더(문서 기준 상대 또는 절대 경로)
+844	Custom background and text colors…	自訂背景與文字顏色…	背景と文字の色をカスタマイズ…	배경 및 글자 색 사용자 지정…
+845	Custom color mode	自訂色彩模式	カスタムカラーモード	사용자 지정 색 모드
+846	Custom: 	自訂：	カスタム：	사용자 지정: 
+847	Free text	自由文字	フリーテキスト	자유 텍스트
+848	Freehand	自由繪製	フリーハンド	자유 그리기
+849	Keep at least one page.	至少保留一頁。	少なくとも 1 ページは残してください。	최소 한 페이지는 남겨 두세요.
+850	Draft backup incomplete: 	草稿備份未完成：	下書きのバックアップが完了しませんでした：	초안 백업을 완료하지 못했습니다: 
+851	Language of menus, buttons and messages; document content is not affected.	功能表、按鈕和提示使用的語言；文件內容不受影響。	メニュー・ボタン・メッセージの言語です。文書の内容には影響しません。	메뉴, 버튼, 메시지에 쓰이는 언어입니다. 문서 내용에는 영향을 주지 않습니다.
+852	Mint	薄荷	ミント	민트
+853	Row −	列−	行−	행 −
+854	Inline code	行內程式碼	インラインコード	인라인 코드
+855	Inline math	行內公式	インライン数式	인라인 수식
+856	Lines	行數	行数	줄 수
+857	Line height	行高	行の高さ	줄 높이
+858	Emoji and symbols	表情符號與符號	絵文字と記号	이모지 및 기호
+859	Emoji and symbols…	表情符號與符號…	絵文字と記号…	이모지 및 기호…
+860	Emoji suggestions	表情符號建議	絵文字の候補	이모지 제안
+861	Table	表格	表	표
+862	Table operations	表格操作	表の操作	표 작업
+863	Crop margins must be 0–40%.	裁切邊距應為 0–40%。	トリミング余白は 0～40% にしてください。	자르기 여백은 0–40%여야 합니다.
+864	Crop pages…	裁切頁面…	ページをトリミング…	페이지 자르기…
+865	Overwriting replaces the version on disk with the current content in Qingye; "Save as" keeps both.	覆寫將以青頁中的目前內容取代磁碟上的版本；「另存新檔」可以同時保留兩份。	上書きするとディスク上の版が青頁の現在の内容で置き換わります。「名前を付けて保存」なら両方を残せます。	덮어쓰면 디스크의 버전이 칭예의 현재 내용으로 바뀝니다. "다른 이름으로 저장"하면 둘 다 보관합니다.
+866	Overwrite the version on disk	覆寫磁碟上的版本	ディスク上の版を上書き	디스크의 버전 덮어쓰기
+867	View	檢視	表示	보기
+868	View mode	檢視模式	表示モード	보기 모드
+869	Warning	警告 (Warning)	警告 (Warning)	경고 (Warning)
+870	Callouts	警告框	注意書き	경고 상자
+871	Callout: Caution	警告框：小心 (Caution)	注意書き：注意喚起 (Caution)	경고 상자: 주의 (Caution)
+872	Callout: Tip	警告框：提示 (Tip)	注意書き：ヒント (Tip)	경고 상자: 팁 (Tip)
+873	Callout: Note	警告框：注意 (Note)	注意書き：注記 (Note)	경고 상자: 참고 (Note)
+874	Callout: Warning	警告框：警告 (Warning)	注意書き：警告 (Warning)	경고 상자: 경고 (Warning)
+875	Callout: Important	警告框：重要 (Important)	注意書き：重要 (Important)	경고 상자: 중요 (Important)
+876	Make scans searchable	讓掃描件可以搜尋	スキャンを検索可能に	스캔을 검색 가능하게
+877	Settings	設定	設定	설정
+878	Settings categories	設定分類	設定の分類	설정 분류
+879	Comment	評論	コメント	댓글
+880	Syntax, formulas and diagrams on one page	語法、公式、圖表一頁看完	構文・数式・図を 1 ページで	문법, 수식, 다이어그램을 한 페이지에
+881	Save the current annotations first, then open it in a new window.	請先儲存目前批註，再在新視窗中開啟。	現在の注釈を保存してから新しいウィンドウで開いてください。	현재 주석을 먼저 저장한 뒤 새 창에서 여세요.
+882	Please save the document first.	請先儲存文件。	先に文書を保存してください。	먼저 문서를 저장하세요.
+883	Save the document first, then create a copy.	請先儲存文件，再建立副本。	先に文書を保存してから複製を作成してください。	먼저 문서를 저장한 뒤 사본을 만드세요.
+884	Turn off text reflow before editing pages.	請先關閉文字重排，再編輯頁面。	ページを編集する前にテキストのリフローを終了してください。	페이지를 편집하기 전에 텍스트 재배치를 끄세요.
+885	Please check some pages first.	請先勾選頁面。	先にページにチェックを入れてください。	먼저 페이지를 선택하세요.
+886	Apply or cancel the current page edit before using annotation tools.	請先套用或取消目前頁面編輯，再使用批註工具。	注釈ツールを使う前に、現在のページ編集を適用するかキャンセルしてください。	주석 도구를 쓰기 전에 현재 페이지 편집을 적용하거나 취소하세요.
+887	Apply or cancel the current page edit before selecting text.	請先套用或取消目前頁面編輯，再選取文字。	テキストを選択する前に、現在のページ編集を適用するかキャンセルしてください。	텍스트를 선택하기 전에 현재 페이지 편집을 적용하거나 취소하세요.
+888	Please open a PDF first.	請先開啟 PDF。	先に PDF を開いてください。	먼저 PDF를 여세요.
+889	Open a PDF first, or choose files to convert to PDF	請先開啟 PDF，或選擇檔案轉換為 PDF	先に PDF を開くか、PDF に変換するファイルを選んでください	먼저 PDF를 열거나 PDF로 변환할 파일을 선택하세요
+890	Please open another PDF document first.	請先開啟另一個 PDF 文件。	先に別の PDF 文書を開いてください。	먼저 다른 PDF 문서를 여세요.
+891	Please register as default opener first	請先註冊為開啟方式	先に開くアプリとして登録してください	먼저 열기 프로그램으로 등록하세요
+892	Please choose a file first.	請先選擇檔案。	先にファイルを選んでください。	먼저 파일을 선택하세요.
+893	Please select pages first.	請先選擇頁面。	先にページを選んでください。	먼저 페이지를 선택하세요.
+894	Choose "Qingye PDF" in the Windows window	請在 Windows 視窗中選擇「青頁 PDF」	Windows のウィンドウで「青頁 PDF」を選んでください	Windows 창에서 "칭예 PDF"를 선택하세요
+895	Please open two different PDFs.	請開啟兩個不同的 PDF。	異なる 2 つの PDF を開いてください。	서로 다른 PDF 두 개를 여세요.
+896	Please check the outline titles, pages and levels.	請檢查目錄標題、頁碼與層級。	目次のタイトル・ページ・レベルを確認してください。	목차 제목, 페이지, 수준을 확인하세요.
+897	Please choose a valid text color.	請選擇有效的文字顏色。	有効な文字の色を選んでください。	올바른 글자 색을 선택하세요.
+898	Please choose valid background and text colors.	請選擇有效的背景與文字顏色。	有効な背景と文字の色を選んでください。	올바른 배경색과 글자 색을 선택하세요.
+899	Please select at least one document to merge.	請選擇至少一個待合併文件。	結合する文書を少なくとも 1 つ選んでください。	병합할 문서를 하나 이상 선택하세요.

@@ -1,0 +1,84 @@
+{
+ "strings": {
+  "保存到": "Save to",
+  "选择文件夹": "Choose a folder",
+  "打开文件": "Open file",
+  "常用位置": "Places",
+  "文件名": "File name",
+  "新建文件夹": "New folder",
+  "从其他应用导入…": "Import from another app…",
+  "显示全部文件": "Show all files",
+  "只显示支持的文件": "Show supported files only",
+  "内部存储": "Internal storage",
+  "下载": "Downloads",
+  "青页文件夹": "Qingye folder",
+  "选择此文件夹": "Use this folder",
+  "上一级": "Up one level",
+  "无法读取此文件夹。": "This folder cannot be read.",
+  "此文件夹中没有可打开的文件。": "No files that can be opened here.",
+  "此文件夹是空的。": "This folder is empty.",
+  "替换": "Replace",
+  "是否替换已有文件？": "Replace the existing file?",
+  "文件夹名称": "Folder name",
+  "去授权": "Grant access",
+  "尚未授予“所有文件访问权限”，目前只能使用青页自己的文件夹；其他位置的文件请用“从其他应用导入”。": "“All files access” has not been granted, so only Qingye's own folder is available; use “Import from another app” for files elsewhere.",
+  "打开手机上的文件前，需要授予“所有文件访问权限”。": "Grant “All files access” before opening files on this device.",
+  "更多": "More",
+  "分享当前文档": "Share this document",
+  "全屏阅读": "Full-screen reading",
+  "切换浅色界面": "Switch to light theme",
+  "请先保存文档，再分享。": "Save the document before sharing it.",
+  "分享的是已保存到文件的版本。": "The version saved to the file is shared.",
+  "安卓版已在系统的“打开方式”中登记 PDF 与 Markdown，无需在此注册。": "On Android, Qingye is already listed under “Open with” for PDF and Markdown; nothing needs to be registered here.",
+  "正在启动本地处理引擎": "Starting the local processing engine",
+  "正在加载文字识别模型": "Loading the text recognition models",
+  "文件不存在或已被移动。": "The file does not exist or has been moved.",
+  "安卓版不支持多窗口，请使用标签切换文档。": "Multiple windows are not available on Android; switch documents with the tabs.",
+  "安卓版不提供本地 AI 接口。": "The local AI interface is not available on Android.",
+  "文档": "Documents",
+  "允许青页访问手机上的文件": "Let Qingye access files on this device",
+  "青页直接在原位置打开和保存你的 PDF 与 Markdown，需要系统的“所有文件访问权限”。文件只在本机处理，不会上传。\n\n暂不授权也可以使用：通过“从其他应用导入”打开的文件会复制到青页自己的文件夹。": "Qingye opens and saves your PDF and Markdown files where they are, which needs the system's “All files access” permission. Files are processed on this device only and are never uploaded.\n\nYou can also continue without it: files opened through “Import from another app” are copied into Qingye's own folder.",
+  "暂不": "Not now",
+  "笔记模式命令": "Notes mode commands",
+  "笔记模式": "Notes mode",
+  "全库搜索": "Library search",
+  "轻点页面可以重新显示工具栏": "Tap the page to show the toolbars again",
+  "已复制": "Copied",
+  "触屏操作": "Touch gestures",
+  "所选文字": "Selected text",
+  "摘录到笔记": "Excerpt into the note",
+  "安卓版不提供联网补全，请直接填写引用信息。": "The Android version has no online lookup. Fill in the reference details directly.",
+  "文件超过 120 MB，未加入全库搜索。": "The file is larger than 120 MB and was left out of library search.",
+  "轻点页面：隐藏或显示上下的工具栏，让页面占满屏幕。\n双击页面：放大到两倍；再双击回到适合宽度。双指捏合可以任意缩放。\n长按文字：选中后，屏幕下方出现“复制 / 高亮 / 搜索 / 摘录到笔记”。\n长按页面空白处：打开页面菜单（批注、页面编辑、书签、引用信息）。\n长按标签：把这份文档放到笔记模式的另一侧。\n返回键：依次关闭菜单、退出笔记模式、回到首页。\n\n笔记模式：在“更多”里进入。竖屏时 PDF 在上、笔记在下，横屏和平板左右并排；拖动中间的分隔条调整大小。进入后，“更多”里的“笔记模式命令”可以框选区域（公式、图表）、同步批注、开关滚动联动。\n\n“更多”里还有全库搜索、分享、文档转换和设置。所有文档都在手机上处理，不会上传。": "Tap the page: hide or show the bars above and below it, so the page fills the screen.\nDouble-tap the page: zoom to 2×; double-tap again to fit the width. Pinch with two fingers for any zoom.\nLong-press text: once it is selected, \"Copy / Highlight / Search / Excerpt into the note\" appears at the bottom.\nLong-press an empty part of the page: the page menu (annotations, page editing, bookmarks, reference details).\nLong-press a tab: put that document on the other side of notes mode.\nBack: closes menus, leaves notes mode, then returns to the home screen.\n\nNotes mode: enter it from \"More\". In portrait the PDF is above the note; in landscape and on tablets they are side by side. Drag the divider to resize. Once inside, \"Notes mode commands\" under \"More\" selects a region (formulas, figures), syncs annotations and switches scroll sync.\n\n\"More\" also has library search, sharing, document conversion and settings. All documents are processed on the phone; nothing is uploaded."
+ },
+ "patterns": [
+  [
+   "^打开（(\\d+)）$",
+   "Open ($1)"
+  ],
+  [
+   "^“(.+)”已存在。$",
+   "“$1” already exists."
+  ],
+  [
+   "^文件位置：(.+)$",
+   "File location: $1"
+  ],
+  [
+   "^位置：(.+)$",
+   "Location: $1"
+  ],
+  [
+   "^无法分享：(.+)$",
+   "Cannot share: $1"
+  ],
+  [
+   "^导入失败：(.+)$",
+   "Import failed: $1"
+  ],
+  [
+   "^无法创建文件夹：(.+)$",
+   "Cannot create the folder: $1"
+  ]
+ ]
+}

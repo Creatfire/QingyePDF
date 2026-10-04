@@ -1,0 +1,27 @@
+* text=auto
+# Checksummed or line-ending-sensitive files are stored exactly as they are.
+vendor/** -text
+mobile/vendor-mobile/** -text
+*.nsi -text
+
+*.png binary
+*.ico binary
+*.jpg binary
+*.pdf binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.wasm binary
+*.traineddata binary
+*.bcmap binary
+*.pfb binary
+*.icc binary
+*.zip binary
+*.whl binary
+*.jar binary
+
+# Vendored third-party code is not counted in language statistics or shown in diffs by default.
+vendor/** linguist-vendored
+mobile/vendor-mobile/** linguist-vendored
+ui/i18n/*.json linguist-generated
+*.map linguist-generated -diff

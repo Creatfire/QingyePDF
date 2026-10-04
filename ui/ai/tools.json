@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "description": "Document tools that Qingye exposes to AI models (in-app function calling) and to external AI clients (local OpenAPI tool server). document_id defaults to the active document.",
+  "tools": [
+    {
+      "name": "list_documents",
+      "title": "列出打开的文档",
+      "description": "List the documents currently open in Qingye (PDF and Markdown tabs), with id, name, kind, page count and whether each has unsaved changes. Also tells which one is active. In notes mode (two documents side by side) it also reports which document is in the left and the right pane.",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "read_document",
+      "title": "读取文档内容",
+      "description": "Read text from a document. For PDF use start_page/end_page (1-based, inclusive; at most 50 pages per call, 10 by default); for Markdown the Markdown source is returned (start_char/end_char optional). Long results are truncated to max_chars.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string",
+            "description": "Document id from list_documents; omit for the active document."
+          },
+          "start_page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "end_page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "start_char": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_char": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "max_chars": {
+            "type": "integer",
+            "minimum": 200,
+            "maximum": 60000,
+            "default": 12000
+          }
+        }
+      }
+    },
+    {
+      "name": "get_selection",
+      "title": "读取选中内容",
+      "description": "Return the text the user has currently selected in a document (empty if nothing is selected), plus the current page (PDF) or cursor line (Markdown).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_outline",
+      "title": "读取目录",
+      "description": "Return the document outline: PDF bookmarks with page numbers, or Markdown headings with levels.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "search_document",
+      "title": "搜索文档",
+      "description": "Find a phrase in a document (case-insensitive). Returns up to max_results matches with page (PDF) or line (Markdown) and surrounding text.",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          }
+        }
+      }
+    },
+    {
+      "name": "go_to",
+      "title": "跳转",
+      "description": "Scroll the document to a PDF page number or to a Markdown heading (by exact heading text).",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "heading": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "insert_markdown",
+      "title": "写入 Markdown",
+      "description": "Insert Markdown text into a Markdown document at the cursor, at the end, or replacing the current selection. The user is asked to confirm unless they allowed edits. The change can be undone with Ctrl+Z and is not saved to disk automatically.",
+      "mutating": true,
+      "parameters": {
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string",
+            "enum": [
+              "cursor",
+              "end",
+              "replace_selection"
+            ],
+            "default": "cursor"
+          }
+        }
+      }
+    },
+    {
+      "name": "annotate_pdf",
+      "title": "批注 PDF",
+      "description": "Highlight, underline or strike out a passage on one page of a PDF and optionally attach a comment to it. Give the page number and a quote copied exactly from that page (use read_document first). The user is asked to confirm unless they allowed edits. The annotation can be undone with Ctrl+Z and is not saved to disk automatically. This cannot change the PDF's own text.",
+      "mutating": true,
+      "parameters": {
+        "type": "object",
+        "required": [
+          "page",
+          "quote"
+        ],
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "quote": {
+            "type": "string",
+            "description": "Text exactly as it appears on that page."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "highlight",
+              "underline",
+              "strikeout"
+            ],
+            "default": "highlight"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Optional note stored with the annotation."
+          },
+          "color": {
+            "type": "string",
+            "description": "Optional #rrggbb colour."
+          }
+        }
+      }
+    },
+    {
+      "name": "create_markdown",
+      "title": "新建 Markdown 文档",
+      "description": "Open a new, unsaved Markdown tab with the given content (for summaries, notes or translations). The user decides whether to save it.",
+      "mutating": true,
+      "parameters": {
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

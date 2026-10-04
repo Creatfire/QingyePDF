@@ -1,0 +1,41 @@
+/* Qingye 0.11.0 — library search, reference details and the notes-mode additions. */
+#libraryDialog { width: min(760px, calc(100vw - 32px)); max-width: none; height: min(640px, calc(100vh - 64px)); padding: 18px 20px 14px; }
+#libraryDialog[open] { display: flex; flex-direction: column; gap: 10px; }
+.libraryHead { display: flex; align-items: center; justify-content: space-between; }
+.libraryHead h2 { margin: 0; }
+#libraryQuery { height: 38px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--ink); font-size: 14px; }
+#libraryQuery:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+#librarySummary { margin: 0; font-size: 12.5px; color: var(--muted); }
+#libraryResults { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+.libraryDoc { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; flex: none; }
+.libraryDocHead { display: flex; align-items: center; gap: 8px; height: auto; min-height: 34px; padding: 6px 10px; border-radius: 0; background: var(--accent-soft); color: var(--ink); text-align: left; justify-content: flex-start; }
+.libraryDocHead strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.libraryDocHead small { margin-left: auto; flex: none; color: var(--muted); }
+.libraryHit { display: flex; gap: 10px; align-items: baseline; height: auto; padding: 6px 10px; border-radius: 0; border-top: 1px solid var(--line); background: none; text-align: left; justify-content: flex-start; font-size: 12.5px; line-height: 1.6; }
+.libraryHit:hover, .libraryHit:focus-visible, .libraryDocHead:hover { background: var(--hover); }
+.libraryWhere { flex: none; width: 64px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.librarySnippet { min-width: 0; color: var(--ink-2); overflow-wrap: anywhere; }
+.librarySnippet mark { background: color-mix(in srgb, var(--accent) 28%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+.libraryMore { margin: 0; padding: 5px 10px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.libraryFoot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.libraryFoot .spacer, .citationActions .spacer { flex: 1; }
+
+#citationDialog { width: min(680px, calc(100vw - 32px)); max-width: none; max-height: calc(100vh - 48px); overflow: auto; }
+.citationHint { margin: 0 0 12px; }
+.citationGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 12px; }
+.citationGrid label, .citationPreviewLabel { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+.citationGrid label.wide { grid-column: 1 / -1; }
+.citationGrid label.half { grid-column: span 2; }
+.citationGrid input, .citationGrid select { min-width: 0; width: 100%; box-sizing: border-box; }
+.citationGrid input, .citationGrid select, #citationBibtex { height: 30px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink); font-size: 13px; }
+#citationBibtex { height: auto; padding: 8px; font-family: ui-monospace, Consolas, "Cascadia Mono", monospace; font-size: 12px; line-height: 1.55; resize: vertical; white-space: pre; }
+.citationPreviewLabel { margin-top: 12px; }
+#citationReference { margin: 10px 0 12px; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); cursor: pointer; white-space: normal; overflow-wrap: anywhere; }
+.citationActions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* Notes mode: the block the note scrolled to while following the PDF. */
+.notesSyncFlash { animation: notes-sync-flash 1.2s var(--ease, ease); }
+@keyframes notes-sync-flash { 0%, 40% { background: color-mix(in srgb, var(--accent) 16%, transparent); } 100% { background: transparent; } }
+.notesDividerTools button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.notesDividerTools button[hidden] { display: none; }
+@media print { #libraryDialog, #citationDialog { display: none !important; } }

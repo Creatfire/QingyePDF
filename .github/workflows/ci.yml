@@ -1,0 +1,119 @@
+# Qingye PDF continuous integration (0.9.5).
+# Every push / pull request: unit tests, the Electron smoke suites and a portable build on Windows.
+# Tag pushes (v*) additionally build the installer and attach both to a draft GitHub release.
+# Code signing is used only when the repository secrets below are configured; without them the
+# build is unsigned and the job still passes (see docs/SIGNING.md).
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      QINGYE_PROFILE_DIR: ${{ github.workspace }}\.ci-profile
+      ELECTRON_ENABLE_LOGGING: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements-lock.txt
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Prepare PDF.js and Pandoc (checksum verified)
+        shell: pwsh
+        run: |
+          node scripts/prepare-pdfjs.mjs
+          ./scripts/prepare-pandoc.ps1
+
+      - name: Cache frozen backend
+        id: backend-cache
+        uses: actions/cache@v4
+        with:
+          path: backend/bin
+          key: backend-${{ hashFiles('backend/worker.py', 'backend/requirements-lock.txt', 'scripts/build-backend.ps1') }}
+
+      - name: Build frozen backend
+        if: steps.backend-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: ./scripts/build-backend.ps1
+
+      - name: Backend tests
+        shell: pwsh
+        run: |
+          .backend-build/Scripts/python.exe backend/test_worker.py
+        continue-on-error: ${{ steps.backend-cache.outputs.cache-hit == 'true' }}
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Electron smoke suites
+        shell: pwsh
+        run: node scripts/ci-smoke.cjs --report test-output/ci-smoke.json
+
+      - name: Build portable exe
+        shell: pwsh
+        env:
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: npm run dist
+
+      - name: Packaged smoke
+        shell: pwsh
+        run: node scripts/ci-smoke.cjs --packaged --report test-output/ci-packaged.json
+
+      - name: Build installer (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: npm run dist:installer
+
+      - name: Checksums
+        shell: pwsh
+        run: Get-ChildItem dist -File -Filter *.exe | Get-FileHash -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path -Leaf $_.Path)" } | Tee-Object dist/SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qingye-${{ github.sha }}
+          path: |
+            dist/*.exe
+            dist/SHA256SUMS.txt
+            test-output/**/*.json
+            test-output/**/*.png
+            test-output/**/*.log
+          retention-days: 14
+
+      - name: Draft release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: |
+            dist/*.exe
+            dist/SHA256SUMS.txt

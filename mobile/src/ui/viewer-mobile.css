@@ -1,0 +1,10 @@
+/* Android additions for the PDF.js viewer frame (loaded after ui/viewer.css). */
+html { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+/* Boxes that are dragged or resized with a finger must not scroll the page underneath. */
+.directEditBox, .directEditBox *, .directExactPreview, .selectionBox, .regionBox { touch-action: none; }
+#toolbarContainer .editorParamsToolbar { max-width: calc(100vw - 20px); inset: 8px 8px auto auto !important; }
+#editorCommentsSidebar { max-width: calc(100vw - 16px); }
+@media (max-width: 760px) {
+  /* Leave room for the floating page navigator at the bottom of the screen. */
+  #viewer { padding-bottom: 72px; }
+}

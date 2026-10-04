@@ -1,0 +1,51 @@
+/* Qingye 0.10.0 — notes mode: two documents side by side (see notes-mode.mjs). */
+#notesButton[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+#notesMenu { position: fixed; inset: auto; max-width: min(360px, calc(100vw - 16px)); max-height: calc(100vh - 80px); overflow: auto; }
+#notesMenu .menuItem { height: auto; min-height: 32px; padding: 6px 10px; text-align: left; }
+#notesMenu .notesMenuText { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#notesMenu .menuItem .shortcut { flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#notesMenu .menuLabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#notesMenu .notesMenuNote { margin: 2px 10px 8px; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+
+/* Panes: widths come from notes-mode.mjs (inline left / width in %). */
+.viewerPanel.noteLeft { left: 0; }
+.viewerPanel.noteLeft, .viewerPanel.noteRight { transition: none; }
+/* The focused pane is the one toolbar, shortcuts and saving act on. */
+.viewerPanel.noteLeft::after, .viewerPanel.noteRight::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-top: 2px solid transparent; }
+.viewerPanel.noteFocus::after { border-top-color: var(--accent); }
+body.notesMode .viewerPanel:not(.noteFocus) .mdMenubar { opacity: .72; }
+
+#notesDivider { position: absolute; top: 0; bottom: 0; z-index: 9; width: 9px; margin-left: -4px; cursor: col-resize; pointer-events: auto; touch-action: none; display: flex; align-items: center; justify-content: center; }
+#notesDivider[hidden] { display: none; }
+#notesDivider::before { content: ""; position: absolute; top: 0; bottom: 0; left: 4px; width: 1px; background: var(--line-strong); transition: background var(--fast), width var(--fast), left var(--fast); }
+#notesDivider:hover::before, #notesDivider:focus-visible::before, body.notesResizing #notesDivider::before { left: 3px; width: 3px; background: var(--accent); }
+#notesDivider:focus-visible { outline: none; }
+.notesDividerTools { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 4px; padding: 4px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); opacity: 0; transition: opacity var(--fast); }
+#notesDivider:hover .notesDividerTools, #notesDivider:focus-within .notesDividerTools { opacity: 1; }
+.notesDividerTools button { width: 26px; height: 26px; padding: 0; border-radius: 7px; color: var(--muted); --icon-size: 15px; cursor: pointer; }
+.notesDividerTools button:hover { background: var(--hover); color: var(--ink); }
+/* While dragging, the panes must not swallow the pointer (PDF frames would). */
+body.notesResizing .viewerPanel { pointer-events: none; }
+body.notesResizing { cursor: col-resize; user-select: none; }
+
+/* Tabs of the two visible documents */
+.tab.inSplit:not(.active) { background: color-mix(in srgb, var(--surface) 62%, transparent); color: var(--ink-2); }
+.tab.inSplit .tabTitle::before { color: var(--accent); opacity: 1; }
+.tab.inSplit[data-pane]::before { content: ""; position: absolute; left: 8px; right: 8px; bottom: 0; height: 2px; border-radius: 2px; background: var(--accent); opacity: .55; }
+.tab.inSplit.active[data-pane]::before { opacity: 1; }
+
+/* A Markdown pane is narrower than a window: let its menu row scroll instead of clipping. */
+body.notesMode .mdPanel .mdMenubar { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+body.notesMode .mdPanel .mdMenubar::-webkit-scrollbar { display: none; }
+body.notesMode .mdPanel .mdMenubar > * { flex: none; }
+body.notesMode .mdPanel .mdDoc { padding-left: 28px; padding-right: 28px; }
+body.notesMode .mdPanel .mdOutline { position: absolute; inset: 0 auto 0 0; z-index: 11; box-shadow: var(--shadow-lg); }
+body.notesMode .viewerPanel .pager { left: 12px; bottom: 12px; }
+@media print { #notesDivider { display: none !important; } }
+
+/* Stacked panes (0.12.0): a phone in portrait puts the PDF above the note. Sizes come from notes-mode.mjs (top / height in %). */
+body.notesRows #notesDivider { left: 0; right: 0; bottom: auto; width: auto; height: 9px; margin-left: 0; margin-top: -4px; cursor: row-resize; }
+body.notesRows #notesDivider::before { top: 4px; bottom: auto; left: 0; right: 0; width: auto; height: 1px; }
+body.notesRows #notesDivider:hover::before, body.notesRows #notesDivider:focus-visible::before, body.notesRows.notesResizing #notesDivider::before { left: 0; top: 3px; width: auto; height: 3px; }
+body.notesRows .notesDividerTools { flex-direction: row; }
+body.notesRows.notesResizing { cursor: row-resize; }

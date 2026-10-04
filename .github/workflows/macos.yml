@@ -1,0 +1,135 @@
+# Qingye PDF for macOS (0.12.0).
+# Every push / pull request: unit tests and a .dmg for Apple silicon and for Intel Macs.
+# Tag pushes (v*) attach both images to the draft GitHub release that ci.yml creates.
+#
+# Signing: with the secrets MAC_CSC_LINK / MAC_CSC_KEY_PASSWORD (a "Developer ID Application"
+# certificate) the app is signed, and with APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID
+# it is notarised as well. Without them the app is ad-hoc signed: it runs, but Gatekeeper asks
+# the user to allow it once (see docs/MACOS.md).
+name: macos
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dmg:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    env:
+      QINGYE_ARCH: ${{ matrix.arch }}
+      HAS_CERTIFICATE: ${{ secrets.MAC_CSC_LINK != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements-lock.txt
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Prepare PDF.js and Pandoc (checksum verified)
+        run: |
+          node scripts/prepare-pdfjs.mjs
+          bash scripts/prepare-pandoc.sh
+
+      - name: Cache frozen backend
+        id: backend-cache
+        uses: actions/cache@v4
+        with:
+          path: backend/bin
+          key: backend-macos-${{ matrix.arch }}-${{ hashFiles('backend/worker.py', 'backend/requirements.txt', 'scripts/build-backend.sh') }}
+
+      - name: Build frozen backend
+        if: steps.backend-cache.outputs.cache-hit != 'true'
+        run: bash scripts/build-backend.sh
+
+      - name: Backend self-check
+        run: |
+          file backend/bin/QingyeWorker/QingyeWorker
+          vendor/pandoc/pandoc --version | head -1
+
+      - name: Unit tests
+        run: npm test
+
+      # The window suites were written against Windows; on a Mac they are informative for now.
+      - name: Electron smoke suites
+        continue-on-error: true
+        run: node scripts/ci-smoke.cjs --report test-output/ci-smoke-macos-${{ matrix.arch }}.json
+
+      - name: Build dmg (signed)
+        if: env.HAS_CERTIFICATE == 'true'
+        env:
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: npx electron-builder --mac dmg --${{ matrix.arch }} --publish never
+
+      - name: Build dmg (ad-hoc signed)
+        if: env.HAS_CERTIFICATE != 'true'
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder --mac dmg --${{ matrix.arch }} --publish never -c.mac.identity=- -c.mac.notarize=false
+
+      - name: Check the application bundle
+        run: |
+          app="$(ls -d dist/mac*/QingyePDF.app | head -1)"
+          test -x "$app/Contents/Resources/backend/QingyeWorker"
+          test -x "$app/Contents/Resources/pandoc/pandoc"
+          test -f "$app/Contents/Resources/ocr/chi_sim.traineddata"
+          codesign --verify --deep --verbose=2 "$app" || echo "::warning::codesign verification failed"
+          # The bundled engines must start from inside the bundle.
+          "$app/Contents/Resources/pandoc/pandoc" --version | head -1
+          printf '{}' > /tmp/empty-job.json
+          "$app/Contents/Resources/backend/QingyeWorker" /tmp/empty-job.json || true
+          ls -la dist/*.dmg
+          shasum -a 256 dist/*.dmg | tee "dist/SHA256SUMS-mac-${{ matrix.arch }}.txt"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qingye-macos-${{ matrix.arch }}-${{ github.sha }}
+          path: |
+            dist/*.dmg
+            dist/SHA256SUMS-mac-*.txt
+            test-output/**/*.json
+            test-output/**/*.png
+            test-output/**/*.log
+          retention-days: 14
+
+      - name: Attach to draft release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: |
+            dist/*.dmg
+            dist/SHA256SUMS-mac-*.txt

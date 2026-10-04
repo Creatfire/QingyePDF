@@ -1,0 +1,11 @@
+{
+  "appId": "org.qingye.pdf",
+  "appName": "青页 PDF",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "name": "qingye-pdf",
+  "version": "0.12.0",
+  "description": "Local-first open-source PDF reader with tabs and annotations",
+  "author": "Qingye PDF contributors",
+  "license": "AGPL-3.0-only",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "prepare:pdfjs": "node scripts/prepare-pdfjs.mjs",
+    "test": "node --test test/core.test.cjs test/offline.test.cjs test/recovery.test.cjs test/history.test.cjs test/diagnostics.test.cjs test/ui-errors.test.cjs test/markdown.test.mjs test/typora.test.mjs test/i18n.test.mjs test/ai.test.mjs test/ai-tools.test.mjs test/converter.test.cjs test/release093.test.cjs test/fixes093.test.cjs test/features094.test.mjs test/notes010.test.mjs test/links011.test.mjs test/platform012.test.mjs",
+    "build:backend": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-backend.ps1",
+    "smoke": "electron . --smoke-test",
+    "safety": "electron . --safety-smoke",
+    "dist": "node scripts/build-distribution.cjs portable",
+    "deliver": "node scripts/prepare-delivery.cjs",
+    "dist:installer": "electron-builder --win nsis --x64",
+    "dist:all": "node scripts/build-distribution.cjs portable nsis",
+    "smoke:markdown": "electron . --markdown-smoke",
+    "build:markdown-vendor": "node scripts/build-markdown-vendor.mjs",
+    "build:diagrams-vendor": "node scripts/build-diagrams-vendor.mjs",
+    "smoke:conversion": "electron . --conversion-smoke",
+    "basic": "electron . --basic-smoke",
+    "test:093": "node --test test/release093.test.cjs test/ai-tools.test.mjs test/i18n.test.mjs",
+    "test:fixes": "node --test test/fixes093.test.cjs test/core.test.cjs test/converter.test.cjs test/ai-tools.test.mjs test/i18n.test.mjs",
+    "test:094": "node --test test/features094.test.mjs test/ai-tools.test.mjs test/core.test.cjs test/i18n.test.mjs",
+    "smoke:094": "electron . --features-smoke",
+    "test:010": "node --test test/notes010.test.mjs test/ai-tools.test.mjs test/core.test.cjs test/i18n.test.mjs",
+    "smoke:010": "electron . --notes-smoke",
+    "test:011": "node --test test/links011.test.mjs test/notes010.test.mjs test/i18n.test.mjs",
+    "smoke:011": "electron . --links-smoke",
+    "dist:mac": "electron-builder --mac dmg",
+    "build:backend:unix": "bash scripts/build-backend.sh"
+  },
+  "devDependencies": {
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3",
+    "resedit": "^3.1.0"
+  },
+  "build": {
+    "appId": "org.qingye.pdf",
+    "productName": "QingyePDF",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "core.cjs",
+      "offline.cjs",
+      "ui/**/*",
+      "vendor/pdfjs/**/*",
+      "vendor/markdown/**/*",
+      "vendor/mermaid/**/*",
+      "vendor/diagrams/**/*",
+      "LICENSE",
+      "LICENSE-MIT",
+      "THIRD_PARTY_NOTICES.md",
+      "README.md",
+      "FEATURES.md",
+      "test/smoke.cjs",
+      "recovery.cjs",
+      "diagnostics.cjs",
+      "CHANGELOG.md",
+      "test/editing-smoke.cjs",
+      "test/usability-smoke.cjs",
+      "test/enhancement-smoke.cjs",
+      "test/design-smoke.cjs",
+      "test/safety-smoke.cjs",
+      "markdown-files.cjs",
+      "test/markdown-smoke.cjs",
+      "test/diagrams-smoke.cjs",
+      "test/typora-smoke.cjs",
+      "markdown-tools.cjs",
+      "markdown-ipc.cjs",
+      "i18n-main.cjs",
+      "file-associations.cjs",
+      "pandoc-engine.cjs",
+      "converter-ipc.cjs",
+      "ai-service.cjs",
+      "ai-api-server.cjs",
+      "ai-ipc.cjs",
+      "test/conversion-smoke.cjs",
+      "CONVERSION.md",
+      "RELEASE-TARGET.json",
+      "test/basic093-smoke.cjs",
+      "test/fix093-smoke.cjs",
+      "test/fix-close093-smoke.cjs",
+      "converter-presets.cjs",
+      "notes-markdown.cjs",
+      "library-index.cjs",
+      "test/links011-smoke.cjs",
+      "test/features094-smoke.cjs",
+      "test/notes010-smoke.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/bin/QingyeWorker",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "vendor/ocr",
+        "to": "ocr",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "backend/licenses",
+        "to": "backend-licenses",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "vendor/pandoc",
+        "to": "pandoc",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "build/icon.ico",
+      "signExecutable": false,
+      "artifactName": "QingyePDF-${version}-win-x64.${ext}"
+    },
+    "portable": {
+      "requestExecutionLevel": "user"
+    },
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF document",
+        "description": "PDF document",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "md",
+          "markdown"
+        ],
+        "name": "Markdown document",
+        "description": "Markdown document",
+        "role": "Editor"
+      }
+    ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "QingyePDF-${version}-Setup-x64.${ext}"
+    },
+    "extraMetadata": {
+      "buildRevision": "dev1"
+    },
+    "afterPack": "scripts/after-pack.cjs",
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/logo.png",
+      "category": "public.app-category.productivity",
+      "artifactName": "QingyePDF-${version}-mac-${arch}.${ext}",
+      "darkModeSupport": true,
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "fileAssociations": [
+        {
+          "ext": "pdf",
+          "name": "PDF Document",
+          "role": "Viewer",
+          "rank": "Alternate"
+        },
+        {
+          "ext": [
+            "md",
+            "markdown",
+            "mdown",
+            "mkd"
+          ],
+          "name": "Markdown Document",
+          "role": "Editor",
+          "rank": "Alternate"
+        }
+      ],
+      "extendInfo": {
+        "CFBundleDisplayName": "青页 PDF",
+        "NSHumanReadableCopyright": "Copyright © 2026 Qingye PDF contributors. AGPL-3.0."
+      }
+    },
+    "dmg": {
+      "title": "QingyePDF ${version}",
+      "contents": [
+        {
+          "x": 150,
+          "y": 190
+        },
+        {
+          "x": 390,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    }
+  }
+}

@@ -1,0 +1,177 @@
+1123	Resize the AI panel	調整 AI 面板寬度	AI パネルの幅を調整	AI 패널 너비 조정
+1124	AI Assistant	AI 協作	AI アシスタント	AI 어시스턴트
+1125	Model	模型	モデル	모델
+1126	Choose a model	選擇模型	モデルを選択	모델 선택
+1127	Chat history	歷史對話	チャット履歴	대화 기록
+1128	Clear all	全部清除	すべて消去	모두 지우기
+1129	Ask about this document, or type / for presets	問問這份文件，或輸入 / 選擇預設	この文書について質問、または / でプリセット	이 문서에 대해 질문하거나 / 로 프리셋 선택
+1130	Message	輸入訊息	メッセージを入力	메시지 입력
+1131	Send · Enter	傳送 · Enter	送信 · Enter	보내기 · Enter
+1132	Send	傳送	送信	보내기
+1133	Enter to send · Shift+Enter for a new line · AI can make mistakes; check important information.	Enter 傳送 · Shift+Enter 換行 · AI 的回答可能出錯，請核對重要資訊。	Enter で送信 · Shift+Enter で改行 · AI の回答は誤っている場合があります。重要な情報は確認してください。	Enter 보내기 · Shift+Enter 줄바꿈 · AI 답변은 틀릴 수 있으니 중요한 정보는 확인하세요.
+1134	Changes are not saved automatically and can be undone with Ctrl+Z.	修改不會自動儲存，可以用 Ctrl+Z 復原。	変更は自動保存されず、Ctrl+Z で元に戻せます。	변경 내용은 자동 저장되지 않으며 Ctrl+Z로 되돌릴 수 있습니다.
+1135	Decline	拒絕	拒否	거부
+1136	Allow	允許	許可	허용
+1137	Summarize	總結文件	文書を要約	문서 요약
+1138	Summarize the main points of the current document as bullet points, citing page numbers or sections.	用要點總結目前文件的主要內容，並註明對應的頁碼或章節。	現在の文書の主な内容を箇条書きで要約し、該当するページまたは章を示してください。	현재 문서의 주요 내용을 요점으로 정리하고 해당 페이지나 장을 표시해 주세요.
+1139	Explain selection	解釋選取內容	選択範囲を説明	선택 내용 설명
+1140	Explain the text I selected, using the surrounding context where helpful.	解釋我選取的內容，必要時結合上下文。	選択した内容を、必要に応じて前後の文脈も踏まえて説明してください。	선택한 내용을 필요하면 앞뒤 문맥과 함께 설명해 주세요.
+1141	Translate selection	翻譯選取內容	選択範囲を翻訳	선택 내용 번역
+1142	Translate the selected text into English; if it is already English, translate it into Chinese. Keep the formatting.	把選取的內容翻譯成中文；如果原文是中文，就翻譯成英文。保留原有格式。	選択した内容を日本語に翻訳してください。すでに日本語なら英語に翻訳してください。書式は保ってください。	선택한 내용을 한국어로 번역하고, 이미 한국어라면 영어로 번역해 주세요. 서식은 유지해 주세요.
+1143	Polish selection	潤飾選取內容	選択範囲を推敲	선택 내용 다듬기
+1144	Polish the selected text so it reads more clearly, keep its meaning, and output only the revised version.	潤飾選取的文字，使表達更清晰流暢，保持原意，只輸出修改後的版本。	選択した文章を意味を変えずに読みやすく推敲し、修正後の文章だけを出力してください。	선택한 글을 의미는 유지하면서 더 명확하게 다듬고, 수정한 내용만 출력해 주세요.
+1145	Outline	整理大綱	アウトライン作成	개요 정리
+1146	Turn the current document into a clearly structured Markdown outline.	把目前文件整理成一份層級清晰的 Markdown 大綱。	現在の文書を、階層がわかりやすい Markdown のアウトラインにまとめてください。	현재 문서를 계층이 분명한 Markdown 개요로 정리해 주세요.
+1147	Quiz me	出幾道題	問題を作成	문제 만들기
+1148	Write 5 comprehension questions about the document, with the answers at the end.	根據文件內容出 5 道理解題，並在最後附上答案。	文書の内容から理解度を確かめる問題を 5 問作り、最後に答えを付けてください。	문서 내용으로 이해도 문제 5개를 만들고 마지막에 답을 붙여 주세요.
+1149	Continue writing	續寫	続きを書く	이어 쓰기
+1150	Continue the current Markdown document with the next paragraph, in the same style.	根據上下文續寫目前 Markdown 文件的下一段，風格保持一致。	文脈に沿って、現在の Markdown 文書の次の段落を同じ文体で書いてください。	문맥에 맞춰 현재 Markdown 문서의 다음 단락을 같은 문체로 이어 써 주세요.
+1151	New chat	新對話	新しいチャット	새 대화
+1152	AI settings	AI 設定	AI 設定	AI 설정
+1153	Close the AI panel · Ctrl+Shift+A	關閉 AI 面板 · Ctrl+Shift+A	AI パネルを閉じる · Ctrl+Shift+A	AI 패널 닫기 · Ctrl+Shift+A
+1154	From: local AI interface (external program)	來自：本機 AI 介面（外部程式）	要求元：ローカル AI インターフェイス（外部プログラム）	요청: 로컬 AI 인터페이스(외부 프로그램)
+1155	From: AI assistant panel	來自：AI 協作面板	要求元：AI アシスタントパネル	요청: AI 어시스턴트 패널
+1156	{name}: fetch models in Settings	{name}：請在設定中取得模型	{name}：設定でモデルを取得してください	{name}: 설정에서 모델을 가져오세요
+1157	{name} · {count} characters selected	{name} · 已選 {count} 字	{name} · {count} 文字を選択中	{name} · {count}자 선택됨
+1158	The selection is sent with your message (click to exclude)	傳送時附帶選取內容（按一下取消）	送信時に選択範囲を添付（クリックで解除）	보낼 때 선택 내용 포함(클릭하여 제외)
+1159	The selection is not sent (click to include)	不附帶選取內容（按一下附帶）	選択範囲は添付しない（クリックで添付）	선택 내용 포함 안 함(클릭하여 포함)
+1160	The AI can read the current document through tools	AI 可以透過工具讀取目前文件	AI はツールで現在の文書を読み取れます	AI가 도구로 현재 문서를 읽을 수 있습니다
+1161	Document tools are off: only the beginning of the document is sent	文件工具已關閉：只傳送文件開頭的部分內容	文書ツールはオフ：文書の冒頭部分だけを送信します	문서 도구 꺼짐: 문서 앞부분만 보냅니다
+1162	Delete this chat	刪除這則對話	このチャットを削除	이 대화 삭제
+1163	No chats yet	還沒有歷史對話	チャット履歴はまだありません	아직 대화 기록이 없습니다
+1164	Connect an AI model	連接一個 AI 模型	AI モデルを接続	AI 모델 연결
+1165	Works with OpenAI-compatible APIs (DeepSeek, Qwen, Kimi, Zhipu, SiliconFlow, OpenRouter and more), Anthropic, and Ollama / LM Studio on this computer. You can also import Open WebUI connection settings or a .env file.	支援 OpenAI 相容介面（DeepSeek、通義千問、Kimi、智譜、矽基流動、OpenRouter 等）、Anthropic 以及本機的 Ollama / LM Studio。也可以直接匯入 Open WebUI 的連線設定或 .env 檔案。	OpenAI 互換 API（DeepSeek、Qwen、Kimi、Zhipu、SiliconFlow、OpenRouter など）、Anthropic、この PC の Ollama / LM Studio に対応しています。Open WebUI の接続設定や .env ファイルも読み込めます。	OpenAI 호환 API(DeepSeek, Qwen, Kimi, Zhipu, SiliconFlow, OpenRouter 등), Anthropic, 이 컴퓨터의 Ollama / LM Studio를 지원합니다. Open WebUI 연결 설정이나 .env 파일도 가져올 수 있습니다.
+1166	Add connection	新增連線	接続を追加	연결 추가
+1167	Import settings…	匯入設定…	設定を読み込む…	설정 가져오기…
+1168	Imported {count} AI connections	已匯入 {count} 個 AI 連線	AI 接続を {count} 件読み込みました	AI 연결 {count}개를 가져왔습니다
+1169	Your question and the document excerpts it needs are sent to the service you configured only when you send a message. API keys are stored encrypted on this computer.	只有在你傳送訊息時，才會把問題和必要的文件片段傳送到你設定的服務；API Key 加密儲存在本機。	メッセージを送信したときだけ、質問と必要な文書の一部を設定したサービスに送ります。API キーはこの PC に暗号化して保存されます。	메시지를 보낼 때만 질문과 필요한 문서 일부를 설정한 서비스로 보냅니다. API 키는 이 컴퓨터에 암호화되어 저장됩니다.
+1170	Working with "{name}"	和「{name}」一起工作	「{name}」で作業中	"{name}"과(와) 함께 작업
+1171	Open a document to get started	開啟一個文件開始協作	文書を開いて始めましょう	문서를 열어 시작하세요
+1172	Retry	重試	再試行	다시 시도
+1173	Reasoning	思考過程	思考過程	추론 과정
+1174	Copied to the clipboard	已複製到剪貼簿	クリップボードにコピーしました	클립보드에 복사했습니다
+1175	Insert	插入文件	文書に挿入	문서에 삽입
+1176	Replaced the selection (Ctrl+Z to undo)	已取代選取內容（Ctrl+Z 可復原）	選択範囲を置き換えました（Ctrl+Z で元に戻す）	선택 내용을 바꿨습니다(Ctrl+Z로 실행 취소)
+1177	Inserted at the cursor (Ctrl+Z to undo)	已插入到游標處（Ctrl+Z 可復原）	カーソル位置に挿入しました（Ctrl+Z で元に戻す）	커서 위치에 삽입했습니다(Ctrl+Z로 실행 취소)
+1178	Insert at the cursor, or replace the selection if there is one	插入到游標處；有選取內容時取代選取內容	カーソル位置に挿入。選択範囲があれば置き換えます	커서 위치에 삽입하고, 선택 내용이 있으면 바꿉니다
+1179	Regenerate	重新產生	再生成	다시 생성
+1180	With selection · {count} characters	附帶選取內容 · {count} 字	選択範囲を添付 · {count} 文字	선택 내용 포함 · {count}자
+1181	{count} pages	{count} 頁	{count} ページ	{count}페이지
+1182	{count} characters	{count} 字	{count} 文字	{count}자
+1183	{count} matches	{count} 處相符	{count} 件一致	{count}개 일치
+1184	{count} documents	{count} 個文件	{count} 件の文書	문서 {count}개
+1185	{count} items	{count} 項	{count} 項目	{count}개 항목
+1186	Nothing selected	沒有選取內容	選択範囲なし	선택한 내용 없음
+1187	Stop	停止產生	生成を停止	생성 중지
+1188	Model connections	模型連線	モデル接続	모델 연결
+1189	Enter a service URL and API key, or import from Open WebUI connection settings, a .env file or an exported JSON file. API keys are encrypted by the system and stored on this computer; only the last few characters are shown.	填寫服務位址和 API Key，或從 Open WebUI 的連線設定、.env 檔案、匯出的 JSON 中匯入。API Key 由系統加密儲存在本機，介面中只顯示末尾幾位。	サービスの URL と API キーを入力するか、Open WebUI の接続設定、.env ファイル、書き出した JSON から読み込みます。API キーはシステムで暗号化してこの PC に保存され、末尾の数文字だけが表示されます。	서비스 주소와 API 키를 입력하거나 Open WebUI 연결 설정, .env 파일, 내보낸 JSON에서 가져오세요. API 키는 시스템이 암호화해 이 컴퓨터에 저장하며 끝 몇 자리만 표시됩니다.
+1190	Import from file…	從檔案匯入…	ファイルから読み込む…	파일에서 가져오기…
+1191	Paste to import	貼上匯入	貼り付けて読み込む	붙여넣어 가져오기
+1192	Export…	匯出…	書き出す…	내보내기…
+1193	Paste JSON, .env lines (OPENAI_API_KEY=…, OPENAI_BASE_URL=…) or "URL space key"	貼上 JSON、.env 內容（OPENAI_API_KEY=…、OPENAI_BASE_URL=…）或「位址 空格 Key」	JSON、.env の内容（OPENAI_API_KEY=…、OPENAI_BASE_URL=…）、または「URL スペース キー」を貼り付け	JSON, .env 내용(OPENAI_API_KEY=…, OPENAI_BASE_URL=…) 또는 "주소 공백 키"를 붙여넣기
+1194	Chat	對話	チャット	대화
+1195	Let the AI use document tools	允許 AI 使用文件工具	AI に文書ツールの使用を許可	AI가 문서 도구 사용 허용
+1196	The model reads pages, searches, and looks at the outline and selection as needed. If the model does not support tool calls, only the beginning of the document is sent.	讓模型按需讀取頁面、搜尋、檢視目錄和選取內容。模型不支援工具呼叫時會自動改為只傳送文件開頭部分。	モデルが必要に応じてページの読み取り、検索、目次や選択範囲の確認を行います。ツール呼び出しに対応していないモデルでは、文書の冒頭部分だけを送信します。	모델이 필요할 때 페이지 읽기, 검색, 목차와 선택 내용 확인을 합니다. 도구 호출을 지원하지 않는 모델에는 문서 앞부분만 보냅니다.
+1197	Confirm before the AI changes a document	AI 修改文件前先確認	AI が文書を変更する前に確認	AI가 문서를 바꾸기 전에 확인
+1198	Shows what the AI is about to write into Markdown and lets you decide.	AI 寫入 Markdown 前顯示將要寫入的內容，由你決定是否允許。	AI が Markdown に書き込む前に内容を表示し、許可するかどうかを選べます。	AI가 Markdown에 쓰기 전에 내용을 보여 주고 허용 여부를 선택하게 합니다.
+1199	Temperature	溫度	温度	온도
+1200	Lower is more consistent, higher is more creative (0–2).	越低越穩定，越高越有創意（0–2）。	低いほど安定し、高いほど創造的になります（0–2）。	낮을수록 안정적이고 높을수록 창의적입니다(0–2).
+1201	Maximum reply length	最大輸出長度	最大出力長	최대 출력 길이
+1202	Maximum number of tokens in one reply.	單次回答的最大 token 數。	1 回の回答の最大トークン数。	한 번의 답변에 쓰는 최대 토큰 수.
+1203	Document excerpt limit	文件摘錄上限	文書抜粋の上限	문서 발췌 한도
+1204	Characters of the document sent with the question when tools are not used.	不使用工具時隨問題傳送的文件字元數。	ツールを使わないときに質問と一緒に送る文書の文字数。	도구를 쓰지 않을 때 질문과 함께 보내는 문서 글자 수.
+1205	Custom system prompt	自訂系統提示詞	カスタムシステムプロンプト	사용자 지정 시스템 프롬프트
+1206	Added to the start of every chat, e.g. answer style or terminology.	附加在每次對話開頭，例如回答風格、術語要求。	毎回のチャットの最初に追加されます（回答スタイルや用語の指定など）。	모든 대화 앞에 추가됩니다(예: 답변 스타일, 용어 요구 사항).
+1207	Prompt presets	提示詞預設	プロンプトのプリセット	프롬프트 프리셋
+1208	Type "/" in the message box to use them. Commands may contain letters, digits, Chinese characters and hyphens.	在輸入框中鍵入「/」叫出。命令只能包含字母、數字、漢字和連字號。	入力欄で「/」を入力すると呼び出せます。コマンドには英数字、漢字、ハイフンのみ使えます。	입력란에 "/"를 입력하면 나타납니다. 명령에는 영문자, 숫자, 한자, 하이픈만 쓸 수 있습니다.
+1209	Add preset	新增預設	プリセットを追加	프리셋 추가
+1210	Local AI interface	本機 AI 介面	ローカル AI インターフェイス	로컬 AI 인터페이스
+1211	Opens a set of document endpoints (OpenAPI 3.1) for external AI tools such as Open WebUI tool servers, scripts or agents. It listens only on 127.0.0.1 and every request must carry the token.	為外部 AI 工具開放一組文件介面（OpenAPI 3.1），例如 Open WebUI 的「工具伺服器」、自動化指令碼或智慧代理。介面只監聽本機 127.0.0.1，每次請求都必須攜帶權杖。	外部の AI ツール（Open WebUI のツールサーバー、スクリプト、エージェントなど）向けに文書 API（OpenAPI 3.1）を公開します。127.0.0.1 のみで待ち受け、すべてのリクエストにトークンが必要です。	외부 AI 도구(Open WebUI 도구 서버, 스크립트, 에이전트 등)를 위한 문서 API(OpenAPI 3.1)를 엽니다. 127.0.0.1에서만 수신하며 모든 요청에 토큰이 필요합니다.
+1212	Enable the local AI interface	啟用本機 AI 介面	ローカル AI インターフェイスを有効にする	로컬 AI 인터페이스 사용
+1213	Port	連接埠	ポート	포트
+1214	1024–65535; takes effect immediately.	1024–65535，修改後立即生效。	1024–65535。変更はすぐに反映されます。	1024–65535, 변경 즉시 적용됩니다.
+1215	Access token	存取權杖	アクセストークン	액세스 토큰
+1216	External programs send it as a Bearer token.	外部程式以 Bearer 方式隨請求傳送。	外部プログラムは Bearer トークンとして送信します。	외부 프로그램이 Bearer 토큰으로 보냅니다.
+1217	Show token	顯示權杖	トークンを表示	토큰 표시
+1218	Copy token	複製權杖	トークンをコピー	토큰 복사
+1219	Regenerate token	重新產生權杖	トークンを再生成	토큰 다시 생성
+1220	Let external programs change documents without asking	允許外部程式直接修改文件	外部プログラムによる文書の直接変更を許可	외부 프로그램이 문서를 바로 수정하도록 허용
+1221	When off (recommended), Qingye asks you to confirm every write from an external program.	關閉時（建議），外部程式每次寫入都會在青頁中彈出確認。	オフのとき（推奨）は、外部プログラムが書き込むたびに青頁で確認を求めます。	꺼져 있으면(권장) 외부 프로그램이 쓸 때마다 칭예에서 확인을 요청합니다.
+1222	Name	名稱	名前	이름
+1223	e.g. DeepSeek	例如 DeepSeek	例：DeepSeek	예: DeepSeek
+1224	API type	介面類型	API の種類	API 유형
+1225	OpenAI compatible	OpenAI 相容	OpenAI 互換	OpenAI 호환
+1226	Base URL	介面位址	ベース URL	기본 URL
+1227	Leave empty to fetch automatically; separate several with commas	留空則自動取得；多個用逗號分隔	空欄なら自動取得。複数はカンマで区切ります	비워 두면 자동으로 가져옵니다. 여러 개는 쉼표로 구분
+1228	If the service does not list its models, type the model names here.	服務不提供模型清單時，可以手動填寫模型名稱。	サービスがモデル一覧を提供しない場合は、モデル名を手動で入力してください。	서비스가 모델 목록을 제공하지 않으면 모델 이름을 직접 입력하세요.
+1229	Enabled	啟用	有効	사용
+1230	No model connections yet.	還沒有模型連線。	モデル接続はまだありません。	아직 모델 연결이 없습니다.
+1231	Default	預設	既定	기본
+1232	{count} models	{count} 個模型	{count} 個のモデル	모델 {count}개
+1233	Models not fetched	未取得模型	モデル未取得	모델을 가져오지 않음
+1234	No key	無 Key	キーなし	키 없음
+1235	Fetch model list	取得模型清單	モデル一覧を取得	모델 목록 가져오기
+1236	Fetching the model list…	正在取得模型清單…	モデル一覧を取得しています…	모델 목록을 가져오는 중…
+1237	Fetched {count} models	已取得 {count} 個模型	{count} 個のモデルを取得しました	모델 {count}개를 가져왔습니다
+1238	Required	必填	必須	필수
+1239	Usually not needed for local services	本機服務通常不需要	ローカルサービスでは通常不要	로컬 서비스에는 보통 필요 없음
+1240	Saved {hint}; leave empty to keep it	已儲存 {hint}，留空保持不變	{hint} を保存済み。空欄のままなら変更しません	{hint} 저장됨, 비워 두면 유지
+1241	Can be empty for local services	本機服務可以留空	ローカルサービスでは空欄可	로컬 서비스는 비워 둘 수 있음
+1242	AI connection saved	AI 連線已儲存	AI 接続を保存しました	AI 연결을 저장했습니다
+1243	Include API keys in the exported file?⏎⏎OK writes the keys in plain text, so keep the file safe. Cancel exports only URLs and models.	匯出檔案是否包含 API Key？⏎⏎選擇「確定」會以明文寫入 Key，請妥善保管該檔案；選擇「取消」只匯出位址和模型。	書き出すファイルに API キーを含めますか？⏎⏎「OK」ではキーを平文で書き込むため、ファイルは安全に保管してください。「キャンセル」では URL とモデルだけを書き出します。	내보낼 파일에 API 키를 포함할까요?⏎⏎"확인"을 누르면 키가 평문으로 저장되므로 파일을 안전하게 보관하세요. "취소"를 누르면 주소와 모델만 내보냅니다.
+1244	Command	命令	コマンド	명령
+1245	Prompt text	提示詞內容	プロンプト本文	프롬프트 내용
+1246	Running: {url}	執行中：{url}	実行中：{url}	실행 중: {url}
+1247	Not running	未執行	停止中	실행 중 아님
+1248	Off	已關閉	オフ	꺼짐
+1249	Open WebUI: Settings → Tools → Add connection (OpenAPI)	Open WebUI：設定 → 工具 → 新增連線（OpenAPI）	Open WebUI：設定 → ツール → 接続を追加（OpenAPI）	Open WebUI: 설정 → 도구 → 연결 추가(OpenAPI)
+1250	Command line examples:	命令列範例：	コマンドラインの例：	명령줄 예:
+1251	Token copied	權杖已複製	トークンをコピーしました	토큰을 복사했습니다
+1252	API keys are encrypted with the system credential store.	API Key 使用系統憑證加密儲存。	API キーはシステムの資格情報で暗号化して保存されます。	API 키는 시스템 자격 증명으로 암호화되어 저장됩니다.
+1253	Encrypted storage is not available on this system; API keys are stored in plain text in the local settings file.	目前系統不支援加密儲存，API Key 以明文儲存在本機設定檔中。	このシステムでは暗号化保存を使えないため、API キーはローカルの設定ファイルに平文で保存されます。	이 시스템은 암호화 저장을 지원하지 않아 API 키가 로컬 설정 파일에 평문으로 저장됩니다.
+1254	Document not found or not loaded yet:	找不到該文件或文件尚未載入：	文書が見つからないか、まだ読み込まれていません：	문서를 찾을 수 없거나 아직 로드되지 않았습니다:
+1255	No document is open.	目前沒有開啟的文件。	開いている文書はありません。	열린 문서가 없습니다.
+1256	query must not be empty.	query 不能為空。	query は空にできません。	query는 비워 둘 수 없습니다.
+1257	Heading not found:	找不到標題：	見出しが見つかりません：	제목을 찾을 수 없습니다:
+1258	Only Markdown documents can be written; for PDF use annotations or page editing.	只能寫入 Markdown 文件；PDF 請使用批註或頁面編輯。	書き込めるのは Markdown 文書だけです。PDF には注釈またはページ編集を使ってください。	Markdown 문서에만 쓸 수 있습니다. PDF는 주석이나 페이지 편집을 사용하세요.
+1259	text must not be empty.	text 不能為空。	text は空にできません。	text는 비워 둘 수 없습니다.
+1260	Let the AI change the document?	允許 AI 修改文件？	AI による文書の変更を許可しますか？	AI가 문서를 수정하도록 허용할까요?
+1261	Insert at the cursor	在游標處插入	カーソル位置に挿入	커서 위치에 삽입
+1262	Append to the end	附加到文末	末尾に追加	끝에 추가
+1263	Replace the selection	取代選取內容	選択範囲を置換	선택 내용 바꾸기
+1264	The user declined this change.	使用者拒絕了這次修改。	ユーザーがこの変更を拒否しました。	사용자가 이 변경을 거부했습니다.
+1265	Let an external program create a document?	允許外部程式新增文件？	外部プログラムによる文書の作成を許可しますか？	외부 프로그램이 문서를 만들도록 허용할까요?
+1266	New Markdown tab	新增 Markdown 分頁	新しい Markdown タブ	새 Markdown 탭
+1267	The user declined this action.	使用者拒絕了這次操作。	ユーザーがこの操作を拒否しました。	사용자가 이 작업을 거부했습니다.
+1268	Unknown tool:	未知工具：	不明なツール：	알 수 없는 도구:
+1269	List open documents	檢視開啟的文件	開いている文書を確認	열린 문서 보기
+1270	Read pages {from}–{to}{where}	讀取{where}第 {from}–{to} 頁	{where}{from}–{to} ページを読み取り	{where}{from}–{to}페이지 읽기
+1271	Read document{where}	讀取文件{where}	文書{where}を読み取り	문서{where} 읽기
+1272	Read the selection	讀取選取內容	選択範囲を読み取り	선택 내용 읽기
+1273	Read the outline	讀取目錄	目次を読み取り	목차 읽기
+1274	Search "{query}"	搜尋「{query}」	「{query}」を検索	"{query}" 검색
+1275	Go to page {page}	跳到第 {page} 頁	{page} ページへ移動	{page}페이지로 이동
+1276	Go to "{heading}"	跳到「{heading}」	「{heading}」へ移動	"{heading}"(으)로 이동
+1277	Write Markdown	寫入 Markdown	Markdown に書き込み	Markdown 쓰기
+1278	Create a Markdown document	新增 Markdown 文件	Markdown 文書を作成	Markdown 문서 만들기
+1279	AI Assistant · Ctrl+Shift+A	AI 協作 · Ctrl+Shift+A	AI アシスタント · Ctrl+Shift+A	AI 어시스턴트 · Ctrl+Shift+A
+1280	Qingye does not go online or upload documents unless you set up the AI assistant and send a message. Reading positions, recent files, draft backups and preferences stay on this computer.	除非你啟用 AI 協作並主動傳送訊息，青頁不連網、不上傳文件。閱讀位置、最近檔案、草稿備份和偏好設定只儲存在這台電腦上。	AI アシスタントを設定してメッセージを送信しない限り、青頁はネットに接続せず文書もアップロードしません。読書位置、最近のファイル、下書きのバックアップ、設定はこの PC にだけ保存されます。	AI 어시스턴트를 설정하고 메시지를 보내지 않는 한 칭예는 인터넷에 연결하거나 문서를 업로드하지 않습니다. 읽기 위치, 최근 파일, 초안 백업, 환경 설정은 이 컴퓨터에만 저장됩니다.
+1281	The Qingye window is not ready.	青頁視窗未就緒。	青頁のウィンドウの準備ができていません。	칭예 창이 준비되지 않았습니다.
+1282	Qingye did not respond in time (it may be waiting for the user to confirm).	青頁沒有及時回應（可能在等待使用者確認）。	青頁が時間内に応答しませんでした（ユーザーの確認待ちの可能性があります）。	칭예가 제때 응답하지 않았습니다(사용자 확인을 기다리는 중일 수 있음).
+1283	Import AI connections	匯入 AI 連線	AI 接続を読み込む	AI 연결 가져오기
+1284	The file is too large.	檔案過大。	ファイルが大きすぎます。	파일이 너무 큽니다.
+1285	Export AI connections	匯出 AI 連線	AI 接続を書き出す	AI 연결 내보내기
+1286	Qwen (Alibaba Cloud Model Studio)	通義千問（阿里雲百煉）	Qwen（Alibaba Cloud Model Studio）	Qwen(Alibaba Cloud Model Studio)
+1287	Zhipu GLM	智譜 GLM	Zhipu GLM	Zhipu GLM
+1288	Ollama (this computer)	Ollama（本機）	Ollama（この PC）	Ollama(이 컴퓨터)
+1289	LM Studio (this computer)	LM Studio（本機）	LM Studio（この PC）	LM Studio(이 컴퓨터)
+1290	Custom OpenAI-compatible API	自訂 OpenAI 相容介面	カスタム OpenAI 互換 API	사용자 지정 OpenAI 호환 API
+1291	Invalid URL:	介面位址無效：	無効な URL：	잘못된 URL:
+1292	The URL must start with http:// or https://.	介面位址必須以 http:// 或 https:// 開頭。	URL は http:// または https:// で始まる必要があります。	URL은 http:// 또는 https://로 시작해야 합니다.
+1293	Nothing to import.	沒有可匯入的內容。	読み込む内容がありません。	가져올 내용이 없습니다.
+1294	The AI connection no longer exists; choose one again in Settings.	AI 連線不存在，請在設定中重新選擇。	AI 接続が存在しません。設定で選び直してください。	AI 연결이 없습니다. 설정에서 다시 선택하세요.
+1295	Cannot connect:	無法連線：	接続できません：	연결할 수 없습니다:
+1296	Choose a model first (Settings → AI Assistant → Fetch model list).	請先選擇模型（設定 → AI 協作 → 取得模型清單）。	先にモデルを選択してください（設定 → AI アシスタント → モデル一覧を取得）。	먼저 모델을 선택하세요(설정 → AI 어시스턴트 → 모델 목록 가져오기).
+1297	Stopped	已停止	停止しました	중지됨
+1298	Cannot read the AI settings.	無法讀取 AI 設定。	AI 設定を読み込めません。	AI 설정을 읽을 수 없습니다.
+1299	Reached the tool-call limit for this turn; send another message to let the AI continue.	已達到本輪工具呼叫次數上限，可以繼續提問讓 AI 接著完成。	このターンのツール呼び出し回数の上限に達しました。続けて質問すると AI が作業を続けます。	이번 차례의 도구 호출 한도에 도달했습니다. 계속 질문하면 AI가 이어서 진행합니다.

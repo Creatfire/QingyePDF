@@ -1,0 +1,31 @@
+{
+  "name": "qingye-pdf-mobile",
+  "version": "0.12.0",
+  "private": true,
+  "description": "Qingye PDF for Android (Capacitor shell around the shared ui/)",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "fetch:wheels": "node scripts/fetch-wheels.mjs",
+    "build:web": "node scripts/fetch-wheels.mjs && node scripts/build-web.mjs",
+    "sync": "npm run build:web && cap sync android",
+    "apk": "npm run sync && cd android && ./gradlew assembleDebug",
+    "test": "node --test test/unit.test.mjs",
+    "test:e2e": "node --test test/e2e.test.mjs test/native.test.mjs test/touch012.test.mjs"
+  },
+  "dependencies": {
+    "@bjorn3/browser_wasi_shim": "^0.4.2",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "buffer": "^6.0.3",
+    "pandoc-wasm": "1.1.0",
+    "path-browserify": "^1.0.1",
+    "pyodide": "0.29.5",
+    "tesseract.js-core": "6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2",
+    "esbuild": "^0.28.2",
+    "playwright-core": "^1.63.0"
+  }
+}

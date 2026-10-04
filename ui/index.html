@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>青页 PDF</title>
+  <link rel="stylesheet" href="icons.css">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="design.css">
+  <link rel="stylesheet" href="markdown.css">
+  <link rel="stylesheet" href="themes.css">
+  <link rel="stylesheet" href="typora.css">
+  <link rel="stylesheet" href="layout.css">
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="settings.css">
+  <link rel="stylesheet" href="converter.css">
+  <link rel="stylesheet" href="ai.css">
+  <link rel="stylesheet" href="notes.css">
+  <link rel="stylesheet" href="library.css">
+  <link rel="stylesheet" href="macos.css">
+  <link rel="stylesheet" href="../vendor/markdown/katex/katex.min.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <a class="skipLink" href="#workspace">跳到文档区域</a>
+  <header class="titlebar" id="titlebar">
+    <button id="homeButton" class="brand" title="首页" aria-label="青页 PDF 首页"><span class="logo" aria-hidden="true">青</span><span class="brandName">青页 <b>PDF</b></span></button>
+    <div class="readingTrail" role="group" aria-label="阅读导航"><button id="readingBack" class="iconOnly" data-icon="left" title="返回阅读位置 · Alt+←" aria-label="返回阅读位置" disabled></button><button id="readingForward" class="iconOnly" data-icon="right" title="前进阅读位置 · Alt+→" aria-label="前进阅读位置" disabled></button></div>
+    <nav id="tabs" class="tabs" aria-label="文档标签"></nav>
+    <div class="titlebarDrag" aria-hidden="true"></div>
+    <div class="titlebarTools">
+      <button id="convertButton" title="文档转换中心" aria-label="文档转换中心">转换</button>
+      <button id="themeButton" class="iconOnly" data-icon="moon" title="切换深色界面" aria-label="切换深色界面"></button>
+      <button id="settingsButton" class="iconOnly" data-icon="settings" title="设置" aria-label="设置"></button>
+      <button id="helpButton" class="iconOnly" data-icon="help" title="使用帮助" aria-label="使用帮助"></button>
+    </div>
+  </header>
+  <header class="appbar" id="pdfToolbar" role="toolbar" aria-label="PDF 工具栏">
+    <div class="barGroup">
+      <button id="openButton" class="primary" data-icon="open" title="打开文档 · Ctrl+O"><span class="label">打开</span></button>
+      <button id="saveButton" data-icon="save" disabled title="保存 · Ctrl+S" aria-label="保存"><span class="label">保存</span></button>
+      <button id="saveAsButton" data-icon="saveas" disabled title="另存为 · Ctrl+Shift+S" aria-label="另存为"><span class="label">另存为</span></button>
+    </div>
+    <span class="barSep" aria-hidden="true"></span>
+    <div class="barGroup">
+      <button id="undoButton" class="iconOnly" data-icon="undo" disabled title="撤销 · Ctrl+Z" aria-label="撤销"></button>
+      <button id="redoButton" class="iconOnly" data-icon="redo" disabled title="重做 · Ctrl+Y" aria-label="重做"></button>
+      <button id="historyButton" data-icon="history" title="编辑历史" aria-label="编辑历史"><span class="label">历史</span></button>
+    </div>
+    <div class="spacer"></div>
+    <div class="barGroup" aria-label="阅读与编辑">
+      <button id="selectTextButton" data-icon="textcursor" disabled title="选择文字；扫描页自动识别中英文" aria-label="文本选择"><span class="label">文本选择</span></button>
+      <button id="annotateButton" data-icon="pen" disabled popovertarget="annotateMenu" aria-haspopup="menu" aria-controls="annotateMenu" aria-expanded="false" title="批注工具"><span class="label">批注</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
+      <button id="directButton" data-icon="pageedit" disabled title="页面编辑：添加文字、印章、图形" aria-label="页面编辑"><span class="label">页面编辑</span></button>
+    </div>
+    <span class="barSep" aria-hidden="true"></span>
+    <div class="barGroup" aria-label="导航与工具">
+      <button id="searchButton" data-icon="search" disabled title="全文搜索 · Ctrl+F" aria-label="搜索" aria-expanded="false"><span class="label">搜索</span></button>
+      <button id="outlineButton" data-icon="outline" disabled title="大纲、书签、页面与批注" aria-label="大纲" aria-expanded="false"><span class="label">大纲</span></button>
+      <button id="viewButton" data-icon="view" disabled popovertarget="viewPanel" aria-controls="viewPanel" aria-expanded="false" title="视图模式" aria-label="视图模式"><span class="label">视图</span></button>
+      <button id="toolsButton" class="accentButton" data-icon="tools" title="本地 PDF 工具箱" aria-label="工具箱"><span class="label">工具箱</span></button>
+    </div>
+    <span class="barSep" aria-hidden="true"></span>
+    <button id="aiButton" class="aiToggle" data-icon="sparkle" aria-pressed="false" title="AI 协作 · Ctrl+Shift+A" aria-label="AI 协作"><span class="label">AI</span></button>
+  </header>
+  <main id="workspace" tabindex="-1">
+    <section id="home" class="home" aria-label="首页">
+      <div class="homeContent">
+        <header class="homeHeader">
+          <div>
+            <p id="greeting" class="homeGreeting">欢迎回来</p>
+            <h1 class="homeTitle">今天想读点什么？</h1>
+          </div>
+          <span class="workspaceBadge" title="本机处理、不使用云转换、无账号"><i aria-hidden="true"></i>本地 · 私密 · 开源</span>
+        </header>
+        <div class="homeGrid">
+          <div class="homeMain">
+            <div class="homeActions">
+              <button id="welcomeOpen" class="actionTile isPrimary" title="打开 PDF 或 Markdown 文档 · Ctrl+O"><span class="tileGlyph" data-icon="open" aria-hidden="true"></span><span class="tileText"><strong>打开文件</strong><small>PDF / Markdown · Ctrl+O</small></span></button>
+              <button id="newMarkdownButton" class="actionTile" title="新建 Markdown 文档 · Ctrl+N"><span class="tileGlyph" data-icon="newdoc" aria-hidden="true"></span><span class="tileText"><strong>新建 Markdown</strong><small>空白文档 · Ctrl+N</small></span></button>
+              <button id="homeConvertButton" class="actionTile" style="grid-column:1 / -1" title="文档转换中心"><span class="tileGlyph" data-icon="tools" aria-hidden="true"></span><span class="tileText"><strong>文档转换</strong><small>Word / EPUB / Markdown / PDF · 内置转换引擎</small></span></button>
+            </div>
+            <section class="recentPanel" aria-labelledby="recentTitle">
+              <div class="recentHeading" id="recentHeading">
+                <h2 id="recentTitle">最近打开</h2>
+                <div class="segmented recentFilter" role="group" aria-label="按类型筛选"><button data-filter="all" aria-pressed="true">全部</button><button data-filter="pdf" aria-pressed="false">PDF</button><button data-filter="md" aria-pressed="false">Markdown</button></div>
+                <input id="recentSearch" type="search" placeholder="筛选文件名" aria-label="筛选最近文件">
+              </div>
+              <div id="recent" class="recent" role="list" aria-labelledby="recentTitle"></div>
+            </section>
+          </div>
+          <aside class="homeSide">
+            <section class="sideCard">
+              <h2>PDF 工具</h2>
+              <p class="sideHint">选择工具后打开一个 PDF 即可开始</p>
+              <div class="quickTools">
+                <button data-tool="organize" class="quickTool"><span class="toolGlyph" data-icon="pages" aria-hidden="true"></span><span><strong>整理页面</strong><small>合并、拆分与重排</small></span></button>
+                <button data-tool="export" class="quickTool"><span class="toolGlyph" data-icon="convert" aria-hidden="true"></span><span><strong>转换与导出</strong><small>Word、Excel 与图片</small></span></button>
+                <button data-tool="ocr" class="quickTool"><span class="toolGlyph" data-icon="ocr" aria-hidden="true"></span><span><strong>文字识别</strong><small>让扫描件可以搜索</small></span></button>
+                <button data-tool="compress" class="quickTool"><span class="toolGlyph" data-icon="compress" aria-hidden="true"></span><span><strong>压缩文档</strong><small>为文件减轻负担</small></span></button>
+              </div>
+            </section>
+            <section class="sideCard">
+              <h2>从示例开始</h2>
+              <button id="exampleButton" class="sampleLink"><span class="sampleBadge">PDF</span><span><strong>PDF 使用示例</strong><small>7 页功能导览，可随意批注</small></span></button>
+              <button id="markdownExampleButton" class="sampleLink"><span class="sampleBadge md">MD</span><span><strong>Markdown 示例</strong><small>语法、公式、图表一页看完</small></span></button>
+            </section>
+          </aside>
+        </div>
+        <footer class="homeFooter"><span id="versionFooter">青页 PDF · 本地开源工具箱 · 无登录、无订阅、无广告</span><span class="homeHint" data-icon="drop">把 PDF 或 Markdown 拖进窗口任意位置即可打开</span></footer>
+      </div>
+      <div class="dropCue" aria-hidden="true"><span data-icon="drop"></span><strong>松开，开始阅读</strong><small>PDF 与 Markdown 文档将在新标签页中打开</small></div>
+    </section>
+    <div id="viewers"></div>
+  </main>
+  <footer class="status"><span id="statusText" role="status">准备就绪</span><span id="statusDetail">Ctrl+O 打开 · Ctrl+S 保存 · Ctrl+F 搜索</span></footer>
+  <dialog id="messageDialog" aria-labelledby="messageTitle"><h2 id="messageTitle"></h2><p id="messageBody"></p><form method="dialog"><button class="primary">知道了</button></form></dialog>
+
+  <section id="annotateMenu" class="menuPopover" popover="auto" role="menu" aria-label="批注工具"></section>
+
+  <section id="viewPanel" popover="auto" aria-labelledby="viewPanelTitle">
+    <header class="popHeader"><h2 id="viewPanelTitle">视图模式</h2><span>按文档记忆，不改动原文</span></header>
+    <div class="popSection">
+      <div class="popLabel">页面排列</div>
+      <div class="viewChoices segmented" role="group" aria-label="页面排列"><button data-layout="single" data-icon="single" aria-pressed="true">单页</button><button data-layout="double" data-icon="double" aria-pressed="false">双页</button></div>
+      <div class="viewChecks"><label class="check"><input id="coverMode" type="checkbox"> 封面单独显示</label><label class="check"><input id="reflowMode" type="checkbox"> 文字重排阅读</label></div>
+      <label class="viewSwitch">连续垂直滚动<input id="verticalMode" type="checkbox" role="switch" checked></label>
+    </div>
+    <div class="popSection">
+      <div class="colorRow"><span class="popLabel">阅读配色</span><div class="chips"><button data-color="light" class="colorChip light" aria-label="日间" title="日间" aria-pressed="true">Aa</button><button data-color="night" class="colorChip night" aria-label="夜间" title="夜间" aria-pressed="false">Aa</button><button data-color="sepia" class="colorChip sepia" aria-label="护眼" title="护眼" aria-pressed="false">Aa</button><button data-color="gray" class="colorChip gray" aria-label="灰度" title="灰度" aria-pressed="false">Aa</button></div></div>
+      <details class="paletteDetails"><summary>更多配色与自定义</summary><div id="tonePalette"></div><button id="customColor" data-icon="palette">自定义背景与文字颜色…</button></details>
+      <label class="viewSwitch">保留图片原色<input id="preserveImages" type="checkbox" role="switch"></label>
+      <label class="readingSlider"><span>亮度</span><input id="readingBrightness" type="range" min="50" max="150" value="100"><output id="brightnessValue">100%</output></label>
+      <label class="readingSlider"><span>对比度</span><input id="readingContrast" type="range" min="50" max="150" value="100"><output id="contrastValue">100%</output></label>
+    </div>
+    <div class="popSection actions">
+      <button id="rotateView" class="viewAction" data-icon="rotate">顺时针旋转</button>
+      <button id="thumbnailView" class="viewAction" data-icon="grid">页面缩略图</button>
+      <button id="cropView" class="viewAction" data-icon="crop">裁剪页面…</button>
+      <button id="fullscreenView" class="viewAction" data-icon="fullscreen">全屏 / 退出全屏</button>
+    </div>
+    <p class="viewHint">阅读设置按文档记忆，不改动 PDF 原文。</p>
+  </section>
+  <dialog id="cropDialog" aria-labelledby="cropTitle">
+    <h2 id="cropTitle">阅读裁剪</h2><p>隐藏页面边缘，应用到本文件的全部页面。不会删除原文内容，保存与打印仍保留完整页面。旋转后边距按当前显示方向计算。</p>
+    <div class="cropGrid"><label>上边距 % <input id="cropTop" type="number" min="0" max="40" step="1"></label><label>右边距 % <input id="cropRight" type="number" min="0" max="40" step="1"></label><label>下边距 % <input id="cropBottom" type="number" min="0" max="40" step="1"></label><label>左边距 % <input id="cropLeft" type="number" min="0" max="40" step="1"></label></div>
+    <div class="cropActions"><button id="resetCrop">恢复完整页面</button><div class="spacer"></div><form method="dialog"><button>取消</button></form><button id="applyCrop" class="primary">应用</button></div>
+  </dialog>
+  <dialog id="colorDialog" aria-labelledby="colorTitle"><h2 id="colorTitle">自定义颜色模式</h2><p>将页面的明暗映射到所选背景与文字颜色；页面图像与批注也会参与配色。</p><div class="customColors"><label>背景 <input id="paperColor" type="color" value="#093448"></label><label>文字 <input id="inkColor" type="color" value="#b5c9d0"></label></div><div class="cropActions"><div class="spacer"></div><form method="dialog"><button>取消</button></form><button id="applyColor" class="primary">应用</button></div></dialog>
+</body>
+</html>

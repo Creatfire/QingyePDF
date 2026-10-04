@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset="utf-8"><title>editor harness</title>
+<link rel="stylesheet" href="/ui/app.css"><link rel="stylesheet" href="/ui/design.css"><link rel="stylesheet" href="/ui/icons.css"><link rel="stylesheet" href="/ui/markdown.css"><link rel="stylesheet" href="/vendor/markdown/katex/katex.min.css">
+<style>html,body{height:100%;margin:0}#host{position:absolute;inset:0}</style></head>
+<body><div id="host" class="mdPanel"></div>
+<script type="module">
+import { MarkdownEditor } from '/ui/markdown/editor.mjs';
+window.MarkdownEditor = MarkdownEditor;
+window.ready = true;
+</script></body></html>

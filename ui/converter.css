@@ -1,0 +1,23 @@
+#converterDialog { width: min(860px, calc(100vw - 48px)); max-width: min(860px, calc(100vw - 48px)); max-height: calc(100vh - 60px); padding: 0; border: 1px solid var(--line); border-radius: var(--radius-xl); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-lg); }
+#converterDialog::backdrop { background: rgb(12 36 26 / .38); }
+.convertHeading { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; border-bottom: 1px solid var(--line); }
+.convertHeading h2 { margin: 0; font-size: 22px; }.convertHeading p { margin: 5px 0 0; color: var(--muted); }
+.convertBody { padding: 16px 24px; max-height: calc(100vh - 260px); overflow: auto; }.convertIntro { margin-top: 0; color: var(--muted); }
+.convertFiles { display: flex; gap: 14px; align-items: center; margin: 14px 0; }.convertFiles span { overflow-wrap: anywhere; min-width: 0; color: var(--muted); }
+#convertFiles { padding: 0 0 0 20px; margin: 0 0 16px; max-height: 100px; overflow: auto; font-size: 12px; overflow-wrap: anywhere; color: var(--ink-2); }
+.convertGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }.convertGrid label,.convertBody details label { display: grid; gap: 6px; font-weight: 600; }.convertGrid select,.convertGrid input,.convertBody textarea { width: 100%; box-sizing: border-box; }
+.convertWide { grid-column: 1 / -1; }.convertWide button { justify-self: start; font-weight: 400; font-size: 12px; }
+.convertChecks { display: flex; flex-wrap: wrap; gap: 20px; margin: 18px 0; }.convertChecks label { display: flex; align-items: center; gap: 6px; }
+.convertBody details { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }.convertBody summary { cursor: pointer; font-weight: 600; }.convertOptionFiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }.convertOptionFiles button { font-size: 12px; }
+.convertBody textarea { padding: 10px; font: 12px/1.6 Consolas, monospace; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); resize: vertical; }
+.convertHint { font-size: 12px; color: var(--muted); }.convertHint:empty { display: none; }
+#convertLog { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 170px; overflow: auto; padding: 10px; background: var(--surface-2); border-radius: var(--radius); font-size: 12px; }#convertLog:empty { display: none; }
+.convertFooter { display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--line); background: var(--surface-2); }.convertFooter span { flex: 1; color: var(--muted); }
+@media (max-width: 650px) { .convertGrid { grid-template-columns: 1fr; }.convertFiles { flex-wrap: wrap; }.convertHeading,.convertBody,.convertFooter { padding-left: 16px; padding-right: 16px; } }
+.convertMode { display: flex; align-items: center; gap: 14px; font-weight: 600; }
+#convertResults { list-style: none; padding: 0; margin: 12px 0; max-height: 180px; overflow: auto; }
+#convertResults li { display: grid; gap: 3px; padding: 8px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+#convertResults span { color: var(--muted); font-size: 12px; }
+#convertResults [data-state="failed"] span { color: var(--danger, #b52b35); }
+.convertPresets { display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:12px 0; }.convertPresets label { display:grid;gap:4px; }.convertPresets input { min-width:120px;flex:1; }
+.convertPdfOptions { display:flex;flex-wrap:wrap;gap:12px;border:1px solid var(--line);border-radius:var(--radius);margin:12px 0;padding:10px; }.convertPdfOptions label { display:flex;align-items:center;gap:6px; }.convertPdfOptions input[type=number] { width:70px; }.convertPdfOptions small { flex-basis:100%;color:var(--muted); }

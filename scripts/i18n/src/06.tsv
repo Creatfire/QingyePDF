@@ -1,0 +1,163 @@
+900	Read text blocks on this page	讀取本頁原文區塊	このページのテキストブロックを読み取る	이 페이지의 원문 블록 읽기
+901	Resize to 50% width	調整為 50% 寬度	幅を 50% にする	너비 50%로 조정
+902	Resize table	調整表格大小	表のサイズを変更	표 크기 조정
+903	Resize table…	調整表格大小…	表のサイズを変更…	표 크기 조정…
+904	Pea green	豆綠	ピーグリーン	완두콩색
+905	Hyperlink	超連結	ハイパーリンク	하이퍼링크
+906	Follow system	跟隨系統	システムに合わせる	시스템 설정 따르기
+907	Skip to document area	跳到文件區域	文書エリアへ移動	문서 영역으로 건너뛰기
+908	Jump to	跳至	移動	이동
+909	Jump to selection	跳至所選內容	選択範囲へ移動	선택 영역으로 이동
+910	Jump to end	跳至文末	末尾へ移動	문서 끝으로 이동
+911	Jump to start	跳至文首	先頭へ移動	문서 처음으로 이동
+912	Jump to line end	跳至行尾	行末へ移動	줄 끝으로 이동
+913	Jump to line start	跳至行首	行頭へ移動	줄 처음으로 이동
+914	Convert	轉換	変換	변환
+915	Convert and export	轉換與匯出	変換と書き出し	변환 및 내보내기
+916	Convert to grayscale	轉換為灰階	グレースケールに変換	회색조로 변환
+917	Light	輕度	弱	약하게
+918	Load the disk version (undoable)	載入磁碟版本（可復原）	ディスクの版を読み込む（元に戻せます）	디스크 버전 불러오기(실행 취소 가능)
+919	Strong	較強	強	강하게
+920	Type a command name…	輸入命令名稱…	コマンド名を入力…	명령 이름 입력…
+921	Enter the PDF's owner password to export an unencrypted copy; no password cracking is attempted.	輸入該 PDF 的管理密碼後匯出不加密副本；不會嘗試破解密碼。	PDF の管理パスワードを入力すると暗号化されていないコピーを書き出します。パスワードの解読は行いません。	PDF의 관리 암호를 입력하면 암호화되지 않은 사본을 내보냅니다. 암호를 풀려고 시도하지 않습니다.
+922	No versions yet. Each save keeps a local snapshot of saved files (up to 40; identical content is not recorded twice).	還沒有歷史版本。每次儲存都會為已儲存的檔案留下一個本機快照（最多保留 40 個，內容相同的不重複記錄）。	まだ版はありません。保存するたびに保存済みファイルのローカルスナップショットを残します（最大 40 件、同じ内容は重複して記録しません）。	아직 버전이 없습니다. 저장할 때마다 저장된 파일의 로컬 스냅숏을 남깁니다(최대 40개, 같은 내용은 중복 기록하지 않음).
+923	No files to choose yet: open a folder first, or open some documents	還沒有可選檔案：先開啟一個資料夾，或開啟過一些文件	選べるファイルはまだありません。フォルダーを開くか、文書をいくつか開いてください	아직 선택할 파일이 없습니다. 먼저 폴더를 열거나 문서를 몇 개 여세요
+924	No folder opened yet. Click "Open folder" above; the file tree only shows Markdown files.	還沒有開啟資料夾。點擊上方「開啟資料夾」，檔案樹只顯示 Markdown 檔案。	フォルダーはまだ開かれていません。上の「フォルダーを開く」をクリックしてください。ファイルツリーには Markdown ファイルだけが表示されます。	아직 연 폴더가 없습니다. 위의 "폴더 열기"를 누르세요. 파일 트리에는 Markdown 파일만 표시됩니다.
+925	No files opened yet	還沒有開啟過檔案	まだファイルを開いていません	아직 연 파일이 없습니다
+926	Continuous vertical scrolling	連續垂直捲動	連続スクロール	연속 세로 스크롤
+927	Exit	結束	終了	끝내기
+928	Exit annotation mode	結束批註模式	注釈モードを終了	주석 모드 끝내기
+929	Exit reflow	結束重新排版	リフローを終了	재배치 끝내기
+930	Fit width	符合寬度	幅に合わせる	너비에 맞춤
+931	Fit page	符合頁面	ページに合わせる	페이지에 맞춤
+932	Fit width	適應寬度	幅に合わせる	너비에 맞춤
+933	Selected	選取	選択	선택됨
+934	Select current styled text	選取目前格式文字	現在の書式付きテキストを選択	현재 서식 텍스트 선택
+935	Select current line or sentence	選取目前行或句	現在の行または文を選択	현재 줄 또는 문장 선택
+936	Select current word	選取目前詞	現在の単語を選択	현재 단어 선택
+937	Selection	選取	選択	선택
+938	Select original text area	選擇原文區域	元のテキスト範囲を選択	원문 영역 선택
+939	Choose image	選擇圖片	画像を選択	이미지 선택
+940	Choose a tool, then open a PDF to start	選擇工具後開啟一個 PDF 即可開始	ツールを選んで PDF を開くと始められます	도구를 고르고 PDF를 열면 시작됩니다
+941	Choose a saved stamp	選擇已儲存印章	保存済みのスタンプを選択	저장된 스탬프 선택
+942	Select or drag a whole outline branch	選擇或拖曳整段目錄	目次のまとまりを選択またはドラッグ	목차 가지 전체를 선택하거나 끌기
+943	Choose the batch output folder	選擇批次輸出目錄	一括出力先フォルダーを選択	일괄 출력 폴더 선택
+944	Choose files…	選擇檔案…	ファイルを選択…	파일 선택…
+945	Select text; scanned pages are recognized automatically (Chinese & English)	選取文字；掃描頁自動辨識中英文	テキストを選択。スキャンしたページは中国語・英語を自動認識します	텍스트 선택. 스캔 페이지는 중국어·영어를 자동 인식합니다
+946	Select paragraph or block	選擇段落或區塊	段落またはブロックを選択	단락 또는 블록 선택
+947	Choose default app…	選擇預設程式…	既定のアプリを選択…	기본 앱 선택…
+948	Opacity	透明度	不透明度	불투명도
+949	Opacity 0.05–1	透明度 0.05–1	不透明度 0.05–1	불투명도 0.05–1
+950	Opacity must be between 5% and 100%.	透明度應在 5%–100% 之間。	不透明度は 5%～100% にしてください。	불투명도는 5%–100% 사이여야 합니다.
+951	General	通用	一般	일반
+952	Some tasks failed; you can retry	部分工作失敗，可重試	一部のタスクが失敗しました。再試行できます	일부 작업이 실패했습니다. 다시 시도할 수 있습니다
+953	Redo	重做	やり直し	다시 실행
+954	Redo · Ctrl+Y	重做 · Ctrl+Y	やり直し · Ctrl+Y	다시 실행 · Ctrl+Y
+955	Rename	重新命名	名前を変更	이름 바꾸기
+956	Rename…	重新命名…	名前を変更…	이름 바꾸기…
+957	Reflow font size	重排文字字級	リフローの文字サイズ	재배치 글꼴 크기
+958	Reopen as Big5 (Traditional Chinese)	重新以 Big5（繁體中文）讀取	Big5（繁体字中国語）で開き直す	Big5(번체 중국어)로 다시 열기
+959	Reopen as EUC-KR	重新以 EUC-KR 讀取	EUC-KR で開き直す	EUC-KR로 다시 열기
+960	Reopen as GB18030	重新以 GB18030 讀取	GB18030 で開き直す	GB18030으로 다시 열기
+961	Reopen as GBK (Simplified Chinese)	重新以 GBK（簡體中文）讀取	GBK（簡体字中国語）で開き直す	GBK(간체 중국어)로 다시 열기
+962	Reopen as Shift-JIS	重新以 Shift-JIS 讀取	Shift-JIS で開き直す	Shift-JIS로 다시 열기
+963	Reopen as UTF-8	重新以 UTF-8 讀取	UTF-8 で開き直す	UTF-8로 다시 열기
+964	Reopen as Windows-1252	重新以 Windows-1252 讀取	Windows-1252 で開き直す	Windows-1252로 다시 열기
+965	Reopen with encoding	重新以編碼讀取	エンコードを指定して開き直す	인코딩을 지정해 다시 열기
+966	Recreate the file	重新建立檔案	ファイルを作り直す	파일 다시 만들기
+967	Jump to the last page and scroll position when reopening a PDF.	重新開啟 PDF 時跳到上次的頁碼和捲動位置。	PDF を開き直したとき、前回のページとスクロール位置に移動します。	PDF를 다시 열 때 마지막 페이지와 스크롤 위치로 이동합니다.
+968	Reopen the tabs from the last session	重新開啟上次關閉時的分頁	前回終了時のタブを開き直す	지난번 닫을 때의 탭 다시 열기
+969	Register again	重新註冊	再登録	다시 등록
+970	Register again (the program moved)	重新註冊（程式位置已變化）	再登録（プログラムの場所が変わりました）	다시 등록(프로그램 위치 변경됨)
+971	Re-recognize Chinese & English text	重新辨識中英文文字	中国語・英語のテキストを再認識	중국어·영어 텍스트 다시 인식
+972	Reload file	重新讀取檔案	ファイルを再読み込み	파일 다시 읽기
+973	Reload document outline	重新讀取文件目錄	文書の目次を再読み込み	문서 목차 다시 읽기
+974	Important	重要 (Important)	重要 (Important)	중요 (Important)
+975	Retry failed items	重試失敗項目	失敗した項目を再試行	실패한 항목 다시 시도
+976	Link	連結	リンク	링크
+977	Link definition	連結定義	リンク定義	링크 정의
+978	Link reference	連結參照	リンク参照	링크 참조
+979	Sharpening strength	銳利化程度	シャープ化の強さ	선명도
+980	Autocomplete emoji after typing :	輸入 : 後自動補全表情符號	: を入力すると絵文字を補完	: 입력 후 이모지 자동 완성
+981	Check spelling while typing	輸入時檢查拼字	入力中にスペルチェック	입력 중 맞춤법 검사
+982	Check spelling while typing (system spell checker)	輸入時檢查拼字（使用系統拼字檢查器）	入力中にスペルチェック（システムのスペルチェッカー）	입력 중 맞춤법 검사(시스템 맞춤법 검사기 사용)
+983	Read	閱讀	閲覧	읽기
+984	Read and edit	閱讀與編輯	閲覧と編集	읽기 및 편집
+985	Reading bookmarks	閱讀書籤	閲覧しおり	읽기 책갈피
+986	Reading bookmarks are stored on this computer; to write them into the PDF, edit the "Outline".	閱讀書籤儲存在本機；要寫入 PDF，請編輯「目錄」。	閲覧しおりはこのコンピューターに保存されます。PDF に書き込むには「目次」を編集してください。	읽기 책갈피는 이 컴퓨터에 저장됩니다. PDF에 기록하려면 "목차"를 편집하세요.
+987	The reader failed to load.	閱讀器載入失敗。	閲覧画面の読み込みに失敗しました。	뷰어를 불러오지 못했습니다.
+988	The reading engine is not initialized.	閱讀引擎未初始化。	閲覧エンジンが初期化されていません。	읽기 엔진이 초기화되지 않았습니다.
+989	Read mode	閱讀模式	閲覧モード	읽기 모드
+990	Read mode · double-click the text or press E to edit	閱讀模式 · 雙擊內文或按 E 開始編輯	閲覧モード · 本文をダブルクリックするか E で編集	읽기 모드 · 본문을 더블클릭하거나 E를 눌러 편집
+991	Read mode (read-only)	閱讀模式（唯讀）	閲覧モード（読み取り専用）	읽기 모드(읽기 전용)
+992	Read mode: see the formatted document only, without accidental edits	閱讀模式：只看排版好的文件，不會誤改內容	閲覧モード：整形済みの文書だけを表示し、誤って編集しません	읽기 모드: 서식이 적용된 문서만 보며 실수로 수정하지 않습니다
+993	Reading crop	閱讀裁切	表示トリミング	읽기 자르기
+994	Reading crop · on	閱讀裁切 · 已啟用	表示トリミング · 有効	읽기 자르기 · 사용 중
+995	Where reading history, drafts and Markdown version history are stored.	閱讀記錄、草稿與 Markdown 版本歷史所在位置。	閲覧履歴・下書き・Markdown の版履歴の保存場所です。	읽기 기록, 초안, Markdown 버전 기록이 있는 위치입니다.
+996	Reading settings are remembered per document and never change the PDF.	閱讀設定按文件記憶，不改動 PDF 原文。	閲覧設定は文書ごとに記憶し、PDF の原文は変更しません。	읽기 설정은 문서별로 기억되며 PDF 원본은 바뀌지 않습니다.
+997	Reading colors	閱讀配色	閲覧時の配色	읽기 색 구성
+998	Reduce image resolution and quality (lossy)	降低影像解析度與品質（失真壓縮）	画像の解像度と画質を下げる（非可逆圧縮）	이미지 해상도 및 품질 낮추기(손실 압축)
+999	Demote heading	降低標題層級	見出しレベルを下げる	제목 수준 내리기
+1000	Hide outline	隱藏大綱	アウトラインを隠す	개요 숨기기
+1001	Hide replace	隱藏取代	置換を隠す	바꾸기 숨기기
+1002	Hides the page margins on every page of this file. No content is deleted; saving and printing keep the full pages. After rotation, margins follow the current display orientation.	隱藏頁面邊緣，套用到本檔案的全部頁面。不會刪除原文內容，儲存與列印仍保留完整頁面。旋轉後邊距按目前顯示方向計算。	このファイルの全ページで余白を隠します。内容は削除されず、保存と印刷ではページ全体が残ります。回転後の余白は現在の表示の向きで計算されます。	이 파일의 모든 페이지에서 여백을 숨깁니다. 내용은 삭제되지 않으며, 저장과 인쇄에는 전체 페이지가 유지됩니다. 회전 후 여백은 현재 표시 방향을 기준으로 계산됩니다.
+1003	Mist white	霧白	ミストホワイト	안개 흰색
+1004	Mist blue	霧藍	ミストブルー	안개 파랑
+1005	Pandoc required	需要 Pandoc	Pandoc が必要です	Pandoc 필요
+1006	-	-	-	-
+1007	Qingye	青頁	青頁	칭예
+1008	Qingye PDF	青頁 PDF	青頁 PDF	칭예 PDF
+1009	Qingye PDF home	青頁 PDF 首頁	青頁 PDF ホーム	칭예 PDF 홈
+1010	Qingye never goes online or uploads documents. Reading positions, recent files, draft backups and preferences are stored only on this computer.	青頁不連網、不上傳文件。閱讀位置、最近檔案、草稿備份和偏好設定只儲存在這台電腦上。	青頁はネットに接続せず、文書をアップロードしません。閲覧位置・最近使ったファイル・下書きのバックアップ・設定はこのコンピューターにだけ保存されます。	칭예는 인터넷에 연결하거나 문서를 업로드하지 않습니다. 읽기 위치, 최근 파일, 초안 백업, 환경설정은 이 컴퓨터에만 저장됩니다.
+1011	Qingye is the default app	青頁是預設程式	青頁が既定のアプリです	칭예가 기본 앱입니다
+1012	Qingye (default)	青頁（預設）	青頁（既定）	칭예(기본)
+1013	-	-	-	-
+1014	-	-	-	-
+1015	-	-	-	-
+1016	Page numbers / header & footer	頁碼 / 頁首頁尾	ページ番号 / ヘッダー・フッター	페이지 번호 / 머리글·바닥글
+1017	Pages may repeat or run backwards, e.g. 3,1-2,2. Merging appends documents in the order selected in the list; the original files are kept.	頁碼可重複或倒序，例如 3,1-2,2。合併按清單中選取的文件順序附加；原檔案保留。	ページ番号は重複や逆順も可能です（例：3,1-2,2）。結合は一覧で選んだ文書の順に追加し、元のファイルは残ります。	페이지 번호는 반복하거나 거꾸로 쓸 수 있습니다(예: 3,1-2,2). 병합은 목록에서 선택한 문서 순서대로 덧붙이며 원본 파일은 유지됩니다.
+1018	Page range	頁碼範圍	ページ範囲	페이지 범위
+1019	Page numbers in footer	頁尾顯示頁碼	フッターにページ番号	바닥글에 페이지 번호
+1020	Page margins	頁邊距	ページ余白	페이지 여백
+1021	Pages	頁面	ページ	페이지
+1022	Page content · page 	頁面內容 · 第	ページの内容 · ページ 	페이지 내용 · 페이지 
+1023	Page width (px)	頁面寬度（px）	ページ幅（px）	페이지 너비(px)
+1024	Page navigation	頁面導覽	ページナビゲーション	페이지 탐색
+1025	Page layout	頁面排列	ページの配置	페이지 배치
+1026	Page layout, reading colors, cropping and other view settings are under "View" in the PDF toolbar and are remembered per file.	頁面排列、閱讀配色、裁切等檢視設定在 PDF 工具列的「檢視」中，按檔案分別記憶。	ページの配置・閲覧時の配色・トリミングなどの表示設定は PDF ツールバーの「表示」にあり、ファイルごとに記憶されます。	페이지 배치, 읽기 색 구성, 자르기 등 보기 설정은 PDF 도구 모음의 "보기"에 있으며 파일별로 기억됩니다.
+1027	Reorder / extract pages	頁面排序 / 擷取	ページの並べ替え / 抽出	페이지 정렬 / 추출
+1028	Page actions	頁面操作	ページ操作	페이지 작업
+1029	Page editing	頁面編輯	ページ編集	페이지 편집
+1030	Page editing: add text, stamps and shapes	頁面編輯：新增文字、印章、圖形	ページ編集：テキスト・スタンプ・図形を追加	페이지 편집: 텍스트, 스탬프, 도형 추가
+1031	Page thumbnails	頁面縮圖	ページのサムネイル	페이지 축소판
+1032	Page reflow	頁面重排	ページのリフロー	페이지 재배치
+1033	Page reflow ·	頁面重排 ·	ページのリフロー ·	페이지 재배치 ·
+1034	270° clockwise	順時針 270°	時計回りに 270°	시계 방향 270°
+1035	90° clockwise	順時針 90°	時計回りに 90°	시계 방향 90°
+1036	Rotate clockwise	順時針旋轉	時計回りに回転	시계 방향 회전
+1037	Preview	預覽	プレビュー	미리보기
+1038	Preview incomplete: 	預覽未完成：	プレビューが完了しませんでした：	미리보기를 완료하지 못했습니다: 
+1039	Preview page	預覽頁碼	プレビューするページ	미리볼 페이지
+1040	Estimated reading time	預計閱讀	読了までの目安	예상 읽기 시간
+1041	Color	顏色	色	색
+1042	First launch finished; the next start will be much faster	首次啟動完成，下次啟動會明顯變快	初回起動が完了しました。次回からの起動はずっと速くなります	첫 실행이 끝났습니다. 다음 실행은 훨씬 빨라집니다
+1043	About the first launch	首次啟動說明	初回起動について	첫 실행 안내
+1044	First-line indent	首行縮排	字下げ	첫 줄 들여쓰기
+1045	Indent the first line by two characters	首行縮排兩個字元	1 行目を 2 文字字下げ	첫 줄을 두 글자 들여쓰기
+1046	Home	首頁	ホーム	홈
+1047	Highlight	螢光標示	ハイライト	강조 표시
+1048	Highlight current heading	醒目提示目前標題	現在の見出しを強調	현재 제목 강조
+1049	Highlight selected text	螢光標示所選文字	選択したテキストをハイライト	선택한 텍스트 강조
+1050	Copy Markdown source by default	預設複製 Markdown 原始碼	既定で Markdown ソースをコピー	기본으로 Markdown 소스 복사
+1051	Default alignment	預設對齊	既定の配置	기본 정렬
+1052	Default apps	預設開啟方式	既定のアプリ	기본 앱
+1053	Default zoom	預設縮放	既定の倍率	기본 확대/축소
+1054	(Untitled)	（無標題）	（無題）	(제목 없음)
+1055	 (has unsaved changes)	（有未儲存的修改）	（未保存の変更あり）	(저장되지 않은 변경 사항 있음)
+1056	(empty)	（空）	（空）	(비어 있음)
+1057	＋ Subsection	＋ 子章節	＋ 小見出し	＋ 하위 장
+1058	＋ Section	＋ 章節	＋ 章	＋ 장
+1059	, Esc to finish editing	，Esc 結束編輯	、Esc で編集を終了	, Esc로 편집 끝내기
+1060	, has unsaved changes	，有未儲存的修改	、未保存の変更あり	, 저장되지 않은 변경 사항 있음
+1061	: off	：關	：オフ	: 끔
+1062	: on	：開	：オン	: 켬

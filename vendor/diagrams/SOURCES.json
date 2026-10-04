@@ -1,0 +1,56 @@
+[
+  {
+    "file": "flowchart.min.js",
+    "version": "1.18.0",
+    "source": "https://registry.npmjs.org/flowchart.js/-/flowchart.js-1.18.0.tgz (esbuild 0.27.0 bundle, includes raphael 2.3.0 and eve-raphael 0.5.0)",
+    "sha256": "f3bfed593b3af4ca31c0c435fd594eaaff433f84f39cc218d026a1f8f6a55b27"
+  },
+  {
+    "file": "raphael.min.js",
+    "version": "2.3.0",
+    "source": "https://registry.npmjs.org/raphael/-/raphael-2.3.0.tgz",
+    "sha256": "4da6e9aca75e3576d27ac0962ccadc6d6483cd486901d70d3dee50e77ae7f588"
+  },
+  {
+    "file": "underscore.min.js",
+    "version": "1.13.8",
+    "source": "https://registry.npmjs.org/underscore/-/underscore-1.13.8.tgz",
+    "sha256": "89e99999dfa83ee9fb88e58beb7820961dbfcf391cee2f361ffd4a3489309c69"
+  },
+  {
+    "file": "sequence-diagram-raphael-min.js",
+    "version": "2.0.1",
+    "source": "https://raw.githubusercontent.com/bramp/js-sequence-diagrams/a6c252b2ed0d1e6b1d16be066f582afd2895e6c9/dist/sequence-diagram-raphael-min.js",
+    "sha256": "24cf4f0c18f831711cb9f20b7d24feaf80e69678a86db5782d0f19f82c7fd9dc"
+  },
+  {
+    "file": "LICENSES/flowchart.txt",
+    "version": "1.18.0",
+    "source": "https://registry.npmjs.org/flowchart.js/-/flowchart.js-1.18.0.tgz",
+    "sha256": "a34a2022936202ae810939d3410e50387f5725ff56715ffb3abd93992fb500af"
+  },
+  {
+    "file": "LICENSES/raphael.txt",
+    "version": "2.3.0",
+    "source": "https://registry.npmjs.org/raphael/-/raphael-2.3.0.tgz",
+    "sha256": "4cafcc8112392ea76caa7e4362c7aa557bcc613b9730a897828b2c858e857f1f"
+  },
+  {
+    "file": "LICENSES/underscore.txt",
+    "version": "1.13.8",
+    "source": "https://registry.npmjs.org/underscore/-/underscore-1.13.8.tgz",
+    "sha256": "92905fb54f5d168a27e6d5dc7c2197020add11842be4c70689d084bae3bfe37a"
+  },
+  {
+    "file": "LICENSES/eve-raphael.txt",
+    "version": "0.5.0",
+    "source": "https://registry.npmjs.org/eve-raphael/-/eve-raphael-0.5.0.tgz",
+    "sha256": "277b9ae7fa1d2acd7f708b859f9f771cf71e785091b6f82caa473cac241853c4"
+  },
+  {
+    "file": "LICENSES/js-sequence-diagrams.txt",
+    "version": "2.0.1",
+    "source": "https://raw.githubusercontent.com/bramp/js-sequence-diagrams/a6c252b2ed0d1e6b1d16be066f582afd2895e6c9/LICENCE",
+    "sha256": "02f2ac1a6842a1739a645cdcf4bd1cebe5afd9f85f17cf9044b46b72354d2579"
+  }
+]

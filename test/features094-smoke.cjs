@@ -1,0 +1,50 @@
+const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
+exports.run=async({window,app,dialog,openFiles,samplePdf,output})=>{
+  await fs.mkdir(output,{recursive:true});
+  window.webContents.on('console-message',(_event,...args)=>{const d=typeof args[0]==='object'?args[0]:{message:args[1]};console.log('RENDERER:',d.message);});
+  const run=code=>window.webContents.executeJavaScript(code,true).catch(error=>{console.error('FAILED SCRIPT:',code.slice(0,1000));throw error;}),pause=ms=>new Promise(r=>setTimeout(r,ms));
+  const until=async code=>{for(let n=0;n<200;n++){if(await run(code))return;await pause(100);}throw Error('0.9.4 check timed out: '+code);};
+  const pdf=path.join(output,'annotations.pdf'),md=path.join(output,'table.md');await fs.writeFile(pdf,samplePdf('Feature 0.9.4'));
+  await fs.writeFile(md,'# Heading\n\n| Name | Value |\n| --- | --- |\n| First | 1 |\n\nAfter table.\n');
+  const opened=await openFiles([pdf,md]);await run(`qingye.addDocuments(${JSON.stringify(opened.map(d=>({...d,...(d.bytes?{bytes:Array.from(d.bytes)}:{})})))})`);
+  const pdfId=opened[0].id,mdId=opened[1].id,P=`qingye.sessions.get(${JSON.stringify(pdfId)})`,M=`qingye.sessions.get(${JSON.stringify(mdId)})`;
+  const report={version:app.getVersion(),navigation:false,presets:false,diff:false,visualTable:false,searchOcr:false,annotationNotes:false};const oldOpen=dialog.showOpenDialog,oldSave=dialog.showSaveDialog;
+  try{
+    await run(`qingye.activate(${JSON.stringify(pdfId)})`);await until(`${P}.loaded`);
+    await run(`qingye.readingTrail.clear();qingye.aiTools.run('go_to',{document_id:${JSON.stringify(pdfId)},page:2})`);
+    await run(`document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',altKey:true,bubbles:true,cancelable:true}))`);await until(`${P}.app.pdfViewer.currentPageNumber===1&&qingye.readingTrail.state().index===0`);assert.equal(await run(`${P}.app.pdfViewer.currentPageNumber`),1);await run('qingye.readingTrail.forward()');assert.equal(await run(`${P}.app.pdfViewer.currentPageNumber`),2);report.navigation=true;
+    await run(`qingye.activate(${JSON.stringify(mdId)});qingye.markdown.setViewMode(${M},'live')`);
+    await run(`${M}.panel.querySelector('td').click();const cell=${M}.panel.querySelector('.mdTableCellInput');cell.value='Table changed';cell.dispatchEvent(new Event('input',{bubbles:true}))`);
+    assert.equal(await run(`qingye.markdown.isDirty(${M})`),true);await run(`${M}.editor.visualTables.finish()`);assert.ok(await run(`${M}.editor.text.includes('Table changed')`));
+    await run(`${M}.editor.undo()`);assert.ok(await run(`${M}.editor.text.includes('First')`));await run(`${M}.editor.redo()`);
+    await run(`${M}.panel.querySelector('td').click();const clip=new DataTransfer();clip.setData('text/plain',${JSON.stringify('A\tB\r\nC\tD')});${M}.panel.querySelector('.mdTableCellInput').dispatchEvent(new ClipboardEvent('paste',{clipboardData:clip,bubbles:true,cancelable:true}))`);
+    assert.ok(await run(`${M}.editor.text.includes('C')&&${M}.panel.querySelectorAll('tbody tr').length===2`));report.visualTable=true;
+    await run(`qingye.markdown.setViewMode(${M},'source');${M}.editor.sourceView.setSelectionRange(0,9);qingye.diffDone=false;qingye.diffRejected=false;qingye.aiTools.run('insert_markdown',{document_id:${JSON.stringify(mdId)},text:'# Updated',position:'replace_selection'},{source:'panel'}).then(()=>qingye.diffDone=true,e=>qingye.diffRejected=!!e.declined);true`);
+    await until('document.getElementById("aiConfirm").open');assert.ok(await run('document.querySelector(".aiDiffRemoved").textContent.includes("Heading")'));assert.ok(await run('document.querySelector(".aiDiffAdded").textContent.includes("Updated")'));
+    await run('document.querySelector(".aiConfirmNo").click()');await until('qingye.diffRejected');assert.ok(await run(`${M}.editor.text.startsWith('# Heading')`));
+    await run(`${M}.editor.sourceView.setSelectionRange(0,9);qingye.aiTools.run('insert_markdown',{document_id:${JSON.stringify(mdId)},text:'# Updated',position:'replace_selection'},{source:'panel'}).then(()=>qingye.diffDone=true);true`);
+    await until('document.getElementById("aiConfirm").open');await run('document.querySelector(".aiConfirmYes").click()');await until('qingye.diffDone');assert.ok(await run(`${M}.editor.text.startsWith('# Updated')`));report.diff=true;
+    await run('qingye.converter.open()');await until('document.querySelector("#convertPreset option[value=builtin-pdf]")');
+    await run(`document.getElementById('convertPreset').value='builtin-pdf';document.getElementById('convertPreset').dispatchEvent(new Event('change'));document.getElementById('convertPaper').value='Letter';document.getElementById('convertMargin').value='12';document.getElementById('convertLandscape').checked=true;document.getElementById('convertPresetName').value='Smoke PDF';document.getElementById('convertSavePreset').click()`);
+    await until('!!document.getElementById("convertPreset").value&&!document.getElementById("convertPreset").value.startsWith("builtin-")');
+    const preset=await run('desktop.converterPresets()');assert.ok(preset.some(p=>p.name==='Smoke PDF'&&p.pdfOptions.pageSize==='Letter'&&p.pdfOptions.marginMm===12&&p.pdfOptions.landscape));
+    const presetId=await run('document.getElementById("convertPreset").value');await run(`document.getElementById('convertPaper').value='A4';document.getElementById('convertMargin').value='20';document.getElementById('convertPreset').value=${JSON.stringify(presetId)};document.getElementById('convertPreset').dispatchEvent(new Event('change'))`);
+    assert.equal(await run('document.getElementById("convertPaper").value'),'Letter');assert.equal(await run('document.getElementById("convertMargin").value'),'12');report.presets=true;await run('qingye.converter.dialog.close()');
+    await run(`qingye.activate(${JSON.stringify(pdfId)});qingye.navigation.show('comments')`);await until('!!document.querySelector(".annotationSelectRow input")');
+    await run('const selection=document.querySelector(".annotationSelectRow input");selection.checked=true;selection.dispatchEvent(new Event("change"));document.getElementById("notesToMarkdown").click()');
+    await until(`[...qingye.sessions.values()].some(s=>s.kind==='markdown'&&s.name.endsWith('-批注笔记.md'))`);
+    const noteId=await run(`[...qingye.sessions.values()].find(s=>s.kind==='markdown'&&s.name.endsWith('-批注笔记.md')).id`),N=`qingye.sessions.get(${JSON.stringify(noteId)})`;
+    assert.equal(await run(`qingye.markdown.isDirty(${N})`),true);assert.ok(await run(`${N}.editor.text.includes('rect=')`));
+    await run(`qingye.markdown.setViewMode(${N},'read');${N}.panel.querySelector('a[href^="file:"]').click()`);await until(`!!${P}.frame.contentDocument.querySelector('.sourceNoteHighlight')`);report.annotationNotes=true;
+    const scan=process.env.QINGYE_094_SCAN_FIXTURE;
+    if(scan){const doc=await openFiles([scan]);await run(`qingye.addDocuments(${JSON.stringify(doc.map(d=>({...d,bytes:Array.from(d.bytes)})))})`);const id=doc[0].id,S=`qingye.sessions.get(${JSON.stringify(id)})`;
+      await run('qingye.navigation.show("search")');await until(`${S}.ocrCoverage?.checked===3`);assert.equal(await run(`${S}.ocrCoverage.missingPages.length`),2);
+      await run('document.getElementById("ocrPageRange").value="2";document.getElementById("ocrRecognizeRange").click()');await until(`${S}.ocrCoverage?.textPages.includes(2)&&!qingye.navigation.searchOcr.isBusy()`);
+      const text=await run(`(async()=>{const p=await ${S}.app.pdfDocument.getPage(2);return(await p.getTextContent()).items.map(i=>i.str).join(' ');})()`);assert.match(text,/SEARCHABLE|SCAN|READING/i);report.searchOcr=true;
+      await run('qingye.historyStep(false)');await until(`${S}.ocrCoverage?.checked===3&&${S}.ocrCoverage.missingPages.includes(2)`);
+      await run('document.getElementById("ocrPageRange").value="2";document.getElementById("ocrRecognizeRange").click();document.getElementById("ocrCancel").click()');await until('!qingye.navigation.searchOcr.isBusy()');
+      const afterCancel=await run(`(async()=>{const p=await ${S}.app.pdfDocument.getPage(2);return(await p.getTextContent()).items.map(i=>i.str).join(' ');})()`);assert.equal(afterCancel.trim(),'');report.ocrCancellation=true;
+    }
+    await fs.writeFile(path.join(output,'features-ui.png'),(await window.webContents.capturePage(undefined,{stayHidden:true,stayAwake:true})).toPNG());await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));return report;
+  }finally{dialog.showOpenDialog=oldOpen;dialog.showSaveDialog=oldSave;}
+};

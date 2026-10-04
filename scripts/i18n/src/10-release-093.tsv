@@ -1,0 +1,19 @@
+1317	Convert local documents to Word, ebooks, markup or PDF.	將本機文件轉換為 Word、電子書、標記文字或 PDF。	ローカル文書を Word、電子書籍、マークアップ、PDF に変換します。	로컬 문서를 Word, 전자책, 마크업 또는 PDF로 변환합니다.
+1318	Conversion mode	轉換方式	変換方法	변환 방식
+1319	Merge into one document	合併為一份文件	1 つの文書に結合	하나의 문서로 병합
+1320	Convert each file separately	分別轉換每個檔案	ファイルごとに変換	파일별로 변환
+1321	Each input creates a separate file. Duplicate names get a numeric suffix; existing files are preserved. Canceling keeps completed files.	每個輸入產生獨立檔案。同名輸出自動加數字後綴，不覆寫既有檔案。取消會保留已完成檔案。	入力ごとに別のファイルを作成。同名には番号を付け、既存ファイルを保持します。キャンセルしても完了済みファイルは残ります。	입력별로 별도 파일을 생성합니다. 같은 이름에는 번호를 붙이며 기존 파일을 보존합니다. 취소해도 완료된 파일은 유지됩니다.
+1322	Choose output folder…	選擇輸出資料夾…	出力フォルダーを選択…	출력 폴더 선택…
+1323	Choose output folder	選擇輸出資料夾	出力フォルダーを選択	출력 폴더 선택
+1324	Waiting	等待轉換	待機中	대기 중
+1325	Choose input documents and an output folder first.	請先選擇輸入文件和輸出資料夾。	入力文書と出力フォルダーを選択してください。	입력 문서와 출력 폴더를 먼저 선택하세요.
+1326	Completed {success} · failed {failed} · canceled {canceled}	已完成 {success} 項 · 失敗 {failed} 項 · 已取消 {canceled} 項	完了 {success} 件 · 失敗 {failed} 件 · キャンセル {canceled} 件	완료 {success}개 · 실패 {failed}개 · 취소 {canceled}개
+1327	Some conversions failed; check the results	部分轉換失敗，請查看結果	一部の変換が失敗しました。結果を確認してください	일부 변환이 실패했습니다. 결과를 확인하세요
+1328	No matching source reference	未找到對應的原文引用	対応する原文参照がありません	해당 원문 참조를 찾을 수 없습니다
+1329	View source locations	查看讀取位置	参照位置を表示	읽은 위치 보기
+1330	Page {page}	第 {page} 頁	{page} ページ	{page}페이지
+1331	Line {line}	第 {line} 行	{line} 行目	{line}행
+1332	Content is partial; the answer may not cover the full document	內容已截斷，回答可能未涵蓋全文	内容は一部のみで、回答が全文を網羅しない場合があります	내용이 일부만 포함되어 답변이 전체 문서를 다루지 않을 수 있습니다
+1333	Located source: {name}	已定位原文：{name}	原文を表示：{name}	원문으로 이동: {name}
+1334	The source document is closed. Reopen it first.	引用文件已關閉，請重新開啟原文。	参照文書は閉じられています。原文を開き直してください。	참조 문서가 닫혔습니다. 원문을 다시 여세요.
+1335	The source location has changed. Read the document again.	引用位置已變更，請重新讀取文件。	参照位置が変わりました。文書を再度読み込んでください。	참조 위치가 변경되었습니다. 문서를 다시 읽으세요.

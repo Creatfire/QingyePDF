@@ -1,0 +1,91 @@
+/* Qingye PDF 0.8 — home workspace, toolbox and secondary dialogs. */
+
+/* Home page styles live in home.css (0.8). */
+.dropCue { display: none; position: fixed; inset: calc(var(--titlebar-h) + var(--appbar-h) + 14px) 14px calc(var(--status-h) + 14px); z-index: 500; border: 2px dashed var(--accent); border-radius: var(--radius-xl); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(6px); pointer-events: none; align-content: center; justify-items: center; gap: 10px; color: var(--accent); }
+.dropCue > span { --icon-size: 46px; display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: var(--accent-soft); animation: bob 1.4s var(--ease) infinite alternate; }
+.dropCue strong { font: 650 22px var(--font-display); }
+.dropCue small { color: var(--muted); font-size: 13px; }
+.fileDragging .home:not([hidden]) .dropCue { display: grid; animation: fade-in .16s ease-out; }
+
+/* ——— Toolbox dialog ——— */
+#toolsDialog { width: min(1000px, calc(100vw - 48px)); max-width: 1000px; max-height: calc(100vh - 80px); inset-block-start: 56px; inset-block-end: auto; margin-block: 0; overflow: auto; padding: 0; }
+.toolsHeading { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 18px 20px 14px 24px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.toolsHeading > div:first-child { flex: 1; min-width: 0; }
+.toolsHeading h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 3px; font-size: 17px; --icon-size: 20px; }
+.toolsHeading h2::before { color: var(--accent); }
+.toolsHeading span#toolDocument { display: block; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toolsQuick { display: flex; gap: 6px; }
+.toolsQuick button { font-size: 12.5px; border: 1px solid var(--line); padding: 6px 11px; --icon-size: 16px; }
+#closeTools { width: 34px; height: 34px; padding: 0; --icon-size: 18px; color: var(--muted); }
+.toolCategories { margin: 16px 24px 0; padding: 3px; gap: 2px; background: var(--surface-3); border-radius: 11px; flex-wrap: nowrap; }
+.toolCategories button { flex: 1; font-size: 12.5px; padding: 7px 8px; border-radius: 9px; color: var(--muted); --icon-size: 16px; }
+.toolCategories button[aria-pressed=true] { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); font-weight: 600; }
+.toolActionLabel { display: flex; align-items: center; gap: 12px; margin: 16px 24px 0; font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.toolActionLabel select { flex: 1; font-weight: 600; background-color: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.toolHint { font-size: 12px !important; line-height: 1.7 !important; color: var(--ink-2) !important; margin: 12px 24px 0 !important; padding: 10px 14px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--line); }
+.toolHint:empty { display: none; }
+#toolChangeSummary { background: transparent; border-style: dashed; color: var(--muted) !important; }
+.toolsColumns { display: flex; gap: 24px; padding: 6px 24px 0; }
+.toolsColumns > #toolFields { flex: 1; min-width: 260px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; align-content: start; }
+#toolFields > label { display: flex; flex-direction: column; gap: 6px; margin: 12px 0 0; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+#toolFields > label > :is(input, select, textarea) { font-weight: 400; }
+#toolFields > label:has(textarea), #toolFields > label:has(select[multiple]), #toolFields > div { grid-column: 1 / -1; }
+#toolFields > label.toolCheck { flex-direction: row; align-items: center; font-weight: 400; gap: 8px; }
+#toolFields > div { margin-top: 12px; font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+#toolFields > div > label { display: flex; align-items: center; gap: 7px; }
+#toolFields > div button { border: 1px solid var(--line-strong); }
+#toolFields [hidden], #toolPreviewSection[hidden] { display: none !important; }
+#toolFields textarea { width: 100%; resize: vertical; }
+#toolFields details { width: 100%; }
+#toolFields details summary { color: var(--accent); font-weight: 600; padding: 6px 0; }
+#toolPreviewSection { flex: 0 1 520px; min-width: 300px; padding-top: 12px; }
+#toolPreviewSection > label { display: flex; gap: 10px; align-items: center; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+#toolPreviewSection > label input { width: 76px; }
+#toolPreviewSection > label button { border: 1px solid var(--line-strong); padding: 5px 12px; }
+#toolPreviewSection .toolHint { margin: 10px 0 0 !important; }
+#toolCanvasWrap { position: relative; max-width: 100%; margin: 12px auto; border: 1px solid var(--line-strong); border-radius: 4px; overflow: hidden; touch-action: none; cursor: crosshair; line-height: 0; box-shadow: var(--shadow-md); background: #fff; }
+#toolCanvas { display: block; width: 100%; height: auto; background: white; }
+#toolSelection { position: absolute; border: 2px solid var(--accent-2); background: rgb(63 174 128 / .18); border-radius: 2px; pointer-events: none; box-shadow: 0 0 0 9999px rgb(0 0 0 / .08); }
+#regionFields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; font-size: 12px; }
+#regionFields label { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#regionFields input { width: 80px; }
+#toolPreviewSection > div[data-for] { display: flex; gap: 8px; margin-top: 12px; }
+#toolPreviewSection > div[data-for] select { flex: 1; min-width: 0; }
+#toolPreviewSection > div[data-for] button { border: 1px solid var(--line-strong); }
+.toolsFooter { position: sticky; bottom: 0; z-index: 3; display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 14px 24px; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -10px 20px -14px rgb(0 0 0 / .18); }
+.toolsFooter > div:first-child { min-width: 0; }
+.toolsFooter #toolProgress { display: block; white-space: pre-wrap; line-height: 1.6; font-size: 12px; color: var(--ink-2); max-width: 520px; max-height: 96px; overflow: auto; }
+#jobProgress { display: block; width: 260px; height: 6px; margin-bottom: 8px; }
+.toolsFooter button:not(.primary) { border: 1px solid var(--line-strong); }
+#applyToolDraft { background: var(--accent-soft); color: var(--accent); border-color: transparent !important; font-weight: 600; }
+#applyToolDraft:hover:not(:disabled) { background: var(--accent-soft-2); }
+.toolBusy .toolsColumns, .toolBusy .toolCategories, .toolBusy .toolActionLabel, .toolBusy .toolsQuick { pointer-events: none; opacity: .55; }
+.toolsColumns:has(#outlineEditor:not([hidden])) { min-width: 0; }
+
+/* Outline editor */
+.outlineEditorActions { margin: 8px 0; }
+.outlineEditorRows { max-height: 380px; overflow: auto; margin: 10px 0; padding-right: 4px; }
+.outlineEditRow { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--radius); margin: 4px 0; background: var(--surface); }
+.outlineEditRow input:not([type=number]) { flex: 1; min-width: 100px; }
+.outlineEditRow input[type=number] { width: 70px; }
+.outlineEditRow span { font-size: 11px; color: var(--muted); min-width: 26px; }
+.outlineEditRow button { cursor: grab; padding: 4px 6px; color: var(--muted); }
+
+/* History dialog */
+#historyDialog { width: 520px; max-height: 76vh; overflow: auto; }
+#historyDialog p { margin: 0; padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+#historyDialog p:last-of-type { border-bottom: 0; }
+#historyDialog h2 + p { border-top: 1px solid var(--line); }
+#historyDialog > button { margin: 16px 8px 0 0; border: 1px solid var(--line-strong); }
+#historyDialog > button.primary { border-color: transparent; }
+
+@keyframes bob { to { translate: 0 -6px; } }
+
+@media (max-width: 960px) {
+  .toolsColumns { flex-direction: column; }
+  #toolPreviewSection { flex-basis: auto; }
+  .toolCategories { flex-wrap: wrap; }
+}
+.readingTrail { display:flex;gap:2px;align-items:center;-webkit-app-region:no-drag; }.readingTrail button { width:28px;height:28px; }
+.searchOcr { display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line);margin-top:10px;padding-top:10px; }.searchOcr p { width:100%;margin:3px 0;font-size:12px;line-height:1.6; }.searchOcr input { width:100%;box-sizing:border-box; }.searchOcr button { padding:5px 8px;font-size:12px; }.ocrCoverage,.ocrProgress { color:var(--muted); }
+.annotationSelectRow { display:flex;align-items:start;gap:6px; }.annotationSelectRow .navigationRow { flex:1;min-width:0; }

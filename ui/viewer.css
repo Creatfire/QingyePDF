@@ -1,0 +1,69 @@
+/* Qingye's presentation changes; PDF.js keeps its own licensed implementation.
+   The PDF.js toolbar and views sidebar are removed from sight: Qingye's title bar,
+   command bar, floating page navigator, navigation panel and context menu replace
+   them. The toolbar stays in the DOM so its buttons remain scriptable. */
+:root {
+  --q-accent: light-dark(#1d7a57, #5ccb98);
+  --q-accent-soft: light-dark(#e1f1e8, #1a3629);
+  --q-surface: light-dark(#ffffff, #16211c);
+  --q-line: light-dark(#dfe7e2, #26362e);
+  --q-ink: light-dark(#15201b, #e4eee8);
+  --q-viewer: light-dark(#e5ebe7, #0b120f);
+  --toolbar-icon-bg-color: light-dark(#34453d, #c0cfc7);
+  --toggled-btn-bg-color: var(--q-accent-soft);
+  --doorhanger-bg-color: var(--q-surface);
+  --doorhanger-border-color: var(--q-line);
+  --field-border-color: light-dark(#c8d5ce, #33483d);
+  --button-hover-color: light-dark(#e9f1ec, #213029);
+  --accent-color: var(--q-accent);
+  --color-accent-primary: var(--q-accent);
+  --color-accent-primary-hover: light-dark(#166a4b, #74d6a9);
+  --color-accent-primary-active: light-dark(#11543b, #9be4c2);
+}
+#secondaryOpenFile, #secondaryDownload, #secondaryViewBookmark, #presentationMode { display:none !important; }
+
+/* Hide PDF.js chrome */
+#toolbarContainer { position:absolute !important; inset:0 0 auto 0; height:0 !important; padding:0 !important; border:0 !important; box-shadow:none !important; background:none !important; overflow:visible; z-index:30; pointer-events:none; }
+#toolbarContainer #toolbarViewer { visibility:hidden; height:0; }
+#findbar, #secondaryToolbar, #viewsManager, #viewsManagerResizer, #loadingBar { display:none !important; }
+#viewerContainer { inset:0 !important; background:var(--q-viewer); }
+#outerContainer.viewsManagerOpen #viewerContainer { inset-inline-start:0 !important; }
+
+/* Annotation tool settings: shown as a floating card at the top-right of the page area */
+#toolbarContainer .editorParamsToolbar:not(.hidden), #editorCommentsSidebar:not(.hidden) { visibility:visible; pointer-events:auto; }
+#toolbarContainer .editorParamsToolbar { position:fixed !important; inset:14px 14px auto auto !important; border-radius:14px !important; border:1px solid var(--q-line) !important; background:var(--q-surface) !important; box-shadow:0 18px 48px rgb(12 36 26 / .22), 0 3px 10px rgb(12 36 26 / .08) !important; padding:6px 4px !important; animation:q-pop .18s cubic-bezier(.2,.7,.2,1); }
+#toolbarContainer .editorParamsToolbar::before, #toolbarContainer .editorParamsToolbar::after { display:none !important; }
+#toolbarContainer .editorParamsToolbar :is(label, .editorParamsLabel) { color:var(--q-ink); }
+#toolbarContainer .editorParamsToolbar input[type="range"], #toolbarContainer .editorParamsToolbar input[type="color"] { accent-color:var(--q-accent); }
+#editorCommentsSidebar { top:14px !important; border-radius:14px; border:1px solid var(--q-line); box-shadow:0 18px 48px rgb(12 36 26 / .2); }
+
+/* Pages */
+.pdfViewer { padding-block:8px 72px; }
+
+/* Hidden-tab startup can yield zero in PDF.js's one-time minimum-font measurement. */
+.textLayer[style*="--min-font-size: 0"] { --min-font-size:1 !important; --min-font-size-inv:1 !important; }
+.textLayer ::selection { background:rgb(63 174 128 / .32); }
+.textLayer .highlight { background-color:rgb(255 214 92 / .55); border-radius:2px; }
+.textLayer .highlight.selected { background-color:rgb(63 174 128 / .55); }
+#viewer .page { clip-path:var(--reading-crop, none); }
+#viewer .page {filter:var(--reading-filter,none);}
+:root[data-preserve-images="true"] #viewer .page {filter:none;}
+:root[data-preserve-images="true"] #viewer .page>.canvasWrapper,
+:root[data-preserve-images="true"] #viewer .page>.drawLayer,
+:root[data-preserve-images="true"] #viewer .page>.annotationLayer,
+:root[data-preserve-images="true"] #viewer .page>.annotationEditorLayer {filter:var(--reading-filter,none);}
+.originalImageOverlay {position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+.directEditBox { border-color:var(--q-accent) !important; border-radius:3px; background:rgb(63 174 128 / .06); }
+.directEditBox > button { background:var(--q-accent) !important; border-radius:50% !important; }
+
+/* Editor chrome inside the page (selection toolbars, comment popups) */
+.annotationEditorLayer .editToolbar { border-radius:10px !important; box-shadow:0 8px 24px rgb(12 36 26 / .18) !important; }
+
+@media print { #viewer .page { clip-path:none!important; filter:none!important; }#viewer .page>.canvasWrapper,#viewer .page>.drawLayer,#viewer .page>.annotationLayer,#viewer .page>.annotationEditorLayer {filter:none!important;} .originalImageOverlay {display:none!important;} }
+@media screen {
+  .pdfViewer .page > .canvasWrapper { box-shadow:0 1px 2px rgb(16 40 28 / .10), 0 8px 26px rgb(16 40 28 / .13); border-radius:2px; }
+  :root[style*="color-scheme: dark"] .pdfViewer .page > .canvasWrapper { box-shadow:0 1px 2px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .45); }
+  #viewerContainer { scrollbar-width:thin; scrollbar-color:light-dark(#c8d5ce, #33483d) transparent; }
+}
+@keyframes q-pop { from { opacity:0; transform:translateY(-4px) scale(.98); } }
+@media(prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }

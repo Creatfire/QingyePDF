@@ -1,0 +1,45 @@
+{
+  "app": "QingyePDF",
+  "version": "0.12.0",
+  "platform": "win32",
+  "architecture": "x64",
+  "target": "portable",
+  "artifactName": "QingyePDF-0.12.0-win-x64.exe",
+  "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
+  "pandocVersion": "3.12",
+  "runtimePandocDependency": true,
+  "systemPandocInstallationRequired": false,
+  "engineModified": false,
+  "nativePrototypeUsed": false,
+  "aiCollaboration": "opt-in; loopback OpenAPI tool server off by default",
+  "interfaceStyles": [
+    "Windows (default, native caption buttons)",
+    "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
+  ],
+  "acceptance": [
+    "Unit tests, Linux Electron smoke suites and phone-viewport Chromium end-to-end tests only; nothing was run on Windows, macOS or an Android device"
+  ],
+  "newFeatures": [
+    "macOS build through GitHub Actions (dmg for Apple silicon and Intel)",
+    "Mac shortcut notation and menus",
+    "Notes mode, library search and reference details on Android",
+    "Touch reading: tap to hide the bars, double-tap zoom, selection bar",
+    "No keyboard hints on Android"
+  ],
+  "buildRevision": "dev1",
+  "fixes": [
+    "BUG-093-01",
+    "BUG-093-02",
+    "BUG-093-03",
+    "BUG-093-04",
+    "BUG-093-05",
+    "BUG-093-06",
+    "D-001"
+  ],
+  "crossBuilt": true,
+  "otherArtifacts": [
+    "QingyePDF-0.12.0-mac-arm64.dmg (GitHub Actions)",
+    "QingyePDF-0.12.0-mac-x64.dmg (GitHub Actions)",
+    "QingyePDF-0.12.0-android-debug.apk"
+  ]
+}

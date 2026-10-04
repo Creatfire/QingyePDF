@@ -1,0 +1,130 @@
+/* Qingye 0.8 — one interface per document kind.
+   body[data-mode] is "home", "pdf" or "md". Only the PDF tab shows the PDF toolbar; a Markdown
+   tab has its own top bar (menus + view switch + save) and its own status bar. Loaded last. */
+
+/* ——— Title bar utilities (theme, help): always available, never duplicated elsewhere ——— */
+.titlebarTools { display: flex; align-items: center; gap: 2px; align-self: center; margin-right: 4px; }
+.titlebarTools button { width: 30px; height: 30px; padding: 0; border-radius: 8px; color: var(--muted); --icon-size: 16px; }
+.titlebarTools button:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
+.titlebarTools #convertButton { width: auto; padding: 0 9px; font-size: 12.5px; }
+
+/* ——— Chrome per mode ——— */
+body:not([data-mode="pdf"]) #pdfToolbar { display: none; }
+body[data-mode="home"] > .status, body[data-mode="md"] > .status { display: none; }
+body[data-mode="md"] .dropCue, body[data-mode="home"] .dropCue { inset: calc(var(--titlebar-h) + 14px) 14px 14px; }
+body[data-mode="md"] #workspace { background: var(--surface); }
+
+/* Home page: see home.css */
+
+/* ——— Markdown top bar: menus on the left, view controls on the right ——— */
+.mdPanel .mdMenubar { gap: 2px; padding: 0 10px 0 8px; min-height: 42px; height: 42px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.mdPanel .mdMenubar > button.mdMenuTop { height: 30px; padding: 0 10px; font-size: 13px; }
+.mdPanel.noMenubar .mdMenubar { display: flex; }
+.mdPanel.noMenubar .mdMenubar > .mdMenuTop { display: none; }
+.mdMenubar .mdMenuIcon { width: 32px; height: 32px; border-radius: 8px; --icon-size: 16px; color: var(--ink-2); }
+.mdMenubar .mdMenuIcon:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
+.mdMenubar .mdMenuIcon[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.mdMenubar .mdModes { margin: 0 6px; padding: 3px; border-radius: 9px; flex: none; }
+.mdMenubar .mdModes button { flex: none; height: 26px; padding: 0 12px; font-size: 12.5px; border-radius: 7px; }
+.mdMenubar .mdSaveButton { width: auto; min-width: 74px; padding: 0 12px 0 10px; gap: 6px; margin-left: 4px; border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.mdMenubar .mdSaveButton .label { white-space: nowrap; }
+.mdMenubar .mdSaveButton.isDirty { background: var(--accent); border-color: transparent; color: var(--on-accent); font-weight: 600; }
+.mdMenubar .mdSaveButton.isDirty:hover:not(:disabled) { background: var(--accent-hover); color: var(--on-accent); }
+
+/* Reading progress along the top edge of the document */
+.mdProgress { position: relative; height: 2px; flex: none; background: transparent; z-index: 5; }
+.mdProgress > i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--accent-2), var(--accent)); transform-origin: left; transform: scaleX(0); transition: transform .12s linear; }
+.mdPanel.isSource .mdProgress > i { opacity: .5; }
+
+/* ——— Markdown status bar (replaces the floating pill and the global status line) ——— */
+.mdStatusBar { flex: none; display: flex; align-items: center; gap: 10px; height: var(--status-h); padding: 0 8px 0 14px; border-top: 1px solid var(--line); background: var(--surface-2); color: var(--muted); font-size: 11.5px; }
+.mdPanel.noStatus .mdStatusBar { display: none; }
+.mdStatusMsg { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color var(--med); }
+.mdStatusMsg.isFresh { color: var(--ink-2); }
+.mdStatusBar .mdStats { display: inline-flex; height: 20px; padding: 0 8px; border-radius: 6px; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mdStatusBar .mdStats:hover { background: var(--surface-3); color: var(--ink-2); }
+.mdStatusInfo { font-variant-numeric: tabular-nums; color: var(--faint); padding-left: 10px; border-left: 1px solid var(--line); }
+.mdPanel .mdPill { display: none !important; }
+
+/* ——— Sidebar: two tabs, no close button (the top bar toggles it) ——— */
+.mdOutline { width: 256px; background: var(--surface-2); }
+.mdSideTabs { padding: 10px 12px 6px; gap: 4px; }
+.mdSideTabs button { height: 28px; padding: 0 12px; }
+.mdOutlineFilter { margin: 2px 12px 8px; }
+.mdOutlineItem { padding-top: 6px; padding-bottom: 6px; }
+.mdOutlineItem[data-level="1"] { font-weight: 650; }
+.mdOutlineItem:not(.isCurrent):hover { background: var(--hover); }
+
+/* ——— Find bar anchors under the top bar ——— */
+.mdPanel .mdFindBar { top: 52px; }
+
+/* ——— Document typography (default theme refinements) ——— */
+.mdPanel .mdDoc { padding-top: 48px; padding-bottom: 24px; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc h1 { font-size: 2em; border-bottom: 0; padding-bottom: 0; margin-bottom: .6em; letter-spacing: 0; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc h2 { font-size: 1.5em; padding-bottom: .3em; margin-top: 1.6em; border-bottom-color: color-mix(in srgb, var(--line) 80%, transparent); }
+.mdPanel[data-mdtheme="qingye"] .mdDoc h3 { margin-top: 1.4em; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc p { color: color-mix(in srgb, var(--ink) 92%, var(--muted)); }
+.mdPanel[data-mdtheme="qingye"] .mdDoc blockquote { border-left: 3px solid var(--accent-2); background: color-mix(in srgb, var(--accent-soft) 45%, transparent); padding: .5em 1.1em; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc table { border-collapse: separate; border-spacing: 0; border: 1px solid var(--line-strong); border-radius: 10px; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc th, .mdPanel[data-mdtheme="qingye"] .mdDoc td { border: 0; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+.mdPanel[data-mdtheme="qingye"] .mdDoc tr > :last-child { border-right: 0; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc tr:last-child > td { border-bottom: 0; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc th { background: var(--surface-2); text-align: left; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc tr:nth-child(even) td { background: transparent; }
+.mdPanel[data-mdtheme="qingye"] .mdCodeBlock { border-radius: 10px; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc img { border-radius: 8px; }
+
+/* Blocks hint that they are editable (live mode only) */
+.mdPanel:not(.isReading) .mdDoc > .mdBlock:not(.isActive):hover { background: color-mix(in srgb, var(--surface-2) 70%, transparent); border-radius: 8px; box-shadow: -14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent), 14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent); }
+.mdEditor.isFocusMode .mdDoc > .mdBlock:hover { background: none; box-shadow: none; }
+
+/* ——— Reading mode: calm page, no editing affordances ——— */
+.mdPanel.isReading .mdEditorHost { background: color-mix(in srgb, var(--surface-2) 55%, var(--surface)); }
+.mdPanel.isReading .mdDoc { cursor: default; padding-top: 56px; }
+.mdPanel.isReading .mdTail { cursor: default; min-height: 18vh; }
+.mdPanel.isReading .mdDoc a { cursor: pointer; }
+.mdPanel.isReading .mdMenubar .mdModes button[data-mode="read"] { color: var(--accent); }
+.mdPanel.isReading .mdCopy { opacity: 0; }
+.mdPanel.isReading .mdCodeBlock:hover .mdCopy { opacity: 1; }
+
+@media (max-width: 1060px) {
+  .mdMenubar .mdSaveButton .label { display: none; }
+  .mdMenubar .mdSaveButton { min-width: 0; width: 32px; padding: 0; }
+  .mdPanel .mdMenubar > button.mdMenuTop { padding: 0 7px; }
+  .mdStatusInfo { display: none; }
+}
+@media (max-width: 960px) {
+  .mdMenubar .mdModes button { padding: 0 8px; }
+  .mdMenubar .mdFindButton { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .mdProgress > i { transition: none; } }
+@media print { .mdStatusBar, .mdProgress { display: none !important; } }
+.mdSideTabs { height: 42px; padding: 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+/* Menu bar drop-downs show one check mark (left), not two */
+.mdDrop .menuItem[aria-checked="true"]::after { display: none; }
+.mdDrop .menuItem[aria-checked="true"] { font-weight: 500; color: var(--ink); }
+
+/* ——— Rendering fixes (0.8.0 round 2) ——— */
+/* Programming fonts such as Cascadia Code turn "<!--", "-->", "://" into ligature arrows.
+   The `font` shorthand resets font-variant-ligatures, so force it off wherever code is shown. */
+.mdPanel :is(code, pre, kbd, samp, textarea, .mdSourceView, .mdSource, .sx-code, .sx-html, .sx-def, .sx-yaml, .sx-math, .sx-mathblock, .mdRawSource, .mdMetaNote),
+.mdPanel .mdSource * { font-variant-ligatures: none !important; font-feature-settings: "liga" 0, "calt" 0 !important; }
+
+/* Comments and link reference definitions: a quiet note while editing, hidden when reading */
+.mdMetaNote { display: flex; align-items: baseline; gap: 8px; margin: .2em 0; font-size: .8em; line-height: 1.6; color: var(--faint); overflow: hidden; }
+.mdMetaLabel { flex: none; padding: 0 6px; border-radius: 4px; border: 1px dashed var(--line-strong); font-size: .92em; }
+.mdMetaText { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--md-mono); }
+.mdMetaNote.isComment .mdMetaText { font-family: inherit; font-style: italic; }
+.mdPanel.isReading .mdBlock.isMeta { display: none; }
+
+/* Tables: the frame hugs the table instead of spanning the column */
+.mdPanel .mdDoc table { display: block; width: fit-content; max-width: 100%; overflow-x: auto; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc table { border-collapse: separate; }
+
+/* Footnote back-link sits right after the text */
+.mdFootnoteBody { flex: 0 1 auto; }
+.mdFootnoteBack { margin-left: .4em; }
+.titlebarTools #settingsButton { --icon-size: 17px; }
+/* Short CJK labels in narrow table columns should not wrap one character per line */
+.mdPanel .mdDoc :is(th, td) { min-width: 4.5em; }
+.mdPanel .mdDoc th { white-space: nowrap; }

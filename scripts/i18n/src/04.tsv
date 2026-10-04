@@ -1,0 +1,150 @@
+590	Document outline	文件大綱	文書のアウトライン	문서 개요
+591	The document is not ready or is being processed.	文件尚未就緒或正在處理。	文書の準備ができていないか、処理中です。	문서가 아직 준비되지 않았거나 처리 중입니다.
+592	Document properties	文件屬性	文書のプロパティ	문서 속성
+593	Document saved	文件已儲存	文書を保存しました	문서를 저장했습니다
+594	Document opened	文件已開啟	文書を開きました	문서를 열었습니다
+595	Document tabs	文件分頁	文書タブ	문서 탭
+596	The document has no built-in outline. Click "Edit outline" to add sections and page numbers, and export a PDF with an outline.	文件沒有內建目錄。點擊「編輯目錄」可以新增章節與頁碼，並匯出帶目錄的 PDF。	この文書には目次がありません。「目次を編集」で章とページを追加し、目次付きの PDF を書き出せます。	문서에 내장 목차가 없습니다. "목차 편집"을 눌러 장과 페이지를 추가하고 목차가 있는 PDF로 내보낼 수 있습니다.
+597	Italic	斜體	斜体	기울임꼴
+598	New subsection	新子章節	新しい小見出し	새 하위 장
+599	New	新增	新規	새로 만들기
+600	New Markdown	新增 Markdown	新規 Markdown	새 Markdown
+601	New Markdown document · Ctrl+N	新增 Markdown 文件 · Ctrl+N	新規 Markdown 文書 · Ctrl+N	새 Markdown 문서 · Ctrl+N
+602	New text	新文字	新しいテキスト	새 텍스트
+603	New file name:	新的檔案名稱：	新しいファイル名：	새 파일 이름:
+604	New window	新視窗	新しいウィンドウ	새 창
+605	New section	新章節	新しい章	새 장
+606	Rotate	旋轉	回転	회전
+607	Rotation	旋轉角度	回転角度	회전 각도
+608	Rotate pages	旋轉頁面	ページを回転	페이지 회전
+609	None	無	なし	없음
+610	Bulleted list	項目符號清單	箇条書き	글머리 기호 목록
+611	Invalid	無效	無効	잘못됨
+612	Untitled	無標題	無題	제목 없음
+613	Could not load the local diagram library: 	無法載入本機圖表庫：	ローカルの図ライブラリを読み込めません：	로컬 다이어그램 라이브러리를 불러올 수 없습니다: 
+614	Could not load the custom theme: 	無法載入自訂主題：	カスタムテーマを読み込めません：	사용자 지정 테마를 불러올 수 없습니다: 
+615	Cannot open file	無法開啟檔案	ファイルを開けません	파일을 열 수 없습니다
+616	Could not read the image area: 	無法讀取圖片區域：	画像の範囲を読み取れません：	이미지 영역을 읽을 수 없습니다: 
+617	Could not read the file association status.	無法讀取檔案關聯狀態。	ファイルの関連付けの状態を読み取れません。	파일 연결 상태를 읽을 수 없습니다.
+618	No results	無結果	結果なし	결과 없음
+619	Day	日間	昼間	주간
+620	Good morning	早安	おはようございます	좋은 아침입니다
+621	Yesterday	昨天	昨日	어제
+622	Show <br/>	顯示 <br/>	<br/> を表示	<br/> 표시
+623	Show <br/> line-break tags	顯示 <br/> 換行標籤	<br/> 改行タグを表示	<br/> 줄바꿈 태그 표시
+624	Show / hide sidebar	顯示/隱藏側邊欄	サイドバーの表示/非表示	사이드바 표시/숨기기
+625	Show outline	顯示大綱	アウトラインを表示	개요 표시
+626	Show file	顯示檔案	ファイルを表示	파일 보기
+627	Show replace	顯示取代	置換を表示	바꾸기 표시
+628	Show status bar	顯示狀態列	ステータスバーを表示	상태 표시줄 표시
+629	Show menus (File, Edit…)	顯示功能表（檔案、編輯……）	メニューを表示（ファイル、編集…）	메뉴 표시(파일, 편집…)
+630	Display language	顯示語言	表示言語	표시 언어
+631	Good evening	晚安	こんばんは	좋은 저녁입니다
+632	Smart punctuation (quotes and dashes converted only when rendering; the source is unchanged)	智慧標點（僅轉譯時轉換引號、破折號，不改動原始碼）	スマート句読点（表示時のみ引用符とダッシュを変換、ソースは変更しません）	스마트 문장 부호(렌더링할 때만 따옴표와 대시를 변환, 소스는 그대로)
+633	Smart punctuation (on render)	智慧標點（轉譯時轉換）	スマート句読点（表示時に変換）	스마트 문장 부호(렌더링 시)
+634	Smart paste (keep formatting)	智慧貼上（依格式）	スマート貼り付け（書式を保持）	스마트 붙여넣기(서식 유지)
+635	Smart paste: convert formatting from web pages / Word to Markdown	智慧貼上：把網頁 / Word 中的格式轉換為 Markdown	スマート貼り付け：Web ページ / Word の書式を Markdown に変換	스마트 붙여넣기: 웹 페이지 / Word의 서식을 Markdown으로 변환
+636	No matches yet. Scanned pages need text recognition first.	暫無搜尋結果。掃描頁需要先辨識文字。	一致する結果はありません。スキャンしたページは先に文字認識が必要です。	아직 결과가 없습니다. 스캔한 페이지는 먼저 텍스트 인식이 필요합니다.
+637	No sections yet. Click "＋ Section" or "Detect headings".	暫無章節，點擊「＋ 章節」或「自動辨識標題」。	章はまだありません。「＋ 章」または「見出しを自動検出」をクリックしてください。	아직 장이 없습니다. "＋ 장" 또는 "제목 자동 인식"을 누르세요.
+638	Warm black	暖黑	ウォームブラック	웜 블랙
+639	More Markdown preferences…	更多 Markdown 偏好設定…	その他の Markdown 環境設定…	Markdown 환경설정 더 보기…
+640	More colors and customization	更多配色與自訂	その他の配色とカスタマイズ	더 많은 색 구성 및 사용자 지정
+641	Replace	取代	置換	바꾸기
+642	Replace with	取代為	置換後	바꿀 내용
+643	Replace original text in area	取代區域內原文	範囲内の元のテキストを置換	영역 안의 원문 바꾸기
+644	Replace area text	取代區域原文	範囲のテキストを置換	영역 원문 바꾸기
+645	Replace original text	取代原文	元のテキストを置換	원문 바꾸기
+646	Replacement draft	取代草稿	置換の下書き	바꾸기 초안
+647	Recent files	最近開啟	最近使ったファイル	최근 파일
+648	Numbered list	編號清單	番号付きリスト	번호 매기기 목록
+649	Unsaved changes	有未儲存的修改	未保存の変更があります	저장되지 않은 변경 사항
+650	Unsaved annotations	有未儲存的批註	未保存の注釈があります	저장되지 않은 주석
+651	Untitled documents need "Save as" individually	未命名文件需要單獨「另存新檔」	無題の文書は個別に「名前を付けて保存」が必要です	제목 없는 문서는 따로 "다른 이름으로 저장"해야 합니다
+652	No theme imported	未匯入主題	テーマは読み込まれませんでした	가져온 테마 없음
+653	Unapplied page edit	未套用的頁面編輯	未適用のページ編集	적용하지 않은 페이지 편집
+654	Pandoc not found.	找不到 Pandoc。	Pandoc が見つかりません。	Pandoc을 찾을 수 없습니다.
+655	Heading not found: 	找不到標題：	見出しが見つかりません：	제목을 찾을 수 없습니다: 
+656	Not set	未設定	未設定	설정 안 됨
+657	No default app set	未設定預設程式	既定のアプリは未設定	기본 앱이 설정되지 않음
+658	No text recognized; try sharpening or scan optimization.	未辨識到文字，請嘗試銳利化或掃描最佳化。	文字を認識できませんでした。シャープ化やスキャン補正を試してください。	텍스트를 인식하지 못했습니다. 선명하게 하기나 스캔 보정을 시도하세요.
+659	No headings recognized. Run OCR on scanned pages first, or add them manually.	未辨識到標題。掃描頁請先 OCR，也可手動新增。	見出しを検出できませんでした。スキャンしたページは先に OCR するか、手動で追加してください。	제목을 인식하지 못했습니다. 스캔 페이지는 먼저 OCR하거나 직접 추가하세요.
+660	Local PDF toolbox	本機 PDF 工具箱	ローカル PDF ツールボックス	로컬 PDF 도구 상자
+661	Local · private · open source	本機 · 私密 · 開源	ローカル · プライベート · オープンソース	로컬 · 비공개 · 오픈 소스
+662	A local, open-source PDF reader and Markdown editor. No account, no membership, no ads. Open source under AGPL-3.0; third-party components and their licenses are listed in the bundled THIRD_PARTY_NOTICES.	本機、開源的 PDF 閱讀器與 Markdown 編輯器。無帳號、無會員、無廣告。按 AGPL-3.0 授權條款開源，第三方元件及其授權見隨附的 THIRD_PARTY_NOTICES。	ローカルで動くオープンソースの PDF リーダー兼 Markdown エディター。アカウント・会員登録・広告はありません。AGPL-3.0 のオープンソースで、サードパーティ製コンポーネントとライセンスは同梱の THIRD_PARTY_NOTICES に記載しています。	로컬에서 동작하는 오픈 소스 PDF 뷰어이자 Markdown 편집기입니다. 계정, 멤버십, 광고가 없습니다. AGPL-3.0 라이선스로 공개되며, 서드파티 구성 요소와 라이선스는 함께 제공되는 THIRD_PARTY_NOTICES에 있습니다.
+663	Local Chinese & English OCR; recognized pages get a 200 DPI image and a searchable text layer. Scan quality affects accuracy; please review the results.	本機中英文 OCR，辨識頁產生 200 DPI 影像與可搜尋文字層。掃描品質影響準確率，請複核辨識結果。	ローカルで中国語・英語を OCR し、認識したページに 200 DPI の画像と検索可能なテキスト層を作成します。精度はスキャン品質に左右されるため、結果を確認してください。	로컬 중국어·영어 OCR로 인식한 페이지에 200 DPI 이미지와 검색 가능한 텍스트 레이어를 만듭니다. 스캔 품질에 따라 정확도가 달라지니 결과를 확인하세요.
+664	Local processing finished	本機處理完成	ローカル処理が完了しました	로컬 처리가 완료되었습니다
+665	Local processing is running; you can save when it finishes.	本機處理正在進行，完成後可儲存。	ローカル処理を実行中です。完了後に保存できます。	로컬 처리가 진행 중입니다. 완료 후 저장할 수 있습니다.
+666	Local processing is running; close the document when it finishes.	本機處理正在進行，請完成後關閉文件。	ローカル処理を実行中です。完了してから文書を閉じてください。	로컬 처리가 진행 중입니다. 완료 후 문서를 닫으세요.
+667	Local processing is running; please save after it finishes.	本機處理正在進行，請等待完成後儲存。	ローカル処理を実行中です。完了してから保存してください。	로컬 처리가 진행 중입니다. 완료된 뒤 저장하세요.
+668	Data on this computer	本機資料	このコンピューターのデータ	이 컴퓨터의 데이터
+669	No extractable text on this page. Scans need OCR; leave reflow to see the original page.	本頁沒有可擷取的文字。掃描件需要 OCR，請結束重新排版檢視原頁面。	このページには抽出できるテキストがありません。スキャンは OCR が必要です。リフローを終了して元のページを表示してください。	이 페이지에는 추출할 텍스트가 없습니다. 스캔 문서는 OCR이 필요하니 재배치를 끝내고 원래 페이지를 보세요.
+670	Pages of the source PDF	來源 PDF 的頁碼	元の PDF のページ	원본 PDF의 페이지
+671	Drop to start reading	放開，開始閱讀	ドロップして読み始める	놓으면 읽기 시작
+672	Find	尋找	検索	찾기
+673	Find previous	尋找上一個	前を検索	이전 찾기
+674	Find next	尋找下一個	次を検索	다음 찾기
+675	Find and replace	尋找與取代	検索と置換	찾기 및 바꾸기
+676	Find and replace · Ctrl+F	尋找與取代 · Ctrl+F	検索と置換 · Ctrl+F	찾기 및 바꾸기 · Ctrl+F
+677	Find and replace…	尋找與取代…	検索と置換…	찾기 및 바꾸기…
+678	Find and replace	尋找和取代	検索と置換	찾기 및 바꾸기
+679	Standard	標準	標準	표준
+680	Standard (20 mm)	標準（20 mm）	標準（20 mm）	표준(20 mm)
+681	Mark as done	標記為已完成	完了にする	완료로 표시
+682	Mark as not done	標記為未完成	未完了にする	미완료로 표시
+683	Mark image differences (96 DPI, up to 200 pages at once)	標記影像差異（96 DPI，一次最多 200 頁）	画像の差分を表示（96 DPI、一度に最大 200 ページ）	이미지 차이 표시(96 DPI, 한 번에 최대 200페이지)
+684	Heading	標題	見出し	제목
+685	Heading 1	標題 1	見出し 1	제목 1
+686	Heading 2	標題 2	見出し 2	제목 2
+687	Heading 3	標題 3	見出し 3	제목 3
+688	The moon/sun button on the right of the title bar switches it any time.	標題列右側的月亮/太陽按鈕可隨時切換。	タイトルバー右の月/太陽ボタンでいつでも切り替えられます。	제목 표시줄 오른쪽의 달/해 버튼으로 언제든 바꿀 수 있습니다.
+689	Format	格式	書式	서식
+690	Format	格式化	整形	서식 정리
+691	Format table source	格式化表格原始碼	表のソースを整形	표 소스 서식 정리
+692	Detect Pandoc	偵測 Pandoc	Pandoc を検出	Pandoc 감지
+693	Detecting…	偵測中…	検出中…	감지 중…
+694	Forest	森林	フォレスト	숲
+695	Ellipse	橢圓	楕円	타원
+696	Landscape	橫向	横向き	가로
+697	Olive	橄欖	オリーブ	올리브
+698	Welcome to Qingye PDF	歡迎使用青頁 PDF	青頁 PDF へようこそ	칭예 PDF에 오신 것을 환영합니다
+699	Regular expression	規則運算式	正規表現	정규식
+700	Saving…	正在儲存…	保存しています…	저장하는 중…
+701	Canceling…	正在取消…	キャンセルしています…	취소하는 중…
+702	Canceling text recognition…	正在取消文字辨識…	文字認識をキャンセルしています…	텍스트 인식을 취소하는 중…
+703	Exporting	正在匯出	書き出し中	내보내는 중
+704	Applying changes…	正在套用修改…	変更を適用しています…	변경 사항을 적용하는 중…
+705	Opening document…	正在開啟文件…	文書を開いています…	문서를 여는 중…
+706	Extracting text from this page…	正在擷取本頁文字…	このページのテキストを抽出しています…	이 페이지의 텍스트를 추출하는 중…
+707	Updating text layer	正在更新文字層	テキスト層を更新しています	텍스트 레이어 업데이트 중
+708	Generating the actual PDF preview…	正在產生實際 PDF 預覽…	実際の PDF プレビューを生成しています…	실제 PDF 미리보기를 생성하는 중…
+709	Editing	正在編輯	編集中	편집 중
+710	Reading annotations and excerpts…	正在讀取批註與摘錄…	注釈と抜粋を読み込んでいます…	주석과 발췌를 읽는 중…
+711	Body text	內文	本文	본문
+712	Body font (leave empty to use the theme font)	內文字型（留空使用主題字型）	本文のフォント（空欄でテーマのフォント）	본문 글꼴(비워 두면 테마 글꼴)
+713	Cannot move to that level here.	此位置不能調整到該層級。	この位置ではそのレベルに変更できません。	이 위치에서는 해당 수준으로 바꿀 수 없습니다.
+714	This command is not available here	此命令在目前位置無法使用	このコマンドはここでは使えません	이 명령은 여기서 사용할 수 없습니다
+715	This action requires choosing another document.	此操作需要選擇另一個文件。	この操作には別の文書の選択が必要です。	이 작업에는 다른 문서를 선택해야 합니다.
+716	There are no Markdown files in this folder.	此資料夾中沒有 Markdown 檔案。	このフォルダーに Markdown ファイルはありません。	이 폴더에 Markdown 파일이 없습니다.
+717	This file was changed by another program, and Qingye has unsaved changes.	此檔案已被其他程式修改，而青頁中有未儲存的修改。	このファイルは別のプログラムで変更され、青頁には未保存の変更があります。	이 파일이 다른 프로그램에서 수정되었고, 칭예에 저장되지 않은 변경 사항이 있습니다.
+718	Paragraph	段落	段落	단락
+719	Paragraphs	段落數	段落数	단락 수
+720	Each line: level | page | title	每行：層級 | 頁碼 | 標題	各行：レベル | ページ | タイトル	각 줄: 수준 | 페이지 | 제목
+721	Split each page into its own PDF (ZIP)	每頁分割成獨立 PDF（ZIP）	ページごとに個別の PDF に分割（ZIP）	페이지마다 별도 PDF로 분할(ZIP)
+722	Watermark	浮水印	透かし	워터마크
+723	Horizontal rule	水平分隔線	水平線	가로줄
+724	Permanently rotate selected pages	永久旋轉指定頁面	指定ページを恒久的に回転	지정 페이지 영구 회전
+725	Permanent redaction / remove sensitive content	永久塗黑 / 刪除敏感內容	永久墨消し / 機密情報の削除	영구 가리기 / 민감한 내용 삭제
+726	No matching files	沒有符合的檔案	一致するファイルはありません	일치하는 파일 없음
+727	No matches	沒有符合項目	一致する項目はありません	일치 항목 없음
+728	No spelling suggestions	沒有拼字建議	スペルの候補はありません	맞춤법 제안 없음
+729	No headings. Lines starting with # appear here.	沒有標題。以 # 開頭的行會出現在這裡。	見出しはありません。# で始まる行がここに表示されます。	제목이 없습니다. #으로 시작하는 줄이 여기에 표시됩니다.
+730	No matching annotations.	沒有符合條件的批註。	条件に一致する注釈はありません。	조건에 맞는 주석이 없습니다.
+731	No matching files	沒有符合條件的檔案	条件に一致するファイルはありません	조건에 맞는 파일이 없습니다
+732	No files need saving	沒有需要儲存的檔案	保存が必要なファイルはありません	저장할 파일이 없습니다
+733	No local images need copying	沒有需要複製的本機圖片	コピーが必要なローカル画像はありません	복사할 로컬 이미지가 없습니다
+734	Register as default opener	註冊為開啟方式	開くアプリとして登録	열기 프로그램으로 등록
+735	Note	注意 (Note)	注記 (Note)	참고 (Note)
+736	Comment	註解	コメント	주석
+737	Flowchart	流程圖	フローチャート	순서도
+738	The flowchart library is unavailable.	流程圖庫無法使用。	フローチャートライブラリを利用できません。	순서도 라이브러리를 사용할 수 없습니다.
+739	Light	淺色	ライト	밝게

@@ -1,0 +1,4 @@
+1336	Multiple input files are combined into one output document.	多個輸入檔案會合併為一份輸出文件。	複数の入力ファイルを1つの文書に結合します。	여러 입력 파일을 하나의 출력 문서로 병합합니다.
+1337	No target document is available for this turn. Open a document and ask again.	本輪沒有可用的目標文件，請開啟文件後重新提問。	このターンの対象文書がありません。文書を開いて再度質問してください。	이 요청에 사용할 대상 문서가 없습니다. 문서를 열고 다시 질문하세요.
+1338	The app is closing. A new conversion cannot be started.	程式正在關閉，無法開始新的轉換。	アプリを終了しています。新しい変換は開始できません。	앱을 종료하는 중입니다. 새 변환을 시작할 수 없습니다.
+1339	The conversion working directory path is too long. Choose a shorter directory.	轉換工作目錄路徑過長，請選擇較短的目錄。	変換作業フォルダーのパスが長すぎます。短いパスを選択してください。	변환 작업 폴더 경로가 너무 깁니다. 더 짧은 폴더를 선택하세요.
