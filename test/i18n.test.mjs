@@ -33,6 +33,6 @@ test('file associations report unsupported outside packaged Windows builds', asy
   const a = createAssociations({ app: { isPackaged: false }, shell: { openExternal: async () => {} } });
   const st = await a.status();
   assert.equal(st.supported, false);
-  assert.match(st.reason, /Windows|开发模式/);
-  await assert.rejects(a.register(), /Windows|开发模式/);
+  assert.match(st.reason, process.platform === 'darwin' ? /Mac.*访达/ : process.platform === 'win32' ? /开发模式/ : /仅 Windows/);
+  await assert.rejects(a.register(), { message: st.reason });
 });
