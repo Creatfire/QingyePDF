@@ -67,7 +67,7 @@ exports.run=async(window,output)=>{
   for(let i=0;i<3;i++){await click(viewPoint);assert.equal(await run("document.getElementById('viewPanel').matches(':popover-open')"),true);await click(viewPoint);assert.equal(await run("document.getElementById('viewPanel').matches(':popover-open')"),false);fixes.viewMouseCycles++;}
   await run("qingye.direct.open('stamp')");
   const originalPopup=Menu.prototype.popup;
-  const savedClipboard=await Promise.all((await clipboard.read()).map(async item=>new ClipboardItem(Object.fromEntries(await Promise.all(item.types.map(async type=>[type,await item.getType(type)]))))));
+  const savedClipboard=await Promise.all((await clipboard.read()).filter(item=>item.types.length).map(async item=>new ClipboardItem(Object.fromEntries(await Promise.all(item.types.map(async type=>[type,await item.getType(type)]))))));
   let captured;
   try{
     // Verify actual context-menu events and role actions without opening a
