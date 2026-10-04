@@ -31,7 +31,7 @@ exports.run=async(window,output)=>{
   await fs.writeFile(path.join(output,'selection-debug.json'),JSON.stringify({reading,selected,debug},null,2));
   await fs.writeFile(path.join(output,'selection-debug.png'),(await window.webContents.capturePage()).toPNG());
   assert.match(selected,/reader/i,'real mouse selects OCR text');
-  const previousClipboard=await Promise.all((await clipboard.read()).map(async item=>new ClipboardItem(Object.fromEntries(await Promise.all(item.types.map(async type=>[type,await item.getType(type)]))))));
+  const previousClipboard=await Promise.all((await clipboard.read()).filter(item=>item.types.length).map(async item=>new ClipboardItem(Object.fromEntries(await Promise.all(item.types.map(async type=>[type,await item.getType(type)]))))));
   let copied;
   try{window.webContents.sendInputEvent({type:'keyDown',keyCode:'C',modifiers:['control']});window.webContents.sendInputEvent({type:'keyUp',keyCode:'C',modifiers:['control']});await wait(100);copied=await clipboard.readText();assert.match(copied,/reader/i,'Ctrl+C copies recognized scan text');}finally{if(previousClipboard.length)await clipboard.write(previousClipboard);else clipboard.clear();}
   await fs.writeFile(path.join(output,'scan-text-selected.png'),(await window.webContents.capturePage()).toPNG());
