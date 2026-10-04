@@ -14,7 +14,7 @@
     "safety": "electron . --safety-smoke",
     "dist": "node scripts/build-distribution.cjs portable",
     "deliver": "node scripts/prepare-delivery.cjs",
-    "dist:installer": "electron-builder --win nsis --x64",
+    "dist:installer": "electron-builder --win nsis --x64 --publish never",
     "dist:all": "node scripts/build-distribution.cjs portable nsis",
     "smoke:markdown": "electron . --markdown-smoke",
     "build:markdown-vendor": "node scripts/build-markdown-vendor.mjs",
