@@ -56,10 +56,11 @@ test('0.13 saves Chinese FreeText with embedded fonts through the native adapter
     const embedded = new TextDecoder('latin1').decode(bytes).includes('/FontFile2');
     const { getDocument, GlobalWorkerOptions } = await import('/vendor/pdfjs/build/pdf.mjs');
     GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/build/pdf.worker.mjs';
-    const doc = await getDocument({ data: bytes.slice() }).promise;
+    const loading = getDocument({ data: bytes.slice() });
+    const doc = await loading.promise;
     const annotations = await (await doc.getPage(1)).getAnnotations();
     const content = annotations.find(a => a.subtype === 'FreeText')?.contentsObj?.str;
-    await doc.destroy();
+    await loading.destroy();
     return { embedded, content };
   }, fixture);
   assert.deepEqual(result, { embedded: true, content: '中文文本框测试' });
