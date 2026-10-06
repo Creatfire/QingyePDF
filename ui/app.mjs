@@ -37,10 +37,12 @@ function message(title, detail) {
   $('messageBody').textContent = String(detail);
   if (!$('messageDialog').open) $('messageDialog').showModal();
 }
-async function guard(action) { try { return await action(); } catch (error) { console.error(error); status('操作未完成'); message('操作未完成', userError(error)); return false; } }
+async function guard(action) { try { return await action(); } catch (error) { console.error(error); const detail=userError(error); status(detail); message('操作未完成', detail); return false; } }
 function current() { return sessions.get(activeId); }
 // PDF-only modules (views, navigation, tools, page editing, annotations) never see Markdown tabs.
 const isMd = s => s?.kind === 'markdown';
+const pdfBase = s => 'https://qingye.invalid/'+encodeURIComponent(s.id)+'/'+encodeURIComponent(s.name);
+const pdfPasswords = new WeakMap();
 function captureReading(){const s=current();if(!s?.loaded)return null;if(isMd(s))return {id:s.id,path:s.path,kind:'markdown',offset:s.editor.currentSelection().from,scrollTop:s.editor.scrollTop,mode:s.editor.sourceMode?'source':s.readonly?'read':'live'};
   const v=s.app.pdfViewer,page=v.currentPageNumber;return {id:s.id,path:s.path,kind:'pdf',page,scrollTop:v.container.scrollTop,zoom:v.currentScaleValue,scale:v.currentScale,pageOffset:v.container.scrollTop-(v.getPageView(page-1)?.div.offsetTop||0)};
 }
@@ -83,13 +85,13 @@ async function replaceDocument(s,bytes){
   try{
     await s.app.close();s.nativeHistory=null;
     const initialized=new Promise(resolve=>s.app.eventBus.on('documentinit',resolve,{once:true}));
-    await s.app.open({data:new Uint8Array(bytes),filename:s.name});await initialized;await s.app.pdfViewer.firstPagePromise;
+    await s.app.open({data:new Uint8Array(bytes),filename:s.name,docBaseUrl:pdfBase(s)});await initialized;await s.app.pdfViewer.firstPagePromise;
     s.imageRects=null;s.imageScan=null;await views.restore(s,state);
     s.app.pdfViewer.pagesRotation=state.rotation||0;s.app.pdfViewer.currentScaleValue=state.zoom||'page-width';s.app.pdfViewer.currentPageNumber=Math.min(state.page,s.app.pagesCount);
     await s.app.pdfViewer.onePageRendered;await new Promise(resolve=>s.frame.contentWindow.requestAnimationFrame(()=>s.frame.contentWindow.requestAnimationFrame(resolve)));
     s.savedHash=editingHash(s);s.pendingInput=false;s.structuralDirty=(await contentDigest(bytes))!==s.savedContentDigest;s.recovered=false;
     s.searchText=new Map();s.pageDraft=null;s.draftHash=null;s.emptyOcrPages=new Set();bindStorage(s);
-  }catch(error){await s.app.open({data:new Uint8Array(previous),filename:s.name});throw error;}
+  }catch(error){await s.app.open({data:new Uint8Array(previous),filename:s.name,docBaseUrl:pdfBase(s)});throw error;}
   finally{s.loaded=true;syncDirty(s);tabs();navigation.sync();scheduleDraft();}
 }
 async function applyEdit(s,request,label,beforeReplace){
@@ -325,6 +327,23 @@ async function addDocument(info) {
     if (!s.app) throw new Error('阅读引擎未初始化。');
     await s.app.initializedPromise;
     const childDoc = frame.contentDocument;
+    const rememberPassword=()=>{pdfPasswords.set(s,childDoc.getElementById('password')?.value||'');};
+    childDoc.addEventListener('click',event=>{if(event.target.closest?.('#passwordSubmit'))rememberPassword();},true);
+    childDoc.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.id==='password')rememberPassword();},true);
+    childDoc.addEventListener('click',event=>{
+      const link=event.target.closest?.('a[href]');if(!link)return;
+      let url;try{url=new URL(link.href);}catch{return;}
+      if(url.hostname!=='qingye.invalid')return;
+      event.preventDefault();event.stopImmediatePropagation();
+      guard(()=>readingTrail.record(async()=>{
+        const prefix='/'+encodeURIComponent(s.id)+'/';
+        if(!url.pathname.startsWith(prefix))throw new Error('无法解析此跨文档链接，请手动打开目标文件。');
+        const result=await api.markdownOpenLink(s.id,url.pathname.slice(prefix.length)+url.hash);
+        if(result.opened?.length)await addDocuments(result.opened);
+        const target=result.opened?.length?sessions.get(result.opened[0].id):s;
+        if(target&&!isMd(target)&&result.anchor)target.app.pdfLinkService.setHash(result.anchor);
+      }));
+    },true);
     childDoc.documentElement.style.colorScheme = document.body.classList.contains('dark') ? 'dark' : 'light';
     // Route every PDF.js save entry to the same native save path, with no fallback to original bytes.
     s.app.save = s.app.download = s.app.downloadOrSave = () => guard(() => saveSession(s, false));
@@ -338,7 +357,7 @@ async function addDocument(info) {
     childDoc.addEventListener('pointerup', () => setTimeout(() => syncDirty(s), 100), true);
     const initialized = new Promise(resolve => s.app.eventBus.on('documentinit', resolve, { once: true }));
     const textReady = new Promise(resolve => s.app.eventBus.on('textlayerrendered', event => { if (event.pageNumber === 1) resolve(); }));
-    await s.app.open({ data: new Uint8Array(info.bytes), filename: info.name });
+    await s.app.open({ data: new Uint8Array(info.bytes), filename: info.name, docBaseUrl:pdfBase(s) });
     await initialized;
     // PDF.js measures minimum font size from the DOM. Keep a new frame visible through that measurement.
     await Promise.race([textReady, new Promise(resolve => setTimeout(resolve, 3000))]);
@@ -367,7 +386,7 @@ async function addDocument(info) {
     s.savedHash = editingHash(s);
     s.history=createHistory();s.savedContentDigest=await contentDigest(info.bytes);
     bindStorage(s);direct.bind(s);textSelection.bind(s);chrome.attachPager(s);
-    s.app.eventBus.on('editingstateschanged', ({details}) => { s.nativeHistory=details;if(s.loaded&&details?.hasSomethingToUndo&&!details.hasSomethingToRedo)s.history?.discardRedo();s.pendingInput = false; syncDirty(s);syncHistory(); });
+    s.app.eventBus.on('editingstateschanged', ({source,details}) => { if(!s.loaded||(source&&source!==s.app.pdfViewer._layerProperties.annotationEditorUIManager))return;s.nativeHistory={...details};if(details?.hasSomethingToUndo&&!details.hasSomethingToRedo)s.history?.discardRedo();s.pendingInput = false; syncDirty(s);syncHistory(); });
     s.app.eventBus.on('pagechanging', () => {
       if (s.id === activeId) status(`第 ${s.app.pdfViewer.currentPageNumber} / ${s.app.pagesCount} 页${s.dirty ? ' · 有未保存批注' : ''}`);
       notes?.pageChanged(s, s.app.pdfViewer.currentPageNumber);
@@ -449,7 +468,8 @@ async function saveSession(s, saveAs) {
   try {
     const doc = s.app.pdfDocument;
     const bytes = doc.annotationStorage.size > 0 ? await doc.saveDocument() : await doc.getData();
-    const result = await api.save(s.id, bytes, saveAs);
+    const embedFonts=[...(doc.annotationStorage.serializable.map||[])].some(([,entry])=>entry.annotationType===3&&/[^\u0000-\u00ff]/.test(String(entry.value||'')));
+    const result = await api.save(s.id, bytes, saveAs, embedFonts, pdfPasswords.get(s));
     if (!result) { status('已取消保存'); return false; }
     Object.assign(s, result); s.savedHash = editingHash(s); s.pendingInput = false; s.dirty = false;s.recovered=false;s.structuralDirty=false;s.savedContentDigest=await contentDigest(bytes);s.draftHash=null;
     s.app._annotationStorageModified = false;

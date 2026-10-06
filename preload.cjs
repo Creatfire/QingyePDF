@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('desktop', {
   recent: () => ipcRenderer.invoke('recent'),
   openRecent: id => ipcRenderer.invoke('open-recent', id),
   example: () => ipcRenderer.invoke('example'),
-  save: (id, data, saveAs) => ipcRenderer.invoke('save', id, data, saveAs),
+  save: (id, data, saveAs, embedFonts, password) => ipcRenderer.invoke('save', id, data, saveAs, embedFonts, password),
   closeChoice: name => ipcRenderer.invoke('close-choice', name),
   confirmDiscardEdit: name => ipcRenderer.invoke('confirm-discard-edit',name),
   closeDocument: (id, state) => ipcRenderer.invoke('close-document', id, state),

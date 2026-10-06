@@ -75,6 +75,12 @@ jobs:
           file backend/bin/QingyeWorker/QingyeWorker
           vendor/pandoc/pandoc --version | head -1
 
+      - name: Prepare backend test environment (cache hit)
+        if: steps.backend-cache.outputs.cache-hit == 'true'
+        run: |
+          python3 -m venv .backend-build
+          .backend-build/bin/python -m pip install -r backend/requirements.txt
+
       - name: Unit tests
         run: npm test
 

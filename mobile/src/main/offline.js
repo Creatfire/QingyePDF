@@ -2,7 +2,14 @@
 // runs the same backend/worker.py in Pyodide (CPython + PyMuPDF as WebAssembly). Same contract: runOffline({bytes, request, ...}) → {data, note, unchanged, files}.
 import { pdfBytes } from './core.js';
 
-const actions = new Set(['inspect','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','form','crop','import','compare']);
+const actions = new Set(['normalize-annotations','inspect','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','form','crop','import','compare']);
+export async function waitForAbort(operation, signal) {
+  if (!signal) return operation;
+  if (signal.aborted) throw new Error('任务已取消。');
+  let abort;
+  try { return await Promise.race([operation, new Promise((_, reject) => { abort = () => reject(new Error('任务已取消。')); signal.addEventListener('abort', abort, { once: true }); })]); }
+  finally { signal.removeEventListener('abort', abort); }
+}
 let worker = null, sequence = 0;
 const pending = new Map();
 function ensureWorker() {

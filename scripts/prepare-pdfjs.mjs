@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { patchPdfjs } from './pdfjs-patches.cjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const version = '6.3.289';
@@ -28,5 +29,7 @@ let html = await fs.readFile(htmlPath, 'utf8');
 html = html.replace('<title>PDF.js viewer</title>', '<title>青页 PDF 阅读器</title>');
 if (!html.includes('../../../ui/viewer.css')) html = html.replace('</head>', '  <link rel="stylesheet" href="../../../ui/viewer.css" />\n  </head>');
 await fs.writeFile(htmlPath, html);
-await fs.writeFile(path.join(vendor, 'QINGYE-MODIFICATIONS.md'), `PDF.js ${version}\nSource: ${url}\nArchive SHA-256: ${archiveHash}\n\nQingye modification: web/viewer.html title and reference to the independent ui/viewer.css stylesheet. Engine code remains unchanged.\n`);
+const enginePath=path.join(vendor,'build','pdf.mjs');
+await fs.writeFile(enginePath,patchPdfjs(await fs.readFile(enginePath,'utf8')));
+await fs.writeFile(path.join(vendor, 'QINGYE-MODIFICATIONS.md'), `PDF.js ${version}\nSource: ${url}\nArchive SHA-256: ${archiveHash}\n\nQingye modifications: web/viewer.html title and reference to ui/viewer.css; build/pdf.mjs skips serialization of image editors before their bitmap is ready and releases the picker on image-load errors. Reproducible patch: scripts/pdfjs-patches.cjs. Original copyright and license are retained.\n`);
 console.log(`Prepared PDF.js ${version}, archive SHA-256 ${archiveHash}`);

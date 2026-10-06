@@ -5,7 +5,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { pdfBytes, digest, fingerprint, atomicWrite, samplePdf } = require('./core.cjs');
-const { runOffline } = require('./offline.cjs');
+const { runOffline, waitForAbort } = require('./offline.cjs');
 const { spawn } = require('node:child_process');
 const { Recovery } = require('./recovery.cjs');
 const { createDiagnostics } = require('./diagnostics.cjs');
@@ -19,10 +19,11 @@ const runningJobs=new Map();
 const canceledJobs=new Set();
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'qingye', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } }]);
-const smoke = process.argv.includes('--smoke-test')||process.argv.includes('--edit-smoke')||process.argv.includes('--markdown-smoke')||process.argv.includes('--conversion-smoke')||process.argv.includes('--basic-smoke')||process.argv.includes('--fix-smoke')||process.argv.includes('--fix-close-smoke')||process.argv.includes('--features-smoke')||process.argv.includes('--notes-smoke')||process.argv.includes('--links-smoke');
+const smoke = process.argv.includes('--smoke-test')||process.argv.includes('--edit-smoke')||process.argv.includes('--markdown-smoke')||process.argv.includes('--conversion-smoke')||process.argv.includes('--basic-smoke')||process.argv.includes('--fix-smoke')||process.argv.includes('--fix-close-smoke')||process.argv.includes('--features-smoke')||process.argv.includes('--notes-smoke')||process.argv.includes('--links-smoke')||process.argv.includes('--fix013-smoke');
 const safety = process.argv.includes('--safety-smoke');
 const safetyRole = process.env.QINGYE_SAFETY_ROLE || 'main';
 const benchmark=process.argv.includes('--startup-benchmark');
+const firstRunTest=process.argv.includes('--first-run-test');
 // Independent manual/AI test sessions may use their own profile without changing the user's data.
 if (process.env.QINGYE_PROFILE_DIR) {
   const profile = process.env.QINGYE_PROFILE_DIR;
@@ -264,7 +265,7 @@ app.whenReady().then(async () => {
   window.webContents.on('render-process-gone',(_event,details)=>fail('render-process-gone',new Error('Reader process exited: '+details.reason),details));
   window.webContents.on('did-fail-load',(_event,code,description,url,isMainFrame)=>{if(isMainFrame&&code!==-3)fail('page-load',new Error(description),{code,url});});
   window.on('close', event => { if (!allowClose) { event.preventDefault(); command('close-app'); } });
-  window.once('ready-to-show', () => { if (!smoke&&!safety&&!benchmark) window.show(); });
+  window.once('ready-to-show', () => { if (!smoke&&!safety&&!benchmark&&!firstRunTest) window.show(); });
   const send = action => () => command(action);
   const about = async () => dialog.showMessageBox(window, { type: 'info', icon: path.join(__dirname, 'ui', 'icon.png'), title: T('青页 PDF'), message: T('青页 PDF ') + app.getVersion(), detail: T('开源 · 本地阅读 · 无会员\n多标签、搜索、目录、高亮、文本、墨迹与签名。\n阅读引擎：Mozilla PDF.js 6.3.289。\n本版本按 AGPL-3.0 开源。') });
   // Command on a Mac, Ctrl elsewhere. Tab switching keeps the Control key on every platform
@@ -440,7 +441,9 @@ app.whenReady().then(async () => {
     for(const item of request?.mergeInputs || []) { documentById(item.id); inputs.push(pdfBytes(item.bytes)); }
     const safe={...request}; delete safe.mergeInputs;
     const jobId=typeof request.jobId==='string'?request.jobId.slice(0,80):randomUUID();if(runningJobs.has(jobId))throw new Error('任务编号重复。');const controller=new AbortController();runningJobs.set(jobId,controller);if(canceledJobs.delete(jobId))controller.abort();
-    let result;try{result=await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});}finally{runningJobs.delete(jobId);}
+    try {
+    const result=await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});
+    if(controller.signal.aborted) throw new Error('任务已取消。');
     if(request.action==='inspect') return {data:result.data,note:result.note};
     if(result.unchanged)return {unchanged:true,note:result.note};
     const output=result.files[0]; if(!output) throw new Error('处理未生成文件。');
@@ -449,7 +452,7 @@ app.whenReady().then(async () => {
       return {bytes:output.bytes,note:result.note};
     }
     // Integration tests exercise IPC and actual engine output without native picker interaction.
-    if(smoke&&!request.batchToken) return {bytes:output.bytes,extension:path.extname(output.name),note:result.note};
+    if(smoke&&!request.batchToken&&!process.argv.includes('--fix013-smoke')) return {bytes:output.bytes,extension:path.extname(output.name),note:result.note};
     const extension=path.extname(output.name);
     let target;
     if(request.batchToken) {
@@ -458,13 +461,16 @@ app.whenReady().then(async () => {
       target=path.join(folder,stem+'-'+request.action+extension);
       let suffix=2;while(await fingerprint(target))target=path.join(folder,stem+'-'+request.action+' ('+(suffix++)+')'+extension);
     } else {
-      const selected=await dialog.showSaveDialog(window,{title:T('导出处理结果'),defaultPath:path.join(record.path?path.dirname(record.path):app.getPath('documents'),path.parse(record.name).name+'-'+request.action+extension),filters:[{name:extension.slice(1).toUpperCase(),extensions:[extension.slice(1)]}]});
+      const selected=await waitForAbort(dialog.showSaveDialog(window,{title:T('导出处理结果'),defaultPath:path.join(record.path?path.dirname(record.path):app.getPath('documents'),path.parse(record.name).name+'-'+request.action+extension),filters:[{name:extension.slice(1).toUpperCase(),extensions:[extension.slice(1)]}]}),controller.signal);
       if(selected.canceled) return {canceled:true};
       target=selected.filePath;if(path.extname(target).toLowerCase()!==extension) target+=extension;
       if([...documents.values()].some(d=>d.path && key(d.path)===key(target))) throw new Error('输出不能覆盖正在打开的文档，请使用新的文件名。');
     }
-    const hash=request.batchToken?null:await fingerprint(target);await atomicWrite(target,output.bytes,hash);
+    const hash=request.batchToken?null:await fingerprint(target);
+    if(controller.signal.aborted) throw new Error('任务已取消。');
+    await atomicWrite(target,output.bytes,hash);
     return {path:target,note:result.note,opened:extension==='.pdf' && request.action!=='encrypt' && !request.batchToken ? await openFiles([target]):[]};
+    } finally { runningJobs.delete(jobId); }
   });
   handle('recent', () => preferences.recent.map(item => {
     let token = [...recentTokens].find(([, file]) => file === item.path)?.[0];
@@ -483,13 +489,14 @@ app.whenReady().then(async () => {
     documents.set(record.id, record);
     return [{ ...metadata(record), bytes: guide ? new Uint8Array(guide) : samplePdf() }];
   });
-  handle('save', async (id, value, saveAs) => {
+  handle('save', async (id, value, saveAs, embedFonts, password) => {
     const record = documentById(id);
     if (record.kind === 'markdown') throw new Error('Markdown 文档请使用 Markdown 保存。');
     if (record.saving) throw new Error('文档正在保存。');
     record.saving = true;
     try {
-      const bytes = pdfBytes(value);
+      let bytes = pdfBytes(value);
+      if(embedFonts===true){const normalized=await runOffline({bytes,request:{action:'normalize-annotations',password:typeof password==='string'?password:''},packaged:app.isPackaged,resources:process.resourcesPath});if(!normalized.unchanged)bytes=normalized.files[0].bytes;}
       let target = record.path, expected = record.hash;
       if (saveAs || !target) {
         const result = await dialog.showSaveDialog(window, { title: T('另存为 PDF'), defaultPath: target || record.name, filters: [{ name: T('PDF 文档'), extensions: ['pdf'] }] });
@@ -618,6 +625,7 @@ app.whenReady().then(async () => {
     const resolved = markdownFiles.resolveLocal(record.path, value);
     if (!resolved) throw new Error(record.path ? '无法解析此链接。' : '请先保存文档，再打开相对路径链接。');
     if (key(resolved.file) === key(record.path || '')) return { anchor: resolved.fragment };
+    if (!(await fs.stat(resolved.file).catch(() => null))?.isFile()) throw new Error('链接指向的文件不存在：' + resolved.file);
     if (markdownFiles.isMarkdown(resolved.file) || path.extname(resolved.file).toLowerCase() === '.pdf') return { opened: await openFiles([resolved.file]), anchor: resolved.fragment };
     if (!await fs.stat(resolved.file).catch(() => null)) throw new Error('链接指向的文件不存在：' + resolved.file);
     shell.showItemInFolder(resolved.file); return { revealed: true };
@@ -677,6 +685,7 @@ app.whenReady().then(async () => {
     console.log('Startup ready (ms):',Math.round(performance.now()-bootStarted));
     if(benchmark){await loadComplete;await fs.mkdir(path.join(smokeRoot,'test-output'),{recursive:true});await fs.writeFile(path.join(smokeRoot,'test-output','startup-timing.json'),JSON.stringify({mainReadyMs:Math.round(performance.now()-bootStarted),version:app.getVersion(),cachedRuntime:process.execPath,runId:diagnostics.runId}));diagnostics.success();allowClose=true;app.quit();return;}
     if (smoke) {
+      if(process.argv.includes('--fix013-smoke')){try{await require('./test/fixes013-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/fixes013')});diagnostics.success();app.exit(0);}catch(error){fail('fixes013',error);}return;}
       if(process.argv.includes('--links-smoke')){try{await require('./test/links011-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/links011')});diagnostics.success();app.exit(0);}catch(error){fail('links011',error);}return;}
       if(process.argv.includes('--notes-smoke')){try{await require('./test/notes010-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/notes010')});diagnostics.success();app.exit(0);}catch(error){fail('notes010',error);}return;}
       if(process.argv.includes('--features-smoke')){try{await require('./test/features094-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/features094')});diagnostics.success();app.exit(0);}catch(error){fail('features094',error);}return;}
@@ -702,9 +711,10 @@ app.whenReady().then(async () => {
       try { diagnostics.stage('safety'); await require('./test/safety-smoke.cjs').run({ window, openFiles, documents, samplePdf, app, recovery, diagnostics, role: safetyRole }); }
       catch (error) { fail('safety',error); }
     } else {
-      if (firstRun) command('first-run');
+      if (firstRun) { await persist(); command('first-run'); }
       if (pendingFiles.length) command('opened', await openFiles(pendingFiles));
       pendingFiles = [];
+      if(firstRunTest){await new Promise(resolve=>setTimeout(resolve,150));const displayed=await window.webContents.executeJavaScript("document.getElementById('messageDialog').open&&document.getElementById('messageTitle').textContent.includes('首次启动')");await fs.mkdir(path.join(smokeRoot,'test-output'),{recursive:true});await fs.writeFile(path.join(smokeRoot,'test-output','first-run-result.json'),JSON.stringify({firstRun,displayed,version:app.getVersion()}));app.exit(0);}
     }
   });
   loadComplete=window.loadURL('qingye://app/ui/index.html');await loadComplete;

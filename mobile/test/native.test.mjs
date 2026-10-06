@@ -47,6 +47,23 @@ test('a PDF opens from device storage and saves back in place through chunked wr
   assert.deepEqual(result.leftovers, []);
 });
 
+test('0.13 saves Chinese FreeText with embedded fonts through the native adapter', async () => {
+  const fixture = fs.readFileSync(path.join(mobileRoot, '../test/fixtures/cjk-freetext.pdf')).toString('base64');
+  const result = await page.evaluate(async b64 => {
+    const s = [...window.qingye.sessions.values()].find(s => s.name === 'guide.pdf');
+    await window.desktop.save(s.id, Uint8Array.from(atob(b64), c => c.charCodeAt(0)), false, true);
+    const bytes = window.fakeNative.get(s.path);
+    const embedded = new TextDecoder('latin1').decode(bytes).includes('/FontFile2');
+    const { getDocument } = await import('/vendor/pdfjs/build/pdf.mjs');
+    const doc = await getDocument({ data: bytes.slice() }).promise;
+    const annotations = await (await doc.getPage(1)).getAnnotations();
+    const content = annotations.find(a => a.subtype === 'FreeText')?.contentsObj?.str;
+    await doc.destroy();
+    return { embedded, content };
+  }, fixture);
+  assert.deepEqual(result, { embedded: true, content: '中文文本框测试' });
+});
+
 test('"open with" from another app, a file name with # in it, share and Markdown save', async () => {
   await page.evaluate(path => window.fakeNative.emit('open', { paths: [path] }), DOCS + '/笔记 #1.md');
   await page.waitForFunction(() => [...window.qingye.sessions.values()].some(s => s.name === '笔记 #1.md' && s.loaded), null, { timeout: 15000 });

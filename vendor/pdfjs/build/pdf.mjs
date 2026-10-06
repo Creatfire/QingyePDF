@@ -26219,14 +26219,14 @@ class StampEditor extends AnnotationEditor {
       const url = this.#bitmapUrl;
       this.#bitmapUrl = null;
       this._uiManager.enableWaiting(true);
-      this.#bitmapPromise = this._uiManager.imageManager.getFromUrl(url).then(data => this.#getBitmapFetched(data)).finally(() => this.#getBitmapDone());
+      this.#bitmapPromise = this._uiManager.imageManager.getFromUrl(url).then(data => this.#getBitmapFetched(data)).catch(error => { warn(`Unable to load image: ${error}`); this.remove(); }).finally(() => this.#getBitmapDone());
       return;
     }
     if (this.#bitmapFile) {
       const file = this.#bitmapFile;
       this.#bitmapFile = null;
       this._uiManager.enableWaiting(true);
-      this.#bitmapPromise = this._uiManager.imageManager.getFromFile(file).then(data => this.#getBitmapFetched(data)).finally(() => this.#getBitmapDone());
+      this.#bitmapPromise = this._uiManager.imageManager.getFromFile(file).then(data => this.#getBitmapFetched(data)).catch(error => { warn(`Unable to load image: ${error}`); this.remove(); }).finally(() => this.#getBitmapDone());
       return;
     }
     const input = document.createElement("input");
@@ -26235,6 +26235,8 @@ class StampEditor extends AnnotationEditor {
     const signal = this._uiManager._signal;
     this.#bitmapPromise = new Promise(resolve => {
       input.addEventListener("change", async () => {
+        // Qingye: a failed image load must release the pending picker.
+        try {
         if (!input.files || input.files.length === 0) {
           this.remove();
         } else {
@@ -26248,7 +26250,10 @@ class StampEditor extends AnnotationEditor {
           });
           this.#getBitmapFetched(data);
         }
-        resolve();
+        } catch (error) {
+          warn(`Unable to load image: ${error}`);
+          this.remove();
+        } finally { resolve(); }
       }, {
         signal
       });
@@ -26661,7 +26666,8 @@ class StampEditor extends AnnotationEditor {
     return editor;
   }
   serialize(isForCopying = false, context = null) {
-    if (this.isEmpty()) {
+    // Qingye: do not serialize a pending image without bitmap data.
+    if (this.isEmpty() || (!this.annotationElementId && !this.#bitmap)) {
       return null;
     }
     if (this.deleted) {

@@ -91,6 +91,7 @@ export function createLibrary({ api, guard, status, sessions, isMd, addDocuments
       const head = document.createElement('button'); head.type = 'button'; head.className = 'libraryDocHead'; head.dataset.icon = doc.kind === 'markdown' ? 'markdown' : 'file'; head.title = doc.path;
       const name = document.createElement('strong'); name.textContent = doc.name; const count = document.createElement('small'); count.textContent = `${doc.total} 处`;
       head.append(name, count); head.onclick = () => guard(() => openHit(doc, doc.hits[0], query)); group.append(head);
+      const location=document.createElement('small'); location.className='libraryDocPath'; location.textContent=doc.path; location.title=doc.path; group.append(location);
       for (const hit of doc.hits) {
         const row = document.createElement('button'); row.type = 'button'; row.className = 'libraryHit';
         const where = document.createElement('span'); where.className = 'libraryWhere'; where.textContent = doc.kind === 'markdown' ? `第 ${hit.line} 行` : `第 ${hit.page} 页`;

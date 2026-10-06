@@ -304,8 +304,8 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
     const { text, notice } = await api.reloadMarkdown(s.id);
     s.editor.replaceAll(text);
     s.savedText = text; s.orphaned = false; s.recovered = false;
-    s.ui.banner.hidden = true;
-    s.imageCache.clear();
+    s.ui.banner.hidden = true; s.externalConflict = false;
+    refreshImages(s);
     onChange(s);
     status('已载入磁盘上的最新版本' + (s.editor.canUndo ? ' · Ctrl+Z 可恢复之前的内容' : '') + (notice ? ' · ' + notice : ''));
   }
@@ -316,10 +316,17 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
       return;
     }
     if (!isDirty(s)) { await reloadFromDisk(s); return; }
-    banner(s, '此文件已被其他程序修改，而青页中有未保存的修改。', [['载入磁盘版本（可撤销）', () => reloadFromDisk(s), true], ['保留我的版本', () => status('已保留当前内容；保存时会再次确认是否覆盖。')]]);
+    s.externalConflict = true;
+    banner(s, '此文件已被其他程序修改，而青页中有未保存的修改。', [['载入磁盘版本（可撤销）', () => reloadFromDisk(s), true], ['保留我的版本', () => { s.externalConflict=false; status('已保留当前内容；保存时会再次确认是否覆盖。'); }]]);
   }
 
   // ——— Images & links ———
+  function refreshImages(s) {
+    for(const pending of s.imageCache.values()) Promise.resolve(pending).then(url=>url&&URL.revokeObjectURL(url));
+    s.imageCache.clear();
+    for(const img of s.editor.doc.querySelectorAll('img[data-source]')){img.src=img.dataset.source;img.classList.remove('mdImageMissing');}
+    s.editor.loadImages(s.editor.doc);
+  }
   function resolveImage(s, src) {
     if (!s.imageCache.has(src)) s.imageCache.set(src, api.markdownAsset(s.id, src).then(r => r ? URL.createObjectURL(new Blob([r.bytes], { type: r.type })) : null).catch(() => null));
     return s.imageCache.get(src);
@@ -392,7 +399,11 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
       onInsertImage: () => typora.H.pickImage(s),
       onStatus: status,
       onPasteImage: async file => guard(async () => api.mdImageSave(s.id, new Uint8Array(await file.arrayBuffer()), (file.type.split('/')[1] || 'png').replace('svg+xml', 'svg'), typora.imageOptions())),
-      onDropImages: async files => guard(async () => api.mdImageImportFiles(s.id, files, typora.imageOptions())),
+      onDropImages: async files => guard(async () => {
+        try{const paths=await api.mdImageImportFiles(s.id,files,typora.imageOptions());if(paths?.length)return paths;}catch(error){if(!files.every(file=>typeof file.arrayBuffer==='function'))throw error;}
+        const paths=[];for(const file of files)paths.push(await api.mdImageSave(s.id,new Uint8Array(await file.arrayBuffer()),(file.type.split('/')[1]||file.name.split('.').pop()||'png').replace('svg+xml','svg'),typora.imageOptions()));
+        return paths;
+      }),
     });
     const scheduleMark = debounce(() => markCurrentHeading(s), 80);
     let progressFrame = 0;
@@ -433,16 +444,19 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
     return s;
   }
   function show(s, { focus = true } = {}) {
+    const entering=visible!==s;
     if(visible&&visible!==s)visible.editor.visualTables?.finish();
     if (visible && visible !== s) visible.editor.releaseHighlights();
     visible = s;
     typora.show(s);
     if (!s) return;
+    if(entering) refreshImages(s);
     s.editor.highlightSearch();
     requestAnimationFrame(() => { markCurrentHeading(s); updateProgress(s); if (focus) s.editor.focus(); });
     updateStats(s); syncChrome(s);
   }
   async function save(s, saveAs) {
+    if(s.externalConflict&&!saveAs) throw new Error('文件存在未解决的外部修改冲突，请先选择“载入磁盘版本”或“保留我的版本”，也可以另存为副本。');
     s.editor.visualTables?.finish();
     if (s.saving) return false;
     if (s.editor.active) s.editor.syncFromDom(true);
@@ -453,7 +467,7 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
       const result = await api.saveMarkdown(s.id, text, saveAs);
       if (!result) return false;
       Object.assign(s, { name: result.name, path: result.path, ...(result.eol ? { eol: result.eol } : {}) });
-      s.forceDirty = false; s.savedText = text; s.recovered = false; s.orphaned = false; s.ui.banner.hidden = true; s.encodingLabel = 'UTF-8';
+      s.forceDirty = false; s.savedText = text; s.recovered = false; s.orphaned = false; s.externalConflict=false; s.ui.banner.hidden = true; s.encodingLabel = 'UTF-8';
       s.editor.doc.setAttribute('aria-label', s.name);
       return true;
     } finally { s.saving = false; onChange(s, { chrome: true }); }

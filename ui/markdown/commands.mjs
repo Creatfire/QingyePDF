@@ -107,7 +107,7 @@ export function insertTable(text, sel, columns = 3, rows = 2) {
 }
 export function insertCodeBlock(text, sel) {
   if (sel.from !== sel.to) return wrapBlock(text, sel, '```', '```');
-  return insertBlock(text, sel, '```\n\n```', 3);
+  return insertBlock(text, sel, '```\n\n```', 4);
 }
 export function insertMathBlock(text, sel) {
   if (sel.from !== sel.to) return wrapBlock(text, sel, '$$', '$$');

@@ -143,7 +143,11 @@ export function createViews({ current, commit, guard, api }) {
         Object.assign(s.view,{color:'custom',paper:value.paper,ink:value.ink}); break;
       case 'preserve-images':s.view.preserveImages=!!value;if(value)await loadImages(s);break;
       case 'brightness':case 'contrast':if(!Number.isFinite(value)||value<.5||value>1.5)throw new Error('亮度与对比度应为 50%–150%。');s.view[action]=value;break;
-      case 'rotate': viewer.pagesRotation = (viewer.pagesRotation + 90) % 360; break;
+      case 'rotate':
+        viewer.pagesRotation = (viewer.pagesRotation + 90) % 360;
+        for(let i=0;i<s.app.pagesCount;i++)viewer.getPageView(i)?.reset({keepAnnotationLayer:true,keepAnnotationEditorLayer:true});
+        viewer.scrollPageIntoView({pageNumber:page});
+        break;
       // Page thumbnails live in Qingye's single navigation panel, not PDF.js's sidebar.
       case 'thumbnails': if (panel.matches(':popover-open')) panel.hidePopover(); await window.qingye?.navigation.show('thumbnails'); break;
       case 'crop':

@@ -4,7 +4,16 @@ const os = require('node:os');
 const { spawn } = require('node:child_process');
 const { pdfBytes } = require('./core.cjs');
 
-const actions = new Set(['inspect','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','form','crop','import','compare']);
+const actions = new Set(['inspect','normalize-annotations','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','form','crop','import','compare']);
+function waitForAbort(promise, signal) {
+  return new Promise((resolve, reject) => {
+    const finish = (callback, value) => { signal?.removeEventListener('abort', abort); callback(value); };
+    const abort = () => finish(reject, new Error('任务已取消。'));
+    signal?.addEventListener('abort', abort, { once: true });
+    if (signal?.aborted) abort();
+    Promise.resolve(promise).then(value => finish(resolve, value), error => finish(reject, error));
+  });
+}
 async function runOffline({ bytes, request, packaged = false, resources = '', assets = [], inputs = [], inputName = 'input.pdf', signal, onProgress }) {
   if (!request || !actions.has(request.action)) throw new Error('不支持的本地操作。');
   if (JSON.stringify(request).length > 2_000_000) throw new Error('操作参数过大。');
@@ -54,4 +63,4 @@ async function runOffline({ bytes, request, packaged = false, resources = '', as
     return {data:result.data,note:result.note || '',unchanged:!!result.unchanged,files};
   } finally { await fs.rm(job,{recursive:true,force:true,maxRetries:3,retryDelay:200}); }
 }
-module.exports={runOffline};
+module.exports={runOffline,waitForAbort};

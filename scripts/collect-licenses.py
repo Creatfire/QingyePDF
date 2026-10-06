@@ -13,6 +13,8 @@ for dist in metadata.distributions():
     name = dist.metadata['Name']
     records.append({'name': name, 'version': dist.version, 'license': dist.metadata.get('License-Expression') or dist.metadata.get('License'), 'source': dist.metadata.get('Home-page'), 'urls': dist.metadata.get_all('Project-URL')})
     for file in dist.files or []:
+        if '__pycache__' in str(file) or str(file).endswith(('.pyc', '.pyo')):
+            continue
         if any(term in str(file).lower() for term in ('license','copying','notice')):
             source = Path(dist.locate_file(file))
             if source.is_file():

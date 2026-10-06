@@ -12,7 +12,7 @@ import { app, shell, mainWindow as window, BrowserWindow, safeStorage, session, 
 import { storageState, requestStorageAccess } from './dialogs.js';
 import { T, TF, setLanguage, whenLoaded } from './i18n-main.js';
 import { pdfBytes, digest, fingerprint, atomicWrite, samplePdf } from './core.js';
-import { runOffline } from './offline.js';
+import { runOffline, waitForAbort } from './offline.js';
 import markdownFiles from '../../../markdown-files.cjs';
 import recoveryModule from '../../../recovery.cjs';
 import notesModule from '../../../notes-markdown.cjs';
@@ -261,7 +261,9 @@ export async function start() {
     for (const item of request?.mergeInputs || []) { documentById(item.id); inputs.push(pdfBytes(item.bytes)); }
     const safe = { ...request }; delete safe.mergeInputs;
     const jobId = typeof request.jobId === 'string' ? request.jobId.slice(0, 80) : randomUUID(); if (runningJobs.has(jobId)) throw new Error('任务编号重复。'); const controller = new AbortController(); runningJobs.set(jobId, controller); if (canceledJobs.delete(jobId)) controller.abort();
-    let result; try { result = await runOffline({ bytes: value, request: safe, assets, inputs, inputName: record.name, signal: controller.signal, onProgress: data => sendToRenderer('job-progress', jobId, data) }); } finally { runningJobs.delete(jobId); }
+    try {
+    const result = await runOffline({ bytes: value, request: safe, assets, inputs, inputName: record.name, signal: controller.signal, onProgress: data => sendToRenderer('job-progress', jobId, data) });
+    if (controller.signal.aborted) throw new Error('任务已取消。');
     if (request.action === 'inspect') return { data: result.data, note: result.note };
     if (result.unchanged) return { unchanged: true, note: result.note };
     const output = result.files[0]; if (!output) throw new Error('处理未生成文件。');
@@ -277,13 +279,16 @@ export async function start() {
       target = path.join(folder, stem + '-' + request.action + extension);
       let suffix = 2; while (await fingerprint(target)) target = path.join(folder, stem + '-' + request.action + ' (' + (suffix++) + ')' + extension);
     } else {
-      const selected = await dialog.showSaveDialog(window, { title: T('导出处理结果'), defaultPath: path.join(record.path ? path.dirname(record.path) : paths.documents, path.parse(record.name).name + '-' + request.action + extension), filters: [{ name: extension.slice(1).toUpperCase(), extensions: [extension.slice(1)] }] });
+      const selected = await waitForAbort(dialog.showSaveDialog(window, { title: T('导出处理结果'), defaultPath: path.join(record.path ? path.dirname(record.path) : paths.documents, path.parse(record.name).name + '-' + request.action + extension), filters: [{ name: extension.slice(1).toUpperCase(), extensions: [extension.slice(1)] }] }), controller.signal);
       if (selected.canceled) return { canceled: true };
       target = selected.filePath; if (path.extname(target).toLowerCase() !== extension) target += extension;
       if ([...documents.values()].some(d => d.path && key(d.path) === key(target))) throw new Error('输出不能覆盖正在打开的文档，请使用新的文件名。');
     }
-    const hash = request.batchToken ? null : await fingerprint(target); await atomicWrite(target, output.bytes, hash);
+    const hash = request.batchToken ? null : await fingerprint(target);
+    if (controller.signal.aborted) throw new Error('任务已取消。');
+    await atomicWrite(target, output.bytes, hash);
     return { path: target, note: result.note, opened: extension === '.pdf' && request.action !== 'encrypt' && !request.batchToken ? await openFiles([target]) : [] };
+    } finally { runningJobs.delete(jobId); }
   });
   handle('recent', () => preferences.recent.map(item => {
     let token = [...recentTokens].find(([, file]) => file === item.path)?.[0];
@@ -299,13 +304,14 @@ export async function start() {
     documents.set(record.id, record);
     return [{ ...metadata(record), bytes: guide ? new Uint8Array(guide) : new Uint8Array(samplePdf()) }];
   });
-  handle('save', async (id, value, saveAs) => {
+  handle('save', async (id, value, saveAs, embedFonts, password) => {
     const record = documentById(id);
     if (record.kind === 'markdown') throw new Error('Markdown 文档请使用 Markdown 保存。');
     if (record.saving) throw new Error('文档正在保存。');
     record.saving = true;
     try {
-      const bytes = pdfBytes(value);
+      let bytes = pdfBytes(value);
+      if (embedFonts === true) { const normalized = await runOffline({ bytes, request: { action: 'normalize-annotations', password: typeof password === 'string' ? password : '' } }); if (!normalized.unchanged) bytes = normalized.files[0].bytes; }
       let target = record.path, expected = record.hash;
       if (saveAs || !target) {
         const result = await dialog.showSaveDialog(window, { title: T('另存为 PDF'), defaultPath: target || path.join(paths.documents, record.name), filters: [{ name: T('PDF 文档'), extensions: ['pdf'] }] });
@@ -474,6 +480,7 @@ export async function start() {
   }
   ipcMain.on('ready', async () => {
     if (rendererReady) return; rendererReady = true;
+    await persist();
     if (isNative) { try { pendingFiles.push(...((await Native.pendingOpens()).paths || [])); } catch {} }
     // First start: explain the one permission a document editor needs, then open the system page.
     if (firstRun && !pendingFiles.length) { const state = await storageState(); if (!state.granted) { const choice = await dialog.showMessageBox(window, { message: T('允许青页访问手机上的文件'), detail: T('青页直接在原位置打开和保存你的 PDF 与 Markdown，需要系统的“所有文件访问权限”。文件只在本机处理，不会上传。\n\n暂不授权也可以使用：通过“从其他应用导入”打开的文件会复制到青页自己的文件夹。'), buttons: [T('去授权'), T('暂不')], defaultId: 0, cancelId: 1 }); if (choice.response === 0) await requestStorageAccess(); } }

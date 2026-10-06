@@ -1,3 +1,10 @@
+# 0.13.0 · Windows 安装版修复
+
+- 修复未就绪图片阻断保存、工具等待保存时不能取消、阅读旋转空白；中文文本批注使用嵌入字体外观。
+- 修复 Markdown 代码块光标、快捷键冲突、外部修改保存反馈、失效摘录链接、本地图片刷新与粘贴/拖放；搜索结果直接显示路径。
+- PDF 同目录跨文档链接经本地代理打开；新 AI 批注补齐时间，文档替换时过滤旧编辑器状态，保持撤销有效。
+- 首启说明只出现一次。修复阶段先生成 Windows x64 安装包，发布阶段补齐便携 EXE、完整目录 ZIP、Android APK 和 macOS 两种架构 DMG；测试侧路径/解压编码问题的核验见 [修复报告](docs/FIX-REPORT-0.13.0.md)。
+
 # 0.12.0 · macOS 版、安卓版的笔记模式与触屏操作
 
 - **macOS 版**：`.github/workflows/macos.yml` 在 Apple 芯片和 Intel 运行器上各构建一个 dmg。主进程增加 Mac 的应用菜单与编辑菜单、`open-file` 事件（访达双击、拖到 Dock）、原生红绿灯按钮；PDF 工具箱后端和 Pandoc 使用 macOS 原生二进制（`scripts/build-backend.sh`、`scripts/prepare-pandoc.sh`）。没有证书时做 ad-hoc 签名，有证书时签名并公证。

@@ -332,6 +332,30 @@ def import_document(file, output):
     return {'files': ['result.pdf'], 'note': 'Office 输入采用内容重排，原分页和复杂版式可能变化。' if extension in ('.docx', '.xlsx', '.pptx') else ''}
 
 
+def embed_freetext_appearances(doc):
+    changed = 0
+    for page in doc:
+        for annot in list(page.annots() or []):
+            text = annot.info.get('content', '')
+            if annot.type[1] != 'FreeText' or not any(ord(c) > 255 for c in text):
+                continue
+            da = doc.xref_get_key(annot.xref, 'DA')[1]
+            size_match = re.search(r'([\d.]+)\s+Tf', da)
+            size = float(size_match[1]) if size_match else 12
+            color_match = re.search(r'([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+rg', da)
+            color = tuple(float(c) for c in color_match.groups()) if color_match else (0, 0, 0)
+            css_color = '#' + ''.join(f'{round(max(0, min(1, c))*255):02x}' for c in color)
+            body = '<p>' + html.escape(text).replace('\n', '<br>') + '</p>'
+            rich = page.add_freetext_annot(annot.rect, body, richtext=True,
+                style=f'font-family:sans-serif;font-size:{size or 12}pt;color:{css_color};margin:0',
+                fill_color=annot.colors.get('fill'), rotate=annot.rotation)
+            # Keep the original annotation identity/content; embed a portable appearance.
+            doc.xref_set_key(annot.xref, 'AP', doc.xref_get_key(rich.xref, 'AP')[1])
+            page.delete_annot(rich)
+            changed += 1
+    return changed
+
+
 def process(request, input_file, output):
     output.mkdir(parents=True, exist_ok=True)
     action = request.get('action')
@@ -348,8 +372,16 @@ def process(request, input_file, output):
         if encrypted and not owner:
             if action in ('export','notes-export','compare','ocr','ocr-layer','scan') and not doc.permissions&fitz.PDF_PERM_COPY:
                 raise ValueError('该 PDF 不允许复制 / 转换内容，请输入管理密码。')
-            if action not in ('inspect','export','notes-export','compare','decrypt') and not doc.permissions&fitz.PDF_PERM_MODIFY:
+            if action == 'normalize-annotations' and not doc.permissions&fitz.PDF_PERM_ANNOTATE:
+                raise ValueError('该 PDF 不允许修改批注，请输入管理密码。')
+            if action not in ('inspect','export','notes-export','compare','decrypt','normalize-annotations') and not doc.permissions&fitz.PDF_PERM_MODIFY:
                 raise ValueError('该 PDF 不允许编辑，请输入管理密码。')
+        if action == 'normalize-annotations':
+            if not embed_freetext_appearances(doc):
+                return {'unchanged': True}
+            doc.subset_fonts()
+            doc.save(output / 'result.pdf', garbage=3, deflate=True, encryption=fitz.PDF_ENCRYPT_KEEP)
+            return {'files': ['result.pdf']}
         if action == 'inspect':
             index = int(number(request.get('page'), 1, len(doc), 1)) - 1
             page = doc[index]
@@ -634,7 +666,7 @@ def process(request, input_file, output):
                         raise ValueError('不支持的批注。')
                     annot = method(rect)
                     annot.set_colors(stroke=ink)
-                    annot.set_info(content=text)
+                    annot.set_info(content=text, creationDate=fitz.get_pdf_now(), modDate=fitz.get_pdf_now())
                     annot.update()
                 elif action == 'form':
                     widget = fitz.Widget()

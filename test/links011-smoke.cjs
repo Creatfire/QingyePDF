@@ -31,7 +31,9 @@ exports.run=async({window,app,dialog,openFiles,samplePdf,output})=>{
   await run(`${P}.app.pdfViewer.currentPageNumber=2;qingye.markdown.setViewMode(${M},'read')`);await pause(300);
   await run(`[...${M}.panel.querySelectorAll('a[href^="file:"]')].find(a=>a.getAttribute('href').includes('rect=')).click()`);
   await until(`${P}.app.pdfViewer.currentPageNumber===1`,'jump to page 1');await until(`!!${P}.frame.contentDocument.querySelector('.page[data-page-number="1"] .sourceNoteHighlight')`,'passage highlight');
-  const mark=await run(`(()=>{const d=${P}.frame.contentDocument,b=d.querySelector('.sourceNoteHighlight').getBoundingClientRect(),s=[...d.querySelectorAll('.page[data-page-number="1"] .textLayer span')].find(n=>n.textContent.includes('open-source home')).getBoundingClientRect();return [b.left-s.left,b.top-s.top,b.width-s.width,b.height-s.height];})()`);
+  // Excerpts store the actual Range rectangle. A span's CSS font box has different
+  // ascender/descender metrics at some DPIs and is not the selection rectangle.
+  const mark=await run(`(()=>{const d=${P}.frame.contentDocument,b=d.querySelector('.sourceNoteHighlight').getBoundingClientRect(),span=[...d.querySelectorAll('.page[data-page-number="1"] .textLayer span')].find(n=>n.textContent.includes('open-source home')),range=d.createRange();range.selectNodeContents(span);const s=range.getBoundingClientRect();return [b.left-s.left,b.top-s.top,b.width-s.width,b.height-s.height];})()`);
   assert.ok(mark.every(v=>Math.abs(v)<8),'highlight covers the passage: '+mark);assert.equal(await run('qingye.notes.active()'),true);report.jumpBack=true;await shot('jump-back.png');
   await run(`qingye.markdown.setViewMode(${M},'live')`);
 

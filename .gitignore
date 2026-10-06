@@ -5,6 +5,7 @@ test-output/
 .backend-build/
 backend/bin/
 __pycache__/
+*.pyc
 third-party-source/
 # 0.9.5: downloaded / generated at build time (see scripts/prepare-pandoc.ps1, prepare-pdfjs.mjs)
 vendor/pandoc/pandoc.exe

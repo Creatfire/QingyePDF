@@ -58,6 +58,10 @@ exports.run = async ({ window, openFiles, output, recoveryFolder }) => {
     await fs.writeFile(file, Buffer.from('第三方版本\r\n'));
     await until(`!document.querySelector('.mdBanner').hidden`, 8000);
     result.banner = true;
+    const conflictReason=await run(`(async()=>{try{await qingye.saveSession(${S},false);return '';}catch(error){return error.message;}})()`);
+    assert.match(conflictReason,/冲突/,'unresolved conflicts explain why saving is blocked');
+    assert.equal((await fs.readFile(file,'utf8')),'第三方版本\r\n');
+    await run(`[...${S}.ui.banner.querySelectorAll('button')].find(button=>button.textContent.includes('保留我的版本')).click();true`);
     dialog.showMessageBox = async () => ({ response: 2 });
     assert.equal(await run(`qingye.saveSession(${S}, false)`), false, 'cancel keeps the disk version');
     assert.equal((await fs.readFile(file, 'utf8')), '第三方版本\r\n');

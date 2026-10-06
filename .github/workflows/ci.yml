@@ -61,11 +61,17 @@ jobs:
         shell: pwsh
         run: ./scripts/build-backend.ps1
 
+      - name: Prepare backend test environment (cache hit)
+        if: steps.backend-cache.outputs.cache-hit == 'true'
+        shell: pwsh
+        run: |
+          python -m venv .backend-build
+          .backend-build/Scripts/python.exe -m pip install -r backend/requirements.txt
+
       - name: Backend tests
         shell: pwsh
         run: |
           .backend-build/Scripts/python.exe backend/test_worker.py
-        continue-on-error: ${{ steps.backend-cache.outputs.cache-hit == 'true' }}
 
       - name: Unit tests
         run: npm test
@@ -93,9 +99,16 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         run: npm run dist:installer
 
+      - name: Build runnable zip (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          Compress-Archive -LiteralPath dist/win-unpacked -DestinationPath "dist/QingyePDF-$version-win-x64.zip" -CompressionLevel Optimal
+
       - name: Checksums
         shell: pwsh
-        run: Get-ChildItem dist -File -Filter *.exe | Get-FileHash -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path -Leaf $_.Path)" } | Tee-Object dist/SHA256SUMS.txt
+        run: Get-ChildItem dist -File | Where-Object { $_.Extension -in @(".exe", ".zip") } | Get-FileHash -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path -Leaf $_.Path)" } | Tee-Object dist/SHA256SUMS-windows.txt
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -103,7 +116,8 @@ jobs:
           name: qingye-${{ github.sha }}
           path: |
             dist/*.exe
-            dist/SHA256SUMS.txt
+            dist/*.zip
+            dist/SHA256SUMS-windows.txt
             test-output/**/*.json
             test-output/**/*.png
             test-output/**/*.log
@@ -116,4 +130,5 @@ jobs:
           draft: true
           files: |
             dist/*.exe
-            dist/SHA256SUMS.txt
+            dist/*.zip
+            dist/SHA256SUMS-windows.txt

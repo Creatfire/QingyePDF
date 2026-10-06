@@ -12,5 +12,5 @@ try{
   // Off Windows, electron-builder cannot edit the executable without Wine; scripts/after-pack.cjs
   // writes the icon and version information instead.
   const cross=process.platform==='win32'?[]:['-c.win.signAndEditExecutable=false'];
-  execFileSync(process.execPath,[require.resolve('electron-builder/cli.js'),'--win',...process.argv.slice(2),'--x64',...cross],{cwd:root,stdio:'inherit'});
+  execFileSync(process.execPath,[require.resolve('electron-builder/cli.js'),'--win',...process.argv.slice(2),'--x64','--publish','never',...cross],{cwd:root,stdio:'inherit'});
 }finally{fs.writeFileSync(template,original);}

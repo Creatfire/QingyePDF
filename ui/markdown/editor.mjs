@@ -178,6 +178,7 @@ export class MarkdownEditor {
   }
   loadImages(root) {
     for (const img of root.querySelectorAll('img')) {
+      const ticket=img._imageTicket=(img._imageTicket||0)+1;
       const src = img.getAttribute('src') || '';
       if (/^(data:|blob:)/i.test(src)) continue;
       img.dataset.source = src; img.removeAttribute('src');
@@ -185,9 +186,10 @@ export class MarkdownEditor {
       if (/^https?:/i.test(src)) { img.classList.add('mdImageRemote'); img.title = '离线模式不加载网络图片：' + src; continue; }
       img.classList.add('mdImageLoading');
       Promise.resolve(this.options.resolveImage?.(src)).then(url => {
+        if(ticket!==img._imageTicket)return;
         img.classList.remove('mdImageLoading');
         if (url) img.src = url; else { img.classList.add('mdImageMissing'); img.title = '找不到图片：' + src; }
-      }).catch(() => { img.classList.remove('mdImageLoading'); img.classList.add('mdImageMissing'); });
+      }).catch(() => { if(ticket!==img._imageTicket)return;img.classList.remove('mdImageLoading'); img.classList.add('mdImageMissing'); });
     }
   }
   blockIndexAt(pos) {
@@ -761,7 +763,7 @@ export class MarkdownEditor {
   async onPaste(e) {
     if(e.target.closest('.mdTableCellInput'))return;
     if(this.visualTables.paste(e))return;
-    if (this.sourceMode || e.target === this.sourceView) return;
+    if ((this.sourceMode || e.target === this.sourceView) && ![...(e.clipboardData?.files||[])].some(file=>file.type.startsWith('image/'))) return;
     const data = e.clipboardData;
     if (!data) return;
     if (this.readonly) { e.preventDefault(); return; }
@@ -773,8 +775,9 @@ export class MarkdownEditor {
     const sel = this.currentSelection();
     const urlEdit = !converted && this.smartUrl(text, sel);
     if (urlEdit) { this.apply([{ from: urlEdit.from, to: urlEdit.to, insert: urlEdit.insert }], { from: urlEdit.from + urlEdit.insert.length, to: urlEdit.from + urlEdit.insert.length }, { group: 'paste' }); return; }
-    if (images.length && !text) {
+    if (images.length && (!text || this.sourceMode)) {
       const inserts = [];
+      if(this.sourceMode&&data.getData('text/plain').trim())inserts.push(data.getData('text/plain').replace(/\r\n?/g,'\n'));
       for (const file of images) { const path = await this.options.onPasteImage?.(file); if (path) inserts.push(`![${file.name && !/^image\.\w+$/.test(file.name) ? file.name.replace(/\.\w+$/, '') : ''}](${path})`); }
       if (inserts.length) this.apply([{ from: sel.from, to: sel.to, insert: inserts.join('\n') }], { from: sel.from + inserts.join('\n').length, to: sel.from + inserts.join('\n').length }, { group: 'paste' });
       return;

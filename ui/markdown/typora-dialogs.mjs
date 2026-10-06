@@ -217,7 +217,10 @@ export function openPrefs({ prefs, reg, tab = 'general', pandocInfo, customTheme
           if (e.key === 'Backspace' || e.key === 'Delete') { prefs.setShortcut(c.id, ''); paintRows(); return; }
           if (e.key === 'Escape') { input.blur(); return; }
           const combo = eventCombo(e); if (!combo || !/Ctrl|Alt|F\d|Shift/.test(combo)) return;
-          prefs.setShortcut(c.id, normalizeCombo(combo)); paintRows();
+          const normalized=normalizeCombo(combo);
+          const conflict=findConflicts(reg.list.filter(item=>!item.displayOnly),{...prefs.get('shortcuts'),[c.id]:normalized}).find(([key,a,b])=>key===normalized&&(a===c.id||b===c.id));
+          if(conflict){const other=reg.get(conflict[1]===c.id?conflict[2]:conflict[1]);input.classList.add('isConflict');input.title='快捷键已由“'+(other?.label||'其他命令')+'”使用；请换一个组合键。';const hint=wrap.querySelector('.mdPopHint');hint.textContent=input.title;hint.setAttribute('role','alert');return;}
+          prefs.setShortcut(c.id, normalized); paintRows();
         };
         const back = el('button', '', '↺'); back.title = '恢复默认'; back.setAttribute('aria-label', '恢复默认'); back.disabled = over[c.id] === undefined; back.onclick = () => { prefs.setShortcut(c.id, null); paintRows(); };
         row.append(input, back); return row;

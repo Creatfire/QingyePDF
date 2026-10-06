@@ -198,6 +198,7 @@ export function installTypora(Editor) {
       const html = data.getData('text/html'), plain = data.getData('text/plain').replace(/\r\n?/g, '\n');
       const plainOnly = this.plainNext; this.plainNext = false;
       if (plainOnly) return { text: plain, converted: false };
+      if(html.includes('\uFFFD')&&plain&&!plain.includes('\uFFFD')){this.options.onStatus?.('剪贴板富文本编码异常，已使用完整的纯文本内容。');return {text:plain,converted:false};}
       if (html && !html.includes('qingye-md') && this.prefs.smartPaste !== false && looksSemantic(html)) {
         const converted = htmlToMarkdown(html);
         if (converted && converted.trim()) return { text: converted, converted: true };

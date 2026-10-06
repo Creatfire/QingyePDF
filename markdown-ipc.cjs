@@ -230,7 +230,7 @@ function register(ctx) {
   });
 
   // ——— Window / spelling ———
-  handle('always-on-top', flag => { win().setAlwaysOnTop(!!flag); return win().isAlwaysOnTop(); });
+  handle('always-on-top', flag => { const window=win();window.setAlwaysOnTop(!!flag);if(flag&&process.platform==='win32'&&!window.isAlwaysOnTop())window.setAlwaysOnTop(true,'pop-up-menu');return window.isAlwaysOnTop(); });
   handle('spell-replace', word => { win().webContents.replaceMisspelling(String(word)); return true; });
   handle('spell-learn', word => win().webContents.session.addWordToSpellCheckerDictionary(String(word)));
   win().webContents.on('context-menu', (_event, params) => {

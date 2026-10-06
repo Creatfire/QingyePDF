@@ -1,10 +1,23 @@
 {
   "app": "QingyePDF",
-  "version": "0.12.0",
-  "platform": "win32",
-  "architecture": "x64",
-  "target": "portable",
-  "artifactName": "QingyePDF-0.12.0-win-x64.exe",
+  "version": "0.13.0",
+  "platform": [
+    "win32",
+    "android",
+    "darwin"
+  ],
+  "architecture": [
+    "x64",
+    "arm64"
+  ],
+  "target": [
+    "nsis",
+    "portable",
+    "zip",
+    "apk",
+    "dmg"
+  ],
+  "artifactName": "QingyePDF-0.13.0-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -17,29 +30,43 @@
     "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
   ],
   "acceptance": [
-    "Unit tests, Linux Electron smoke suites and phone-viewport Chromium end-to-end tests only; nothing was run on Windows, macOS or an Android device"
+    "Windows source: 103 unit tests passed, 1 POSIX-only test skipped; 47 backend jobs passed; 8 smoke suites passed",
+    "12 focused UI regressions including 35-second checkpoint undo passed in source and Windows package"
   ],
   "newFeatures": [
-    "macOS build through GitHub Actions (dmg for Apple silicon and Intel)",
-    "Mac shortcut notation and menus",
-    "Notes mode, library search and reference details on Android",
-    "Touch reading: tap to hide the bars, double-tap zoom, selection bar",
-    "No keyboard hints on Android"
+    "0.12.0 QA repairs; Windows, Android and macOS 0.13.0 distribution"
   ],
-  "buildRevision": "dev1",
+  "buildRevision": "fix1",
   "fixes": [
-    "BUG-093-01",
-    "BUG-093-02",
-    "BUG-093-03",
-    "BUG-093-04",
-    "BUG-093-05",
-    "BUG-093-06",
-    "D-001"
+    "A-BUG-001",
+    "A-BUG-002",
+    "A-BUG-003",
+    "A-BUG-004",
+    "B-BUG-001",
+    "B-BUG-002",
+    "B-BUG-003",
+    "C-BUG-001",
+    "C-BUG-002",
+    "C-BUG-003",
+    "C-BUG-004",
+    "C-BUG-005",
+    "C-BUG-006",
+    "C-BUG-007",
+    "C-BUG-008",
+    "D-BUG-002",
+    "D-BUG-003"
   ],
-  "crossBuilt": true,
+  "crossBuilt": false,
   "otherArtifacts": [
-    "QingyePDF-0.12.0-mac-arm64.dmg (GitHub Actions)",
-    "QingyePDF-0.12.0-mac-x64.dmg (GitHub Actions)",
-    "QingyePDF-0.12.0-android-debug.apk"
-  ]
+    "QingyePDF-0.13.0-win-x64.exe",
+    "QingyePDF-0.13.0-win-x64.zip",
+    "QingyePDF-0.13.0-android-debug.apk",
+    "QingyePDF-0.13.0-mac-arm64.dmg",
+    "QingyePDF-0.13.0-mac-x64.dmg"
+  ],
+  "testSideCorrections": [
+    "B-BUG-004",
+    "D-BUG-001"
+  ],
+  "pdfjsModified": true
 }
