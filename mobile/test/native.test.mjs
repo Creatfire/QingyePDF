@@ -54,7 +54,8 @@ test('0.13 saves Chinese FreeText with embedded fonts through the native adapter
     await window.desktop.save(s.id, Uint8Array.from(atob(b64), c => c.charCodeAt(0)), false, true);
     const bytes = window.fakeNative.get(s.path);
     const embedded = new TextDecoder('latin1').decode(bytes).includes('/FontFile2');
-    const { getDocument } = await import('/vendor/pdfjs/build/pdf.mjs');
+    const { getDocument, GlobalWorkerOptions } = await import('/vendor/pdfjs/build/pdf.mjs');
+    GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/build/pdf.worker.mjs';
     const doc = await getDocument({ data: bytes.slice() }).promise;
     const annotations = await (await doc.getPage(1)).getAnnotations();
     const content = annotations.find(a => a.subtype === 'FreeText')?.contentsObj?.str;
