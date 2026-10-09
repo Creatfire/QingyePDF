@@ -1,6 +1,7 @@
 import { createOutlineEditor } from './outline.mjs';
 import { userError } from './errors.mjs';
-export function createTools({ current, sessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange=()=>{} }) {
+import { toolCatalog, categoryOf, toolKey } from './tool-catalog.mjs';
+export function createTools({ current, sessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange=()=>{}, openConverter=()=>{} }) {
   const $=id=>document.getElementById(id);
   const dialog=document.createElement('dialog');dialog.id='toolsDialog';dialog.setAttribute('closedby','any');
   dialog.setAttribute('aria-labelledby','toolsTitle');
@@ -46,7 +47,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     </div><section id="toolPreviewSection"><label>预览页码 <input id="toolPreviewPage" type="number" min="1" value="1"><button id="refreshToolPreview">刷新</button></label><p class="toolHint">按原 PDF 方向预览。拖动框选区域；相同相对位置应用到指定页。</p><div id="toolCanvasWrap"><canvas id="toolCanvas"></canvas><div id="toolSelection"></div></div><div id="regionFields"><label>左 % <input id="regionLeft" type="number" min="0" max="100"></label><label>上 % <input id="regionTop" type="number" min="0" max="100"></label><label>右 % <input id="regionRight" type="number" min="0" max="100"></label><label>下 % <input id="regionBottom" type="number" min="0" max="100"></label></div><div data-for="text"><button id="readTextBlocks">读取本页原文块</button><select id="toolBlocks" aria-label="原文块"><option value="">选择原文区域</option></select></div></section></div>
     <p id="toolChangeSummary" class="toolHint"></p><footer class="toolsFooter"><div><progress id="jobProgress" max="1" value="0" hidden></progress><span id="toolProgress" role="status"></span></div><div class="spacer"></div><button id="retryTools" hidden>重试失败项</button><button id="cancelTools" hidden>取消任务</button><button id="applyToolDraft" data-icon="check">应用到当前文档 · 可撤销</button><button id="executeTool" class="primary" data-icon="drop">处理并导出副本</button></footer>`;
   document.body.append(dialog);
-  function setBusy(value){busy=value;dialog.closedBy=value?'none':'any';onBusyChange();if(value)status('本地处理正在进行，完成后可保存。');}
+  function setBusy(value){busy=value;dialog.closedBy=value?'none':'any';onBusyChange();drawCards();if(value)status('本地处理正在进行，完成后可保存。');}
   const regions=new Set(['text','redact','stamp','image','page-stamp','watermark','number','shape','annotation','form','crop']);
   const hints={
     export:'完全本地转换。DOCX 导出可编辑文字与图片；XLSX 识别表格；PPTX 为页面图像。复杂版式和公式不保证保真。',
@@ -74,10 +75,29 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     compare:'导出逐页文字或图像差异 HTML。页差用于对齐不同封面页；图像比较按左上角对齐，字体抗锯齿与排版移动也会产生差异。',
   };
   let toolSession,asset,blocks=[],rect=[.15,.15,.75,.3],previewTask,previewTicket=0,busy=false,canceled=false,activeJob,failed=[],retryState;
-  const categoryMap={转换:['export','import'],页面:['organize','crop','outline'],编辑:['text','stamp','image','page-stamp','watermark','number','shape','annotation','form','flatten'],安全:['encrypt','decrypt','redact'],处理:['sharpen','compress','ocr','scan','compare']};
+  // 0.15.0: categories and tool cards come from tool-catalog.mjs (shared with the toolbar menu and the home page).
+  // The <select id="toolAction"> stays as the single source of the current action; the cards only set it.
   const categories=document.createElement('nav');categories.className='toolCategories';categories.setAttribute('aria-label','工具分类');dialog.querySelector('.toolsHeading').after(categories);
-  const categoryIcons={转换:'convert',页面:'pages',编辑:'pageedit',安全:'lock',处理:'ocr'};
-  for(const [label,items]of Object.entries(categoryMap)){const b=document.createElement('button');b.textContent=label;b.dataset.category=label;b.dataset.icon=categoryIcons[label];b.onclick=()=>guard(async()=>{$('toolAction').value=items[0];await changed();});categories.append(b);}
+  const cards=document.createElement('div');cards.className='toolCards';cards.setAttribute('role','group');cards.setAttribute('aria-label','工具');dialog.querySelector('.toolActionLabel').after(cards);
+  let shownCategory=toolCatalog[0];
+  for(const c of toolCatalog){const b=document.createElement('button');b.type='button';b.dataset.category=c.id;b.dataset.icon=c.icon;b.innerHTML='<span class="catText"><b></b><small></small></span>';b.querySelector('b').textContent=c.label;b.querySelector('small').textContent=c.note;
+    b.onclick=()=>guard(async()=>{const first=c.tools.find(t=>t.action&&(t.action==='import'||toolSession));shownCategory=c;if(first)await pick(first);else drawCards();});categories.append(b);}
+  const pageMode=()=>$('toolPageMode').value;
+  function drawCards(){
+    const a=action(),current=toolKey({action:a,mode:a==='organize'?pageMode():undefined});
+    for(const b of categories.children)b.setAttribute('aria-pressed',String(b.dataset.category===shownCategory.id));
+    cards.replaceChildren(...shownCategory.tools.map(t=>{const b=document.createElement('button');b.type='button';b.className='toolCard';b.dataset.icon=t.icon;b.dataset.toolKey=toolKey(t);
+      const label=document.createElement('span');label.textContent=t.label;b.append(label);
+      b.setAttribute('aria-pressed',String(toolKey(t)===current));b.disabled=!!busy||(!!t.action&&t.action!=='import'&&!toolSession)||(!!t.compareView&&!toolSession);
+      b.onclick=()=>guard(()=>pick(t));return b;}));
+  }
+  async function pick(t){
+    if(t.converter){dialog.close();openConverter();return;}
+    if(t.compareView){$('compareTool').click();return;}
+    $('toolAction').value=t.action;await changed();
+    if(t.mode){$('toolPageMode').value=t.mode;$('toolPageMode').dispatchEvent(new Event('change',{bubbles:true}));drawCards();}
+  }
+  $('toolPageMode').addEventListener('change',()=>drawCards());
   api.onJobProgress((id,data)=>{if(id!==activeJob)return;$('jobProgress').max=Math.max(1,data.total);$('jobProgress').value=data.done;$('toolProgress').textContent=`${data.label||'处理中'} · ${data.done} / ${data.total}`;});
   const action=()=>$('toolAction').value;
   async function snapshot(s){commit(s);return s.app.pdfDocument.annotationStorage.size?await s.app.pdfDocument.saveDocument():await s.app.pdfDocument.getData();}
@@ -112,9 +132,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   async function populateOutline(){const result=await inspect();outlineEditor.set(result.data.toc);$('toolOutline').value=result.data.toc.map(([level,title,page])=>`${level} | ${page} | ${title}`).join('\n');}
   async function changed(){
     const a=action();$('toolHint').textContent=hints[a];$('applyToolDraft').hidden=!['organize','outline','text','stamp','image','watermark','shape','annotation','crop','sharpen'].includes(a);
-    const selectedCategory=Object.values(categoryMap).find(items=>items.includes(a));
-    for(const b of categories.children)b.setAttribute('aria-pressed',String(categoryMap[b.dataset.category].includes(a)));
-    for(const option of $('toolAction').options)option.hidden=!selectedCategory.includes(option.value);
+    if(!shownCategory.tools.some(t=>t.action===a))shownCategory=categoryOf(a,a==='organize'?pageMode():undefined);
     for(const element of dialog.querySelectorAll('[data-for]'))element.hidden=!element.dataset.for.split(' ').includes(a);
     $('toolPreviewSection').hidden=!regions.has(a);$('executeTool').disabled=a!=='import'&&!toolSession;
     $('toolPages').value=regions.has(a)?String(toolSession?.app.pdfViewer.currentPageNumber||1):'';
@@ -124,16 +142,20 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(a==='outline'&&toolSession)await populateOutline();
     if(['stamp','image'].includes(a))await refreshStamps();
     if(a==='image')await fitRectToAsset();
-    if(regions.has(a))await preview();updateSummary();
+    if(regions.has(a))await preview();updateSummary();drawCards();
   }
-  async function open(next='export'){
+  async function open(next='export',{mode,category}={}){
     if(busy)return;toolSession=current()?.loaded?current():null;
     $('toolDocument').textContent=toolSession?.name||'请先打开 PDF，或选择文件转换为 PDF';
     $('toolAction').value=toolSession?next:'import';$('toolProgress').textContent='';$('toolBatch').checked=false;failed=[];retryState=null;$('retryTools').hidden=true;
     $('toolPreviewPage').value=toolSession?.app.pdfViewer.currentPageNumber||1;
     $('toolPassword').value='';$('toolUserPassword').value='';$('toolOwnerPassword').value='';
     $('compareTool').disabled=$('newWindowTool').disabled=!toolSession;
+    shownCategory=toolCatalog.find(c=>c.id===category)||categoryOf(toolSession?next:'import',mode);
+    dialog.style.setProperty('--tools-top', Math.max(56, Math.ceil($('pdfToolbar').getBoundingClientRect().bottom) + 8) + 'px');
     if(!dialog.open)dialog.showModal();await changed();
+    if(mode&&toolSession&&$('toolAction').value==='organize'){$('toolPageMode').value=mode;$('toolPageMode').dispatchEvent(new Event('change',{bubbles:true}));}
+    drawCards();
   }
   function request(){
     const a=action();

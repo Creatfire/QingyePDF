@@ -1,0 +1,105 @@
+/* 0.17.0 界面皮肤 — 在 tokens.css 之上换一层外观：配色、圆角、线宽、错版量、字体与框架材质。
+   皮肤只重写 tokens.css 里已有的原语，组件 CSS 不用改；"经典"不设 data-skin，保持原样。
+   data-skin 写在 <html> 上（见 skins.mjs）。阅读区不换肤：PDF 在独立 iframe 里，Markdown 正文
+   在 .mdPanel 内被钉回经典原语（文档自己的主题照常工作）。 */
+
+/* ——— 玻璃：磨砂半透明框架，圆角，柔光 ——— */
+:root[data-skin="glass"] {
+  --bg-base: light-dark(#E7EFE8, #07130D); --bg-panel: light-dark(rgb(255 255 255 / .62), rgb(20 40 31 / .72)); --bg-raised: light-dark(rgb(255 255 255 / .5), rgb(255 255 255 / .08)); --bg-hover: light-dark(rgb(255 255 255 / .8), rgb(255 255 255 / .15));
+  --rule: light-dark(rgb(10 51 35 / .18), rgb(255 255 255 / .14));
+  --frame-1: rgb(6 20 13 / .62); --frame-2: rgb(12 34 24 / .5); --frame-3: rgb(255 255 255 / .09); --frame-hover: rgb(255 255 255 / .17); --frame-rule: rgb(255 255 255 / .16);
+  --amber: #74EDB6; --on-amber: #04120B; --amber-line: light-dark(#0F4A33, #74EDB6);
+  --r-1: 8px; --r-2: 14px; --rule-w: 1px; --plate: 0px; --plate-lg: 0px; --plate-sm: 0px; --plate-xs: 0px; --plate-hair: 0px;
+  --scrim: light-dark(rgb(10 40 28 / .3), rgb(2 10 6 / .6));
+}
+:root[data-skin="glass"] body { background: radial-gradient(900px 600px at 12% -10%, rgb(62 207 142 / .3), transparent 60%), radial-gradient(700px 500px at 105% 105%, rgb(242 180 65 / .2), transparent 60%), #E7EFE8; }
+:root[data-skin="glass"] body.dark { background: radial-gradient(900px 600px at 12% -10%, rgb(30 122 85 / .5), transparent 60%), radial-gradient(700px 500px at 105% 105%, rgb(242 180 65 / .12), transparent 60%), #07130D; }
+:root[data-skin="glass"] :is(.titlebar, .appbar, #navigationPanel, .settingsNav, .toolCategories, .mdPanel .mdMenubar, .mdStatusBar, .mdOutline, dialog, [popover], #aiPanel, .aiHead) { -webkit-backdrop-filter: blur(22px) saturate(1.4); backdrop-filter: blur(22px) saturate(1.4); }
+:root[data-skin="glass"] :is(.titlebar, .appbar) { border-bottom: 1px solid var(--frame-rule); }
+:root[data-skin="glass"] dialog, :root[data-skin="glass"] [popover] { box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 26px 50px -18px rgb(0 0 0 / .6); }
+:root[data-skin="glass"] .tab { border-radius: 15px 15px 0 0; }
+:root[data-skin="glass"] :is(.tab.active, .appbar button[aria-pressed="true"], .appbar button[aria-expanded="true"]) { background: rgb(255 255 255 / .16); color: #fff; box-shadow: 0 0 18px rgb(62 207 142 / .35), inset 0 0 0 1px rgb(190 255 220 / .5); }
+:root[data-skin="glass"] .actionTile.isPrimary { background: linear-gradient(135deg, #5EE3A8, #2BA06C); box-shadow: 0 10px 30px -10px rgb(62 207 142 / .8), inset 0 1px 0 rgb(255 255 255 / .5); }
+
+/* ——— 版画格：更厚的错版阴影，直角，等宽标签 ——— */
+:root[data-skin="bento"] {
+  --frame-1: #050A07; --frame-2: #0B140F; --frame-3: #16231C; --frame-hover: #1F3027; --frame-rule: #2A3A31;
+  --bg-panel: light-dark(#ECE7D6, #16231C); --bg-raised: light-dark(#E2DCC8, #1C2B23);
+  --primary-deep: light-dark(#0A120E, #050A07);
+  --r-1: 0; --r-2: 0; --plate: 8px; --plate-lg: 10px; --plate-sm: 5px; --plate-xs: 4px; --plate-hair: 2px; --tracking-label: .3em;
+}
+:root[data-skin="bento"] :is(.tab, .appbar button, .actionTile, .quickTool, dialog, [popover]) { font-family: var(--font-mono); }
+:root[data-skin="bento"] .tab { box-shadow: var(--plate-xs) var(--plate-xs) 0 var(--black); margin-bottom: var(--plate-hair); }
+:root[data-skin="bento"] :is(.actionTile, .quickTool, .recentRow):hover:not(:disabled) { translate: -3px -3px; }
+:root[data-skin="bento"] :is(.actionTile, .quickTool):active:not(:disabled) { translate: var(--plate-sm) var(--plate-sm); box-shadow: none; }
+
+/* ——— 桌面：纸张、文件夹标签、衬线标题 ——— */
+:root[data-skin="desk"] {
+  --bg-base: light-dark(#E6DFC9, #15221B); --bg-panel: light-dark(#F6F2E6, #1B2A22); --bg-raised: light-dark(#E2DCC8, #243529); --bg-hover: light-dark(#D3CBB4, #2F4337);
+  --frame-1: #0F1813; --frame-2: #1B2A22; --frame-3: #2B3A31; --frame-hover: #364A3E; --frame-rule: #3F5446;
+  --amber: #F6F2E6; --on-amber: #0A120E;
+  --primary-deep: light-dark(#0A120E, #0A120E);
+  --r-1: 2px; --r-2: 4px; --plate: 4px; --plate-lg: 8px; --plate-sm: 3px; --plate-xs: 2px;
+}
+:root[data-skin="desk"] body { background: radial-gradient(rgb(10 51 35 / .12) 1px, transparent 1.5px) 0 0 / 22px 22px, #E6DFC9; }
+:root[data-skin="desk"] body.dark { background: radial-gradient(rgb(246 242 230 / .05) 1px, transparent 1.5px) 0 0 / 22px 22px, #15221B; }
+:root[data-skin="desk"] :is(#workspace, .home) { background: transparent; }
+:root[data-skin="desk"] :is(h1, h2, .homeTitle, .brandName, dialog h2, .recentHeading h2, .popHeader h2) { font-family: var(--font-serif); }
+:root[data-skin="desk"] .tab { border-radius: 6px 6px 0 0; }
+:root[data-skin="desk"] .tab.active { box-shadow: none; margin-right: 0; }
+:root[data-skin="desk"] :is(dialog, [popover]) { box-shadow: var(--plate-lg) var(--plate-lg) 0 var(--black); }
+
+/* ——— 色块：零圆角，不加阴影，实心色块与深色缝隙 ——— */
+:root[data-skin="blocks"] {
+  --frame-1: #050A07; --frame-2: #0F1A14; --frame-3: #123D2B; --frame-hover: #1A5239; --frame-rule: #050A07;
+  --bg-panel: light-dark(#ECE6D2, #1C2B23); --bg-raised: light-dark(#E2DCC8, #0F1A14); --bg-hover: light-dark(#D3CBB4, #123D2B);
+  --rule: light-dark(#0A3323, #050A07);
+  --r-1: 0; --r-2: 0; --rule-w: 3px; --plate: 0px; --plate-lg: 0px; --plate-sm: 0px; --plate-xs: 0px; --plate-hair: 0px;
+}
+:root[data-skin="blocks"] .tab { background: var(--frame-3); border-radius: 0; margin-right: 4px; font-weight: var(--fw-black); }
+:root[data-skin="blocks"] .tab:not(.active)::after { display: none; }
+:root[data-skin="blocks"] :is(.appbar button, .actionTile, .quickTool, .recentRow):active:not(:disabled) { scale: .97; }
+:root[data-skin="blocks"] :is(.appbar button[aria-pressed="true"], .appbar button[aria-expanded="true"]) { box-shadow: none; }
+
+/* ——— 墨绿网点：墨绿底、网点、斜切标签 ——— */
+:root[data-skin="dots"] {
+  --bg-base: light-dark(#E3EEE7, #0C1611); --bg-panel: light-dark(#F1F7F3, #13201B); --bg-raised: light-dark(#D9E8DF, #1A2B24); --bg-hover: light-dark(#C9DED2, #213629);
+  --frame-1: #0A120E; --frame-2: #0F1B16; --frame-3: #17291F; --frame-hover: #1E3829; --frame-rule: #24402F;
+  --amber: #3ECF8E; --on-amber: #0A120E; --primary-deep: light-dark(#0A3323, #1E7A55);
+  --r-1: 0; --r-2: 2px; --plate: 6px; --plate-lg: 8px; --plate-sm: 4px; --plate-xs: 3px;
+}
+:root[data-skin="dots"] body { background: radial-gradient(rgb(10 51 35 / .14) 1.6px, transparent 2px) 0 0 / 18px 18px, #E3EEE7; }
+:root[data-skin="dots"] body.dark { background: radial-gradient(#18302A 1.6px, transparent 2px) 0 0 / 18px 18px, radial-gradient(#18302A 1.6px, transparent 2px) 9px 9px / 18px 18px, #0C1611; }
+:root[data-skin="dots"] :is(#workspace, .home) { background: transparent; }
+:root[data-skin="dots"] .tab { clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); box-shadow: none; padding-inline: var(--space-16); margin-right: 0; }
+:root[data-skin="dots"] .tab.active { font-weight: var(--fw-black); }
+:root[data-skin="dots"] :is(.homeTitle, .brandName) { font-style: italic; }
+
+/* ——— 阅读区不换肤：Markdown 面板钉回经典原语（派生变量在 tokens.css 里对 .mdPanel 重新计算） ——— */
+:root[data-skin] .mdPanel {
+  --bg-base: light-dark(#F6F2E6, #0B100D); --bg-panel: light-dark(#EFEADB, #111813); --bg-raised: light-dark(#E2DCC8, #1A231E); --bg-hover: light-dark(#D3CBB4, #26312B);
+  --rule: light-dark(#A9A28B, #35433B); --primary-deep: light-dark(#0A3323, #1E7A55);
+  --amber: #F2B441; --on-amber: #0A120E; --amber-line: light-dark(#7A4D00, #F2B441);
+  --r-1: 2px; --r-2: 4px; --rule-w: 2px; --plate: 6px; --plate-lg: 8px; --plate-sm: 4px; --plate-xs: 3px; --plate-hair: 2px; --tracking-label: .14em;
+  --frame-1: #0B2A1D; --frame-2: #12402C; --frame-3: #1A5239; --frame-hover: #226446; --frame-rule: #2C7553;
+}
+:root[data-skin] .mdPanel :is(.mdDoc, .mdEditorHost, .mdSourceView) { -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-skin] .mdPanel .tab, :root[data-skin] .mdPanel .tab.active { clip-path: none; }
+
+/* 设置里的皮肤缩略图 */
+.skinChoices { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-12); padding: var(--space-4) 0 var(--space-14); border-bottom: var(--rule-w) solid var(--rule); }
+.skinChoices button { flex-direction: column; align-items: stretch; gap: var(--space-8); padding: var(--space-8); border: var(--rule-w) solid var(--rule); border-radius: var(--radius-lg); background: var(--bg-raised); text-align: left; white-space: normal; }
+.skinChoices button:hover:not(:disabled) { background: var(--bg-hover); }
+.skinChoices button[aria-checked="true"] { border-color: var(--sel-bg); box-shadow: var(--sel-plate); background: var(--sel-bg); color: var(--on-sel); }
+.skinChoices button[aria-checked="true"] .styleText small { color: inherit; opacity: .85; }
+.skinChoices button[aria-checked="true"] .styleText b::after { content: " ✓"; font-family: var(--font-mono); }
+.skinChoices .styleText small { font-size: var(--fs-2xs); }
+.skinPreview { position: relative; display: grid; grid-template-rows: 12px 1fr; height: 64px; overflow: hidden; background: #0C1611; }
+.skinPreview i { display: block; }
+.skinPreview .spB { background: #12402C; } .skinPreview .spT { position: absolute; left: 6px; top: 3px; width: 26px; height: 9px; background: #F2B441; }
+.skinPreview .spC { position: absolute; left: 8px; right: 8px; top: 20px; bottom: 8px; background: #1C2B23; box-shadow: 3px 3px 0 #0A120E; }
+.sk-glass { background: radial-gradient(circle at 25% 30%, rgb(62 207 142 / .5), transparent 55%), #07130D; } .sk-glass .spB { background: rgb(255 255 255 / .1); } .sk-glass .spT { background: rgb(255 255 255 / .35); border-radius: 5px 5px 0 0; box-shadow: 0 0 8px rgb(62 207 142 / .6); } .sk-glass .spC { background: rgb(255 255 255 / .1); border: 1px solid rgb(255 255 255 / .25); border-radius: 6px; box-shadow: none; }
+.sk-bento .spB { background: #050A07; } .sk-bento .spT { background: #3ECF8E; box-shadow: 2px 2px 0 #F2B441; } .sk-bento .spC { box-shadow: 5px 5px 0 #050A07; }
+.sk-desk { background: radial-gradient(rgb(246 242 230 / .1) 1px, transparent 1.5px) 0 0 / 8px 8px, #15221B; } .sk-desk .spB { background: #0F1813; } .sk-desk .spT { background: #F6F2E6; border-radius: 3px 3px 0 0; } .sk-desk .spC { background: #F6F2E6; rotate: -3deg; box-shadow: 2px 2px 0 #0A120E; }
+.sk-blocks { background: #050A07; } .sk-blocks .spB { background: #050A07; } .sk-blocks .spT { background: #3ECF8E; } .sk-blocks .spC { background: #3ECF8E; box-shadow: none; right: 40%; } .sk-blocks::after { content: ""; position: absolute; left: 62%; right: 8px; top: 20px; bottom: 8px; background: #F2B441; }
+.sk-dots { background: radial-gradient(#18302A 1px, transparent 1.5px) 0 0 / 6px 6px, #0C1611; } .sk-dots .spB { background: #0A120E; } .sk-dots .spT { background: #3ECF8E; clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%); } .sk-dots .spC { background: #13201B; border-left: 3px solid #3ECF8E; transform: skewX(-8deg); box-shadow: none; left: 50%; }

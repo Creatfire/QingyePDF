@@ -3,7 +3,8 @@ import { userError } from './errors.mjs';
 export function createViews({ current, commit, guard, api }) {
   const $ = id => document.getElementById(id);
   const panel = $('viewPanel');
-  const colors = ['light', 'night', 'sepia', 'gray'];
+  // 0.14.0: 'light' (日间) lays the page on cream paper (a multiply layer in viewer.css); 'plain' (原色) shows it untouched.
+  const colors = ['light', 'plain', 'night', 'sepia', 'gray'];
   const tones = [
     ['雾白','#f0f4f5','#101820'], ['羊皮纸','#e5d5af','#59432b'], ['墨灰','#302e2c','#c4beb7'],
     ['深海蓝','#093448','#b5c9d0'], ['石墨','#353e3f','#d0d7d7'], ['玫瑰','#efd3dc','#ae3c5e'],
@@ -82,7 +83,7 @@ export function createViews({ current, commit, guard, api }) {
     const root = s.frame.contentDocument.documentElement;
     root.dataset.readingColor = color;
     root.dataset.preserveImages=String(preserveImages);
-    const effect={light:'',night:'invert(1) hue-rotate(180deg)',sepia:'sepia(.55)',gray:'grayscale(1)'}[color]??"url('#qingye-reading-color')";
+    const effect={light:'',plain:'',night:'invert(1) hue-rotate(180deg)',sepia:'sepia(.55)',gray:'grayscale(1)'}[color]??"url('#qingye-reading-color')";
     root.style.setProperty('--reading-filter',`${effect} brightness(${brightness}) contrast(${contrast})`.trim());
     for(let index=0;index<s.app.pagesCount;index++){const page=s.app.pdfViewer.getPageView(index);page?.div.querySelector('.originalImageOverlay')?.remove();}
     if(preserveImages&&s.imageRects)for(let index=0;index<s.app.pagesCount;index++)overlayImages(s,index);

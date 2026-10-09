@@ -12,6 +12,7 @@ const { createDiagnostics } = require('./diagnostics.cjs');
 const markdownFiles = require('./markdown-files.cjs');
 const { createLibraryIndex } = require('./library-index.cjs');
 const {notesMarkdown,normalizeNotes}=require('./notes-markdown.cjs');
+const homeData = require('./home-data.cjs');
 const bootStarted=performance.now();
 let recovery;
 const recoveryTokens=new Map();
@@ -243,9 +244,10 @@ app.whenReady().then(async () => {
   // buttons (snap layouts, accessibility) through the themed title bar overlay.
   // In the MacOS style the renderer draws the traffic lights itself (no overlay), and with
   // "window vibrancy" the page background is transparent over Windows 11 acrylic.
-  const titleBar = dark => ({ color: dark ? '#0e1512' : '#eef3f0', symbolColor: dark ? '#cfe0d6' : '#2a3a33', height: 40 });
-  window = new BrowserWindow({ width: 1360, height: 940, minWidth: 920, minHeight: 640, show: false, title: T('青页 PDF'), icon: path.join(__dirname, 'ui', 'icon.png'), backgroundColor: windowAcrylic ? '#00000000' : drawnCaption ? '#ececef' : '#eef3f0',
-    titleBarStyle: 'hidden', ...(process.platform === 'darwin' ? { trafficLightPosition: { x: 14, y: 12 } } : drawnCaption ? {} : { titleBarOverlay: titleBar(false) }), ...(windowAcrylic ? { backgroundMaterial: 'acrylic' } : {}), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, spellcheck: true, offscreen: (smoke || safety) && !process.argv.includes('--markdown-smoke') } });
+  // Colours mirror ui/tokens.css (--bg-raised / --text / --bg-base); dark is the default theme.
+  const titleBar = dark => ({ color: dark ? '#1F2F27' : '#DDD6C1', symbolColor: dark ? '#F6F2E6' : '#0A120E', height: 40 });
+  window = new BrowserWindow({ width: 1360, height: 940, minWidth: 920, minHeight: 640, show: false, title: T('青页 PDF'), icon: path.join(__dirname, 'ui', 'icon.png'), backgroundColor: windowAcrylic ? '#00000000' : '#16221C',
+    titleBarStyle: 'hidden', ...(process.platform === 'darwin' ? { trafficLightPosition: { x: 14, y: 12 } } : drawnCaption ? {} : { titleBarOverlay: titleBar(true) }), ...(windowAcrylic ? { backgroundMaterial: 'acrylic' } : {}), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, spellcheck: true, offscreen: (smoke || safety) && !process.argv.includes('--markdown-smoke') } });
   window.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:\/\//i.test(url)) shell.openExternal(url); return { action: 'deny' }; });
   window.webContents.on('will-navigate', event => event.preventDefault());
   window.webContents.on('context-menu',async (_event,params)=>{
@@ -472,11 +474,30 @@ app.whenReady().then(async () => {
     return {path:target,note:result.note,opened:extension==='.pdf' && request.action!=='encrypt' && !request.batchToken ? await openFiles([target]):[]};
     } finally { runningJobs.delete(jobId); }
   });
-  handle('recent', () => preferences.recent.map(item => {
-    let token = [...recentTokens].find(([, file]) => file === item.path)?.[0];
-    if (!token) { token = randomUUID(); recentTokens.set(token, item.path); }
-    return { id: token, name: item.name, path: item.path, opened: Number(item.opened) || 0, page: item.state?.kind === 'markdown' ? 0 : Number(item.state?.page) || 0 };
-  }));
+  handle('recent', async () => {
+    const sizes = await homeData.sizes(preferences.recent.map(item => item.path));
+    return preferences.recent.map((item, index) => {
+      let token = [...recentTokens].find(([, file]) => file === item.path)?.[0];
+      if (!token) { token = randomUUID(); recentTokens.set(token, item.path); }
+      const markdown = item.state?.kind === 'markdown';
+      // 0.15.0: the home layouts also show size, page count and bookmarks of each recent file.
+      return { id: token, name: item.name, path: item.path, opened: Number(item.opened) || 0, page: markdown ? 0 : Number(item.state?.page) || 0,
+        pages: markdown ? 0 : Number(item.state?.pageCount) || 0, size: sizes[index],
+        bookmarks: markdown || !Array.isArray(item.state?.bookmarks) ? [] : item.state.bookmarks.slice(0, 12).map(b => ({ title: String(b?.title || '').slice(0, 80), page: Number(b?.page) || 0 })).filter(b => b.page > 0) };
+    });
+  });
+  // 0.15.0 home layouts: excerpts found in recent Markdown notes; opening one opens its source PDF.
+  const excerptTokens = new Map();
+  handle('home-excerpts', async () => {
+    const items = await homeData.excerptsFrom(preferences.recent);
+    excerptTokens.clear();
+    return items.map(item => { const id = randomUUID(); if (item.file) excerptTokens.set(id, { file: item.file, page: item.page }); return { id: item.file ? id : null, quote: item.quote, source: item.source, page: item.page, note: item.note, time: item.time, region: item.region }; });
+  });
+  handle('home-open-excerpt', async id => {
+    const target = excerptTokens.get(id); if (!target) throw new Error('摘录的来源已失效，请刷新首页。');
+    await fs.access(target.file).catch(() => { throw new Error('找不到摘录的原文件，它可能已被移动或删除。'); });
+    return { opened: await openFiles([target.file]), page: target.page };
+  });
   // Home page: remove one entry from the recent list (the file itself is untouched).
   handle('recent-remove', async id => { const file = recentTokens.get(id); if (!file) return false; preferences.recent = preferences.recent.filter(r => key(r.path) !== key(file)); recentTokens.delete(id); await persist(); return true; });
   handle('open-recent', id => { const file = recentTokens.get(id); if (!file) throw new Error('最近文件不存在。'); return openFiles([file]); });

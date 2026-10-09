@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>青页 PDF</title>
+  <link rel="stylesheet" href="../vendor/fonts/noto-sans-sc/wght.css">
+  <link rel="stylesheet" href="../vendor/fonts/noto-serif-sc/wght.css">
+  <link rel="stylesheet" href="../vendor/fonts/jetbrains-mono/wght.css">
+  <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="icons.css">
   <link rel="stylesheet" href="app.css">
   <link rel="stylesheet" href="design.css">
@@ -18,6 +22,12 @@
   <link rel="stylesheet" href="ai.css">
   <link rel="stylesheet" href="notes.css">
   <link rel="stylesheet" href="library.css">
+  <link rel="stylesheet" href="home/glass.css">
+  <link rel="stylesheet" href="home/bento.css">
+  <link rel="stylesheet" href="home/desk.css">
+  <link rel="stylesheet" href="home/blocks.css">
+  <link rel="stylesheet" href="home/common.css">
+  <link rel="stylesheet" href="skins.css">
   <link rel="stylesheet" href="macos.css">
   <link rel="stylesheet" href="../vendor/markdown/katex/katex.min.css">
   <script type="module" src="app.mjs"></script>
@@ -49,18 +59,11 @@
       <button id="historyButton" data-icon="history" title="编辑历史" aria-label="编辑历史"><span class="label">历史</span></button>
     </div>
     <div class="spacer"></div>
-    <div class="barGroup" aria-label="阅读与编辑">
-      <button id="selectTextButton" data-icon="textcursor" disabled title="选择文字；扫描页自动识别中英文" aria-label="文本选择"><span class="label">文本选择</span></button>
-      <button id="annotateButton" data-icon="pen" disabled popovertarget="annotateMenu" aria-haspopup="menu" aria-controls="annotateMenu" aria-expanded="false" title="批注工具"><span class="label">批注</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
-      <button id="directButton" data-icon="pageedit" disabled title="页面编辑：添加文字、印章、图形" aria-label="页面编辑"><span class="label">页面编辑</span></button>
-    </div>
+    <div class="barGroup" aria-label="阅读"><button id="searchButton" data-icon="search" disabled title="全文搜索 · Ctrl+F" aria-label="搜索" aria-expanded="false"><span class="label">搜索</span></button><button id="outlineButton" data-icon="outline" disabled title="大纲、书签、页面与批注" aria-label="大纲" aria-expanded="false"><span class="label">大纲</span></button><button id="viewButton" data-icon="view" disabled popovertarget="viewPanel" aria-controls="viewPanel" aria-expanded="false" title="视图模式" aria-label="视图模式"><span class="label">视图</span></button></div>
     <span class="barSep" aria-hidden="true"></span>
-    <div class="barGroup" aria-label="导航与工具">
-      <button id="searchButton" data-icon="search" disabled title="全文搜索 · Ctrl+F" aria-label="搜索" aria-expanded="false"><span class="label">搜索</span></button>
-      <button id="outlineButton" data-icon="outline" disabled title="大纲、书签、页面与批注" aria-label="大纲" aria-expanded="false"><span class="label">大纲</span></button>
-      <button id="viewButton" data-icon="view" disabled popovertarget="viewPanel" aria-controls="viewPanel" aria-expanded="false" title="视图模式" aria-label="视图模式"><span class="label">视图</span></button>
-      <button id="toolsButton" class="accentButton" data-icon="tools" title="本地 PDF 工具箱" aria-label="工具箱"><span class="label">工具箱</span></button>
-    </div>
+    <div class="barGroup" aria-label="标注"><button id="selectTextButton" data-icon="textcursor" disabled title="选择文字；扫描页自动识别中英文" aria-label="文本选择"><span class="label">文本选择</span></button><button id="annotateButton" data-icon="pen" disabled popovertarget="annotateMenu" aria-haspopup="menu" aria-controls="annotateMenu" aria-expanded="false" title="批注工具"><span class="label">批注</span><span class="caret" data-icon="down" aria-hidden="true"></span></button><button id="directButton" data-icon="pageedit" disabled title="页面编辑：添加文字、印章、图形" aria-label="页面编辑"><span class="label">页面编辑</span></button></div>
+    <span class="barSep" aria-hidden="true"></span>
+    <div class="barGroup splitGroup" aria-label="处理"><button id="toolsButton" class="accentButton" data-icon="tools" title="本地 PDF 工具箱" aria-label="工具箱"><span class="label">工具箱</span></button><button id="toolsMenuButton" class="iconOnly caretButton" data-icon="down" aria-haspopup="menu" aria-expanded="false" title="全部工具（按分类）" aria-label="全部工具"></button></div>
     <span class="barSep" aria-hidden="true"></span>
     <button id="aiButton" class="aiToggle" data-icon="sparkle" aria-pressed="false" title="AI 协作 · Ctrl+Shift+A" aria-label="AI 协作"><span class="label">AI</span></button>
   </header>
@@ -74,13 +77,17 @@
           </div>
           <span class="workspaceBadge" title="本机处理、不使用云转换、无账号"><i aria-hidden="true"></i>本地 · 私密 · 开源</span>
         </header>
+        <div class="homeActions">
+          <button id="welcomeOpen" class="actionTile isPrimary" title="打开 PDF 或 Markdown 文档 · Ctrl+O"><span class="tileGlyph" data-icon="open" aria-hidden="true"></span><span class="tileText"><strong>打开文件</strong><small>PDF / Markdown · Ctrl+O</small></span></button>
+          <button id="newMarkdownButton" class="actionTile" title="新建 Markdown 文档 · Ctrl+N"><span class="tileGlyph" data-icon="newdoc" aria-hidden="true"></span><span class="tileText"><strong>新建 Markdown</strong><small>空白文档 · Ctrl+N</small></span></button>
+          <button id="homeConvertButton" class="actionTile" title="文档转换中心"><span class="tileGlyph" data-icon="markdown" aria-hidden="true"></span><span class="tileText"><strong>文档转换</strong><small>Word / EPUB / Markdown / PDF · 内置转换引擎</small></span></button>
+        </div>
+        <section class="homeTools" aria-labelledby="homeToolsTitle">
+          <div class="sectionHead"><h2 id="homeToolsTitle">PDF 工具</h2><p class="sideHint">选择工具后打开一个 PDF 即可开始</p></div>
+          <div class="quickTools"><button data-tool="organize" data-category="pages" class="quickTool"><span class="toolGlyph" data-icon="pages" aria-hidden="true"></span><span><strong>页面</strong><small>合并、拆分、删除、旋转与重排</small></span></button><button data-tool="export" data-category="convert" class="quickTool"><span class="toolGlyph" data-icon="convert" aria-hidden="true"></span><span><strong>导出与转换</strong><small>Word、Excel、图片与更多格式</small></span></button><button data-tool="text" data-category="edit" class="quickTool"><span class="toolGlyph" data-icon="pageedit" aria-hidden="true"></span><span><strong>编辑内容</strong><small>替换文字、图形、表单与批注</small></span></button><button data-tool="stamp" data-category="stamp" class="quickTool"><span class="toolGlyph" data-icon="stamp" aria-hidden="true"></span><span><strong>印章与水印</strong><small>印章、水印、页码与页眉页脚</small></span></button><button data-tool="encrypt" data-category="secure" class="quickTool"><span class="toolGlyph" data-icon="lock" aria-hidden="true"></span><span><strong>安全</strong><small>加密、移除密码与永久涂黑</small></span></button><button data-tool="ocr" data-category="scan" class="quickTool"><span class="toolGlyph" data-icon="ocr" aria-hidden="true"></span><span><strong>扫描与优化</strong><small>文字识别、纠偏、锐化与压缩</small></span></button><button data-tool="compare" data-category="compare" class="quickTool"><span class="toolGlyph" data-icon="compare" aria-hidden="true"></span><span><strong>比较</strong><small>并排阅读与差异报告</small></span></button></div>
+        </section>
         <div class="homeGrid">
           <div class="homeMain">
-            <div class="homeActions">
-              <button id="welcomeOpen" class="actionTile isPrimary" title="打开 PDF 或 Markdown 文档 · Ctrl+O"><span class="tileGlyph" data-icon="open" aria-hidden="true"></span><span class="tileText"><strong>打开文件</strong><small>PDF / Markdown · Ctrl+O</small></span></button>
-              <button id="newMarkdownButton" class="actionTile" title="新建 Markdown 文档 · Ctrl+N"><span class="tileGlyph" data-icon="newdoc" aria-hidden="true"></span><span class="tileText"><strong>新建 Markdown</strong><small>空白文档 · Ctrl+N</small></span></button>
-              <button id="homeConvertButton" class="actionTile" style="grid-column:1 / -1" title="文档转换中心"><span class="tileGlyph" data-icon="tools" aria-hidden="true"></span><span class="tileText"><strong>文档转换</strong><small>Word / EPUB / Markdown / PDF · 内置转换引擎</small></span></button>
-            </div>
             <section class="recentPanel" aria-labelledby="recentTitle">
               <div class="recentHeading" id="recentHeading">
                 <h2 id="recentTitle">最近打开</h2>
@@ -92,16 +99,6 @@
           </div>
           <aside class="homeSide">
             <section class="sideCard">
-              <h2>PDF 工具</h2>
-              <p class="sideHint">选择工具后打开一个 PDF 即可开始</p>
-              <div class="quickTools">
-                <button data-tool="organize" class="quickTool"><span class="toolGlyph" data-icon="pages" aria-hidden="true"></span><span><strong>整理页面</strong><small>合并、拆分与重排</small></span></button>
-                <button data-tool="export" class="quickTool"><span class="toolGlyph" data-icon="convert" aria-hidden="true"></span><span><strong>转换与导出</strong><small>Word、Excel 与图片</small></span></button>
-                <button data-tool="ocr" class="quickTool"><span class="toolGlyph" data-icon="ocr" aria-hidden="true"></span><span><strong>文字识别</strong><small>让扫描件可以搜索</small></span></button>
-                <button data-tool="compress" class="quickTool"><span class="toolGlyph" data-icon="compress" aria-hidden="true"></span><span><strong>压缩文档</strong><small>为文件减轻负担</small></span></button>
-              </div>
-            </section>
-            <section class="sideCard">
               <h2>从示例开始</h2>
               <button id="exampleButton" class="sampleLink"><span class="sampleBadge">PDF</span><span><strong>PDF 使用示例</strong><small>7 页功能导览，可随意批注</small></span></button>
               <button id="markdownExampleButton" class="sampleLink"><span class="sampleBadge md">MD</span><span><strong>Markdown 示例</strong><small>语法、公式、图表一页看完</small></span></button>
@@ -110,6 +107,7 @@
         </div>
         <footer class="homeFooter"><span id="versionFooter">青页 PDF · 本地开源工具箱 · 无登录、无订阅、无广告</span><span class="homeHint" data-icon="drop">把 PDF 或 Markdown 拖进窗口任意位置即可打开</span></footer>
       </div>
+      <div id="homeAlt" hidden></div>
       <div class="dropCue" aria-hidden="true"><span data-icon="drop"></span><strong>松开，开始阅读</strong><small>PDF 与 Markdown 文档将在新标签页中打开</small></div>
     </section>
     <div id="viewers"></div>
@@ -128,7 +126,7 @@
       <label class="viewSwitch">连续垂直滚动<input id="verticalMode" type="checkbox" role="switch" checked></label>
     </div>
     <div class="popSection">
-      <div class="colorRow"><span class="popLabel">阅读配色</span><div class="chips"><button data-color="light" class="colorChip light" aria-label="日间" title="日间" aria-pressed="true">Aa</button><button data-color="night" class="colorChip night" aria-label="夜间" title="夜间" aria-pressed="false">Aa</button><button data-color="sepia" class="colorChip sepia" aria-label="护眼" title="护眼" aria-pressed="false">Aa</button><button data-color="gray" class="colorChip gray" aria-label="灰度" title="灰度" aria-pressed="false">Aa</button></div></div>
+      <div class="colorRow"><span class="popLabel">阅读配色</span><div class="chips"><button data-color="light" class="colorChip light" aria-label="日间" title="日间" aria-pressed="true">Aa</button><button data-color="plain" class="colorChip plain" aria-label="原色" title="原色" aria-pressed="false">Aa</button><button data-color="night" class="colorChip night" aria-label="夜间" title="夜间" aria-pressed="false">Aa</button><button data-color="sepia" class="colorChip sepia" aria-label="护眼" title="护眼" aria-pressed="false">Aa</button><button data-color="gray" class="colorChip gray" aria-label="灰度" title="灰度" aria-pressed="false">Aa</button></div></div>
       <details class="paletteDetails"><summary>更多配色与自定义</summary><div id="tonePalette"></div><button id="customColor" data-icon="palette">自定义背景与文字颜色…</button></details>
       <label class="viewSwitch">保留图片原色<input id="preserveImages" type="checkbox" role="switch"></label>
       <label class="readingSlider"><span>亮度</span><input id="readingBrightness" type="range" min="50" max="150" value="100"><output id="brightnessValue">100%</output></label>

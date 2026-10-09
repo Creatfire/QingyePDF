@@ -3,10 +3,10 @@
    tab has its own top bar (menus + view switch + save) and its own status bar. Loaded last. */
 
 /* ——— Title bar utilities (theme, help): always available, never duplicated elsewhere ——— */
-.titlebarTools { display: flex; align-items: center; gap: 2px; align-self: center; margin-right: 4px; }
-.titlebarTools button { width: 30px; height: 30px; padding: 0; border-radius: 8px; color: var(--muted); --icon-size: 16px; }
-.titlebarTools button:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
-.titlebarTools #convertButton { width: auto; padding: 0 9px; font-size: 12.5px; }
+.titlebarTools { display: flex; align-items: center; gap: var(--space-2); align-self: center; margin-right: var(--space-4); }
+.titlebarTools button { width: 30px; height: 30px; padding: 0; border-radius: var(--r-1); color: var(--text-2); --icon-size: 16px; }
+.titlebarTools button:hover:not(:disabled) { background: var(--bg-hover); color: var(--text); }
+.titlebarTools #convertButton { width: auto; padding: 0 var(--space-8); font-size: var(--fs-sm); }
 
 /* ——— Chrome per mode ——— */
 body:not([data-mode="pdf"]) #pdfToolbar { display: none; }
@@ -17,92 +17,92 @@ body[data-mode="md"] #workspace { background: var(--surface); }
 /* Home page: see home.css */
 
 /* ——— Markdown top bar: menus on the left, view controls on the right ——— */
-.mdPanel .mdMenubar { gap: 2px; padding: 0 10px 0 8px; min-height: 42px; height: 42px; background: var(--surface); border-bottom: 1px solid var(--line); }
-.mdPanel .mdMenubar > button.mdMenuTop { height: 30px; padding: 0 10px; font-size: 13px; }
+.mdPanel .mdMenubar { gap: var(--space-2); padding: 0 var(--space-10) 0 var(--space-8); min-height: 42px; height: 42px; background: var(--frame-2); border-bottom: 0; }
+.mdPanel .mdMenubar > button.mdMenuTop { height: 30px; padding: 0 var(--space-10); font-size: var(--fs-md); }
 .mdPanel.noMenubar .mdMenubar { display: flex; }
 .mdPanel.noMenubar .mdMenubar > .mdMenuTop { display: none; }
-.mdMenubar .mdMenuIcon { width: 32px; height: 32px; border-radius: 8px; --icon-size: 16px; color: var(--ink-2); }
+.mdMenubar .mdMenuIcon { width: 32px; height: 32px; border-radius: var(--r-1); --icon-size: 16px; color: var(--text-2); }
 .mdMenubar .mdMenuIcon:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
-.mdMenubar .mdMenuIcon[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
-.mdMenubar .mdModes { margin: 0 6px; padding: 3px; border-radius: 9px; flex: none; }
-.mdMenubar .mdModes button { flex: none; height: 26px; padding: 0 12px; font-size: 12.5px; border-radius: 7px; }
-.mdMenubar .mdSaveButton { width: auto; min-width: 74px; padding: 0 12px 0 10px; gap: 6px; margin-left: 4px; border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.mdMenubar .mdMenuIcon[aria-pressed="true"] { background: var(--sel-bg); color: var(--on-sel); box-shadow: var(--sel-plate); }
+.mdMenubar .mdModes { margin: 0 var(--space-6); padding: 0; border-radius: var(--r-1); flex: none; }
+.mdMenubar .mdModes button { flex: none; height: var(--control-h-sm); padding: 0 var(--space-12); font-size: var(--fs-sm); border-radius: var(--r-1); }
+.mdMenubar .mdSaveButton { width: auto; min-width: 74px; padding: 0 var(--space-12) 0 var(--space-10); gap: var(--space-6); margin-left: var(--space-4); border: var(--rule-w) solid var(--rule); font-size: var(--fs-sm); color: var(--text-2); }
 .mdMenubar .mdSaveButton .label { white-space: nowrap; }
-.mdMenubar .mdSaveButton.isDirty { background: var(--accent); border-color: transparent; color: var(--on-accent); font-weight: 600; }
+.mdMenubar .mdSaveButton.isDirty { background: var(--accent); border-color: transparent; color: var(--on-accent); font-weight: var(--fw-bold); box-shadow: var(--plate-shadow-xs); }
 .mdMenubar .mdSaveButton.isDirty:hover:not(:disabled) { background: var(--accent-hover); color: var(--on-accent); }
 
 /* Reading progress along the top edge of the document */
-.mdProgress { position: relative; height: 2px; flex: none; background: transparent; z-index: 5; }
-.mdProgress > i { position: absolute; inset: 0; background: linear-gradient(90deg, var(--accent-2), var(--accent)); transform-origin: left; transform: scaleX(0); transition: transform .12s linear; }
-.mdPanel.isSource .mdProgress > i { opacity: .5; }
+.mdProgress { position: relative; height: var(--rule-w); flex: none; background: transparent; z-index: 5; }
+.mdProgress > i { position: absolute; inset: 0; background: var(--primary); transform-origin: left; transform: scaleX(0); transition: transform var(--dur-fast) linear; }
+.mdPanel.isSource .mdProgress > i { opacity: var(--dim); }
 
 /* ——— Markdown status bar (replaces the floating pill and the global status line) ——— */
-.mdStatusBar { flex: none; display: flex; align-items: center; gap: 10px; height: var(--status-h); padding: 0 8px 0 14px; border-top: 1px solid var(--line); background: var(--surface-2); color: var(--muted); font-size: 11.5px; }
+.mdStatusBar { flex: none; display: flex; align-items: center; gap: var(--space-10); height: var(--status-h); padding: 0 var(--space-8) 0 var(--space-14); border-top: 0; background: var(--frame-2); color: var(--text-2); font-size: var(--fs-xs); }
 .mdPanel.noStatus .mdStatusBar { display: none; }
 .mdStatusMsg { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color var(--med); }
 .mdStatusMsg.isFresh { color: var(--ink-2); }
-.mdStatusBar .mdStats { display: inline-flex; height: 20px; padding: 0 8px; border-radius: 6px; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.mdStatusBar .mdStats:hover { background: var(--surface-3); color: var(--ink-2); }
-.mdStatusInfo { font-variant-numeric: tabular-nums; color: var(--faint); padding-left: 10px; border-left: 1px solid var(--line); }
+.mdStatusBar .mdStats { display: inline-flex; height: 20px; padding: 0 var(--space-8); border-radius: var(--r-1); font-size: var(--fs-xs); color: var(--text-2); font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+.mdStatusBar .mdStats:hover { background: var(--bg-hover); color: var(--text); }
+.mdStatusInfo { font-variant-numeric: tabular-nums; color: var(--text-weak); padding-left: var(--space-10); border-left: var(--rule-w) solid var(--rule); font-family: var(--font-mono); }
 .mdPanel .mdPill { display: none !important; }
 
 /* ——— Sidebar: two tabs, no close button (the top bar toggles it) ——— */
-.mdOutline { width: 256px; background: var(--surface-2); }
-.mdSideTabs { padding: 10px 12px 6px; gap: 4px; }
-.mdSideTabs button { height: 28px; padding: 0 12px; }
-.mdOutlineFilter { margin: 2px 12px 8px; }
-.mdOutlineItem { padding-top: 6px; padding-bottom: 6px; }
-.mdOutlineItem[data-level="1"] { font-weight: 650; }
-.mdOutlineItem:not(.isCurrent):hover { background: var(--hover); }
+.mdOutline { width: 256px; background: var(--frame-2); }
+.mdSideTabs { padding: var(--space-10) var(--space-12) var(--space-6); gap: var(--space-4); border-bottom: var(--rule-w) solid var(--rule); }
+.mdSideTabs button { height: 28px; padding: 0 var(--space-12); }
+.mdOutlineFilter { margin: var(--space-2) var(--space-12) var(--space-8); }
+.mdOutlineItem { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+.mdOutlineItem[data-level="1"] { font-weight: var(--fw-bold); }
+.mdOutlineItem:not(.isCurrent):hover { background: var(--bg-hover); }
 
 /* ——— Find bar anchors under the top bar ——— */
 .mdPanel .mdFindBar { top: 52px; }
 
 /* ——— Document typography (default theme refinements) ——— */
-.mdPanel .mdDoc { padding-top: 48px; padding-bottom: 24px; }
+.mdPanel .mdDoc { padding-top: var(--space-48); padding-bottom: var(--space-24); }
 .mdPanel[data-mdtheme="qingye"] .mdDoc h1 { font-size: 2em; border-bottom: 0; padding-bottom: 0; margin-bottom: .6em; letter-spacing: 0; }
-.mdPanel[data-mdtheme="qingye"] .mdDoc h2 { font-size: 1.5em; padding-bottom: .3em; margin-top: 1.6em; border-bottom-color: color-mix(in srgb, var(--line) 80%, transparent); }
+.mdPanel[data-mdtheme="qingye"] .mdDoc h2 { font-size: 1.5em; padding-bottom: .3em; margin-top: 1.6em; border-bottom-color: var(--rule); }
 .mdPanel[data-mdtheme="qingye"] .mdDoc h3 { margin-top: 1.4em; }
-.mdPanel[data-mdtheme="qingye"] .mdDoc p { color: color-mix(in srgb, var(--ink) 92%, var(--muted)); }
-.mdPanel[data-mdtheme="qingye"] .mdDoc blockquote { border-left: 3px solid var(--accent-2); background: color-mix(in srgb, var(--accent-soft) 45%, transparent); padding: .5em 1.1em; }
-.mdPanel[data-mdtheme="qingye"] .mdDoc table { border-collapse: separate; border-spacing: 0; border: 1px solid var(--line-strong); border-radius: 10px; }
-.mdPanel[data-mdtheme="qingye"] .mdDoc th, .mdPanel[data-mdtheme="qingye"] .mdDoc td { border: 0; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+.mdPanel[data-mdtheme="qingye"] .mdDoc p { color: var(--text); }
+.mdPanel[data-mdtheme="qingye"] .mdDoc blockquote { border-left: var(--rule-w-bold) solid var(--primary); background: var(--bg-raised); padding: .6em 1.1em; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc table { border-collapse: separate; border-spacing: 0; border: var(--rule-w) solid var(--rule); border-radius: 0; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc th, .mdPanel[data-mdtheme="qingye"] .mdDoc td { border: 0; border-bottom: var(--rule-w) solid var(--rule); border-right: var(--rule-w) solid var(--rule); }
 .mdPanel[data-mdtheme="qingye"] .mdDoc tr > :last-child { border-right: 0; }
 .mdPanel[data-mdtheme="qingye"] .mdDoc tr:last-child > td { border-bottom: 0; }
-.mdPanel[data-mdtheme="qingye"] .mdDoc th { background: var(--surface-2); text-align: left; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc th { background: var(--bg-raised); text-align: left; }
 .mdPanel[data-mdtheme="qingye"] .mdDoc tr:nth-child(even) td { background: transparent; }
-.mdPanel[data-mdtheme="qingye"] .mdCodeBlock { border-radius: 10px; }
-.mdPanel[data-mdtheme="qingye"] .mdDoc img { border-radius: 8px; }
+.mdPanel[data-mdtheme="qingye"] .mdCodeBlock { border-radius: 0; }
+.mdPanel[data-mdtheme="qingye"] .mdDoc img { border-radius: 0; }
 
 /* Blocks hint that they are editable (live mode only) */
-.mdPanel:not(.isReading) .mdDoc > .mdBlock:not(.isActive):hover { background: color-mix(in srgb, var(--surface-2) 70%, transparent); border-radius: 8px; box-shadow: -14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent), 14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent); }
+.mdPanel:not(.isReading) .mdDoc > .mdBlock:not(.isActive):hover { background: var(--bg-raised); border-radius: 0; box-shadow: calc(var(--space-12) * -1) 0 0 var(--bg-raised), var(--space-12) 0 0 var(--bg-raised); }
 .mdEditor.isFocusMode .mdDoc > .mdBlock:hover { background: none; box-shadow: none; }
 
 /* ——— Reading mode: calm page, no editing affordances ——— */
-.mdPanel.isReading .mdEditorHost { background: color-mix(in srgb, var(--surface-2) 55%, var(--surface)); }
+.mdPanel.isReading .mdEditorHost { background: var(--bg-panel); }
 .mdPanel.isReading .mdDoc { cursor: default; padding-top: 56px; }
 .mdPanel.isReading .mdTail { cursor: default; min-height: 18vh; }
 .mdPanel.isReading .mdDoc a { cursor: pointer; }
-.mdPanel.isReading .mdMenubar .mdModes button[data-mode="read"] { color: var(--accent); }
+.mdPanel.isReading .mdMenubar .mdModes button[data-mode="read"] { }
 .mdPanel.isReading .mdCopy { opacity: 0; }
 .mdPanel.isReading .mdCodeBlock:hover .mdCopy { opacity: 1; }
 
 @media (max-width: 1060px) {
   .mdMenubar .mdSaveButton .label { display: none; }
   .mdMenubar .mdSaveButton { min-width: 0; width: 32px; padding: 0; }
-  .mdPanel .mdMenubar > button.mdMenuTop { padding: 0 7px; }
+  .mdPanel .mdMenubar > button.mdMenuTop { padding: 0 var(--space-8); }
   .mdStatusInfo { display: none; }
 }
 @media (max-width: 960px) {
-  .mdMenubar .mdModes button { padding: 0 8px; }
+  .mdMenubar .mdModes button { padding: 0 var(--space-8); }
   .mdMenubar .mdFindButton { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .mdProgress > i { transition: none; } }
 @media print { .mdStatusBar, .mdProgress { display: none !important; } }
-.mdSideTabs { height: 42px; padding: 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.mdSideTabs { height: 42px; padding: 0 var(--space-12); border-bottom: var(--rule-w) solid var(--line); margin-bottom: var(--space-8); }
 /* Menu bar drop-downs show one check mark (left), not two */
 .mdDrop .menuItem[aria-checked="true"]::after { display: none; }
-.mdDrop .menuItem[aria-checked="true"] { font-weight: 500; color: var(--ink); }
+.mdDrop .menuItem[aria-checked="true"] { font-weight: var(--fw-bold); color: var(--text); }
 
 /* ——— Rendering fixes (0.8.0 round 2) ——— */
 /* Programming fonts such as Cascadia Code turn "<!--", "-->", "://" into ligature arrows.
@@ -111,8 +111,8 @@ body[data-mode="md"] #workspace { background: var(--surface); }
 .mdPanel .mdSource * { font-variant-ligatures: none !important; font-feature-settings: "liga" 0, "calt" 0 !important; }
 
 /* Comments and link reference definitions: a quiet note while editing, hidden when reading */
-.mdMetaNote { display: flex; align-items: baseline; gap: 8px; margin: .2em 0; font-size: .8em; line-height: 1.6; color: var(--faint); overflow: hidden; }
-.mdMetaLabel { flex: none; padding: 0 6px; border-radius: 4px; border: 1px dashed var(--line-strong); font-size: .92em; }
+.mdMetaNote { display: flex; align-items: baseline; gap: var(--space-8); margin: .2em 0; font-size: .8em; line-height: 1.6; color: var(--text-weak); overflow: hidden; }
+.mdMetaLabel { flex: none; padding: 0 var(--space-6); border-radius: 0; border: var(--rule-w) dashed var(--rule); font-size: .92em; font-family: var(--font-mono); }
 .mdMetaText { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--md-mono); }
 .mdMetaNote.isComment .mdMetaText { font-family: inherit; font-style: italic; }
 .mdPanel.isReading .mdBlock.isMeta { display: none; }
@@ -128,3 +128,4 @@ body[data-mode="md"] #workspace { background: var(--surface); }
 /* Short CJK labels in narrow table columns should not wrap one character per line */
 .mdPanel .mdDoc :is(th, td) { min-width: 4.5em; }
 .mdPanel .mdDoc th { white-space: nowrap; }
+.titlebarTools button[aria-pressed="true"]:not(#themeButton) { background: var(--sel-bg); color: var(--on-sel); box-shadow: var(--sel-plate); }

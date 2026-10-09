@@ -33,6 +33,8 @@
 
 在仓库的 **Releases** 页面下载：
 
+Windows 最新版为 **0.17.0**（`QingyePDF-0.17.0-win-x64.exe`）；macOS 与 Android 最新成品仍为 **0.13.0**，请在相应版本的 Release 中下载。
+
 | 系统 | 文件 | 说明 |
 |---|---|---|
 | Windows 10 / 11（x64） | `QingyePDF-<版本>-win-x64.exe` | 便携版，双击即用；第一次启动要把运行环境解压到本机，需要十几秒 |
@@ -40,7 +42,7 @@
 | macOS 12+（Intel） | `QingyePDF-<版本>-mac-x64.dmg` | 同上 |
 | Android 7+ | `QingyePDF-<版本>-android.apk`（仓库未配置签名密钥时是 `-android-debug.apk`） | 见 [mobile/README.md](mobile/README.md) |
 
-三个平台是同一套代码和同一套功能；界面里的快捷键提示在 Mac 上显示为 ⌘ / ⌥ 写法，在安卓上换成触屏手势。
+三个平台共用阅读与笔记代码；Windows 0.17.0 另外提供界面皮肤和可选首页。界面里的快捷键提示在 Mac 上显示为 ⌘ / ⌥ 写法，在安卓上换成触屏手势。
 
 发布的 Windows 和 macOS 版本目前没有付费的代码签名：Windows SmartScreen 会提示“未知发布者”（“更多信息 → 仍要运行”），macOS 第一次打开需要手动放行（步骤在 docs/MACOS.md）。可以用同目录的 `SHA256SUMS` 文件核对下载。配置签名的方法见 [docs/SIGNING.md](docs/SIGNING.md)。
 

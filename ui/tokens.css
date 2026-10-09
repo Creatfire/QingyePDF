@@ -1,0 +1,141 @@
+/* 青页 PDF — design tokens（套色印刷版画）
+   Every colour, type size, radius, rule width, plate offset and duration used by the interface
+   is declared here. Components refer to tokens only; no literal values in component rules.
+   Colours are written as light-dark(浅色, 深色): body.dark switches color-scheme, and the same
+   file is imported by viewer.css inside the PDF.js frame (app.mjs sets its color-scheme).
+   Dark is the default theme. */
+:root {
+  color-scheme: light;
+
+  /* ——— 颜色：按用途命名，一种用途一种颜色 ——— */
+  --bg-base:      light-dark(#F6F2E6, #0B100D);  /* 底色：白天米白，夜晚近黑 */
+  --bg-panel:     light-dark(#EFEADB, #111813);  /* 面板：对话框、卡片 */
+  --bg-raised:    light-dark(#E2DCC8, #1A231E);  /* 抬起的表面：行、输入框、引用块 */
+  --bg-hover:     light-dark(#D3CBB4, #26312B);  /* 悬停时换上的色块 */
+  --rule:         light-dark(#A9A28B, #35433B);  /* 分隔线 */
+  --text:         light-dark(#0A120E, #F6F2E6);  /* 正文 */
+  --text-2:       light-dark(#2F3D36, #C5CBBE);  /* 次要文字 */
+  --text-weak:    light-dark(#4F5B54, #8F9D94);  /* 弱化文字：占位、快捷键（规范值 #77867D 在抬起表面上不足 4.5:1，提亮以过 AA） */
+  --text-decor:   light-dark(#7B8479, #77867D);  /* 仅用于禁用态与纯装饰标记 */
+  --primary:      light-dark(#16603F, #3ECF8E);  /* 主色 */
+  --primary-hi:   light-dark(#0F4A33, #74EDB6);  /* 主色高亮态（悬停） */
+  --primary-deep: light-dark(#0A3323, #1E7A55);  /* 压暗的绿：按下、普通态第二版 */
+  --on-primary:   light-dark(#F6F2E6, #0A120E);  /* 主色块上的文字 */
+  --on-primary-deep: #F6F2E6;                     /* 压暗的绿上的文字 */
+  --amber:        #F2B441;                        /* 琥珀色块：出处标签、选中态第二版 */
+  --amber-line:   light-dark(#7A4D00, #F2B441);  /* 琥珀线：焦点环、选区边框 */
+  --on-amber:     #0A120E;                        /* 琥珀色块上的文字 */
+  --black:        #0A120E;                        /* 近黑：纸张第二版 */
+  --danger:       light-dark(#A81F3A, #F0556E);  /* 危险操作 */
+  --on-danger:    light-dark(#F6F2E6, #0A120E);
+  --paper:        #F6F2E6;                        /* PDF 之外的"纸" */
+  --paper-ink:    #0A120E;
+  /* 阅读配色样本：与 views.mjs 里的阅读滤镜一一对应，只用于选择器色块与文字重排页 */
+  --read-day-bg: #F6F2E6;   --read-day-ink: #0A120E;
+  --read-night-bg: #0B100D; --read-night-ink: #F6F2E6;
+  --read-sepia-bg: #E9D9B0; --read-sepia-ink: #3D2F14;
+  --read-gray-bg: #D5D6CF;  --read-gray-ink: #0A120E;
+  --read-plain-bg: #FFFFFF; --read-plain-ink: #0A120E;   /* 原色：不染色的页面 */
+  /* ——— 层级：深绿框架。白天黑夜都用同一组深绿；内容区才分米白 / 近黑 ——— */
+  --frame-1:      #0B2A1D;   /* 第一层：标题栏、对话框页眉 */
+  --frame-2:      #12402C;   /* 第二层：工具栏、侧栏、状态栏 */
+  --frame-3:      #1A5239;   /* 框架内抬起的色块：输入框、分组 */
+  --frame-hover:  #226446;
+  --frame-rule:   #2C7553;
+  --on-frame:     #F6F2E6;
+  --on-frame-2:   #B4DCC6;
+  --on-frame-weak:#8CC2A6;
+  --frame-primary:#3ECF8E;  --frame-primary-hi: #74EDB6;
+  --scrim:        light-dark(rgb(10 18 14 / .45), rgb(10 18 14 / .7)); /* 对话框后的压暗层（实色，无模糊） */
+
+  /* 代码块与语法着色：只用版面上已有的几种颜色 */
+  --bg-code: light-dark(#DDD6C1, #0A120E);
+  --hl-keyword: var(--primary); --hl-string: var(--primary-hi); --hl-number: var(--text); --hl-comment: var(--text-weak); --hl-title: var(--text);
+  --hl-attr: var(--text-2); --hl-type: var(--primary-hi); --hl-meta: var(--text-weak); --hl-deletion: var(--danger); --hl-addition: var(--primary);
+  --md-code-bg: var(--bg-code); --md-code-line: var(--rule); --md-inline-code: var(--bg-raised); --md-inline-code-ink: var(--primary); --md-math-ink: var(--text);
+  --md-font: var(--font-serif); --md-mono: var(--font-mono);
+
+  /* ——— 字体 ——— */
+  --font-sans:  "Noto Sans SC Variable", "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  --font-serif: "Noto Serif SC Variable", "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", Georgia, serif;
+  --font-emoji: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  --font-mono:  "JetBrains Mono Variable", "JetBrains Mono", "Cascadia Mono", Consolas, "Noto Sans SC Variable", "Microsoft YaHei UI", monospace;
+  --fw-regular: 400; --fw-medium: 500; --fw-bold: 700; --fw-black: 900;
+  /* 字号 */
+  --fs-2xs: 10.5px; --fs-xs: 11.5px; --fs-sm: 12.5px; --fs-md: 13.5px; --fs-lg: 15px; --fs-xl: 18px; --fs-2xl: 24px; --fs-3xl: 32px;
+  --lh-tight: 1.25; --lh-ui: 1.5; --lh-read: 1.8;
+  --tracking-label: .14em;  /* 等宽大写分区标签 */
+
+  /* ——— 间距：2 的倍数，小档密、大档疏；组件里的 padding / margin / gap 只取这些值 ——— */
+  --space-0: 0; --space-2: 2px; --space-4: 4px; --space-6: 6px; --space-8: 8px; --space-10: 10px; --space-12: 12px; --space-14: 14px; --space-16: 16px; --space-20: 20px; --space-24: 24px; --space-28: 28px; --space-32: 32px; --space-40: 40px; --space-48: 48px;
+
+  /* ——— 造型 ——— */
+  --r-0: 0; --r-1: 2px; --r-2: 4px;                 /* 圆角不超过 4px */
+  --r-round: 50%;                                   /* 只用于加载圈与 MacOS 风格的红绿灯 */
+  --rule-w: 2px; --rule-w-bold: 4px;               /* 实线分隔 */
+  --plate: 6px; --plate-lg: 8px; --plate-sm: 4px; --plate-xs: 3px; --plate-hair: 2px;  /* "第二版"错位量 */
+
+  /* ——— 动效：短、干脆、压印 ——— */
+  --dur-fast: 150ms; --dur: 200ms; --dur-slow: 250ms; --dur-spin: 800ms; --dur-flash: 1200ms;
+  --dim: .5;                                        /* 忙碌、非焦点时压暗 */
+  --ease-press: cubic-bezier(.2, .8, .2, 1);        /* 无回弹 */
+
+  /* ——— 版式尺寸 ——— */
+  --titlebar-h: 40px; --appbar-h: 48px; --status-h: 26px; --nav-w: 320px;
+  --caption-space: 140px; --caption-left: 10px;
+  --control-h: 32px; --control-h-sm: 28px; --icon-md: 18px; --icon-sm: 16px;
+
+}
+
+/* Derived tokens: declared on :root and again on every frame scope, so they resolve with the scope's colours. */
+:root, .mdPanel, .titlebar, .toolsHeading, .convertHeading, .settingsHeader, .aiHead, .popHeader, .appbar, body > .status, .mdPanel .mdMenubar, .mdStatusBar, #navigationPanel, .mdOutline, .settingsNav, .toolCategories, .homeTools .quickTool {
+  --plate-shadow:       var(--plate) var(--plate) 0 var(--primary-deep);     /* 普通态 */
+  --plate-shadow-lg:    var(--plate-lg) var(--plate-lg) 0 var(--primary-deep);
+  --plate-shadow-sm:    var(--plate-sm) var(--plate-sm) 0 var(--primary-deep);
+  --plate-shadow-xs:    var(--plate-xs) var(--plate-xs) 0 var(--primary-deep);
+  --plate-selected:     var(--plate-sm) var(--plate-sm) 0 var(--amber);       /* 选中态 */
+  --plate-selected-sm:  var(--plate-xs) var(--plate-xs) 0 var(--amber);
+  --plate-paper:        var(--plate-lg) var(--plate-lg) 0 var(--black);       /* 纸张 */
+  --focus-ring: 0 0 0 2px var(--amber-line);
+  /* 选中与强调：琥珀色块、近黑文字，右下错出深绿第二版 */
+  --sel-bg: var(--amber); --on-sel: var(--on-amber); --sel-plate: var(--plate-xs) var(--plate-xs) 0 var(--sel-plate-color);
+  /* 压在 PDF 页面内容之上的半透明色：文字层是透明的，实色会盖住原文，所以选区与搜索命中只能用"洗色" */
+  --wash-primary: color-mix(in srgb, var(--primary) 42%, transparent);
+  --wash-amber:   color-mix(in srgb, var(--amber) 55%, transparent);
+  /* ——— 旧变量名：组件沿用这些名字，全部指向上面的 token ——— */
+  --font: var(--font-sans); --font-display: var(--font-sans);
+  --bg: var(--bg-base); --titlebar: var(--bg-raised); --surface: var(--bg-panel); --surface-2: var(--bg-raised); --surface-3: var(--bg-raised);
+  --hover: var(--bg-hover); --active: var(--rule); --line: var(--rule); --line-strong: var(--rule);
+  --ink: var(--text); --ink-2: var(--text-2); --muted: var(--text-2); --faint: var(--text-weak);
+  --accent: var(--primary); --accent-hover: var(--primary-hi); --accent-strong: var(--primary-deep); --accent-2: var(--primary);
+  --accent-soft: var(--bg-raised); --accent-soft-2: var(--bg-hover); --on-accent: var(--on-primary);
+  --viewer-bg: var(--bg-base); --glass: var(--bg-panel);
+  --danger-soft: var(--bg-raised); --warn: var(--text); --warn-soft: var(--bg-raised); --mark: var(--primary);
+  --shadow-sm: 0 0 0 0 transparent; --shadow-md: var(--plate-shadow-sm); --shadow-lg: var(--plate-shadow-lg);
+  --ring: var(--focus-ring);
+  --radius-sm: var(--r-1); --radius: var(--r-1); --radius-lg: var(--r-2); --radius-xl: var(--r-2);
+  --ease: var(--ease-press); --fast: var(--dur-fast); --med: var(--dur);
+  --panel: var(--surface); --soft: var(--accent-soft); --shadow: var(--shadow-md);
+}
+:root { --sel-plate-color: var(--primary-deep); }
+
+/* ——— 框架作用域：深绿两层。其中的组件沿用同一套 token 名，颜色在这里换掉 ——— */
+.titlebar, .toolsHeading, .convertHeading, .settingsHeader, .aiHead, .popHeader, .appbar, body > .status, .mdPanel .mdMenubar, .mdStatusBar, #navigationPanel, .mdOutline, .settingsNav, .toolCategories, .homeTools .quickTool {
+  color-scheme: dark;
+  --bg-raised: var(--frame-3); --bg-hover: var(--frame-hover); --rule: var(--frame-rule);
+  --text: var(--on-frame); --text-2: var(--on-frame-2); --text-weak: var(--on-frame-weak); --text-decor: var(--on-frame-weak);
+  --primary: var(--frame-primary); --primary-hi: var(--frame-primary-hi); --primary-deep: var(--frame-1); --on-primary: var(--black);
+  --amber-line: var(--amber); --sel-plate-color: var(--black);
+  color: var(--text);
+}
+.titlebar, .toolsHeading, .convertHeading, .settingsHeader, .aiHead, .popHeader { --bg-panel: var(--frame-1); --bg-base: var(--frame-1); }
+.appbar, body > .status, .mdPanel .mdMenubar, .mdStatusBar, #navigationPanel, .mdOutline, .settingsNav, .toolCategories, .homeTools .quickTool { --bg-panel: var(--frame-2); --bg-base: var(--frame-2); }
+
+body.dark, :root.dark { color-scheme: dark; }
+body.platform-darwin { --caption-space: 12px; --caption-left: 82px; }
+body.isFullscreen { --titlebar-h: 0px; }
+
+/* 压印：出现时错开一个版位，再对齐 */
+@keyframes press-in { from { translate: var(--plate-sm) var(--plate-sm); opacity: 0; } 40% { opacity: 1; } }
+@keyframes press-in-left { from { translate: calc(var(--plate) * -1) 0; opacity: 0; } 40% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { :root { --dur-fast: 0ms; --dur: 0ms; --dur-slow: 0ms; } }

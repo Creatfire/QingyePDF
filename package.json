@@ -1,6 +1,6 @@
 {
   "name": "qingye-pdf",
-  "version": "0.13.0",
+  "version": "0.17.0",
   "description": "Local-first open-source PDF reader with tabs and annotations",
   "author": "Qingye PDF contributors",
   "license": "AGPL-3.0-only",
@@ -8,7 +8,7 @@
   "scripts": {
     "start": "electron .",
     "prepare:pdfjs": "node scripts/prepare-pdfjs.mjs",
-    "test": "node --test test/core.test.cjs test/offline.test.cjs test/recovery.test.cjs test/history.test.cjs test/diagnostics.test.cjs test/ui-errors.test.cjs test/markdown.test.mjs test/typora.test.mjs test/i18n.test.mjs test/ai.test.mjs test/ai-tools.test.mjs test/converter.test.cjs test/release093.test.cjs test/fixes093.test.cjs test/features094.test.mjs test/notes010.test.mjs test/links011.test.mjs test/platform012.test.mjs test/fixes013.test.cjs",
+    "test": "node --test test/core.test.cjs test/offline.test.cjs test/recovery.test.cjs test/history.test.cjs test/diagnostics.test.cjs test/ui-errors.test.cjs test/markdown.test.mjs test/typora.test.mjs test/i18n.test.mjs test/ai.test.mjs test/ai-tools.test.mjs test/converter.test.cjs test/release093.test.cjs test/fixes093.test.cjs test/features094.test.mjs test/notes010.test.mjs test/links011.test.mjs test/platform012.test.mjs test/fixes013.test.cjs test/skins.test.mjs",
     "build:backend": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-backend.ps1",
     "smoke": "electron . --smoke-test",
     "safety": "electron . --safety-smoke",
@@ -31,7 +31,7 @@
     "smoke:011": "electron . --links-smoke",
     "dist:mac": "electron-builder --mac dmg",
     "build:backend:unix": "bash scripts/build-backend.sh",
-    "test:013": "node --test test/fixes013.test.cjs",
+    "test:013": "node --test test/fixes013.test.cjs test/skins.test.mjs",
     "smoke:013": "electron . --fix013-smoke"
   },
   "devDependencies": {
@@ -55,6 +55,7 @@
       "vendor/markdown/**/*",
       "vendor/mermaid/**/*",
       "vendor/diagrams/**/*",
+      "vendor/fonts/**/*",
       "LICENSE",
       "LICENSE-MIT",
       "THIRD_PARTY_NOTICES.md",
@@ -90,6 +91,7 @@
       "test/fix-close093-smoke.cjs",
       "converter-presets.cjs",
       "notes-markdown.cjs",
+      "home-data.cjs",
       "library-index.cjs",
       "test/links011-smoke.cjs",
       "test/features094-smoke.cjs",
@@ -161,7 +163,7 @@
       "artifactName": "QingyePDF-${version}-Setup-x64.${ext}"
     },
     "extraMetadata": {
-      "buildRevision": "fix1"
+      "buildRevision": ""
     },
     "afterPack": "scripts/after-pack.cjs",
     "mac": {

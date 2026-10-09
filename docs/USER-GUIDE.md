@@ -1,6 +1,6 @@
 # 青页 PDF 使用说明
 
-**当前版本：0.12.0。** macOS 用户请先看 [MACOS.md](MACOS.md)（安装、快捷键对照）；安卓版的触屏操作见应用内“更多 → 使用帮助”和 [mobile/README.md](../mobile/README.md)。本文的快捷键按 Windows 书写，Mac 上把 Ctrl 换成 ⌘、Alt 换成 ⌥。
+**当前版本：Windows 0.17.0，Android 与 macOS 0.13.0。** Windows 下载 `QingyePDF-0.17.0-win-x64.exe`，设置 → 常规中可独立选择“界面皮肤”和“首页样式”。macOS 用户请先看 [MACOS.md](MACOS.md)（安装、快捷键对照）；安卓版的触屏操作见应用内“更多 → 使用帮助”和 [mobile/README.md](../mobile/README.md)。本文的快捷键按 Windows 书写，Mac 上把 Ctrl 换成 ⌘、Alt 换成 ⌥。
 
 **0.11.0：** 笔记模式有了双向关联（摘录带原文位置、点链接回到原文并高亮、批注一键同步、滚动联动、框选区域摘录），新增全库搜索和引用信息 / BibTeX。构建与验证范围见 [HANDOFF.md](../HANDOFF.md)，历史交接文档在 [docs/history](history/)。
 

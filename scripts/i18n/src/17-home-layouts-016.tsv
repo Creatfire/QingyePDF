@@ -1,0 +1,117 @@
+1565	What will you	今天想	今日は何を	오늘은 무엇을
+1566	read	讀	読	읽
+1567	today?	點什麼？	みますか？	을까요?
+1568	Local	本機	ローカル	로컬
+1569	Private	私密	プライベート	비공개
+1570	Open source	開源	オープンソース	오픈 소스
+1571	Read today	今天已讀	今日の読書	오늘 읽은 시간
+1572	New excerpts	新增摘錄	新しい抜粋	새 발췌
+1573	Opened	開啟過	開いた	열어 본
+1574	documents	份文件	件の文書	개 문서
+1575	This computer	本機	このPC	이 컴퓨터
+1576	recent documents, all on this computer	份最近文件，全在本機	件の最近の文書、すべてこのPC内	개의 최근 문서, 모두 이 컴퓨터에
+1577	uploads	次上傳	回のアップロード	회 업로드
+1578	Continue reading	繼續閱讀	続きを読む	이어 읽기
+1579	Keep reading →	繼續讀 →	続きを読む →	이어 읽기 →
+1580	Open a PDF and you can pick up from here next time.	開啟一個 PDF，下次就能從這裡接著讀。	PDF を開くと、次回はここから続きを読めます。	PDF를 열면 다음에 여기서 이어 읽을 수 있습니다.
+1581	Search any command	搜尋任何指令	任意のコマンドを検索	모든 명령 검색
+1582	Drop a PDF to open it	拖入 PDF 直接開啟	PDF をドロップして開く	PDF를 끌어다 놓아 열기
+1583	Recent	最近	最近	최근
+1584	Recent excerpts · click a page to jump back	最近摘錄 · 點頁碼回到原文	最近の抜粋 · ページ番号で原文へ	최근 발췌 · 페이지를 눌러 원문으로
+1585	Excerpt sentences from a PDF in notes mode and they will appear here.	在筆記模式中摘錄 PDF 的句子，它們會出現在這裡。	ノートモードで PDF の文を抜粋すると、ここに表示されます。	노트 모드에서 PDF 문장을 발췌하면 여기에 표시됩니다.
+1586	output formats	種輸出格式	種類の出力形式	가지 출력 형식
+1587	Excerpts	摘錄	抜粋	발췌
+1588	New note	新增筆記	新規ノート	새 노트
+1589	Search commands	搜尋指令	コマンドを検索	명령 검색
+1590	The latest PDF has no bookmarks yet.	最近的 PDF 裡還沒有書籤。	最近の PDF にはまだしおりがありません。	최근 PDF에 아직 책갈피가 없습니다.
+1591	Just now	剛剛	たった今	방금
+1592	This excerpt comes from an unsaved PDF, so it can't jump back to the source.	這條摘錄來自未儲存的 PDF，無法跳回原處。	この抜粋は未保存の PDF のもののため、元の場所に戻れません。	이 발췌는 저장되지 않은 PDF에서 왔기 때문에 원래 위치로 돌아갈 수 없습니다.
+1593	Quick launch	快速啟動	クイック起動	빠른 실행
+1594	Open files, search recent, run tools…	開啟檔案、搜尋最近、執行工具…	ファイルを開く、最近を検索、ツールを実行…	파일 열기, 최근 항목 검색, 도구 실행…
+1595	Open file…	開啟檔案…	ファイルを開く…	파일 열기…
+1596	No matching files or tools	沒有符合的檔案或工具	一致するファイルやツールはありません	일치하는 파일이나 도구가 없습니다
+1597	Tool tray	工具盤	ツールトレイ	도구 트레이
+1598	PDF / MD · Ctrl+O · or drag it in	PDF / MD · Ctrl+O · 或直接拖進來	PDF / MD · Ctrl+O · またはドラッグ	PDF / MD · Ctrl+O · 또는 끌어다 놓기
+1599	On the desk · recently opened	桌上 · 最近開啟的文件	机の上 · 最近開いた文書	책상 위 · 최근 연 문서
+1600	Sticky notes · recent excerpts	便籤 · 最近摘錄	付箋 · 最近の抜粋	메모지 · 최근 발췌
+1601	The desk is empty. Open a PDF or Markdown file and it will land here.	桌上還空著。開啟一個 PDF 或 Markdown，它會放到這裡。	机はまだ空です。PDF か Markdown を開くとここに置かれます。	책상이 비어 있습니다. PDF나 Markdown을 열면 여기에 놓입니다.
+1602	Opened today:	今天已開啟	今日開いた数	오늘 연 파일
+1603	files	個檔案	件	개
+1604	Recent: 	最近：	最近：	최근: 
+1605	Tool: 	工具：	ツール：	도구: 
+1606	Convert: 	轉換：	変換：	변환: 
+1607	Continue	繼續	続き	이어 하기
+1608	Where you left off	上次停下的位置	前回の続き	지난번 멈춘 곳
+1609	Open a PDF or Markdown file and it will appear here.	開啟一個 PDF 或 Markdown，它會出現在這裡。	PDF か Markdown を開くとここに表示されます。	PDF나 Markdown을 열면 여기에 표시됩니다.
+1610	Open	已開啟	開いています	열림
+1611	Continue →	繼續 →	続ける →	계속 →
+1612	Recent files	最近檔案	最近のファイル	최근 파일
+1613	Location	位置	場所	위치
+1614	Size	大小	サイズ	크기
+1615	Modified	修改	更新	수정
+1616	Pin	釘選	ピン留め	고정
+1617	Click the star at the right of a row to pin a file	點每列右側的星號即可釘選檔案	各行右側の星でファイルをピン留めできます	각 행 오른쪽의 별을 눌러 파일을 고정하세요
+1618	Pinned	已釘選	ピン留め済み	고정됨
+1619	By folder	依資料夾	フォルダー別	폴더별
+1620	Activity	活動	アクティビティ	활동
+1621	Last 17 weeks	最近 17 週	最近 17 週	최근 17주
+1622	Less	少	少	적음
+1623	More	多	多	많음
+1624	Reading activity over the last 17 weeks	最近 17 週的閱讀活動	最近 17 週の読書アクティビティ	최근 17주의 읽기 활동
+1625	Opened this week	本週開啟	今週開いた	이번 주 열기
+1626	Read this week	本週閱讀	今週の読書	이번 주 읽기
+1627	New excerpts	新摘錄	新しい抜粋	새 발췌
+1628	Frequent folders	常用資料夾	よく使うフォルダー	자주 쓰는 폴더
+1629	Folders of files you've opened will be listed here	開啟過的檔案所在的資料夾會列在這裡	開いたファイルのフォルダーがここに表示されます	열어 본 파일의 폴더가 여기에 표시됩니다
+1630	Recent excerpts	最近摘錄	最近の抜粋	최근 발췌
+1631	Click a source to jump back	點來源跳回原處	出典をクリックして元の場所へ	출처를 눌러 원래 위치로
+1632	Classic	經典	クラシック	클래식
+1633	Lists and category tiles	清單與分類色塊	リストとカテゴリのタイル	목록과 분류 타일
+1634	Glass	玻璃	ガラス	유리
+1635	Frosted glass; the light follows your pointer	磨砂玻璃，光隨指標移動	すりガラス。光がポインターを追います	반투명 유리, 빛이 포인터를 따라 움직임
+1636	Print grid	版畫格	版画グリッド	판화 격자
+1637	Off-register tiles that lift on hover and press in on click	錯版方格，懸停抬起、按下壓印	版ずれのタイル。ホバーで浮き、押すと沈む	어긋난 판 타일, 올리면 들리고 누르면 찍힘
+1638	Desk	桌面	デスク	책상
+1639	Documents spread on a desk like paper; drag them and they sway	文件像紙張攤在桌上，可拖動、會晃動	文書が紙のように机に広がり、ドラッグでき揺れます	문서가 종이처럼 책상에 펼쳐지고, 끌 수 있고 흔들림
+1640	Colour blocks	色塊	カラーブロック	색 블록
+1641	Big colour blocks that shrink when pressed and grow as you pass	大色塊拼貼，按壓收縮、滑過放大	大きな色ブロック。押すと縮み、なぞると膨らむ	큰 색 블록, 누르면 줄고 지나가면 커짐
+1642	Home page style	首頁樣式	ホームのスタイル	홈 화면 스타일
+1643	The page you see when no document is open. Applies at once; data stays on this computer.	沒有開啟文件時看到的頁面。立即生效，資料只在本機。	文書を開いていないときのページ。すぐに反映され、データはこのPCにのみ保存されます。	문서를 열지 않았을 때 보이는 페이지. 바로 적용되며 데이터는 이 컴퓨터에만 있습니다.
+1644	Home page style changed	首頁樣式已切換	ホームのスタイルを切り替えました	홈 화면 스타일을 바꿨습니다
+1645	Character	立繪	キャラクター	캐릭터
+1646	Character art menu with five pages and transitions	角色立繪主選單，五個子頁面帶轉場	キャラクターのメニューと 5 つのページ、切り替え演出付き	캐릭터 메인 메뉴와 전환 효과가 있는 5개 페이지
+1647	Main menu	主選單	メインメニュー	메인 메뉴
+1648	Combine several PDFs into one file, in order.	把多個 PDF 依序合成一個檔案。	複数の PDF を順番に 1 つのファイルにまとめます。	여러 PDF를 순서대로 하나의 파일로 합칩니다.
+1649	Split pages	分割頁面	ページを分割	페이지 분할
+1650	Split a PDF into single-page files.	把 PDF 拆成單頁檔案。	PDF を 1 ページずつのファイルに分けます。	PDF를 한 페이지씩 파일로 나눕니다.
+1651	OCR	OCR 辨識	OCR 認識	OCR 인식
+1652	Recognise text in scanned pages and images, in Chinese and English.	把掃描頁和圖片裡的文字辨識出來，支援中英文。	スキャンしたページや画像の文字を認識します（中国語・英語）。	스캔한 페이지와 이미지의 글자를 인식합니다(중국어·영어).
+1653	Compress	壓縮	圧縮	압축
+1654	Make a PDF smaller; image quality is adjustable.	減小 PDF 體積，圖片品質可調。	PDF を小さくします。画質は調整できます。	PDF 용량을 줄입니다. 이미지 품질은 조절할 수 있습니다.
+1655	Watermark	加浮水印	透かしを追加	워터마크
+1656	Add a text watermark to every page.	為每一頁加上文字浮水印。	各ページに文字の透かしを入れます。	모든 페이지에 텍스트 워터마크를 넣습니다.
+1657	Stamp	蓋印章	スタンプ	도장
+1658	Place a text stamp where you choose.	在指定位置蓋上文字印章。	指定した位置に文字のスタンプを押します。	지정한 위치에 텍스트 도장을 찍습니다.
+1659	Encrypt	加密	暗号化	암호화
+1660	Set an open password and permissions.	設定開啟密碼和權限。	開くパスワードと権限を設定します。	열기 암호와 권한을 설정합니다.
+1661	Add page numbers, headers and footers.	加頁碼、頁首與頁尾。	ページ番号、ヘッダー、フッターを追加します。	페이지 번호, 머리글, 바닥글을 추가합니다.
+1662	Compare	比較差異	差分を比較	차이 비교
+1663	Compare two versions side by side.	並排比較兩個版本。	2 つの版を並べて比較します。	두 버전을 나란히 비교합니다.
+1664	Convert	格式轉換	形式変換	형식 변환
+1665	Convert between PDF, Word, EPUB and Markdown.	PDF、Word、EPUB、Markdown 互相轉換。	PDF・Word・EPUB・Markdown を相互に変換します。	PDF, Word, EPUB, Markdown 간 변환.
+1666	Ctrl K Toolbox	Ctrl K 工具箱	Ctrl K ツールボックス	Ctrl K 도구 상자
+1667	← Main menu	← 主選單	← メインメニュー	← 메인 메뉴
+1668	No PDF read yet	還沒有讀過的 PDF	まだ読んだ PDF はありません	아직 읽은 PDF가 없습니다
+1669	Open a PDF or Markdown file	開啟 PDF 或 Markdown	PDF または Markdown を開く	PDF 또는 Markdown 열기
+1670	You can also drag files into the window.	也可以直接把檔案拖進視窗。	ファイルをウィンドウにドラッグしても開けます。	파일을 창으로 끌어다 놓아도 됩니다.
+1671	Start a new Markdown note	新增一篇 Markdown 筆記	新しい Markdown ノートを作成	새 Markdown 노트 만들기
+1672	Start from a blank page	從一張白紙開始	白紙から始める	빈 페이지에서 시작
+1673	Drop here to open	拖到這裡開啟	ここにドロップして開く	여기에 끌어다 놓아 열기
+1674	Choose file · Ctrl O	選擇檔案 · Ctrl O	ファイルを選ぶ · Ctrl O	파일 선택 · Ctrl O
+1675	Blank note	空白筆記	空白のノート	빈 노트
+1676	Keep writing	繼續寫	続きを書く	이어 쓰기
+1677	All tools · Ctrl K	全部工具 · Ctrl K	すべてのツール · Ctrl K	모든 도구 · Ctrl K
+1678	Enter	進入	開く	들어가기
+1679	Jump	直達	直接移動	바로 가기
+1680	Back	返回	戻る	뒤로
+1681	Confirm	確認	確定	확인

@@ -8,6 +8,9 @@ import { createTextSelection } from './selection.mjs';
 import { createChrome } from './chrome.mjs';
 import { createMarkdownHost } from './markdown/host.mjs';
 import { createSettings } from './settings.mjs';
+import { createToolsMenu } from './tools-menu.mjs';
+import { createActivity } from './home/activity.mjs';
+import { createHomeLayouts } from './home/layouts.mjs';
 import { createConverter } from './converter.mjs';
 import { createDocTools } from './ai/doc-tools.mjs';
 import { createAiPanel } from './ai/panel.mjs';
@@ -17,6 +20,8 @@ import { createReadingHistory } from './reading-history.mjs';
 import { createNotesMode } from './notes-mode.mjs';
 import { createLibrary } from './library.mjs';
 import { createCitations } from './citation.mjs';
+import { createSkins } from './skins.mjs';
+const skins = createSkins(); skins.init();
 // Display language first, so the UI is translated before it is shown.
 await i18n.init().catch(console.warn);
 window.desktop.setLanguage?.(i18n.current(), i18n.choice() !== 'auto').catch(() => {});
@@ -26,6 +31,8 @@ const windowStyle = applyWindowStyle(api);
 let productVersion='';
 api.appVersion().then(version=>{productVersion=version;document.getElementById('versionFooter').textContent=`青页 PDF ${version} · 本地开源工具箱 · 无登录、无订阅、无广告`;}).catch(console.warn);
 const $ = id => document.getElementById(id);
+const activity = createActivity({ isReading: () => document.body.dataset.mode !== 'home' });
+let homeLayouts = null;
 const sessions = new Map();
 let activeId = null, closingApp = false, closeInProgress = false, compareIds = null, comparingPage = false;
 let checkpointBusy=false, draftTimer;
@@ -59,7 +66,7 @@ async function locatePdfSource({id,page,rect}) {return readingTrail.record(async
   if(!sessions.has(id)||s.app.pdfDocument!==doc)throw new Error('原文档已变化，请重新定位。');
   if(rect){let box;const bus=s.app.eventBus;const paint=()=>{if(s.app.pdfDocument!==doc||!s.loaded)return;const activeView=v.getPageView(page-1),r=[...activeView.viewport.convertToViewportPoint(rect[0],rect[1]),...activeView.viewport.convertToViewportPoint(rect[2],rect[3])];
       box=s.frame.contentDocument.createElement('div');box.className='sourceNoteHighlight';const x=Math.min(r[0],r[2]),y=Math.min(r[1],r[3]);
-      box.style.cssText='position:absolute;pointer-events:none;border:2px solid #249d75;background:rgba(36,157,117,.12);z-index:80;left:'+x+'px;top:'+y+'px;width:'+Math.max(2,Math.abs(r[2]-r[0]))+'px;height:'+Math.max(2,Math.abs(r[3]-r[1]))+'px';
+      box.style.cssText='left:'+x+'px;top:'+y+'px;width:'+Math.max(2,Math.abs(r[2]-r[0]))+'px;height:'+Math.max(2,Math.abs(r[3]-r[1]))+'px';
       activeView.div.querySelectorAll('.sourceNoteHighlight').forEach(n=>n.remove());activeView.div.append(box);
     };const rendered=event=>{if(event.pageNumber===page)paint();};bus.on('pagerendered',rendered);paint();box?.scrollIntoView({block:'center',inline:'nearest'});setTimeout(()=>{bus.off('pagerendered',rendered);box?.remove();},2600);
   }status('已定位原文批注');
@@ -72,8 +79,12 @@ function currentPdf() { const s = current(); if (!isMd(s)) return s; const other
 const pdfSessions = { values: () => [...sessions.values()].filter(s => !isMd(s))[Symbol.iterator](), get: id => { const s = sessions.get(id); return isMd(s) ? undefined : s; }, has: id => !!pdfSessions.get(id) };
 const views = createViews({ current: currentPdf, commit, guard, api });
 const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
-const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs });
+const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs, openConverter: () => guard(() => converter.open()) });
 const converter = createConverter({ api, guard, status });
+const openToolChecked = async (action, options) => { if (action !== 'import' && !currentPdf()?.loaded) { await open(); if (!currentPdf()?.loaded) return; } await tools.open(action, options); };
+const compareTools = () => tools.open('compare').then(() => document.getElementById('compareTool').click());
+createToolsMenu({ anchor: $('toolsMenuButton'), guard, openConverter: () => converter.open(), compare: compareTools, openTool: openToolChecked });
+homeLayouts = createHomeLayouts({ api, guard, addDocuments, sessions, activity, openTool: openToolChecked, openConverter: () => converter.open(), compare: compareTools, isHomeVisible: () => !$('home').hidden });
 const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigation,tools,historyStep,status,notesFor:s=>notes?.notesFor(s)||null,excerpt:(s,text,page)=>notes.excerpt(s,text,page,notes.selectionSource(s,page).rect),region:s=>notes.pickRegion(s),cite:s=>citations.open(s)});
 const textSelection=createTextSelection({current:currentPdf,api,applyEdit,guard,status,tools});
 const chrome=createChrome({api,current:currentPdf,guard,navigation,status});
@@ -143,7 +154,7 @@ async function compare(left,right) {
 function viewState(s) {
   if (isMd(s)) return s.editor ? markdown.state(s) : s.state;
   const v = s.app?.pdfViewer;
-  return v ? { page: v.currentPageNumber, zoom: String(v.currentScaleValue), rotation: v.pagesRotation, scrollTop: s.app.appConfig.mainContainer.querySelector('#viewerContainer')?.scrollTop || 0, ...views.state(s), ...s.compareView, bookmarks:s.bookmarks||s.state?.bookmarks||[] } : s.state;
+  return v ? { page: v.currentPageNumber, pageCount: s.app.pagesCount, zoom: String(v.currentScaleValue), rotation: v.pagesRotation, scrollTop: s.app.appConfig.mainContainer.querySelector('#viewerContainer')?.scrollTop || 0, ...views.state(s), ...s.compareView, bookmarks:s.bookmarks||s.state?.bookmarks||[] } : s.state;
 }
 let themeTimer;
 function setTheme(dark, remember = true) {
@@ -206,7 +217,7 @@ function activate(id, { keepFocus = false } = {}) {
   activeId = id;
   document.body.classList.toggle('comparing',!!compareIds);compareBar.hidden=!compareIds;
   if(compareIds)$('compareNames').textContent=compareIds.map(key=>sessions.get(key).name).join(' ↔ ');
-  $('home').hidden = id !== null;
+  $('home').hidden = id !== null; if (id === null) homeLayouts?.refresh();
   // Each document kind gets its own chrome: home has no toolbar, PDF gets the PDF toolbar,
   // Markdown gets its own menu bar and status bar inside the tab.
   document.body.dataset.mode = id === null ? 'home' : (shown ? shown.every(key => isMd(sessions.get(key))) : isMd(sessions.get(id))) ? 'md' : 'pdf';
@@ -399,7 +410,7 @@ async function addDocument(info) {
     sessions.delete(s.id); panel.remove(); await api.closeDocument(s.id, s.state).catch(() => {}); activate(null); throw error;
   }
 }
-async function addDocuments(items) { for (const info of items) await addDocument(info);const selected=items.find(i=>i.wasActive);if(selected)activate(selected.id); await refreshRecent(); }
+async function addDocuments(items) { for (const info of items) { await addDocument(info); if (info.path) activity.record('open'); }const selected=items.find(i=>i.wasActive);if(selected)activate(selected.id); await refreshRecent(); }
 async function open() { await addDocuments(await api.open()); }
 async function dropFiles(files) { await addDocuments(await api.dropped(Array.from(files))); }
 // ——— Home: recent files (filter by type, filter by name, remove from list) ———
@@ -449,7 +460,7 @@ function renderRecent() {
     more.onclick = () => { recentLimit = Infinity; renderRecent(); }; list.append(more);
   }
 }
-async function refreshRecent() { recentItems = await api.recent(); renderRecent(); }
+async function refreshRecent() { recentItems = await api.recent(); renderRecent(); homeLayouts?.refresh(); }
 for (const b of document.querySelectorAll('.recentFilter button')) b.onclick = () => { recentFilter = b.dataset.filter; for (const x of document.querySelectorAll('.recentFilter button')) x.setAttribute('aria-pressed', String(x === b)); renderRecent(); };
 $('recentSearch').oninput = () => renderRecent();
 async function saveSession(s, saveAs) {
@@ -594,7 +605,7 @@ for (const button of document.querySelectorAll('[data-home-action]')) button.onc
 };
 for (const button of document.querySelectorAll('[data-tool]')) button.onclick = () => guard(async () => {
   if (!currentPdf()?.loaded) { await open(); if (!currentPdf()?.loaded) return; }
-  await tools.open(button.dataset.tool);
+  await tools.open(button.dataset.tool, { mode: button.dataset.mode, category: button.dataset.category });
 });
 let dragDepth = 0;
 document.addEventListener('dragenter', event => { if (event.dataTransfer.types.includes('Files')) { dragDepth++; document.body.classList.add('fileDragging'); } });
@@ -608,9 +619,11 @@ const recoveryBox=document.createElement('section');recoveryBox.id='recoveryBox'
 api.recoveryList().then(items=>{for(const item of items){const row=document.createElement('div');row.className='recoveryRow';const label=document.createElement('span');label.textContent=`发现未正常关闭的会话：${item.names.join('、')}（${item.drafts} 份草稿）`;row.append(label);for(const [text,action] of [['恢复',async()=>{await addDocuments(await api.restoreSession(item.token));row.remove();}],['删除备份',async()=>{await api.discardRecovery(item.token);row.remove();}]]){const b=document.createElement('button');b.textContent=text;b.onclick=()=>guard(action);row.append(b);}recoveryBox.append(row);}}).catch(console.warn);
 $('themeButton').onclick = () => setTheme(!document.body.classList.contains('dark'));
 const settings = createSettings({ api, guard, status, message, markdown, refreshRecent, version: () => productVersion, windowStyle: windowStyle.info, restart: restartApp,
+  homeLayout: { get: () => homeLayouts?.get() ?? 'classic', set: id => homeLayouts?.set(id) },
+  skin: skins,
   theme: {
-    mode: () => { const v = localStorage.getItem('qingye-theme'); return v === 'dark' || v === 'light' ? v : 'system'; },
-    set: mode => { if (mode === 'system') { localStorage.removeItem('qingye-theme'); setTheme(matchMedia('(prefers-color-scheme: dark)').matches, false); } else setTheme(mode === 'dark'); },
+    mode: () => { const v = localStorage.getItem('qingye-theme'); return v === 'light' || v === 'system' ? v : 'dark'; },
+    set: mode => { if (mode === 'system') { localStorage.setItem('qingye-theme', 'system'); setTheme(matchMedia('(prefers-color-scheme: dark)').matches, false); } else setTheme(mode === 'dark'); },
   } });
 $('settingsButton').onclick = () => settings.open();
 // AI collaboration (0.9.1): the panel on the right, and the bridge that serves the local AI interface.
@@ -656,12 +669,14 @@ setInterval(() => { for (const s of sessions.values()) { try { syncDirty(s); } c
 setInterval(() => { const s = current(); if (s?.loaded) api.remember(s.id, viewState(s)).catch(console.warn); }, 10000);
 setInterval(checkpoint,15000);
 const storedTheme = localStorage.getItem('qingye-theme'), systemDark = matchMedia('(prefers-color-scheme: dark)');
-setTheme(storedTheme ? storedTheme === 'dark' : systemDark.matches, false);
-systemDark.addEventListener('change', event => { if (!localStorage.getItem('qingye-theme')) setTheme(event.matches, false); });
+// 0.14.0: dark is the default theme; "follow the system" is an explicit choice stored as 'system'.
+setTheme(storedTheme === 'system' ? systemDark.matches : storedTheme !== 'light', false);
+systemDark.addEventListener('change', event => { if (localStorage.getItem('qingye-theme') === 'system') setTheme(event.matches, false); });
 activate(null);
+homeLayouts.init().catch(console.warn);
 // Settings → "restore last tabs on start": only when nothing was opened from the command line.
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint, direct, textSelection, applyEdit, historyStep, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { homeLayouts, activity, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint, direct, textSelection, applyEdit, historyStep, replaceDocument,readingTrail,locatePdfSource };
 api.ready();

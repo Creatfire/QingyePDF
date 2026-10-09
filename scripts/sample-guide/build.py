@@ -1,6 +1,6 @@
 # Builds ui/sample-guide.pdf, ui/sample-guide-mac.pdf and ui/sample-guide-touch.pdf (the "PDF 示例"
 # opened from the home page on Windows, macOS and Android).
-# Requires: Pillow, Playwright + Chromium, Noto Sans CJK fonts. Run: python3 scripts/sample-guide/build.py
+# Requires: Pillow, fontTools, Playwright + Chromium, Noto Sans CJK fonts (Regular, Bold and, for headings, Black). Run: python3 scripts/sample-guide/build.py
 import asyncio, os, subprocess, sys
 from pathlib import Path
 from PIL import Image
@@ -49,8 +49,11 @@ def fonts_for(html):
     text = re.sub(r'<style>[\s\S]*?</style>', '', html) + ''.join(chr(c) for c in range(0x20, 0x7f)) + '“”‘’、，。：；！？（）《》—…·→'
     chars = {ord(c) for c in text if not (0x2E80 <= ord(c) <= 0x2FDF)}
     (here / 'fonts').mkdir(exist_ok=True)
-    for weight, file in (('regular', 'NotoSansCJK-Regular.ttc'), ('bold', 'NotoSansCJK-Bold.ttc')):
-        coll = TTCollection('/usr/share/fonts/opentype/noto/' + file)
+    # 0.14.0: headings use the Black weight; systems without NotoSansCJK-Black.ttc fall back to Bold.
+    for weight, file in (('regular', 'NotoSansCJK-Regular.ttc'), ('bold', 'NotoSansCJK-Bold.ttc'), ('black', 'NotoSansCJK-Black.ttc')):
+        path = '/usr/share/fonts/opentype/noto/' + file
+        if not os.path.exists(path): path = '/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc'
+        coll = TTCollection(path)
         font = next(f for f in coll.fonts if 'Noto Sans CJK SC' in f['name'].getDebugName(1))
         opts = subset.Options(); opts.layout_features = ['*']; opts.name_IDs = ['*']; opts.notdef_outline = True
         sub = subset.Subsetter(opts); sub.populate(unicodes=chars); sub.subset(font)

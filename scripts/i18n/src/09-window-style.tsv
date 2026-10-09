@@ -3,12 +3,12 @@
 1302	Maximize	最大化	最大化	최대화
 1303	Restore	還原	元のサイズに戻す	이전 크기로
 1304	Interface style	介面風格	インターフェイスのスタイル	인터페이스 스타일
-1305	Window buttons, corners and materials. Takes effect after restarting Qingye.	視窗按鈕、圓角與材質。切換後重新啟動青頁生效。	ウインドウのボタン、角丸、素材。切り替えは青頁の再起動後に反映されます。	창 버튼, 모서리와 재질. 칭예를 다시 시작하면 적용됩니다.
+1305	Where the window buttons sit and how they look. Takes effect after restarting Qingye.	視窗按鈕的位置與樣式。切換後重新啟動青頁生效。	ウインドウボタンの位置と外観。切り替え後、青頁を再起動すると反映されます。	창 버튼의 위치와 모양. 전환 후 칭예를 다시 시작하면 적용됩니다.
 1306	Native window buttons at the top right, compact square corners	右上角原生視窗按鈕，緊湊直角	右上にネイティブのウインドウボタン、コンパクトな角	오른쪽 위 기본 창 버튼, 촘촘한 직각
-1307	Traffic lights at the top left, rounded corners and frosted glass	左上角紅綠燈、圓角與毛玻璃	左上の信号ボタン、角丸、すりガラス	왼쪽 위 신호등 버튼, 둥근 모서리와 반투명 유리
+1307	Traffic lights at the top left, unified title bar	左上角紅綠燈、統一標題列	左上の信号ボタン、一体型タイトルバー	왼쪽 위 신호등 버튼, 통합 제목 표시줄
 1308	Frosted window	視窗毛玻璃	ウインドウのすりガラス効果	창 반투명 효과
-1309	The title bar, sidebars and home page show the blurred desktop (Windows 11 acrylic).	標題列、側欄與首頁透出模糊的桌面背景（Windows 11 壓克力材質）。	タイトルバー、サイドバー、ホームにぼかしたデスクトップが透けて見えます（Windows 11 のアクリル素材）。	제목 표시줄, 사이드바, 홈에 흐린 바탕 화면이 비칩니다(Windows 11 아크릴 재질).
-1310	Requires Windows 11 22H2 or later; this system uses the in-app frosted glass instead.	需要 Windows 11 22H2 或更新版本；目前系統使用應用程式內的毛玻璃效果。	Windows 11 22H2 以降が必要です。このシステムではアプリ内のすりガラス効果を使います。	Windows 11 22H2 이상이 필요합니다. 이 시스템에서는 앱 내부의 반투명 효과를 사용합니다.
+1309	The title bar and the home page show the blurred desktop behind (Windows 11 acrylic).	標題列與首頁透出模糊的桌面背景（Windows 11 壓克力材質）。	タイトルバーとホームにぼかしたデスクトップが透けて見えます（Windows 11 のアクリル素材）。	제목 표시줄과 홈 화면에 흐린 바탕 화면이 비칩니다(Windows 11 아크릴).
+1310	Requires Windows 11 22H2 or later; on this system the desktop does not show through.	需要 Windows 11 22H2 或更新版本；目前系統不顯示桌面背景。	Windows 11 22H2 以降が必要です。このシステムではデスクトップは透けません。	Windows 11 22H2 이상이 필요합니다. 현재 시스템에서는 바탕 화면이 비치지 않습니다.
 1311	The new interface style takes effect after Qingye restarts.	新的介面風格將在重新啟動青頁後生效。	新しいスタイルは青頁の再起動後に反映されます。	새 인터페이스 스타일은 칭예를 다시 시작하면 적용됩니다.
 1312	Restart now	立即重新啟動	今すぐ再起動	지금 다시 시작
 1313	Current interface style restored	已恢復目前的介面風格	現在のスタイルに戻しました	현재 인터페이스 스타일로 되돌렸습니다

@@ -3,13 +3,15 @@
 import { LANGUAGES, choice as languageChoice, setLanguage, current as currentLanguage, t } from './i18n/i18n.mjs';
 import { THEMES } from './markdown/themes.mjs';
 import { mountAiSettings } from './ai/settings-ai.mjs';
+import { HOME_LAYOUTS } from './home/layouts.mjs';
+import { SKINS } from './skins.mjs';
 
 const KEY = 'qingye.settings';
 export const DEFAULTS = { restoreOnStart: false, pdfZoom: 'page-width', pdfResume: true, confirmRecentClear: true };
 export function readSettings() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return { ...DEFAULTS }; } }
 function writeSettings(values) { try { localStorage.setItem(KEY, JSON.stringify(values)); } catch {} }
 
-export function createSettings({ api, guard, status, message, markdown, theme, version, refreshRecent, windowStyle = { style: 'windows', vibrancy: false, saved: { style: 'windows', vibrancy: false } }, restart }) {
+export function createSettings({ api, guard, status, message, markdown, theme, version, refreshRecent, windowStyle = { style: 'windows', vibrancy: false, saved: { style: 'windows', vibrancy: false } }, restart, homeLayout = { get: () => 'classic', set: async () => {} }, skin = { get: () => 'classic', set: () => {} } }) {
   const values = readSettings();
   const set = (name, value) => { values[name] = value; writeSettings(values); };
   const dialog = document.createElement('dialog');
@@ -31,13 +33,18 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
           <h3>界面</h3>
           <label class="settingRow"><span><b>显示语言</b><small>菜单、按钮和提示使用的语言；文档内容不受影响。</small></span><select id="setLanguage"></select></label>
           <label class="settingRow"><span><b>界面主题</b><small>标题栏右侧的月亮/太阳按钮可随时切换。</small></span><select id="setTheme"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label>
-          <div class="settingRow styleHeading"><span><b>界面风格</b><small>窗口按钮、圆角与材质。切换后重启青页生效。</small></span></div>
+          <div class="settingRow styleHeading"><span><b>界面风格</b><small>窗口按钮的位置与样式。切换后重启青页生效。</small></span></div>
           <div class="styleChoices" role="radiogroup" aria-label="界面风格">
             <button type="button" role="radio" data-style="windows"><span class="stylePreview isWindows" aria-hidden="true"><i class="spBar"><i class="spTab"></i><i class="spCaps"><i></i><i></i><i></i></i></i><i class="spBody"><i></i><i></i><i></i></i></span><span class="styleText"><b>Windows</b><small>右上角原生窗口按钮，紧凑直角</small></span></button>
-            <button type="button" role="radio" data-style="macos"><span class="stylePreview isMacos" aria-hidden="true"><i class="spBar"><i class="spLights"><i></i><i></i><i></i></i><i class="spTab"></i></i><i class="spBody"><i></i><i></i><i></i></i></span><span class="styleText"><b>MacOS</b><small>左上角红绿灯、圆角与毛玻璃</small></span></button>
+            <button type="button" role="radio" data-style="macos"><span class="stylePreview isMacos" aria-hidden="true"><i class="spBar"><i class="spLights"><i></i><i></i><i></i></i><i class="spTab"></i></i><i class="spBody"><i></i><i></i><i></i></i></span><span class="styleText"><b>MacOS</b><small>左上角红绿灯、统一标题栏</small></span></button>
           </div>
-          <label class="settingRow check" id="setVibrancyRow"><span><b>窗口毛玻璃</b><small id="setVibrancyNote">标题栏、侧栏与首页透出模糊的桌面背景（Windows 11 亚克力材质）。</small></span><input id="setVibrancy" type="checkbox" role="switch"></label>
+          <label class="settingRow check" id="setVibrancyRow"><span><b>窗口毛玻璃</b><small id="setVibrancyNote">标题栏与首页透出模糊的桌面背景（Windows 11 亚克力材质）。</small></span><input id="setVibrancy" type="checkbox" role="switch"></label>
           <div class="styleRestart" role="status" hidden><span>新的界面风格将在重启青页后生效。</span><button type="button" id="styleRestartNow" class="primary" data-icon="refresh">立即重启</button></div>
+          <div class="settingRow styleHeading"><span><b>界面皮肤</b><small>整个界面（标题栏、标签页、工具栏、侧栏、对话框）的外观，与首页样式互不绑定；阅读区不受影响。立即生效。</small></span></div>
+          <div class="skinChoices" role="radiogroup" aria-label="界面皮肤">${SKINS.map(k => `<button type="button" role="radio" data-skin="${k.id}"><span class="skinPreview sk-${k.id}" aria-hidden="true"><i class="spB"></i><i class="spT"></i><i class="spC"></i></span><span class="styleText"><b>${k.label}</b><small>${k.note}</small></span></button>`).join('')}</div>
+          <h3>首页</h3>
+          <div class="settingRow styleHeading"><span><b>首页样式</b><small>没有打开文档时看到的页面。立即生效，数据只在本机。</small></span></div>
+          <div class="homeChoices" role="radiogroup" aria-label="首页样式">${HOME_LAYOUTS.map(l => `<button type="button" role="radio" data-home="${l.id}"><span class="homePreview hp-${l.id}" aria-hidden="true">${'<i></i>'.repeat(7)}</span><span class="styleText"><b>${l.label}</b><small>${l.note}</small></span></button>`).join('')}</div>
           <h3>启动</h3>
           <label class="settingRow check"><span><b>启动时自动恢复上次的标签</b><small>关闭时仍在打开的文档会在下次启动时重新打开。</small></span><input id="setRestore" type="checkbox" role="switch"></label>
         </section>
@@ -112,7 +119,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
     $('#setVibrancyRow').hidden = !mac || api.platform === 'darwin';
     vibrancyInput.checked = mac && chosenStyle.vibrancy && !!windowStyle.acrylicSupported;
     vibrancyInput.disabled = !windowStyle.acrylicSupported;
-    $('#setVibrancyNote').textContent = windowStyle.acrylicSupported ? '标题栏、侧栏与首页透出模糊的桌面背景（Windows 11 亚克力材质）。' : '需要 Windows 11 22H2 或更高版本；当前系统使用应用内毛玻璃效果。';
+    $('#setVibrancyNote').textContent = windowStyle.acrylicSupported ? '标题栏与首页透出模糊的桌面背景（Windows 11 亚克力材质）。' : '需要 Windows 11 22H2 或更高版本；当前系统不显示桌面背景。';
     const effectiveVibrancy = value => !!value && !!windowStyle.acrylicSupported;
     $('.styleRestart').hidden = chosenStyle.style === windowStyle.style && (!mac || effectiveVibrancy(chosenStyle.vibrancy) === !!windowStyle.vibrancy);
   }
@@ -127,6 +134,28 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
       event.preventDefault();
       const next = styleButtons[(styleButtons.indexOf(b) + (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) + styleButtons.length) % styleButtons.length];
+      next.focus(); next.click();
+    };
+  }
+  const skinButtons = [...dialog.querySelectorAll('.skinChoices [role="radio"]')];
+  const syncSkin = () => { const id = skin.get(); for (const b of skinButtons) { const on = b.dataset.skin === id; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; } };
+  for (const b of skinButtons) {
+    b.onclick = () => { skin.set(b.dataset.skin); syncSkin(); status(t('界面皮肤已切换')); };
+    b.onkeydown = event => {
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+      event.preventDefault();
+      const next = skinButtons[(skinButtons.indexOf(b) + (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) + skinButtons.length) % skinButtons.length];
+      next.focus(); next.click();
+    };
+  }
+  const homeButtons = [...dialog.querySelectorAll('.homeChoices [role="radio"]')];
+  const syncHome = () => { const id = homeLayout.get(); for (const b of homeButtons) { const on = b.dataset.home === id; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; } };
+  for (const b of homeButtons) {
+    b.onclick = () => guard(async () => { await homeLayout.set(b.dataset.home); syncHome(); status(t('首页样式已切换')); });
+    b.onkeydown = event => {
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+      event.preventDefault();
+      const next = homeButtons[(homeButtons.indexOf(b) + (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) + homeButtons.length) % homeButtons.length];
       next.focus(); next.click();
     };
   }
@@ -188,7 +217,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
     lang.value = languageChoice();
     $('#setTheme').value = theme.mode();
     $('#setRestore').checked = !!values.restoreOnStart;
-    syncStyle();
+    syncStyle(); syncHome(); syncSkin();
     $('#setPdfZoom').value = values.pdfZoom; $('#setPdfResume').checked = !!values.pdfResume;
     $('#setMdRead').checked = !!mdPrefs().get('openInReadMode'); $('#setMdAutoSave').checked = !!mdPrefs().get('autoSave');
     mdTheme.value = THEMES.some(([id]) => id === mdPrefs().get('theme')) ? mdPrefs().get('theme') : 'qingye';

@@ -92,8 +92,9 @@ eraser:'M7 20.5h13 M5.4 14.6l8.2-8.2a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8l-7.
 let css='/* Qingye icon set — stroke icons drawn for this app, rendered as CSS masks so\n   scripts can replace button text without losing the icon. */\n';
 css+='.ic::before,[data-icon]::before { content:""; flex:none; width:var(--icon-size,18px); height:var(--icon-size,18px); background:currentColor; -webkit-mask:var(--i) center/contain no-repeat; mask:var(--i) center/contain no-repeat; }\n';
 for(const [k,d] of Object.entries(icons)){
-  const w=['more','outline','bullets'].includes(k)?2.6:k==='bold'?2.3:1.75;
-  const svg=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='${w}' stroke-linecap='round' stroke-linejoin='round'><path d='${d}'/></svg>`;
+  // 0.14.0: heavier strokes with square ends and mitred corners, to sit beside the block-printed app icon.
+  const w=['more','outline','bullets'].includes(k)?2.8:k==='bold'?2.6:2;
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='${w}' stroke-linecap='square' stroke-linejoin='miter'><path d='${d}'/></svg>`;
   css+=`[data-icon="${k}"] { --i:url("data:image/svg+xml,${encodeURIComponent(svg).replace(/'/g,'%27')}"); }\n`;
 }
 process.stdout.write(css);

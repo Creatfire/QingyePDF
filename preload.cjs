@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('desktop', {
   open: () => ipcRenderer.invoke('open'),
   recent: () => ipcRenderer.invoke('recent'),
   openRecent: id => ipcRenderer.invoke('open-recent', id),
+  homeExcerpts: () => ipcRenderer.invoke('home-excerpts'),
+  homeOpenExcerpt: id => ipcRenderer.invoke('home-open-excerpt', id),
   example: () => ipcRenderer.invoke('example'),
   save: (id, data, saveAs, embedFonts, password) => ipcRenderer.invoke('save', id, data, saveAs, embedFonts, password),
   closeChoice: name => ipcRenderer.invoke('close-choice', name),

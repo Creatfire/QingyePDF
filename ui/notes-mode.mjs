@@ -277,6 +277,7 @@ export function createNotesMode({ sessions, isMd, activeId, activate, endCompare
     if (!String(text || '').trim()) throw new Error('请先在 PDF 中选中要摘录的文字。');
     insertBlock(note, excerptMarkdown({ id: s.id, name: s.name, path: s.path, page, text, rect }));
     status(`已摘录到 ${note.name} · 可撤销，尚未保存`);
+    document.dispatchEvent(new CustomEvent('qingye:excerpt'));
   }
 
   // ——— 0.11.0: excerpts that know where they came from ———
@@ -319,7 +320,7 @@ export function createNotesMode({ sessions, isMd, activeId, activate, endCompare
     const image = await api.mdImageSave(note.id, new Uint8Array(await blob.arrayBuffer()), 'png', imageOptions?.() || {});
     const w = view.viewport.width, h = view.viewport.height, rect = pdfRect(view, { width: w }, [x0 * w, y0 * h, x1 * w, y1 * h]);
     insertBlock(note, regionMarkdown({ id: s.id, name: s.name, path: s.path, page, rect, image }));
-    status(`已把第 ${page} 页的区域摘录到 ${note.name} · 可撤销，尚未保存`);
+    status(`已把第 ${page} 页的区域摘录到 ${note.name} · 可撤销，尚未保存`);document.dispatchEvent(new CustomEvent('qingye:excerpt'));
     return { image, rect, width: canvas.width, height: canvas.height };
   }
   /** Lets the user drag a box on a PDF page; Esc cancels. */
@@ -329,7 +330,7 @@ export function createNotesMode({ sessions, isMd, activeId, activate, endCompare
     if (!s) throw new Error('请先进入笔记模式，并在另一侧打开一份 Markdown 笔记。'); needNote(s); stopPicking();
     const doc = s.frame.contentDocument, root = doc.documentElement;
     // The viewer's content policy forbids inline <style>; a constructed sheet is allowed.
-    if (!doc.qyRegionSheet) { const sheet = new s.frame.contentWindow.CSSStyleSheet(); sheet.replaceSync('html.qyRegionPicking,html.qyRegionPicking *{cursor:crosshair!important;user-select:none!important;-webkit-user-select:none!important;touch-action:none!important}.qyRegionBox{position:absolute;z-index:90;border:2px solid #249d75;background:rgba(36,157,117,.14);pointer-events:none;box-sizing:border-box}'); doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet]; doc.qyRegionSheet = sheet; }
+    if (!doc.qyRegionSheet) { const sheet = new s.frame.contentWindow.CSSStyleSheet(); sheet.replaceSync('html.qyRegionPicking,html.qyRegionPicking *{cursor:crosshair!important;user-select:none!important;-webkit-user-select:none!important;touch-action:none!important}.qyRegionBox{position:absolute;z-index:90;border:var(--rule-w) dashed var(--amber-line);background:var(--wash-primary);pointer-events:none;box-sizing:border-box}'); doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet]; doc.qyRegionSheet = sheet; }
     root.classList.add('qyRegionPicking');
     let drag = null;
     const fraction = event => { const b = drag.bounds; return [(event.clientX - b.left) / b.width, (event.clientY - b.top) / b.height]; };

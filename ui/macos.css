@@ -1,211 +1,78 @@
-/* Qingye PDF 0.9.2 — "MacOS" interface style (Settings → General → Interface style).
-   Everything here is scoped to body.style-macos; the default "Windows" style is unchanged.
-   Classic macOS elements: traffic lights at the top-left, a unified title bar and toolbar,
-   larger corner radii, translucent "glass" surfaces (menus, popovers, dialogs, sidebars) and
-   neutral graphite greys around the Qingye green accent. body.vibrancy (Windows 11 acrylic
-   window) additionally lets the title bar, sidebars and home page show the blurred desktop. */
-
-/* ——— Tokens ——— */
-body.style-macos {
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "Noto Sans SC", system-ui, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", system-ui, sans-serif;
-  --bg: #f5f5f7; --titlebar: #ececef; --surface: #ffffff; --surface-2: #f7f7f9; --surface-3: #ebebef;
-  --hover: rgb(0 0 0 / .055); --active: rgb(0 0 0 / .1); --line: rgb(0 0 0 / .085); --line-strong: rgb(0 0 0 / .16);
-  --ink: #1d1d1f; --ink-2: #3a3a3c; --muted: #6e6e73; --faint: #a1a1a6;
-  --viewer-bg: #e8e8ec;
-  --glass: rgb(250 250 252 / .72); --glass-strong: rgb(252 252 253 / .82); --glass-line: rgb(0 0 0 / .1);
-  --glass-blur: blur(28px) saturate(1.8); --glass-sheet: rgb(252 252 253 / .93);
-  --select: #1d7a57; --on-select: #ffffff;
-  --shadow-sm: 0 .5px 1.5px rgb(0 0 0 / .12), 0 0 0 .5px rgb(0 0 0 / .05);
-  --shadow-md: 0 8px 24px rgb(0 0 0 / .11), 0 0 0 .5px rgb(0 0 0 / .08);
-  --shadow-lg: 0 24px 70px rgb(0 0 0 / .22), 0 6px 18px rgb(0 0 0 / .08), 0 0 0 .5px rgb(0 0 0 / .14);
-  --ring: 0 0 0 3.5px color-mix(in srgb, var(--accent) 38%, transparent);
-  --radius-sm: 7px; --radius: 10px; --radius-lg: 14px; --radius-xl: 22px;
-  --caption-space: 10px; --caption-left: 14px;
-  --tl-close: #ff5f57; --tl-close-edge: #e0443e; --tl-min: #febc2e; --tl-min-edge: #dea123; --tl-max: #28c840; --tl-max-edge: #1aab29;
-  --tl-off: #d4d4d8; --tl-off-edge: #c2c2c7; --tl-glyph: rgb(0 0 0 / .55);
-  letter-spacing: -.003em;
-}
-body.style-macos.dark {
-  --bg: #1c1c1e; --titlebar: #2a2a2d; --surface: #1f1f21; --surface-2: #252527; --surface-3: #313134;
-  --hover: rgb(255 255 255 / .07); --active: rgb(255 255 255 / .12); --line: rgb(255 255 255 / .085); --line-strong: rgb(255 255 255 / .16);
-  --ink: #f5f5f7; --ink-2: #d1d1d6; --muted: #98989d; --faint: #636366;
-  --viewer-bg: #141416;
-  --glass: rgb(44 44 47 / .68); --glass-strong: rgb(40 40 43 / .82); --glass-line: rgb(255 255 255 / .1); --glass-sheet: rgb(38 38 41 / .92);
-  --select: #2a8a64;
-  --shadow-sm: 0 .5px 1.5px rgb(0 0 0 / .5), 0 0 0 .5px rgb(255 255 255 / .06);
-  --shadow-md: 0 10px 28px rgb(0 0 0 / .45), 0 0 0 .5px rgb(255 255 255 / .08);
-  --shadow-lg: 0 28px 80px rgb(0 0 0 / .6), 0 0 0 .5px rgb(255 255 255 / .14);
-  --tl-off: #4a4a4e; --tl-off-edge: #5a5a5f;
-}
+/* 青页 PDF — "MacOS" interface style (Settings → General → Interface style).
+   0.14.0: both interface styles share the block-print design tokens (tokens.css). This style only
+   changes the window chrome: traffic lights drawn at the top-left instead of native caption
+   buttons, and tabs centred in a unified title bar. body.vibrancy (Windows 11 acrylic window)
+   lets the title bar and the home page show the desktop behind; panels stay solid. */
+body.style-macos { --caption-space: 10px; --caption-left: 14px;
+  --tl-close: var(--danger); --tl-min: var(--amber); --tl-max: var(--primary); --tl-off: var(--rule); --tl-glyph: var(--black); }
 body.style-macos.isFullscreen { --titlebar-h: 0px; }
 body.style-macos.platform-darwin { --caption-left: 82px; } /* native traffic lights on a Mac */
 
 /* ——— Traffic lights ——— */
-.trafficLights { display: flex; align-items: center; gap: 8px; align-self: center; flex: none; height: 100%; padding: 0 12px 0 0; -webkit-app-region: no-drag; app-region: no-drag; }
-.titlebar .trafficLights .trafficLight { position: relative; width: 12px; height: 12px; padding: 0; border-radius: 50%; border: .5px solid var(--edge); background: var(--fill); box-shadow: none; transform: none; transition: background-color .12s, border-color .12s, filter .08s; }
-.trafficLights .trafficLight.close { --fill: var(--tl-close); --edge: var(--tl-close-edge); }
-.trafficLights .trafficLight.minimize { --fill: var(--tl-min); --edge: var(--tl-min-edge); }
-.trafficLights .trafficLight.maximize { --fill: var(--tl-max); --edge: var(--tl-max-edge); }
+.trafficLights { display: flex; align-items: center; gap: var(--space-8); align-self: center; flex: none; height: 100%; padding: 0 var(--space-12) 0 0; -webkit-app-region: no-drag; app-region: no-drag; }
+.titlebar .trafficLights .trafficLight { position: relative; width: 12px; height: 12px; padding: 0; border-radius: var(--r-round); border: 0; background: var(--fill); box-shadow: none; transition: background-color var(--dur-fast); }
+.trafficLights .trafficLight.close { --fill: var(--tl-close); }
+.trafficLights .trafficLight.minimize { --fill: var(--tl-min); }
+.trafficLights .trafficLight.maximize { --fill: var(--tl-max); }
 .titlebar .trafficLights .trafficLight:hover:not(:disabled) { background: var(--fill); }
-.titlebar .trafficLights .trafficLight:active:not(:disabled) { background: var(--fill); filter: brightness(.82); transform: none; }
-.titlebar .trafficLights .trafficLight:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.trafficLight::before { content: ""; position: absolute; inset: 0; background: var(--tl-glyph); opacity: 0; transition: opacity .1s; -webkit-mask: var(--glyph) center / 8px 8px no-repeat; mask: var(--glyph) center / 8px 8px no-repeat; }
+.titlebar .trafficLights .trafficLight:active:not(:disabled) { background: var(--fill); translate: 1px 1px; }
+.titlebar .trafficLights .trafficLight:focus-visible { outline: var(--rule-w) solid var(--amber-line); outline-offset: var(--space-2); }
+.trafficLight::before { content: ""; position: absolute; inset: 0; background: var(--tl-glyph); opacity: 0; -webkit-mask: var(--glyph) center / 8px 8px no-repeat; mask: var(--glyph) center / 8px 8px no-repeat; }
 .trafficLights:hover .trafficLight::before, .trafficLight:focus-visible::before { opacity: 1; }
 .trafficLight.close { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M1.4 1.4l5.2 5.2M6.6 1.4L1.4 6.6' stroke='black' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E"); }
 .trafficLight.minimize { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M1 4h6' stroke='black' stroke-width='1.35' stroke-linecap='round'/%3E%3C/svg%3E"); }
 .trafficLight.maximize { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M1.3 5.4V1.3h4.1zM6.7 2.6v4.1H2.6z' fill='black'/%3E%3C/svg%3E"); }
 body.windowMaximized .trafficLight.maximize { --glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M3.6 .6v3H.6zM4.4 7.4v-3h3z' fill='black'/%3E%3C/svg%3E"); }
-body.windowInactive .trafficLights:not(:hover) .trafficLight { --fill: var(--tl-off); --edge: var(--tl-off-edge); }
+body.windowInactive .trafficLights:not(:hover) .trafficLight { --fill: var(--tl-off); }
 
 /* ——— Unified title bar ——— */
-body.style-macos .titlebar { align-items: center; gap: 4px; background: var(--titlebar); border-bottom: .5px solid var(--line); }
-body.style-macos .brand { height: 28px; padding: 0 8px 0 2px; border-radius: 8px; }
-body.style-macos .logo { width: 20px; height: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgb(0 0 0 / .18); }
-body.style-macos.windowInactive .titlebar :is(.brand, .tabs, .titlebarTools) { opacity: .62; transition: opacity var(--med); }
-body.style-macos .tabs { align-items: center; gap: 4px; padding-top: 0; }
-body.style-macos .tab { height: 28px; border-radius: 8px; padding: 0 3px 0 10px; animation-name: mac-tab-in; }
-body.style-macos button.tab { padding: 0 11px; }
-body.style-macos .tab:not(.active)::after { display: none; }
-body.style-macos .tab.active { background: var(--glass-strong); box-shadow: var(--shadow-sm); color: var(--ink); }
-body.style-macos.dark .tab.active { background: rgb(255 255 255 / .1); }
-body.style-macos .tab .close { border-radius: 50%; width: 18px; height: 18px; --icon-size: 12px; }
-body.style-macos .titlebarTools button { border-radius: 7px; }
-body.style-macos .titlebarTools #convertButton { border-radius: 7px; }
-
-/* ——— Toolbars ——— */
-body.style-macos .appbar { background: var(--glass-strong); border-bottom: .5px solid var(--line); box-shadow: none; -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
-body.style-macos .appbar button { height: 30px; border-radius: 7px; }
-body.style-macos .appbar button.iconOnly { width: 32px; }
-body.style-macos .appbar button.primary { border-radius: 7px; }
-body.style-macos .barSep { height: 18px; }
-body.style-macos .mdPanel .mdMenubar { background: var(--glass-strong); border-bottom: .5px solid var(--line); }
-body.style-macos .mdMenubar .mdMenuIcon, body.style-macos .mdPanel .mdMenubar > button.mdMenuTop { border-radius: 7px; }
-body.style-macos .mdMenubar .mdSaveButton { border-radius: 7px; box-shadow: var(--shadow-sm); border-color: transparent; background: var(--surface); }
-body.style-macos .mdMenubar .mdSaveButton.isDirty { background: var(--accent); }
-body.style-macos .status, body.style-macos .mdStatusBar { background: var(--titlebar); border-top: .5px solid var(--line); }
-
-/* ——— Controls ——— */
-body.style-macos button { border-radius: var(--radius-sm); }
-body.style-macos button.primary { box-shadow: 0 .5px 1px rgb(0 0 0 / .18), inset 0 .5px 0 rgb(255 255 255 / .18); }
-body.style-macos button.ghost, body.style-macos .settingRow > button, body.style-macos .settingsActions button:not(.primary), body.style-macos .recoveryRow button,
-body.style-macos .navigationOptions button, body.style-macos .pageActions button, body.style-macos .toolsFooter button:not(.primary) { border-color: transparent; background: var(--surface); box-shadow: var(--shadow-sm); }
-body.style-macos.dark :is(button.ghost, .settingRow > button, .settingsActions button:not(.primary), .recoveryRow button, .navigationOptions button, .pageActions button, .toolsFooter button:not(.primary)) { background: rgb(255 255 255 / .1); }
-body.style-macos input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]), body.style-macos select, body.style-macos textarea { border-radius: 7px; border-color: var(--line-strong); box-shadow: inset 0 .5px 1px rgb(0 0 0 / .05); }
-body.style-macos select { box-shadow: var(--shadow-sm); border-color: transparent; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 14' fill='none' stroke='%236e6e73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 5L5 2.5 7.5 5M2.5 9L5 11.5 7.5 9'/%3E%3C/svg%3E"); background-position: calc(100% - 10px) 50%; background-size: 9px 13px; }
-body.style-macos.dark select { background-color: rgb(255 255 255 / .09); }
-body.style-macos select:focus { box-shadow: var(--ring); }
-body.style-macos :where(button, summary):focus-visible { outline: none; box-shadow: var(--ring); }
-body.style-macos input[role="switch"] { width: 38px; height: 22px; background: rgb(0 0 0 / .12); box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .06); }
-body.style-macos.dark input[role="switch"] { background: rgb(255 255 255 / .16); }
-body.style-macos input[role="switch"]::after { width: 18px; height: 18px; top: 2px; left: 2px; box-shadow: 0 1px 2px rgb(0 0 0 / .25), 0 0 0 .5px rgb(0 0 0 / .06); }
-body.style-macos input[role="switch"]:checked { background: var(--accent); }
-body.style-macos input[role="switch"]:checked::after { background: #fff; }
-body.style-macos .segmented, body.style-macos .mdMenubar .mdModes, body.style-macos .recentFilter, body.style-macos #navigationPanel nav, body.style-macos .toolCategories { background: rgb(0 0 0 / .06); border-radius: 9px; }
-body.style-macos.dark :is(.segmented, .mdMenubar .mdModes, .recentFilter, #navigationPanel nav, .toolCategories) { background: rgb(255 255 255 / .08); }
-body.style-macos :is(.segmented, .mdModes, .recentFilter, #navigationPanel nav, .toolCategories) button[aria-pressed="true"],
-body.style-macos .mdMenubar .mdModes button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 .5px 2px rgb(0 0 0 / .16), 0 0 0 .5px rgb(0 0 0 / .05); border-radius: 7px; }
-body.style-macos.dark :is(.segmented, .mdModes, .recentFilter, #navigationPanel nav, .toolCategories) button[aria-pressed="true"] { background: rgb(255 255 255 / .16); }
-
-/* Thin, rounded overlay-style scrollbars */
-body.style-macos ::-webkit-scrollbar { width: 11px; height: 11px; }
-body.style-macos ::-webkit-scrollbar-thumb { background-color: rgb(0 0 0 / .22); border: 3px solid transparent; border-radius: 11px; background-clip: content-box; }
-body.style-macos.dark ::-webkit-scrollbar-thumb { background-color: rgb(255 255 255 / .24); }
-body.style-macos ::-webkit-scrollbar-thumb:hover { background-color: rgb(0 0 0 / .38); border-width: 2px; }
-body.style-macos.dark ::-webkit-scrollbar-thumb:hover { background-color: rgb(255 255 255 / .38); }
-
-/* ——— Glass surfaces: menus, popovers, dialogs, floating panels ——— */
-body.style-macos :is([popover], #pageContextMenu, .mdMenu, .mdPop, .mdEmojiPopup, .mdFindBar, .aiHistory, .aiPresetMenu, #directEditor) {
-  background: var(--glass); border: .5px solid var(--glass-line); box-shadow: var(--shadow-lg);
-  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
-}
-body.style-macos :is([popover], #pageContextMenu, .mdMenu, .mdPop, .aiHistory, .aiPresetMenu) { border-radius: 12px; }
-body.style-macos .menuItem { height: 28px; border-radius: 6px; }
-body.style-macos .menuItem:hover:not(:disabled), body.style-macos .menuItem:focus-visible { background: var(--select); color: var(--on-select); box-shadow: none; }
-body.style-macos .menuItem:hover:not(:disabled)::before, body.style-macos .menuItem:focus-visible::before,
-body.style-macos .menuItem:hover .shortcut, body.style-macos .menuItem:focus-visible .shortcut { color: var(--on-select); }
-body.style-macos .menuSep { background: var(--line-strong); height: .5px; margin: 5px 10px; }
-body.style-macos .pager { background: var(--glass); border: .5px solid var(--glass-line); border-radius: 14px; box-shadow: var(--shadow-md); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
-body.style-macos .pager button { border-radius: 8px; }
-body.style-macos dialog, body.style-macos .mdModal, body.style-macos #settingsDialog, body.style-macos #toolsDialog, body.style-macos #converterDialog {
-  border: .5px solid var(--glass-line); border-radius: 16px; box-shadow: var(--shadow-lg);
-  background: var(--glass-sheet); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
-}
-body.style-macos dialog::backdrop { background: rgb(0 0 0 / .16); -webkit-backdrop-filter: none; backdrop-filter: none; }
-body.style-macos.dark dialog::backdrop { background: rgb(0 0 0 / .34); }
-body.style-macos dialog[open] { animation: mac-sheet-in .24s cubic-bezier(.2, .9, .3, 1.05); }
-body.style-macos :is(.toolsHeading, .toolsFooter) { background: transparent; }
-body.style-macos .toolsFooter { box-shadow: none; border-top: .5px solid var(--line); }
-
-/* Settings: a macOS System Settings–like sidebar */
-body.style-macos .settingsHeader { justify-content: center; border-bottom: .5px solid var(--line); padding: 12px 14px 11px; }
-body.style-macos .settingsHeader h2 { flex: none; font-size: 14px; font-weight: 650; --icon-size: 16px; }
-body.style-macos .settingsClose { position: absolute; right: 12px; top: 10px; width: 28px; height: 28px; border-radius: 50%; }
-body.style-macos .settingsHeader { position: relative; }
-body.style-macos .settingsNav { background: rgb(0 0 0 / .035); border-right: .5px solid var(--line); padding: 10px 8px; }
-body.style-macos.dark .settingsNav { background: rgb(255 255 255 / .03); }
-body.style-macos .settingsNav button { border-radius: 7px; padding: 6px 10px; }
-body.style-macos .settingsNav button[aria-selected="true"] { background: var(--select); color: var(--on-select); }
-body.style-macos .settingsPanes { background: transparent; }
-body.style-macos .settingRow { border-bottom: .5px solid var(--line); }
-
-/* ——— Panels and cards ——— */
-body.style-macos #navigationPanel, body.style-macos .mdOutline { background: var(--surface-2); border-right: .5px solid var(--line); box-shadow: none; }
-body.style-macos #aiPanel { border-left: .5px solid var(--line); box-shadow: none; }
-body.style-macos .navigationRow, body.style-macos .thumbnailCard { border-radius: 10px; }
-body.style-macos .mdOutlineItem.isCurrent, body.style-macos .outlineTitle { border-radius: 7px; }
-body.style-macos :is(.actionTile, .recentPanel, .sideCard, .assocRow) { border: .5px solid var(--line); box-shadow: var(--shadow-sm); border-radius: 16px; }
-body.style-macos .actionTile:hover:not(:disabled) { box-shadow: var(--shadow-md); }
-body.style-macos .tileGlyph { border-radius: 12px; }
-body.style-macos .workspaceBadge { border: .5px solid var(--line); box-shadow: var(--shadow-sm); }
-body.style-macos .viewerPanel iframe { background: var(--viewer-bg); }
+body.style-macos .titlebar { align-items: center; gap: var(--space-4); }
+body.style-macos .tabs { align-items: center; gap: var(--space-4); padding-top: 0; }
+body.style-macos .tab { height: var(--control-h-sm); }
+body.style-macos .tab.active { box-shadow: var(--sel-plate); background: var(--sel-bg); color: var(--on-sel); }
 
 /* ——— Window vibrancy (Windows 11 acrylic behind a transparent page) ——— */
 html:has(body.vibrancy), body.style-macos.vibrancy { background: transparent; }
-body.style-macos.vibrancy { --titlebar: rgb(236 236 240 / .5); --bg: rgb(245 245 247 / .62); }
-body.style-macos.vibrancy.dark { --titlebar: rgb(30 30 32 / .45); --bg: rgb(28 28 30 / .6); }
-body.style-macos.vibrancy :is(#navigationPanel, .mdOutline) { background: color-mix(in srgb, var(--surface-2) 70%, transparent); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+body.style-macos.vibrancy { --titlebar: color-mix(in srgb, var(--bg-raised) 55%, transparent); --bg: color-mix(in srgb, var(--bg-base) 65%, transparent); }
 body.style-macos.vibrancy .home { background: var(--bg); }
 body.style-macos.vibrancy .status { background: var(--titlebar); }
 
 /* ——— Settings: interface style chooser (visible in both styles) ——— */
-.settingRow.styleHeading { border-bottom: 0; padding-bottom: 4px; }
-.styleChoices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 4px 0 14px; border-bottom: 1px solid var(--line); }
-.styleChoices button { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); text-align: left; white-space: normal; }
-.styleChoices button:hover:not(:disabled) { background: var(--surface-2); border-color: var(--line-strong); }
-.styleChoices button[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow-sm); }
-.styleText b { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-.styleChoices button[aria-checked="true"] .styleText b::after { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4L18 8.5'/%3E%3C/svg%3E") center / 10px no-repeat; }
-.styleText small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); }
-.stylePreview { position: relative; display: flex; flex-direction: column; height: 86px; overflow: hidden; border: 1px solid var(--line-strong); background: var(--bg); }
+.settingRow.styleHeading { border-bottom: 0; padding-bottom: var(--space-4); }
+.styleChoices { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-12); padding: var(--space-4) 0 var(--space-14); border-bottom: var(--rule-w) solid var(--rule); }
+.styleChoices button { flex-direction: column; align-items: stretch; gap: var(--space-10); padding: var(--space-10); border: var(--rule-w) solid var(--rule); border-radius: var(--radius-lg); background: var(--bg-raised); text-align: left; white-space: normal; }
+.styleChoices button:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--rule); }
+.styleChoices button[aria-checked="true"] { border-color: var(--sel-bg); box-shadow: var(--sel-plate); background: var(--sel-bg); color: var(--on-sel); }
+.styleText b { display: flex; align-items: center; gap: var(--space-6); font-size: var(--fs-md); }
+.styleChoices button[aria-checked="true"] .styleText b::after { content: "✓"; color: var(--primary); font-family: var(--font-mono); }
+.styleText small { display: block; margin-top: var(--space-2); font-size: var(--fs-xs); color: var(--text-2); }
+.stylePreview { position: relative; display: flex; flex-direction: column; height: 86px; overflow: hidden; border: var(--rule-w) solid var(--rule); background: var(--bg-base); }
 .stylePreview i { display: block; font-style: normal; }
-.stylePreview .spBar { display: flex; align-items: center; gap: 6px; height: 20px; padding: 0 6px; background: var(--titlebar); border-bottom: 1px solid var(--line); flex: none; }
-.stylePreview .spTab { width: 52px; height: 13px; background: var(--surface); }
-.stylePreview .spBody { flex: 1; display: grid; grid-template-columns: 30% 1fr; grid-template-rows: 1fr 1fr; gap: 6px; padding: 7px; }
-.stylePreview .spBody i { background: var(--surface); border: 1px solid var(--line); }
-.stylePreview .spBody i:first-child { grid-row: 1 / 3; background: var(--surface-2); }
-.stylePreview.isWindows { border-radius: 3px; }
-.stylePreview.isWindows .spTab { border-radius: 4px 4px 0 0; align-self: flex-end; }
-.stylePreview.isWindows .spCaps { display: flex; gap: 9px; margin-left: auto; padding-right: 2px; }
-.stylePreview.isWindows .spCaps i { width: 7px; height: 7px; border: 1.2px solid var(--muted); }
-.stylePreview.isWindows .spCaps i:first-child { height: 0; border-width: 1.2px 0 0; align-self: center; }
-.stylePreview.isWindows .spCaps i:last-child { border: 0; background: linear-gradient(45deg, transparent 44%, var(--muted) 44%, var(--muted) 56%, transparent 56%), linear-gradient(-45deg, transparent 44%, var(--muted) 44%, var(--muted) 56%, transparent 56%); }
-.stylePreview.isWindows .spBody i { border-radius: 2px; }
-.stylePreview.isMacos { border-radius: 11px; box-shadow: 0 6px 16px rgb(0 0 0 / .1); background: linear-gradient(135deg, color-mix(in srgb, var(--accent-soft) 70%, var(--bg)), var(--bg) 60%); }
-.stylePreview.isMacos .spBar { background: color-mix(in srgb, var(--titlebar) 70%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-.stylePreview.isMacos .spLights { display: flex; gap: 4px; }
-.stylePreview.isMacos .spLights i { width: 7px; height: 7px; border-radius: 50%; background: #ff5f57; }
-.stylePreview.isMacos .spLights i:nth-child(2) { background: #febc2e; }
-.stylePreview.isMacos .spLights i:nth-child(3) { background: #28c840; }
-.stylePreview.isMacos .spTab { border-radius: 4px; box-shadow: 0 .5px 1.5px rgb(0 0 0 / .15); }
-.stylePreview.isMacos .spBody i { border-radius: 6px; border-color: transparent; box-shadow: 0 .5px 1.5px rgb(0 0 0 / .1); }
-.stylePreview.isMacos .spBody i:first-child { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
-.styleRestart { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0 2px; padding: 10px 10px 10px 14px; border-radius: var(--radius); background: var(--accent-soft); color: var(--ink); font-size: 12.5px; animation: surface-in var(--med) var(--ease); }
-.styleRestart::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.stylePreview .spBar { display: flex; align-items: center; gap: var(--space-6); height: 20px; padding: 0 var(--space-6); background: var(--bg-raised); border-bottom: var(--rule-w) solid var(--rule); flex: none; }
+.stylePreview .spTab { width: 52px; height: 13px; background: var(--primary); }
+.stylePreview .spBody { flex: 1; display: grid; grid-template-columns: 30% 1fr; grid-template-rows: 1fr 1fr; gap: var(--space-6); padding: var(--space-8); }
+.stylePreview .spBody i { background: var(--bg-panel); border: 0; }
+.stylePreview .spBody i:first-child { grid-row: 1 / 3; background: var(--bg-panel); }
+.stylePreview.isWindows { border-radius: 0; }
+.stylePreview.isWindows .spTab { border-radius: 0; align-self: flex-end; }
+.stylePreview.isWindows .spCaps { display: flex; gap: var(--space-8); margin-left: auto; padding-right: var(--space-2); }
+.stylePreview.isWindows .spCaps i { width: 7px; height: 7px; border: var(--rule-w) solid var(--text-2); }
+.stylePreview.isWindows .spCaps i:first-child { height: 0; border-width: var(--rule-w) 0 0; align-self: center; }
+.stylePreview.isWindows .spCaps i:last-child { border: 0; background: var(--text-2); clip-path: polygon(0 12%, 12% 0, 50% 38%, 88% 0, 100% 12%, 62% 50%, 100% 88%, 88% 100%, 50% 62%, 12% 100%, 0 88%, 38% 50%); }
+.stylePreview.isWindows .spBody i { border-radius: 0; }
+.stylePreview.isMacos { border-radius: 0; background: var(--bg-base); }
+.stylePreview.isMacos .spBar { background: var(--bg-raised); }
+.stylePreview.isMacos .spLights { display: flex; gap: var(--space-4); }
+.stylePreview.isMacos .spLights i { width: 7px; height: 7px; border-radius: var(--r-round); background: var(--danger); }
+.stylePreview.isMacos .spLights i:nth-child(2) { background: var(--amber); }
+.stylePreview.isMacos .spLights i:nth-child(3) { background: var(--primary); }
+.stylePreview.isMacos .spTab { border-radius: 0; }
+.stylePreview.isMacos .spBody i { border-radius: 0; }
+.stylePreview.isMacos .spBody i:first-child { background: var(--bg-panel); }
+.styleRestart { display: flex; align-items: center; justify-content: space-between; gap: var(--space-12); margin: var(--space-12) 0 var(--space-2); padding: var(--space-10) var(--space-10) var(--space-10) var(--space-14); border-radius: var(--radius); background: var(--bg-raised); color: var(--ink); font-size: var(--fs-sm); animation: press-in var(--dur) var(--ease-press); border-left: var(--rule-w-bold) solid var(--amber-line); }
+.styleRestart::before { content: none; flex: none; width: 7px; height: 7px; border-radius: var(--r-1); background: var(--accent); }
 .styleRestart span { flex: 1; }
-.styleRestart button { flex: none; padding: 6px 12px; font-size: 12.5px; --icon-size: 14px; }
+.styleRestart button { flex: none; padding: var(--space-6) var(--space-12); font-size: var(--fs-sm); --icon-size: 14px; }
 
-@keyframes mac-tab-in { from { opacity: 0; transform: scale(.94); } }
-@keyframes mac-sheet-in { from { opacity: 0; transform: translateY(-10px) scale(.985); } }
 @media (max-width: 760px) { .styleChoices { grid-template-columns: 1fr; } }
-body.style-macos .menuItem.danger:hover:not(:disabled), body.style-macos .menuItem.danger:hover:not(:disabled)::before { background: var(--danger); color: #fff; }
+.styleChoices button[aria-checked="true"] :is(small, b) { color: var(--on-sel); }

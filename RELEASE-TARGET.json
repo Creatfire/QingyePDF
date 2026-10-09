@@ -1,23 +1,16 @@
 {
   "app": "QingyePDF",
-  "version": "0.13.0",
+  "version": "0.17.0",
   "platform": [
-    "win32",
-    "android",
-    "darwin"
+    "win32"
   ],
   "architecture": [
-    "x64",
-    "arm64"
+    "x64"
   ],
   "target": [
-    "nsis",
-    "portable",
-    "zip",
-    "apk",
-    "dmg"
+    "portable"
   ],
-  "artifactName": "QingyePDF-0.13.0-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.17.0-win-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -27,46 +20,22 @@
   "aiCollaboration": "opt-in; loopback OpenAPI tool server off by default",
   "interfaceStyles": [
     "Windows (default, native caption buttons)",
-    "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
+    "MacOS (drawn traffic lights, unified title bar; optional Windows 11 acrylic behind title bar and home page)"
   ],
   "acceptance": [
-    "Windows source: 103 unit tests passed, 1 POSIX-only test skipped; 47 backend jobs passed; 8 smoke suites passed",
-    "12 focused UI regressions including 35-second checkpoint undo passed in source and Windows package"
+    "Windows release verification is recorded in docs/BUILD-REPORT-0.17.0.md"
   ],
   "newFeatures": [
-    "0.12.0 QA repairs; Windows, Android and macOS 0.13.0 distribution"
+    "Optional home pages (Settings → General → Home page style): Classic, Glass (pointer-following light on frosted panes), Print grid (lift on hover, press-in on click), Desk (draggable paper cards on pendulum springs, dock-style tool tray), Colour blocks (spring shrink on press, grow on hover and drag-across)",
+    "Home pages show local-only reading activity (opens, reading minutes, excerpts per day), recent excerpts with jump-back to the source page, bookmarks of the latest PDF, and a Ctrl+K quick launcher",
+    "Six interface skins (Classic, Glass, Print grid, Desk, Colour blocks, Dark green halftone), independent from the home layout; character home layout removed"
   ],
-  "buildRevision": "fix1",
+  "buildRevision": "",
   "fixes": [
-    "A-BUG-001",
-    "A-BUG-002",
-    "A-BUG-003",
-    "A-BUG-004",
-    "B-BUG-001",
-    "B-BUG-002",
-    "B-BUG-003",
-    "C-BUG-001",
-    "C-BUG-002",
-    "C-BUG-003",
-    "C-BUG-004",
-    "C-BUG-005",
-    "C-BUG-006",
-    "C-BUG-007",
-    "C-BUG-008",
-    "D-BUG-002",
-    "D-BUG-003"
+    "Switching from any optional home page back to Classic in Settings left the optional page on screen"
   ],
   "crossBuilt": false,
-  "otherArtifacts": [
-    "QingyePDF-0.13.0-win-x64.exe",
-    "QingyePDF-0.13.0-win-x64.zip",
-    "QingyePDF-0.13.0-android-debug.apk",
-    "QingyePDF-0.13.0-mac-arm64.dmg",
-    "QingyePDF-0.13.0-mac-x64.dmg"
-  ],
-  "testSideCorrections": [
-    "B-BUG-004",
-    "D-BUG-001"
-  ],
+  "otherArtifacts": [],
+  "testSideCorrections": [],
   "pdfjsModified": true
 }
