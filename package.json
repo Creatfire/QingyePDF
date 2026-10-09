@@ -210,14 +210,15 @@
       "icon": "build/logo.png",
       "category": "Office",
       "maintainer": "Qingye PDF contributors",
+      "vendor": "Qingye PDF contributors",
+      "synopsis": "Local-first open-source PDF reader with tabs and annotations",
+      "description": "青页 PDF：本地优先的开源 PDF 与 Markdown 工作台，支持标签页阅读、批注、内容编辑、文档转换与 AI 辅助。",
       "artifactName": "QingyePDF-${version}-linux-${arch}.${ext}",
-      "desktop": {
-        "Name": "青页 PDF",
-        "Comment": "Local-first open-source PDF reader with tabs and annotations",
-        "MimeType": "application/pdf;text/markdown;text/x-markdown;",
-        "StartupWMClass": "QingyePDF",
-        "Categories": "Office;Viewer;"
-      }
+      "mimeTypes": [
+        "application/pdf",
+        "text/markdown",
+        "text/x-markdown"
+      ]
     },
     "dmg": {
       "title": "QingyePDF ${version}",
