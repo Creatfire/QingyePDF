@@ -23,5 +23,5 @@ Thumbs.db
 *.keystore
 # A Linux / macOS Pandoc placed here for local testing
 vendor/pandoc/pandoc
-# Records which macOS Pandoc archive vendor/pandoc/pandoc came from
-vendor/pandoc/.macos-asset
+# Records which macOS / Linux Pandoc archive vendor/pandoc/pandoc came from
+vendor/pandoc/.unix-asset

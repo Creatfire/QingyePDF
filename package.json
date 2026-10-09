@@ -202,6 +202,23 @@
         "NSHumanReadableCopyright": "Copyright © 2026 Qingye PDF contributors. AGPL-3.0."
       }
     },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/logo.png",
+      "category": "Office",
+      "maintainer": "Qingye PDF contributors",
+      "artifactName": "QingyePDF-${version}-linux-${arch}.${ext}",
+      "desktop": {
+        "Name": "青页 PDF",
+        "Comment": "Local-first open-source PDF reader with tabs and annotations",
+        "MimeType": "application/pdf;text/markdown;text/x-markdown;",
+        "StartupWMClass": "QingyePDF",
+        "Categories": "Office;Viewer;"
+      }
+    },
     "dmg": {
       "title": "QingyePDF ${version}",
       "contents": [
