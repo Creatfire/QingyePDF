@@ -142,7 +142,7 @@ function register(ctx) {
     if (files.some(file => !file || typeof file.name !== 'string' || !(file.data instanceof Uint8Array || ArrayBuffer.isView(file.data) || file.data instanceof ArrayBuffer))) throw new Error('无效的附加资源。');
     const reference = format === 'docx' ? await pandocMarkdown.referenceDocx(pandoc, options?.docxStyle && typeof options.docxStyle === 'object' ? options.docxStyle : {}) : null;
     const target = await saveDialog(record, ext, '导出为 ' + ext.toUpperCase()); if (!target) return null;
-    const { bytes, warnings } = await pandocMarkdown.exportDocument(pandoc, { format, text, cwd: record.path ? path.dirname(record.path) : undefined, files, toc: options?.toc === true, smart: options?.smart === true, reference, css: typeof options?.css === 'string' ? options.css.slice(0, 2e6) : '' });
+    const { bytes, warnings } = await pandocMarkdown.exportDocument(pandoc, { format, text, cwd: record.path ? path.dirname(record.path) : undefined, files, toc: options?.toc === true, smart: options?.smart === true, reference, css: typeof options?.css === 'string' ? options.css.slice(0, 2e6) : '', citeproc: options?.citeproc === true, bibliography: typeof options?.bibliography === 'string' ? options.bibliography : '', csl: typeof options?.csl === 'string' ? options.csl.trim() : '' });
     await writeOut(target, bytes);
     return { path: target, warnings: String(warnings || '').trim().slice(0, 2000) };
   });

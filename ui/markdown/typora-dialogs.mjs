@@ -191,6 +191,8 @@ const FIELDS = {
     ['h', 'PDF'], ['select', 'pdfPageSize', '纸张', [['A4', 'A4'], ['A3', 'A3'], ['A5', 'A5'], ['Letter', 'Letter'], ['Legal', 'Legal']]], ['select', 'pdfMargin', '页边距', [['normal', '标准（20 mm）'], ['narrow', '窄（10 mm）'], ['wide', '宽（30 mm）'], ['none', '无']]],
     ['check', 'pdfLandscape', '横向'], ['check', 'pdfHeaderFooter', '页脚显示页码'], ['check', 'pdfBackground', '打印背景色'],
     ['h', '文档转换引擎（内置 Pandoc）'], ['text', 'pandocPath', '自定义 Pandoc 路径（留空使用内置引擎）'], ['pandocProbe'],
+    ['h', '参考文献'], ['text', 'cslPath', '引用样式 .csl 文件（留空使用 Chicago 作者-年份；GB/T 7714 等样式可从 Zotero 样式库下载）'],
+    ['note', '笔记里的 [@key] 会在导出 Word、ePub 等格式时按青页文献库（PDF 的“引用信息”）自动生成参考文献；文档 YAML 里写了 bibliography 时改用该文件。'],
     ['select', 'docxEngine', 'Word 与 ePub 的生成方式', [['pandoc', 'Pandoc（原生公式、真正的脚注、按主题生成样式）'], ['builtin', '青页内置生成器']]],
     ['note', 'Pandoc 不可用时自动改用内置生成器。LaTeX、RTF、HTML、PDF、图片、纯文本始终由青页自己生成。'],
   ],

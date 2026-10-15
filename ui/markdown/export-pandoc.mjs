@@ -3,6 +3,12 @@
 import { preparePandocMarkdown } from './pandoc-prep.mjs';
 import { renderExportDom, svgToPng } from './export-dom.mjs';
 import { themeTokens } from './export-css.mjs';
+import { readLibrary, libraryBibtex } from '../citation.mjs';
+
+// Bracketed Pandoc citations: [@key], [see @key, p. 3], [-@key; @other]. A bare @name is left
+// alone, because citeproc would turn an unrelated mention into "(name?)".
+export const CITATION = /\[[^\]\n]*?-?@[\p{L}\p{N}_][\p{L}\p{N}_:.#$%&+?<>~/-]*/u;
+const library = () => { try { return readLibrary(); } catch { return {}; } };
 
 // Pandoc formats the editor routes through the engine when it is available.
 export const PANDOC_PRIMARY = new Set(['docx', 'epub']);
@@ -51,6 +57,14 @@ export async function preparePandocJob(source, { format, prefs = {}, theme = 'qi
     }
   }
   const options = { files, toc: prep.toc, smart: !!prefs.smartPunctuation };
+  // Citations: [@key] / @key resolve against the document's own `bibliography:` or, failing that,
+  // the reference library built from PDFs (citation.mjs), shipped as a .bib with the job.
+  if (CITATION.test(text)) {
+    options.citeproc = true;
+    if (prefs.cslPath) options.csl = prefs.cslPath;
+    const bib = /^---\n[\s\S]*?^bibliography\s*:/m.test(text) ? '' : libraryBibtex(library());
+    if (bib) { files.push({ name: 'qy-references.bib', data: new TextEncoder().encode(bib) }); options.bibliography = 'qy-references.bib'; }
+  }
   if (format === 'docx') options.docxStyle = docxStyle(theme, prefs);
   if (format === 'epub') options.css = epubCss(theme, prefs);
   return { text, options };

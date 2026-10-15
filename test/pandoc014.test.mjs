@@ -105,6 +105,21 @@ test('real Pandoc: import writes editor-native Markdown', { skip: !hasPandoc && 
   } finally { await fs.rm(dir, { recursive: true, force: true }); }
 });
 
+test('citations: bracketed keys only, library bibliography rendered by citeproc', { skip: !hasPandoc && 'bundled Pandoc not prepared' }, async () => {
+  globalThis.window ??= globalThis;
+  const { CITATION } = await import('../ui/markdown/export-pandoc.mjs');
+  assert.ok(CITATION.test('如文献 [@smith2020deep] 所示')); assert.ok(CITATION.test('[见 @a, 第 3 页; -@b]'));
+  assert.ok(!CITATION.test('联系 @张三 或 a@b.com')); assert.ok(!CITATION.test('`[x]` @Override'));
+  const { libraryBibtex } = await import('../ui/citation.mjs');
+  const bib = libraryBibtex({ '/a.pdf': { type: 'article', title: '深度学习研究', authors: ['Smith, John'], year: '2020', journal: 'Nature', key: 'smith2020deep' } });
+  const { bytes } = await bridge.exportDocument(pandoc, { format: 'docx', text: '正文引用 [@smith2020deep]。\n', files: [{ name: 'qy-references.bib', data: Buffer.from(bib) }], citeproc: true, bibliography: 'qy-references.bib' });
+  const doc = bridge.readZip(bytes).find(e => e.name === 'word/document.xml').data.toString('utf8');
+  const text = [...doc.matchAll(/<w:t(?: [^>]*)?>([^<]*)<\/w:t>/g)].map(m => m[1]).join('');
+  assert.match(text, /Smith/); assert.match(text, /2020/); assert.match(text, /参考文献/); assert.match(text, /深度学习研究/);
+  await assert.rejects(bridge.exportDocument(pandoc, { format: 'docx', text: '[@x]', citeproc: true, bibliography: 'missing.bib' }), /文献库/);
+  await assert.rejects(bridge.exportDocument(pandoc, { format: 'docx', text: '[@x]', citeproc: true, csl: 'C:/nope/style.csl' }), /引用样式/);
+});
+
 test('real Pandoc: converter center reads .md with the editor dialect', { skip: !hasPandoc && 'bundled Pandoc not prepared' }, async () => {
   const dir = await tmp();
   try {

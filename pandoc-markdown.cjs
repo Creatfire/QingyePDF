@@ -39,7 +39,7 @@ const readerFor = ({ smart = false } = {}) => smart ? PANDOC_FROM.replace('markd
 const SAFE_NAME = /^[\w.-]{1,120}$/;
 // Converts editor Markdown with Pandoc. `files` are extra resources (rendered diagrams) addressed by
 // bare file name from the Markdown; `reference` is a .docx/.odt/.pptx Buffer used as style template.
-async function exportDocument(pandoc, { format, text, cwd, files = [], toc = false, lang = 'zh-CN', smart = false, reference = null, css = '', signal, timeout = 300000 }) {
+async function exportDocument(pandoc, { format, text, cwd, files = [], toc = false, lang = 'zh-CN', smart = false, reference = null, css = '', citeproc = false, bibliography = '', csl = '', signal, timeout = 300000 }) {
   const target = TARGETS[format];
   if (!target) throw new Error('不支持的 Pandoc 格式：' + format);
   if (typeof text !== 'string') throw new Error('无效的内容。');
@@ -57,6 +57,13 @@ async function exportDocument(pandoc, { format, text, cwd, files = [], toc = fal
     if (reference && ['docx', 'odt', 'pptx'].includes(format)) { const ref = path.join(stage, 'reference.' + format); await fs.writeFile(ref, reference); args.push('--reference-doc', ref); }
     if (css && ['epub', 'html'].includes(format)) { const sheet = path.join(stage, 'style.css'); await fs.writeFile(sheet, css, 'utf8'); args.push('--css', sheet); }
     if (format === 'html') args.push('--embed-resources');
+    // Citations ([@key]) from the reference library or the document's own bibliography.
+    if (citeproc) {
+      args.push('--citeproc', '-M', 'link-citations=true');
+      if (lang === 'zh-CN') args.push('-M', 'reference-section-title=参考文献');
+      if (bibliography) { if (!SAFE_NAME.test(bibliography) || !files.some(f => f.name === bibliography)) throw new Error('无效的文献库文件。'); args.push('--bibliography', path.join(stage, bibliography)); }
+      if (csl) { const file = path.resolve(csl); if (!/\.csl$/i.test(file) || !(await fs.stat(file).then(s => s.isFile(), () => false))) throw new Error('找不到引用样式文件（.csl）：' + csl); args.push('--csl', file); }
+    }
     args.push(input);
     const result = await withDialect(readerFor({ smart }), from => engine.run(pandoc, ['-f', from, ...args], { cwd: cwd || stage, signal, timeout }));
     return { bytes: await fs.readFile(out), warnings: result.stderr };
