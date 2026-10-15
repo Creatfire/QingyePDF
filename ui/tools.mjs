@@ -21,12 +21,15 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
       <label data-for="organize compare page-stamp">合并 / 比较 / 印章来源 <select id="toolOther" multiple aria-label="其他已打开文档"></select></label>
       <label data-for="page-stamp">来源 PDF 的页码 <input id="toolStampPage" type="number" min="1" value="1"></label>
       <div data-for="compare"><label><input id="compareVisual" type="checkbox">标记图像差异（96 DPI，一次最多 200 页）</label><label>对比文档页差 <input id="toolCompareOffset" type="number" value="0"></label></div>
+      <label data-for="compress">压缩方案 <select id="toolCompressProfile"><option value="">只做无损清理（或下方自定义）</option><option value="quality">高质量 · 超过 300 DPI 才降采样</option><option value="balanced">平衡 · 超过 225 DPI 降到 150 DPI</option><option value="small">最小文件 · 降到约 96 DPI</option></select></label>
       <label data-for="compress" class="toolCheck"><input id="toolLossy" type="checkbox">降低图像分辨率与质量（有损压缩）</label>
       <label data-for="compress">JPEG 质量 10–100 <input id="toolQuality" type="number" min="10" max="100" value="65"></label>
       <label data-for="ocr" class="toolCheck"><input id="toolForceOcr" type="checkbox">对已有文字的页面也重新 OCR</label>
       <label data-for="sharpen">锐化程度 <select id="toolSharpen"><option value="mild">轻度</option><option value="standard" selected>标准</option><option value="strong">较强</option></select></label>
       <div data-for="scan"><label>顺时针旋转 <select id="scanAngle"><option value="0">不旋转</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label><label><input id="scanDeskew" type="checkbox" checked>自动纠正轻微倾斜（±5°）</label><label><input id="scanClean" type="checkbox" checked>清理浅色背景</label><label><input id="scanGray" type="checkbox">转换为灰度</label><label><input id="scanRecognize" type="checkbox" checked>重新识别中英文文字</label></div>
       <label data-for="text stamp watermark number annotation form">文字 <textarea id="toolText" rows="3" placeholder="印章文字、替换文本、批注内容或字段名称"></textarea></label>
+      <label data-for="stamp image page-stamp watermark number shape">应用到 <select id="toolSubset"><option value="all">所选范围内的全部页</option><option value="odd">仅奇数页</option><option value="even">仅偶数页</option></select></label>
+      <details data-for="stamp watermark number" class="stampVars"><summary>变量与贝茨编号</summary><p class="toolHint">文字中可以使用：<code>{page}</code> 页码、<code>{total}</code> 总页数、<code>{file}</code> 文件名、<code>{date}</code> 日期、<code>{time}</code> 时间、<code>{title}</code> 标题、<code>{author}</code> 作者、<code>{bates}</code> 贝茨编号。</p><div class="stampVarButtons" role="group" aria-label="插入变量"><button type="button" data-var="{page}">页码</button><button type="button" data-var="{total}">总页数</button><button type="button" data-var="{file}">文件名</button><button type="button" data-var="{date}">日期</button><button type="button" data-var="{bates}">贝茨编号</button></div><div class="batesFields"><label>前缀 <input id="batesPrefix" maxlength="40" placeholder="例如：QY-"></label><label>起始号 <input id="batesStart" type="number" min="0" value="1"></label><label>位数 <input id="batesDigits" type="number" min="1" max="12" value="6"></label><label>后缀 <input id="batesSuffix" maxlength="40"></label></div></details>
       <label data-for="text stamp watermark number">字号 pt <input id="toolSize" type="number" min="6" max="100" value="18"></label>
       <label data-for="text stamp watermark number shape annotation">颜色 <input id="toolColor" type="color" value="#b91c1c"></label>
       <label data-for="stamp watermark number">透明度 0.05–1 <input id="toolOpacity" type="number" min="0.05" max="1" step="0.05" value="1"></label>
@@ -135,9 +138,11 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(redactHits.length){$('toolPreviewPage').value=redactHits[0].page;await preview();}
   }
   $('redactFind').onclick=()=>guard(findRedactions);
+  dialog.querySelector('.stampVarButtons').onclick=e=>{const v=e.target.closest('button')?.dataset.var;if(!v)return;const t=$('toolText'),at=t.selectionStart??t.value.length;t.setRangeText(v,at,t.selectionEnd??at,'end');t.focus();updateSummary();};
+  $('toolCompressProfile').onchange=()=>{const on=!!$('toolCompressProfile').value;for(const id of ['toolLossy','toolDpi','toolQuality'])$(id).disabled=on;};
   $('redactClear').onclick=()=>{redactHits=[];renderHits();};
   async function changed(){
-    const a=action();$('toolHint').textContent=hints[a];$('applyToolDraft').hidden=!['organize','outline','text','stamp','image','watermark','shape','annotation','redact','crop','sharpen'].includes(a);
+    const a=action();$('toolHint').textContent=hints[a];$('applyToolDraft').hidden=!['organize','outline','text','stamp','image','watermark','shape','annotation','redact','number','crop','sharpen'].includes(a);
     const selectedCategory=Object.values(categoryMap).find(items=>items.includes(a));
     for(const b of categories.children)b.setAttribute('aria-pressed',String(categoryMap[b.dataset.category].includes(a)));
     for(const option of $('toolAction').options)option.hidden=!selectedCategory.includes(option.value);
@@ -169,6 +174,9 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(a==='sharpen')Object.assign(r,{pages:'',strength:$('toolSharpen').value});
     if(a==='compare')Object.assign(r,{visual:$('compareVisual').checked,offset:Number($('toolCompareOffset').value)});
     if(a==='outline')r.toc=outlineEditor.get();
+    if(['stamp','image','page-stamp','watermark','number','shape'].includes(a))r.subset=$('toolSubset').value;
+    if(['stamp','watermark','number'].includes(a))Object.assign(r,{fileName:toolSession?.name||'',batesPrefix:$('batesPrefix').value,batesStart:Number($('batesStart').value)||0,batesDigits:Number($('batesDigits').value)||6,batesSuffix:$('batesSuffix').value});
+    if(a==='compress'&&$('toolCompressProfile').value)r.profile=$('toolCompressProfile').value;
     if(a==='redact'){r.fill=$('redactFill').value;if(chosenHits().length)r.marks=chosenHits().map(h=>({page:h.page,rects:h.rects}));}
     return r;
   }

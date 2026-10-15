@@ -113,3 +113,12 @@
 .redactHit span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono, Consolas, monospace); }
 .toolHit { position: absolute; background: rgb(0 0 0 / .78); outline: 1px solid rgb(220 38 38 / .9); pointer-events: none; }
 #toolSelection[hidden] { display: none; }
+
+/* 0.14 stamp variables and Bates numbering (ui/tools.mjs) */
+.stampVars { margin: 6px 0; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.stampVars summary { cursor: pointer; font-weight: 600; }
+.stampVars code { padding: 0 3px; border-radius: 4px; background: var(--surface-3); }
+.stampVarButtons { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.stampVarButtons button { padding: 2px 8px; font-size: 12px; }
+.batesFields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.batesFields input { width: 100%; }

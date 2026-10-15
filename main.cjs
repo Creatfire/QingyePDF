@@ -448,7 +448,7 @@ app.whenReady().then(async () => {
     if(result.unchanged)return {unchanged:true,note:result.note};
     const output=result.files[0]; if(!output) throw new Error('处理未生成文件。');
     if(request.draft){
-      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','redact','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
+      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','redact','number','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
       return {bytes:output.bytes,note:result.note};
     }
     // Integration tests exercise IPC and actual engine output without native picker interaction.

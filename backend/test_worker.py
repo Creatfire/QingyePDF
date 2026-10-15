@@ -173,6 +173,28 @@ def check():
             page=d[0]
             assert 'Public line stays' not in page.get_text()
             assert sorted(a.type[1] for a in page.annots())==['Highlight','Text']
+        # 0.14 stamp templates, Bates numbers and odd / even pages.
+        four=base/'four.pdf'
+        with fitz.open() as doc:
+            for n in range(4):doc.new_page(width=300,height=300)
+            doc.set_metadata({'title':'合同'});doc.save(four)
+        _,out=run({'action':'number','text':'{bates} · {page}/{total} · {title} · {file}','subset':'even','batesPrefix':'QY-','batesStart':7,'batesDigits':4,'fileName':'a.pdf','rect':[.05,.85,.95,.97],'size':10},four)
+        with fitz.open(out/'result.pdf') as d:
+            texts=[d[i].get_text().strip() for i in range(4)]
+        assert texts[0]=='' and texts[2]=='',texts
+        assert 'QY-0007 · 2/4 · 合同 · a.pdf' in texts[1] and 'QY-0008 · 4/4' in texts[3],texts
+        try:run({'action':'stamp','text':'x','subset':'even','pages':'1'},four);assert False
+        except ValueError:pass
+        # 0.14 compression profiles: a 600 DPI photo is downsampled; smaller profile → smaller image.
+        photo=base/'photo.pdf';noise=base/'noise.png'
+        PILImage.effect_noise((1200,1200),60).convert('RGB').save(noise)
+        with fitz.open() as doc:
+            doc.new_page(width=144,height=144).insert_image(fitz.Rect(0,0,144,144),filename=str(noise));doc.save(photo)
+        widths={}
+        for profile in ('quality','balanced','small'):
+            _,out=run({'action':'compress','profile':profile},photo)
+            with fitz.open(out/'result.pdf') as d:widths[profile]=d[0].get_images()[0][2]
+        assert 1200>widths['quality']>=widths['balanced']>widths['small'],widths  # MuPDF subsamples by integer factors
         for bad in ({'annotation':'circle','marks':[{'page':1,'rects':lines}]},{'annotation':'underline','marks':[]},{'annotation':'underline','marks':[{'page':1,'rects':[]}]}):
             try:run({'action':'markup',**bad});assert False,bad
             except ValueError:pass

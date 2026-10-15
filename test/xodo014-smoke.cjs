@@ -84,6 +84,16 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   await run(`document.getElementById('applyToolDraft').click()`);
   await until(`(async () => { try { if (${P}.editBusy || !${P}.loaded) return false; const page = await ${P}.app.pdfDocument.getPage(1); const text = (await page.getTextContent()).items.map(i => i.str).join(' '); return !text.includes('open-source') && text.includes('An'); } catch { return false; } })()`, 'redacted text removed');
   report.checks.redactApplied = true;
+  // Page numbers with Bates numbering on even pages only, applied to the open document.
+  await until(`!${P}.editBusy`, 'idle before numbering');
+  await run(`(async () => { const a = document.getElementById('toolAction'); a.value = 'number'; a.dispatchEvent(new Event('change')); })()`);
+  await until(`!document.querySelector('.stampVars').hidden && !document.getElementById('toolSubset').closest('[data-for]').hidden`, 'numbering fields');
+  await run(`(() => { const $ = id => document.getElementById(id); $('toolPages').value = ''; $('toolText').value = ''; document.querySelector('.stampVarButtons [data-var="{bates}"]').click(); $('toolSubset').value = 'even'; $('batesPrefix').value = 'QY-'; $('batesStart').value = '5'; $('batesDigits').value = '3'; })()`);
+  report.checks.numberRequest = await run(`(() => { const t = document.getElementById('toolText').value; return t; })()`);
+  assert.equal(report.checks.numberRequest, '{bates}');
+  await run(`document.getElementById('applyToolDraft').click()`);
+  await until(`(async () => { try { if (${P}.editBusy || !${P}.loaded) return false; const doc = ${P}.app.pdfDocument; const one = (await (await doc.getPage(1)).getTextContent()).items.map(i => i.str).join(' '), two = (await (await doc.getPage(2)).getTextContent()).items.map(i => i.str).join(' '); return two.includes('QY-005') && !one.includes('QY-'); } catch { return false; } })()`, 'Bates number on page 2 only');
+  report.checks.bates = true;
   await run(`document.getElementById('toolsDialog').open && document.getElementById('closeTools').click()`);
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;

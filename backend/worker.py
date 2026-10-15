@@ -3,6 +3,7 @@
 import csv
 import base64
 import contextlib
+import datetime
 import difflib
 import html
 import io
@@ -96,6 +97,34 @@ def region(page, values):
         raise ValueError('所选区域太小。')
     r = page.rect
     return fitz.Rect(x0 * r.width, y0 * r.height, x1 * r.width, y1 * r.height) * page.derotation_matrix
+
+
+# kind: (downsample when above this DPI, target DPI, JPEG quality); bitonal quality is ignored.
+COMPRESS_PROFILES = {
+    'small': {'color': (150, 96, 45), 'gray': (150, 96, 45), 'bitonal': (300, 200, 0)},
+    'balanced': {'color': (225, 150, 65), 'gray': (225, 150, 65), 'bitonal': (450, 300, 0)},
+    'quality': {'color': (300, 220, 82), 'gray': (300, 220, 82), 'bitonal': (600, 400, 0)},
+}
+
+
+def template_values(doc, request):
+    """Values for stamp / watermark / page-number templates: {page} {total} {file} {date} {time}
+    {title} {author} {subject} {bates}. Bates numbers count the stamped pages from batesStart."""
+    now = datetime.datetime.now()
+    meta = doc.metadata or {}
+    return {
+        'total': str(len(doc)), 'file': str(request.get('fileName', ''))[:200],
+        'date': now.strftime('%Y-%m-%d'), 'time': now.strftime('%H:%M'),
+        'title': meta.get('title') or '', 'author': meta.get('author') or '', 'subject': meta.get('subject') or '',
+        'bates_start': int(number(request.get('batesStart'), 0, 10**12, 1)), 'bates_digits': int(number(request.get('batesDigits'), 1, 12, 6)),
+        'bates_prefix': str(request.get('batesPrefix', ''))[:40], 'bates_suffix': str(request.get('batesSuffix', ''))[:40],
+    }
+
+
+def fill_template(text, values, index, ordinal):
+    bates = values['bates_prefix'] + str(values['bates_start'] + ordinal).zfill(values['bates_digits']) + values['bates_suffix']
+    fields = {'page': str(index + 1), 'bates': bates, **{k: v for k, v in values.items() if not k.startswith('bates_')}}
+    return re.sub(r'\{(page|total|file|date|time|title|author|subject|bates)\}', lambda m: fields[m.group(1)], text)
 
 
 def display_fraction(page, rect):
@@ -564,6 +593,13 @@ def process(request, input_file, output):
                 (output/'result.html').write_text(''.join(chunks),encoding='utf-8')
             return {'files':['result.html'],'note':'已导出图像差异标记报告。' if visual else '已导出逐页文字差异报告。'}
         selected = pages(request.get('pages'), len(doc))
+        # Odd / even pages (Xodo page subset) count real page numbers, not positions in the range.
+        subset = request.get('subset', 'all')
+        if subset in ('odd', 'even'):
+            selected = [i for i in selected if (i + 1) % 2 == (1 if subset == 'odd' else 0)]
+            if not selected:
+                raise ValueError('所选页码范围内没有' + ('奇数' if subset == 'odd' else '偶数') + '页。')
+        stamp_vars = template_values(doc, request)
         target = output / 'result.pdf'
         note = ''
         if action == 'encrypt':
@@ -640,7 +676,14 @@ def process(request, input_file, output):
                 previous = level
             doc.set_toc(validated)
         elif action == 'compress':
-            if request.get('lossy'):
+            profile = COMPRESS_PROFILES.get(request.get('profile'))
+            if profile:
+                # Colour, grey and bitonal images get their own threshold / target (Xodo profiles):
+                # only images sharper than the threshold are downsampled.
+                for kind, (threshold, target_dpi, quality) in profile.items():
+                    doc.rewrite_images(dpi_threshold=threshold, dpi_target=target_dpi, quality=quality, color=kind == 'color', gray=kind == 'gray', bitonal=kind == 'bitonal')
+                note = '已按“' + {'small': '最小文件', 'balanced': '平衡', 'quality': '高质量'}[request.get('profile')] + '”方案重压缩图像。'
+            elif request.get('lossy'):
                 dpi = int(number(request.get('dpi'), 50, 300, 144))
                 quality = int(number(request.get('quality'), 10, 100, 65))
                 doc.rewrite_images(dpi_threshold=dpi + 20, dpi_target=dpi, quality=quality)
@@ -770,8 +813,8 @@ def process(request, input_file, output):
                     if action == 'text':
                         text_box(page, rect, text, request)
                 elif action in ('stamp', 'watermark', 'text', 'number'):
-                    if action == 'number':
-                        text = text.replace('{page}', str(i + 1)).replace('{total}', str(len(doc)))
+                    if action != 'text':
+                        text = fill_template(text, stamp_vars, i, selected.index(i))
                     text_box(page, rect, text, request, border=action == 'stamp')
                 elif action == 'image':
                     file = request.get('asset')
