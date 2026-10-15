@@ -38,7 +38,7 @@ const common = { bundle: true, minify: !dev, sourcemap: dev ? 'inline' : false, 
 await fs.rm(www, { recursive: true, force: true });
 await fs.mkdir(path.join(www, 'ui/mobile'), { recursive: true });
 await fs.cp(path.join(root, 'ui'), path.join(www, 'ui'), { recursive: true });
-for (const name of ['pdfjs', 'markdown', 'mermaid', 'diagrams', 'ocr']) await fs.cp(path.join(root, 'vendor', name), path.join(www, 'vendor', name), { recursive: true });
+for (const name of ['pdfjs', 'markdown', 'mermaid', 'diagrams', 'ocr', 'codemirror']) await fs.cp(path.join(root, 'vendor', name), path.join(www, 'vendor', name), { recursive: true });
 
 // The phone opens the touch edition of the sample guide; the desktop editions stay out of the APK.
 for (const name of ['sample-guide.pdf', 'sample-guide-mac.pdf']) await fs.rm(path.join(www, 'ui', name), { force: true });
