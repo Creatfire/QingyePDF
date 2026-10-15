@@ -34,7 +34,7 @@ function epubCss(theme, prefs = {}) {
 
 // Returns { text, options } for api.mdPandocExport.
 export async function preparePandocJob(source, { format, prefs = {}, theme = 'qingye' }) {
-  const prep = preparePandocMarkdown(source, { target: format });
+  const prep = preparePandocMarkdown(source, { target: format, mathNumbering: prefs.mathNumbering });
   let text = prep.text;
   const files = [];
   if (prep.diagrams.length) {

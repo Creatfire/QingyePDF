@@ -5,6 +5,7 @@
 import { MarkdownIt, katex, hljs, DOMPurify } from '../../vendor/markdown/qingye-markdown-vendor.mjs';
 import { LEGACY_LANGS } from './diagrams-legacy.mjs';
 import { useExtensions } from './extensions.mjs';
+import { numberBlock, resolveRefs } from './math-numbers.mjs';
 export { DOMPurify };
 
 const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -62,8 +63,20 @@ function mathPlugin(md) {
     token.block = true; token.content = content.trim(); token.markup = '$$'; token.map = [startLine, state.line];
     return true;
   }, { alt: ['paragraph', 'reference', 'blockquote', 'list'] });
-  md.renderer.rules.math_inline = (tokens, i) => `<span class="mdMath" data-display="${tokens[i].markup === '$$'}">${renderMath(tokens[i].content, tokens[i].markup === '$$')}</span>`;
-  md.renderer.rules.math_block = (tokens, i) => `<div class="mdMathBlock">${renderMath(tokens[i].content, true)}</div>\n`;
+  // Equation numbers and labels (math-numbers.mjs): computed once per parse, in document order.
+  // A single block rendered by the editor continues the document's counter via env.mathStart.
+  md.core.ruler.after('block', 'math_numbers', state => {
+    const env = state.env, own = !env.mathLabels, labels = {};
+    let next = env.mathStart || 1;
+    for (const t of state.tokens) if (t.type === 'math_block') {
+      const r = numberBlock(t.content, renderOptions.mathNumbering, next);
+      t.meta = { tex: r.tex, start: next }; next = r.next;
+      for (const [k, v] of r.labels) if (!Object.hasOwn(labels, k)) labels[k] = v;
+    }
+    if (own) env.mathLabels = labels;
+  });
+  md.renderer.rules.math_inline = (tokens, i, options, env) => `<span class="mdMath" data-display="${tokens[i].markup === '$$'}">${renderMath(resolveRefs(tokens[i].content, env.mathLabels), tokens[i].markup === '$$')}</span>`;
+  md.renderer.rules.math_block = (tokens, i, options, env) => `<div class="mdMathBlock">${renderMath(resolveRefs(tokens[i].meta?.tex ?? tokens[i].content, env.mathLabels), true)}</div>\n`;
 }
 
 function taskPlugin(md) {
@@ -202,7 +215,13 @@ export function analyze(text) {
   for (const b of blocks) if (b.kind === 'listItem') b.task = /^\s*(?:[-*+]|\d+[.)])\s+\[[ xX]\](?=\s|$)/.test(text.slice(b.from, b.to));
   // Cross-block document data: footnote numbering and the heading list used by [TOC].
   const fn = { order: env.fn?.order || [], defs: Object.fromEntries(Object.entries(env.fn?.defs || {}).map(([k, v]) => [k, { offset: starts[v.line] }])) };
-  const info = { fn, headings: (env.headingList || []).map(h => ({ ...h, offset: starts[h.offset] ?? 0 })) };
+  // Equation counter at each block, so a block rendered alone keeps its document numbers.
+  const maths = tokens.filter(t => t.type === 'math_block' && t.map).map(t => ({ offset: starts[t.map[0]], start: t.meta?.start }));
+  for (let b = 0, m = 0; b < blocks.length; b++) {
+    while (m < maths.length && maths[m].offset < blocks[b].from) m++;
+    if (m < maths.length && maths[m].offset <= blocks[b].to) blocks[b].mathStart = maths[m].start;
+  }
+  const info = { fn, headings: (env.headingList || []).map(h => ({ ...h, offset: starts[h.offset] ?? 0 })), math: { labels: env.mathLabels || {} } };
   return { blocks, headings, references: env.references || {}, info };
 }
 export function lineIndex(starts, offset) {
@@ -227,14 +246,14 @@ export function sanitize(html) {
   return clean;
 }
 export function renderBlockHtml(source, block, references, info) {
-  return md.render(source, { references: { ...references }, taskIndex: 0, ...(info ? { doc: info, fn: { order: [...info.fn.order], defs: { ...info.fn.defs } } } : {}) });
+  return md.render(source, { references: { ...references }, taskIndex: 0, mathStart: block?.mathStart, ...(info ? { doc: info, mathLabels: info.math?.labels, fn: { order: [...info.fn.order], defs: { ...info.fn.defs } } } : {}) });
 }
 // Rendering options that users can change (Typora's "smart punctuation", "preserve single line break").
-export const renderOptions = { smartPunctuation: false, preserveBreaks: false, epoch: 0 };
+export const renderOptions = { smartPunctuation: false, preserveBreaks: false, mathNumbering: 'none', epoch: 0 };
 export function setRenderOptions(next = {}) {
-  const smart = !!next.smartPunctuation, breaks = !!next.preserveBreaks;
-  if (smart === renderOptions.smartPunctuation && breaks === renderOptions.preserveBreaks) return false;
-  Object.assign(renderOptions, { smartPunctuation: smart, preserveBreaks: breaks, epoch: renderOptions.epoch + 1 });
+  const smart = !!next.smartPunctuation, breaks = !!next.preserveBreaks, numbering = ['ams', 'all'].includes(next.mathNumbering) ? next.mathNumbering : 'none';
+  if (smart === renderOptions.smartPunctuation && breaks === renderOptions.preserveBreaks && numbering === renderOptions.mathNumbering) return false;
+  Object.assign(renderOptions, { smartPunctuation: smart, preserveBreaks: breaks, mathNumbering: numbering, epoch: renderOptions.epoch + 1 });
   md.set({ typographer: smart, breaks, quotes: '“”‘’' });
   return true;
 }

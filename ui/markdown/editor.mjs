@@ -139,13 +139,13 @@ export class MarkdownEditor {
   reconcile() {
     const { blocks, references, info } = analyze(this.text);
     const refKey = JSON.stringify(references) + '|' + renderOptions.epoch, refsChanged = refKey !== this.refKey;
-    const infoKey = JSON.stringify([info.fn.order, info.headings.map(h => [h.level, h.text])]);
+    const infoKey = JSON.stringify([info.fn.order, info.headings.map(h => [h.level, h.text])]), labelKey = JSON.stringify(info.math?.labels || {});
     this.refKey = refKey; this.references = references; this.info = info;
     const pool = new Map();
     for (const b of this.blocks) if (b.el && !b.temp) { const list = pool.get(b.key) || []; list.push(b.el); pool.set(b.key, list); }
     for (const b of blocks) {
       b.source = this.text.slice(b.from, b.to);
-      b.key = `${b.kind}|${b.number || ''}|${b.loose ? 'L' : ''}|${b.source}|${/\[\^|^\s*\[toc\]/i.test(b.source) ? infoKey : ''}`;
+      b.key = `${b.kind}|${b.number || ''}|${b.loose ? 'L' : ''}|${b.source}|${/\[\^|^\s*\[toc\]/i.test(b.source) ? infoKey : ''}|${b.mathStart ?? ''}|${/\\(?:eq)?ref\{/.test(b.source) ? labelKey : ''}`;
       const reuse = !refsChanged && pool.get(b.key)?.shift();
       b.el = reuse || this.renderBlock(b);
       b.el.blockRef = b;

@@ -179,7 +179,7 @@ const FIELDS = {
   ],
   appearance: [
     ['h', '主题'], ['theme'], ['h', '字体与排版'], ['text', 'fontFamily', '正文字体（留空使用主题字体）'], ['number', 'fontSize', '字号（px）', 12, 32], ['number', 'lineHeight', '行高', 1.2, 2.6, 0.05], ['number', 'pageWidth', '页面宽度（px）', 480, 1600, 10],
-    ['check', 'indentFirstLine', '首行缩进两个字符'], ['check', 'showBr', '显示 <br/> 换行标签'],
+    ['select', 'mathNumbering', '公式自动编号', [['none', '不自动编号（只使用 \\tag）'], ['ams', 'AMS 规则（equation、align 等环境，以及带 \\label 的公式块）'], ['all', '为所有公式块编号']]], ['check', 'indentFirstLine', '首行缩进两个字符'], ['check', 'showBr', '显示 <br/> 换行标签'],
     ['h', '界面'], ['check', 'openInReadMode', '打开已有文件时先进入阅读模式（双击或按 E 开始编辑）'], ['check', 'menubar', '显示菜单（文件、编辑……）'], ['check', 'statusBar', '显示状态栏'], ['check', 'highlightHeading', '在大纲中高亮当前标题'], ['select', 'outlineMode', '大纲显示方式', [['tree', '可折叠层级'], ['flat', '平铺（无折叠）']]],
   ],
   images: [

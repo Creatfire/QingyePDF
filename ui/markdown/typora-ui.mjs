@@ -146,8 +146,8 @@ export function createTypora(deps) {
   prefs.onChange(async name => {
     rebuildKeys();
     if (name === '*' || name === 'theme' || name === 'customTheme') await loadCustomCss();
-    const key = JSON.stringify([prefs.get('smartPunctuation'), prefs.get('preserveBreaks')]);
-    if (key !== renderKey) { renderKey = key; setRenderOptions({ smartPunctuation: prefs.get('smartPunctuation'), preserveBreaks: prefs.get('preserveBreaks') }); for (const s of sessions) if (s.editor) s.editor.refreshAll(); }
+    const key = JSON.stringify([prefs.get('smartPunctuation'), prefs.get('preserveBreaks'), prefs.get('mathNumbering')]);
+    if (key !== renderKey) { renderKey = key; setRenderOptions({ smartPunctuation: prefs.get('smartPunctuation'), preserveBreaks: prefs.get('preserveBreaks'), mathNumbering: prefs.get('mathNumbering') }); for (const s of sessions) if (s.editor) s.editor.refreshAll(); }
     for (const s of sessions) if (s.ui) applyPanel(s);
     if (name === 'autoSave' || name === 'autoSaveSeconds' || name === '*') applyAuto();
     if (name === 'outlineMode' || name === '*') for (const s of sessions) if (s.ui) host.renderOutline(s);
@@ -333,8 +333,8 @@ export function createTypora(deps) {
   // Init
   (async () => {
     try { customThemes = await api.mdThemes(); } catch {}
-    await loadCustomCss(); renderKey = JSON.stringify([prefs.get('smartPunctuation'), prefs.get('preserveBreaks')]);
-    setRenderOptions({ smartPunctuation: prefs.get('smartPunctuation'), preserveBreaks: prefs.get('preserveBreaks') });
+    await loadCustomCss(); renderKey = JSON.stringify([prefs.get('smartPunctuation'), prefs.get('preserveBreaks'), prefs.get('mathNumbering')]);
+    setRenderOptions({ smartPunctuation: prefs.get('smartPunctuation'), preserveBreaks: prefs.get('preserveBreaks'), mathNumbering: prefs.get('mathNumbering') });
     applyAuto(); refreshRecent();
   })();
   document.addEventListener('pointerdown', e => { if (!tableBar.contains(e.target)) { /* keep: bar follows selection */ } if (!imageBar.contains(e.target) && e.target.tagName !== 'IMG') hideImageBar(); }, true);
