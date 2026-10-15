@@ -9,6 +9,7 @@ import * as C from './commands.mjs';
 import { createVisualTables } from './visual-table.mjs';
 import { renderDiagrams, fit as fitDiagram } from './diagrams.mjs';
 import { installTypora, writeClipboard, CLIP_MARK } from './editor-typora.mjs';
+import { SourceEditor } from './source-editor.mjs';
 
 const KIND_LABEL = { footnoteDef: '脚注', toc: '目录', paragraph: '段落', heading: '标题', blockquote: '引用', listItem: '列表项', fence: '代码块', codeBlock: '代码块', hr: '分隔线', html: 'HTML', table: '表格', math: '公式块', frontMatter: 'YAML 元数据', raw: '链接定义' };
 const OPAQUE = new Set(['fence', 'codeBlock', 'math', 'table', 'html', 'frontMatter', 'hr']);
@@ -138,9 +139,9 @@ export class MarkdownEditor {
     this.doc.setAttribute('role', 'document'); this.doc.setAttribute('aria-label', options.label || 'Markdown 文档');
     this.tail = document.createElement('div'); this.tail.className = 'mdTail'; this.tail.setAttribute('aria-hidden', 'true');
     this.scroller.append(this.doc, this.tail);
-    this.sourceView = document.createElement('textarea'); this.sourceView.className = 'mdSourceView'; this.sourceView.hidden = true;
-    this.sourceView.spellcheck = false; this.sourceView.setAttribute('aria-label', 'Markdown 源代码');
-    root.append(this.scroller, this.sourceView);
+    // Source mode: CodeMirror 6 behind a textarea-compatible adapter (source-editor.mjs).
+    this.sourceView = new SourceEditor({ lineNumbers: !!this.options.prefs?.sourceLineNumbers }); this.sourceView.hidden = true;
+    root.append(this.scroller, this.sourceView.dom);
     this.visualTables=createVisualTables(this);
     this.bind();
     this.initTypora();
@@ -648,13 +649,13 @@ export class MarkdownEditor {
       if ((e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak') && !e.isComposing) { e.preventDefault(); this.handleEnter(e.inputType === 'insertLineBreak', false); }
     });
     root.addEventListener('input', e => {
-      if (e.target === this.sourceView) return this.syncSourceView();
+      if (this.sourceView.contains(e.target)) return this.syncSourceView();
       if (e.target === this.active?.el && !e.isComposing && !this.active.composing) this.syncFromDom();
     });
     root.addEventListener('compositionstart', e => { if (e.target === this.active?.el) this.active.composing = true; });
     root.addEventListener('compositionend', e => { if (e.target === this.active?.el) { this.active.composing = false; this.syncFromDom(); } });
     this.onSelectionChange = () => {
-      if (this.sourceMode) { if (document.activeElement === this.sourceView) this.sel = { from: this.sourceView.selectionStart, to: this.sourceView.selectionEnd }; }
+      if (this.sourceMode) { if (this.sourceView.hasFocus) this.sel = { from: this.sourceView.selectionStart, to: this.sourceView.selectionEnd }; }
       else { const c = this.active && this.getCaret(); if (c) { const b = this.active.block; this.sel = { from: b.from + c.start, to: b.from + c.end }; this.updateReveal(c); } }
       this.options.onSelection?.();
     };
@@ -841,7 +842,7 @@ export class MarkdownEditor {
   copyLine(e, cut) {
     if (this.prefs?.copyLine === false || this.readonly && cut) return false;
     let src, caret, base;
-    if (this.sourceMode) { const v = this.sourceView; if (document.activeElement !== v || v.selectionStart !== v.selectionEnd) return false; src = v.value.replace(/\r\n?/g, '\n'); caret = v.selectionStart; base = 0; }
+    if (this.sourceMode) { const v = this.sourceView; if (!v.hasFocus || v.selectionStart !== v.selectionEnd) return false; src = v.value.replace(/\r\n?/g, '\n'); caret = v.selectionStart; base = 0; }
     else {
       const sel = getSelection(), c = this.active && sel.rangeCount && sel.isCollapsed && this.active.el.contains(sel.anchorNode) && this.getCaret();
       if (!c) return false;
@@ -879,7 +880,7 @@ export class MarkdownEditor {
   async onPaste(e) {
     if(e.target.closest('.mdTableCellInput'))return;
     if(this.visualTables.paste(e))return;
-    if ((this.sourceMode || e.target === this.sourceView) && ![...(e.clipboardData?.files||[])].some(file=>file.type.startsWith('image/'))) return;
+    if ((this.sourceMode || this.sourceView.contains(e.target)) && ![...(e.clipboardData?.files||[])].some(file=>file.type.startsWith('image/'))) return;
     const data = e.clipboardData;
     if (!data) return;
     if (this.readonly) { e.preventDefault(); return; }
@@ -980,11 +981,7 @@ export class MarkdownEditor {
     this.sel = { from: this.sourceView.selectionStart, to: this.sourceView.selectionEnd };
     const last = this.undoStack.at(-1); if (last) last.selAfter = { ...this.sel };
   }
-  scrollSourceTo(pos) {
-    const view = this.sourceView, line = this.text.slice(0, pos).split('\n').length - 1;
-    const height = parseFloat(getComputedStyle(view).lineHeight) || 22;
-    view.scrollTop = Math.max(0, line * height - view.clientHeight / 3);
-  }
+  scrollSourceTo(pos) { this.sourceView.scrollToPos(pos); }
   scrollToOffset(pos, { activate = false } = {}) {
     if (this.sourceMode) { this.sourceView.setSelectionRange(pos, pos); this.scrollSourceTo(pos); this.sel = { from: pos, to: pos }; return; }
     if (activate) { this.activateAt(pos); this.active?.el.scrollIntoView({ block: 'start' }); return; }
@@ -1082,6 +1079,6 @@ export class MarkdownEditor {
   }
   releaseHighlights() { if (globalThis.CSS?.highlights) { CSS.highlights.delete('md-search'); CSS.highlights.delete('md-search-current'); } }
 
-  destroy() { document.removeEventListener('selectionchange', this.onSelectionChange); document.removeEventListener('selectionchange', this.typewriterTick); this.closeEmojiPopup(); this.releaseHighlights(); this.root.replaceChildren(); }
+  destroy() { this.sourceView.destroy(); document.removeEventListener('selectionchange', this.onSelectionChange); document.removeEventListener('selectionchange', this.typewriterTick); this.closeEmojiPopup(); this.releaseHighlights(); this.root.replaceChildren(); }
 }
 installTypora(MarkdownEditor);

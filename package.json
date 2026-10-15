@@ -53,6 +53,7 @@
       "ui/**/*",
       "vendor/pdfjs/**/*",
       "vendor/markdown/**/*",
+      "vendor/codemirror/**/*",
       "vendor/mermaid/**/*",
       "vendor/diagrams/**/*",
       "LICENSE",

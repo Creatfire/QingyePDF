@@ -62,6 +62,29 @@ exports.run = async ({ window, openFiles, output }) => {
   assert.equal(result.conveniences.structural, '-', 'a rule / list marker line is not converted');
   assert.equal(result.conveniences.zoomUp, 10); assert.ok(result.conveniences.zoomBack);
 
+  // Source mode runs on CodeMirror: typing syncs to the document, undo uses the editor history,
+  // Tab inserts four spaces, and switching back keeps the text.
+  result.sourceMode = await run(`(async () => {
+    const s = ${S}, ed = s.editor, frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    ed.replaceAll('# 标题\\n\\n正文 **粗**\\n'); ed.setSourceMode(true); await frame();
+    const cm = ed.sourceView, codemirror = !!cm.dom.querySelector(':scope > .cm-editor .cm-content');
+    const highlighted = cm.dom.querySelectorAll('.cm-line span').length > 0;
+    cm.setSelectionRange(cm.value.length); cm.focus();
+    document.execCommand('insertText', false, '新行'); await frame();
+    const typed = ed.text;
+    cm.dom.querySelector('.cm-content').dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })); await frame();
+    const tabbed = ed.text.endsWith('新行    ');
+    ed.undo(); await frame(); // typing and the Tab spaces are one contiguous step
+    const undone = ed.text, shown = cm.value;
+    ed.setSourceMode(false); await frame();
+    return { codemirror, highlighted, typed, tabbed, undone, shown, back: !ed.sourceMode && ed.text === undone };
+  })()`);
+  assert.deepEqual(result.sourceMode, { codemirror: true, highlighted: true, typed: '# 标题\n\n正文 **粗**\n新行', tabbed: true, undone: '# 标题\n\n正文 **粗**\n', shown: '# 标题\n\n正文 **粗**\n', back: true });
+
+  await run(`(async () => { const ed = ${S}.editor; ed.replaceAll('# 源代码模式\\n\\n- 列表 **粗体** *斜体* [链接](https://example.invalid)\\n\\n\\x60\\x60\\x60js\\nconst a = [1, 2];\\n\\x60\\x60\\x60\\n\\n> 引用 \\x60code\\x60\\n'); ed.setSourceMode(true); ed.sourceView.setSelectionRange(12); })()`);
+  await wait(300); await fs.writeFile(path.join(dir, 'source-mode.png'), (await window.webContents.capturePage()).toPNG());
+  await run(`${S}.editor.setSourceMode(false)`);
+
   // Undo history survives serialization (crash recovery) and is rejected for a different text.
   result.history = await run(`(async () => {
     const ed = ${S}.editor;

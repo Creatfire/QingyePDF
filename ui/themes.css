@@ -4,7 +4,7 @@
 .mdPanel { --md-size: 16px; --md-lh: 1.78; --md-width: 860px; --md-zoom: 1; }
 .mdPanel .mdDoc { font-size: calc(var(--md-size) * var(--md-zoom)); line-height: var(--md-lh); max-width: var(--md-width); }
 .mdPanel[data-font="custom"] .mdDoc, .mdPanel[data-font="custom"] .mdDoc :is(h1, h2, h3, h4, h5, h6) { font-family: var(--md-user-font); }
-.mdPanel .mdSourceView { font-size: calc(14px * var(--md-zoom)); }
+.mdPanel .mdSourceView .cm-editor .cm-scroller { font-size: calc(14px * var(--md-zoom)) !important; }
 .mdPanel.indentFirst .mdDoc p { text-indent: 2em; }
 .mdPanel.showBr .mdDoc br::before { content: "↵"; color: var(--faint); font-size: .8em; }
 
