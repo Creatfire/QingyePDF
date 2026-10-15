@@ -13,11 +13,11 @@ const pkg = JSON.parse(await fs.readFile(path.join(mobile, 'package.json'), 'utf
 const dev = process.argv.includes('--dev');
 const shim = name => path.join(mobile, 'src/shims', name);
 const replaced = { 'core.cjs': 'src/main/core.js', 'offline.cjs': 'src/main/offline.js', 'i18n-main.cjs': 'src/main/i18n-main.js', 'ai-api-server.cjs': 'src/main/ai-api-server.js' };
-const nodeModules = { fs: shim('fs.js'), 'fs/promises': shim('fs-promises.js'), path: 'path-browserify', os: shim('os.js'), crypto: shim('crypto.js'), url: shim('url.js'), child_process: shim('child_process.js'), electron: path.join(mobile, 'src/main/electron-renderer.js'), http: shim('empty.js') };
+const nodeModules = { fs: shim('fs.js'), 'fs/promises': shim('fs-promises.js'), path: 'path-browserify', os: shim('os.js'), crypto: shim('crypto.js'), url: shim('url.js'), child_process: shim('child_process.js'), electron: path.join(mobile, 'src/main/electron-renderer.js'), http: shim('empty.js'), zlib: shim('zlib.js') };
 const sharedPlugin = {
   name: 'qingye-mobile',
   setup(b) {
-    b.onResolve({ filter: /^(node:)?(fs|fs\/promises|path|os|crypto|url|child_process|http|electron)$/ }, async args => {
+    b.onResolve({ filter: /^(node:)?(fs|fs\/promises|path|os|crypto|url|child_process|http|zlib|electron)$/ }, async args => {
       const target = nodeModules[args.path.replace(/^node:/, '')];
       return path.isAbsolute(target) ? { path: target } : b.resolve(target, { resolveDir: mobile, kind: args.kind });
     });
