@@ -101,3 +101,15 @@
 .markup-underline { text-decoration: underline var(--markup); text-decoration-thickness: 2px; }
 .markup-strikeout { text-decoration: line-through var(--markup); text-decoration-thickness: 2px; }
 .markup-squiggly { text-decoration: underline wavy var(--markup); text-decoration-thickness: 1.5px; }
+
+/* 0.14 redaction by content (ui/tools.mjs) */
+.redactPresets { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 4px 0 8px; font-size: 12.5px; }
+.redactPresets label { display: inline-flex; align-items: center; gap: 4px; }
+.redactHits { max-height: 220px; overflow: auto; margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; }
+.redactHits:empty { display: none; }
+.redactHitsHead, .redactHit { display: flex; align-items: center; gap: 8px; padding: 5px 9px; font-size: 12.5px; }
+.redactHitsHead { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line); font-weight: 600; }
+.redactHit button { flex: none; padding: 1px 7px; font-size: 11.5px; border: 1px solid var(--line); border-radius: 6px; background: transparent; }
+.redactHit span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono, Consolas, monospace); }
+.toolHit { position: absolute; background: rgb(0 0 0 / .78); outline: 1px solid rgb(220 38 38 / .9); pointer-events: none; }
+#toolSelection[hidden] { display: none; }

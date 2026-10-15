@@ -141,6 +141,38 @@ def check():
                 assert first[0].info['title']=='张三' and first[0].info['content']=='原文'
                 assert 'SECRET' in one.get_textbox(first[0].rect)
                 assert len([a for a in two.annots() if a.type[1]==subtype])==1
+        # 0.14 redaction by content: presets / terms find exact boxes; only overlapping annotations go.
+        sensitive=base/'sensitive.pdf'
+        with fitz.open() as doc:
+            page=doc.new_page(width=400,height=300)
+            page.insert_font(fontname='china',fontbuffer=fitz.Font('cjk').buffer)
+            page.insert_text((30,60),'Phone 13812345678 mail a.b@example.com',fontsize=12)
+            page.insert_text((30,120),'客户：王小明 身份证 11010519491231002X',fontsize=12,fontname='china')
+            page.insert_text((30,200),'Public line stays',fontsize=12)
+            page.add_highlight_annot(fitz.Rect(70,48,150,64))
+            page.add_text_annot((300,200),'unrelated note')
+            doc.save(sensitive)
+        found,_=run({'action':'redact-find','presets':['mobile','email','idcard'],'terms':['王小明']},sensitive)
+        hits=found['data']['hits']
+        assert sorted(h['text'] for h in hits)==sorted(['13812345678','a.b@example.com','11010519491231002X','王小明']),hits
+        assert all(len(h['rects'])==1 and 0<=h['rects'][0][0]<h['rects'][0][2]<=1 for h in hits)
+        try:run({'action':'redact-find'},sensitive);assert False
+        except ValueError:pass
+        try:run({'action':'redact-find','patterns':['(']},sensitive);assert False
+        except ValueError:pass
+        _,out=run({'action':'redact','marks':[{'page':h['page'],'rects':h['rects']} for h in hits]},sensitive)
+        with fitz.open(out/'result.pdf') as d:
+            page=d[0];text=page.get_text()
+            for secret in ('13812345678','example.com','1949','王小明'):assert secret not in text,(secret,text)
+            assert 'Phone' in text and 'Public line stays' in text and '客户' in text
+            kinds=[a.type[1] for a in page.annots()]
+            assert 'Highlight' not in kinds and 'Text' in kinds,kinds
+        # The framed-region path no longer flattens annotations elsewhere on the page.
+        _,out=run({'action':'redact','pages':'1','rect':[0,.6,.7,.7]},sensitive)
+        with fitz.open(out/'result.pdf') as d:
+            page=d[0]
+            assert 'Public line stays' not in page.get_text()
+            assert sorted(a.type[1] for a in page.annots())==['Highlight','Text']
         for bad in ({'annotation':'circle','marks':[{'page':1,'rects':lines}]},{'annotation':'underline','marks':[]},{'annotation':'underline','marks':[{'page':1,'rects':[]}]}):
             try:run({'action':'markup',**bad});assert False,bad
             except ValueError:pass

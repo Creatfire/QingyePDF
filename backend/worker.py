@@ -98,6 +98,99 @@ def region(page, values):
     return fitz.Rect(x0 * r.width, y0 * r.height, x1 * r.width, y1 * r.height) * page.derotation_matrix
 
 
+def display_fraction(page, rect):
+    """Inverse of region(): an unrotated page rect as fractions of the displayed page."""
+    r = fitz.Rect(rect) * page.rotation_matrix
+    w, h = page.rect.width, page.rect.height
+    return [round(max(0, min(1, v)), 5) for v in (r.x0 / w, r.y0 / h, r.x1 / w, r.y1 / h)]
+
+
+def clear_overlaps(page, rects):
+    """Annotations, form fields and links that touch a redaction area are removed whole, so their
+    notes, values and appearance streams cannot keep the redacted content. Others stay live."""
+    hit = lambda box: any(fitz.Rect(box).intersects(r) for r in rects)
+    removed = 0
+    for annot in list(page.annots() or []):
+        if hit(annot.rect):
+            page.delete_annot(annot)
+            removed += 1
+    for widget in list(page.widgets() or []):
+        if hit(widget.rect):
+            page.delete_widget(widget)
+            removed += 1
+    for link in page.get_links():
+        if hit(link['from']):
+            page.delete_link(link)
+            removed += 1
+    return removed
+
+
+REDACT_PRESETS = {
+    'mobile': r'(?<!\d)1[3-9]\d{9}(?!\d)',
+    'phone': r'(?<!\d)0\d{2,3}-\d{7,8}(?!\d)',
+    'idcard': r'(?<![\dXx])\d{6}(?:18|19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx](?![\dXx])',
+    'bankcard': r'(?<!\d)\d{4}(?:[ -]?\d{4}){3}(?:[ -]?\d{1,3})?(?!\d)',
+    'email': r'[\w.+-]+@[\w-]+(?:\.[\w-]+)+',
+    'url': r'(?:https?://|www\.)[^\s<>"\'，。；]+',
+    'money': r'[¥￥$€£]\s?\d[\d,]*(?:\.\d+)?|\d[\d,]*(?:\.\d+)?\s?(?:元|万元|亿元|美元|USD|RMB|CNY)',
+    'date': r'\d{4}\s?[-/.年]\s?\d{1,2}\s?[-/.月]\s?\d{1,2}\s?日?',
+}
+
+
+def redact_matchers(request):
+    flags = 0 if request.get('caseSensitive') else re.IGNORECASE
+    matchers = []
+    for term in (request.get('terms') or [])[:200]:
+        term = str(term).strip()
+        if term:
+            matchers.append(re.compile(re.escape(term), flags))
+    for name in (request.get('presets') or []):
+        if name not in REDACT_PRESETS:
+            raise ValueError('未知的查找规则。')
+        matchers.append(re.compile(REDACT_PRESETS[name]))
+    for pattern in (request.get('patterns') or [])[:50]:
+        try:
+            matchers.append(re.compile(str(pattern)[:500], flags))
+        except re.error as error:
+            raise ValueError(f'正则表达式有误：{error}')
+    if not matchers:
+        raise ValueError('请输入要查找的文字或选择查找规则。')
+    return matchers
+
+
+def find_text(page, matchers):
+    """Yields (matched text, [rect per line]) using character boxes, so CJK text and matches
+    inside a line are located exactly. Lines are joined with '\\n' and never matched across."""
+    chars, boxes = [], []
+    for block in page.get_text('rawdict', flags=fitz.TEXT_PRESERVE_WHITESPACE | fitz.TEXT_PRESERVE_LIGATURES)['blocks']:
+        for line in block.get('lines', []):
+            for span in line['spans']:
+                for ch in span['chars']:
+                    chars.append(ch['c'])
+                    boxes.append(fitz.Rect(ch['bbox']))
+            chars.append('\n')
+            boxes.append(None)
+    text = ''.join(chars)
+    seen = set()
+    for matcher in matchers:
+        for m in matcher.finditer(text):
+            if m.end() <= m.start() or (m.start(), m.end()) in seen:
+                continue
+            seen.add((m.start(), m.end()))
+            rects, current = [], None
+            for box in boxes[m.start():m.end()]:
+                if box is None:
+                    if current is not None:
+                        rects.append(current)
+                    current = None
+                elif not box.is_empty:
+                    current = fitz.Rect(box) if current is None else current | box
+            if current is not None:
+                rects.append(current)
+            if rects:
+                yield m.group(0).replace('\n', ' '), rects
+
+
 def open_pdf(file, password=''):
     doc = fitz.open(file)
     if doc.needs_pass and not doc.authenticate(password):
@@ -606,6 +699,38 @@ def process(request, input_file, output):
             save(result, target)
             result.close()
             return {'files': ['result.pdf'], 'note': '已生成带中英文文字层的 PDF；识别页按 200 DPI 图像输出，识别内容请复核。'}
+        elif action == 'redact-find':
+            # Read-only: where the given terms / patterns occur, as display-fraction rects per line.
+            matchers = redact_matchers(request)
+            hits, limit = [], 2000
+            for index in selected:
+                page = doc[index]
+                for text, rects in find_text(page, matchers):
+                    if len(hits) >= limit:
+                        break
+                    hits.append({'page': index + 1, 'text': text[:200], 'rects': [display_fraction(page, r) for r in rects]})
+            return {'files': [], 'data': {'hits': hits, 'truncated': len(hits) >= limit}, 'note': f'找到 {len(hits)} 处匹配。'}
+        elif action == 'redact' and request.get('marks') is not None:
+            # Regions chosen in the viewer or from search hits, possibly on several pages.
+            marks = request.get('marks')
+            if not isinstance(marks, list) or not 0 < len(marks) <= 5000:
+                raise ValueError('请至少选择一处要涂黑的内容。')
+            fill = color(request.get('fill', '#000000'))
+            by_page = {}
+            for mark in marks:
+                index = int(number(mark.get('page'), 1, len(doc), 1)) - 1
+                by_page.setdefault(index, []).extend(mark.get('rects') or [])
+            removed = 0
+            for index, values in by_page.items():
+                page = doc[index]
+                rects = [region(page, r) for r in values[:2000]]
+                removed += clear_overlaps(page, rects)
+                for r in rects:
+                    page.add_redact_annot(r, fill=fill)
+                page.apply_redactions(images=2, graphics=2, text=0)  # blank covered pixels, drop touched line art, remove text
+            doc.scrub(clean_pages=True, hidden_text=True, redactions=False, remove_links=False, reset_fields=False)
+            count = sum(len(v) for v in by_page.values())
+            note = f'已永久删除 {len(by_page)} 页上 {count} 处区域内的文字、图像与相交图形' + (f'，并移除 {removed} 个相交的批注 / 表单 / 链接' if removed else '') + '；同时清理元数据、附件与脚本。请检查结果。'
         elif action == 'markup':
             # Text markup from a viewer selection: one standard annotation per page whose quads
             # follow each selected line (rects are fractions of the displayed page, like 'rect').
@@ -632,10 +757,10 @@ def process(request, input_file, output):
                 annot.set_info(content=text, title=author, creationDate=now, modDate=now)
                 annot.update()
         elif action in ('redact', 'text', 'stamp', 'image', 'page-stamp', 'number', 'watermark', 'shape', 'annotation', 'form', 'crop'):
-            if action == 'redact':
-                doc.bake(annots=True, widgets=True)
             for i in selected:
                 page = doc[i]
+                if action == 'redact':
+                    clear_overlaps(page, [region(page, request.get('rect'))])
                 rect = region(page, request.get('rect'))
                 ink = color(request.get('color', '#b91c1c'))
                 text = str(request.get('text', ''))[:10000]

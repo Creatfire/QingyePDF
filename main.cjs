@@ -444,11 +444,11 @@ app.whenReady().then(async () => {
     try {
     const result=await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});
     if(controller.signal.aborted) throw new Error('任务已取消。');
-    if(request.action==='inspect') return {data:result.data,note:result.note};
+    if(request.action==='inspect'||request.action==='redact-find') return {data:result.data,note:result.note};
     if(result.unchanged)return {unchanged:true,note:result.note};
     const output=result.files[0]; if(!output) throw new Error('处理未生成文件。');
     if(request.draft){
-      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
+      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','redact','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
       return {bytes:output.bytes,note:result.note};
     }
     // Integration tests exercise IPC and actual engine output without native picker interaction.

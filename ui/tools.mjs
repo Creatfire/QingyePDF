@@ -33,6 +33,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
       <label data-for="shape">图形 <select id="toolShape"><option value="rect">矩形</option><option value="ellipse">椭圆</option><option value="line">直线</option></select></label>
       <label data-for="shape" class="toolCheck"><input id="toolFill" type="checkbox">填充图形</label>
       <label data-for="annotation">批注类型 <select id="toolAnnotation"><option value="underline">下划线</option><option value="strikeout">删除线</option><option value="highlight">高亮</option></select></label>
+      <div data-for="redact" class="redactFind"><p class="toolHint">可以拖动框选一个区域，也可以按内容查找后逐条确认（勾选的结果会全部涂黑）。</p><label>查找文字（每行一个）<textarea id="redactTerms" rows="2" placeholder="例如：客户姓名"></textarea></label><div class="redactPresets" role="group" aria-label="常用格式"><label><input type="checkbox" value="mobile">手机号</label><label><input type="checkbox" value="phone">固定电话</label><label><input type="checkbox" value="idcard">身份证号</label><label><input type="checkbox" value="bankcard">银行卡号</label><label><input type="checkbox" value="email">邮箱</label><label><input type="checkbox" value="url">网址</label><label><input type="checkbox" value="money">金额</label><label><input type="checkbox" value="date">日期</label></div><label>正则表达式（可选）<input id="redactPattern" spellcheck="false" placeholder="例如：合同编号\\s*\\w+"></label><label class="toolCheck"><input id="redactCase" type="checkbox">区分大小写</label><label>涂黑颜色 <input id="redactFill" type="color" value="#000000"></label><div class="navigationOptions"><button id="redactFind" data-icon="search">查找</button><button id="redactClear">清除结果</button></div><div id="redactHits" class="redactHits" role="group" aria-label="查找结果"></div></div>
       <label data-for="form">字段类型 <select id="toolFieldType"><option value="text">文本输入框</option><option value="checkbox">复选框</option></select></label>
       <div data-for="image import"><button id="pickToolAsset" data-icon="open">选择文件…</button><span id="toolAssetName"></span></div>
     <label data-for="image" class="toolCheck"><input id="toolKeepRatio" type="checkbox" checked>保持图片比例（框内居中，不拉伸）</label>
@@ -57,7 +58,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     scan:'按 200 DPI 重新生成所选页面，可纠正 ±5° 文本页倾斜、清理浅色背景、手动旋转，并重新 OCR。原页面对象和批注将变为图像外观；照片、彩色图表请关闭背景清理。',
     sharpen:'增强整份 PDF 内嵌图像的边缘，保留文字、页面和批注；不恢复已丢失的细节。较强锐化可能带来光晕或噪点，建议先用标准档检查输出。',
     text:'删除框选区域内的原文字，再写入替换文本。不是 Word 式段落编辑；字体和布局可能变化。',
-    redact:'删除框选区域内文字、图像及相交图形，同时清理元数据、附件、脚本，并扁平化批注与表单。导出后请检查区域和相邻内容。',
+    redact:'永久删除所选区域内的文字、图像与相交图形；与区域相交的批注、表单和链接会被移除，其他批注保留；同时清理元数据、附件与脚本。导出或应用后请检查结果。',
     stamp:'在框选区域写入带边框的文字印章，不是证书数字签名。',
     image:'将本地图片作为印章写入框选区域，默认保持图片比例、在框内居中，不是证书数字签名。',
     'page-stamp':'将另一个已打开 PDF 的指定页面缩放到框选区域，作为矢量页面印章。',
@@ -106,12 +107,37 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     const canvas=$('toolCanvas');canvas.width=viewport.width;canvas.height=viewport.height;$('toolCanvasWrap').style.width=viewport.width+'px';
     previewTask=page.render({canvasContext:canvas.getContext('2d'),viewport});
     try{await previewTask.promise;}catch(e){if(e.name!=='RenderingCancelledException')throw e;}
-    selection();
+    selection();drawHits();
   }
   const outlineEditor=createOutlineEditor({container:$('outlineEditor'),currentPage:()=>toolSession.app.pdfViewer.currentPageNumber,pageCount:()=>toolSession.app.pagesCount,guard,generate:async()=>{const r=await api.toolsJob(toolSession.id,await snapshot(toolSession),{action:'inspect',headings:true,password:$('toolPassword').value});return r.data.headings;}});
   async function populateOutline(){const result=await inspect();outlineEditor.set(result.data.toc);$('toolOutline').value=result.data.toc.map(([level,title,page])=>`${level} | ${page} | ${title}`).join('\n');}
+  // ——— Redaction by content (0.14): hits from the backend, confirmed one by one ———
+  let redactHits=[];
+  const chosenHits=()=>redactHits.filter(h=>h.checked);
+  function drawHits(){
+    const wrap=$('toolCanvasWrap');wrap.querySelectorAll('.toolHit').forEach(e=>e.remove());$('toolSelection').hidden=action()==='redact'&&chosenHits().length>0;
+    if(action()!=='redact')return;const page=Number($('toolPreviewPage').value)||1;
+    for(const h of chosenHits())if(h.page===page)for(const [x0,y0,x1,y1]of h.rects){const d=document.createElement('div');d.className='toolHit';Object.assign(d.style,{left:x0*100+'%',top:y0*100+'%',width:(x1-x0)*100+'%',height:(y1-y0)*100+'%'});wrap.append(d);}
+  }
+  function renderHits(note){
+    const list=$('redactHits');list.replaceChildren();
+    if(!redactHits.length){if(note){const p=document.createElement('p');p.className='toolHint';p.textContent=note;list.append(p);}drawHits();updateSummary();return;}
+    const head=document.createElement('label');head.className='redactHitsHead';const all=document.createElement('input');all.type='checkbox';all.checked=redactHits.every(h=>h.checked);all.onchange=()=>{for(const h of redactHits)h.checked=all.checked;renderHits(note);};head.append(all,' 全选 · 共 '+redactHits.length+' 处，已选 '+chosenHits().length+' 处');list.append(head);
+    redactHits.forEach(h=>{const row=document.createElement('label');row.className='redactHit';const box=document.createElement('input');box.type='checkbox';box.checked=h.checked;box.onchange=()=>{h.checked=box.checked;renderHits(note);};const where=document.createElement('button');where.type='button';where.textContent='第 '+h.page+' 页';where.onclick=e=>{e.preventDefault();$('toolPreviewPage').value=h.page;guard(preview);};const text=document.createElement('span');text.textContent=h.text;row.append(box,where,text);list.append(row);});
+    drawHits();updateSummary();
+  }
+  async function findRedactions(){
+    if(!toolSession)throw new Error('请先打开 PDF。');
+    const terms=$('redactTerms').value.split('\n').map(t=>t.trim()).filter(Boolean),presets=[...dialog.querySelectorAll('.redactPresets input:checked')].map(i=>i.value),patterns=$('redactPattern').value.trim()?[$('redactPattern').value.trim()]:[];
+    const result=await api.toolsJob(toolSession.id,await snapshot(toolSession),{action:'redact-find',pages:$('toolPages').value,terms,presets,patterns,caseSensitive:$('redactCase').checked,password:$('toolPassword').value});
+    redactHits=result.data.hits.map(h=>({...h,checked:true}));
+    renderHits(result.data.truncated?'结果过多，只显示前 2000 处；请缩小页码范围或查找条件。':'没有找到匹配的内容。');
+    if(redactHits.length){$('toolPreviewPage').value=redactHits[0].page;await preview();}
+  }
+  $('redactFind').onclick=()=>guard(findRedactions);
+  $('redactClear').onclick=()=>{redactHits=[];renderHits();};
   async function changed(){
-    const a=action();$('toolHint').textContent=hints[a];$('applyToolDraft').hidden=!['organize','outline','text','stamp','image','watermark','shape','annotation','crop','sharpen'].includes(a);
+    const a=action();$('toolHint').textContent=hints[a];$('applyToolDraft').hidden=!['organize','outline','text','stamp','image','watermark','shape','annotation','redact','crop','sharpen'].includes(a);
     const selectedCategory=Object.values(categoryMap).find(items=>items.includes(a));
     for(const b of categories.children)b.setAttribute('aria-pressed',String(categoryMap[b.dataset.category].includes(a)));
     for(const option of $('toolAction').options)option.hidden=!selectedCategory.includes(option.value);
@@ -143,6 +169,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(a==='sharpen')Object.assign(r,{pages:'',strength:$('toolSharpen').value});
     if(a==='compare')Object.assign(r,{visual:$('compareVisual').checked,offset:Number($('toolCompareOffset').value)});
     if(a==='outline')r.toc=outlineEditor.get();
+    if(a==='redact'){r.fill=$('redactFill').value;if(chosenHits().length)r.marks=chosenHits().map(h=>({page:h.page,rects:h.rects}));}
     return r;
   }
   function updateSummary(){try{const r=request();$('toolChangeSummary').textContent='修改预览：'+$('toolAction').selectedOptions[0].textContent+' · 页码：'+(r.pages||'全部')+(r.text?' · 文字：'+r.text.slice(0,70):'')+(r.toc?' · '+r.toc.length+' 个章节':'')+'。处理并导出副本不会覆盖源文件。';}catch{}}

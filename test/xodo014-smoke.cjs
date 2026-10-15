@@ -70,6 +70,21 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   await run(`${P}.frame.contentDocument.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', bubbles: true, cancelable: true }))`);
   await until(`${P}.app.pdfViewer.annotationEditorMode <= 0`, 'left annotation mode');
   report.checks.toolKeys = true;
+
+  // Redaction by content in the toolbox: find, confirm hits, apply to the open document.
+  await until(`!${P}.editBusy`, 'idle before redaction');
+  await run(`qingye.tools.open('redact')`);
+  await until(`document.getElementById('toolsDialog').open && document.getElementById('toolAction').value === 'redact'`, 'toolbox open');
+  await run(`document.getElementById('redactTerms').value = 'open-source'; document.getElementById('redactFind').click()`);
+  await until(`document.querySelectorAll('#redactHits .redactHit').length > 0`, 'redaction hits listed');
+  report.checks.redactHits = await run(`[...document.querySelectorAll('#redactHits .redactHit span')].map(s => s.textContent)`);
+  assert.deepEqual(report.checks.redactHits, ['open-source']);
+  await until(`document.querySelectorAll('#toolCanvasWrap .toolHit').length === 1`, 'hit drawn on preview');
+  await pause(200); await fs.writeFile(path.join(output, 'redact-find.png'), (await window.webContents.capturePage()).toPNG());
+  await run(`document.getElementById('applyToolDraft').click()`);
+  await until(`(async () => { try { if (${P}.editBusy || !${P}.loaded) return false; const page = await ${P}.app.pdfDocument.getPage(1); const text = (await page.getTextContent()).items.map(i => i.str).join(' '); return !text.includes('open-source') && text.includes('An'); } catch { return false; } })()`, 'redacted text removed');
+  report.checks.redactApplied = true;
+  await run(`document.getElementById('toolsDialog').open && document.getElementById('closeTools').click()`);
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;
 };
