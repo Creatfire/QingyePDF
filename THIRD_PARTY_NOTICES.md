@@ -6,6 +6,7 @@ Qingye 0.4.0 is distributed under GNU AGPL version 3. The previous application c
 
 - Mozilla PDF.js 6.3.289: Apache License 2.0. Official release: https://github.com/mozilla/pdf.js/releases/tag/v6.3.289 . Full license and notices are retained at `vendor/pdfjs/LICENSE`. Adobe CMap and bundled font/resource notices are retained in the distribution. `vendor/pdfjs/QINGYE-MODIFICATIONS.md` records the archive hash and viewer HTML changes. PDF parsing and rendering code has not been modified.
 - Markdown editor (bundled in `vendor/markdown/qingye-markdown-vendor.mjs`, rebuilt with `scripts/build-markdown-vendor.mjs`): markdown-it 14.1.1 (MIT) with linkify-it 5.0.0 (MIT), mdurl 2.0.0 (MIT), uc.micro 2.1.0 (MIT), entities 4.5.0 (BSD-2-Clause) and punycode.js 2.3.1 (MIT); KaTeX 0.16.45 (MIT) including its fonts in `vendor/markdown/katex`; highlight.js 10.7.3 core and selected languages (BSD-3-Clause); DOMPurify 3.4.2 (Apache-2.0 or MPL-2.0). Full license texts are retained in `vendor/markdown/licenses`. The Markdown editor's own code (Typora-style block editing, math / task-list / front-matter plugins) is Qingye application code; it contains no Typora code, branding or assets.
+- Markdown source mode (bundled in `vendor/codemirror/qingye-codemirror.mjs`, rebuilt with `scripts/build-codemirror-vendor.mjs`): CodeMirror 6 — @codemirror/state 6.5.2, @codemirror/view 6.38.6, @codemirror/commands 6.9.0, @codemirror/language 6.11.3, @codemirror/lang-markdown 6.4.0 with its dependencies (@codemirror/lang-html, lang-css, lang-javascript, autocomplete, lint) and Lezer (@lezer/common, highlight, lr, markdown, html, css, javascript), style-mod, w3c-keyname and crelt — all MIT (Marijn Haverbeke and others). License texts are in `vendor/codemirror/licenses`.
 - Mermaid 11.14.0 (MIT, `vendor/mermaid`, official ESM build copied unmodified except removed source-map comments; license at `vendor/mermaid/LICENSE`). Its bundled dependencies include d3 and d3-sankey (ISC / BSD-3-Clause), dagre-d3-es, cytoscape and its layout extensions, khroma, lodash-es, marked, roughjs, stylis, dayjs, uuid, ts-dedent, @braintree/sanitize-url, @iconify/utils, @upsetjs/venn.js, @mermaid-js/parser and langium (MIT), chevrotain (Apache-2.0), DOMPurify (Apache-2.0 or MPL-2.0) and KaTeX (MIT); all are permissively licensed and bundled unmodified by the Mermaid release.
 - Offline legacy diagrams: flowchart.js 1.18.0 (MIT), Raphaël 2.3.0 (MIT), its eve-raphael 0.5.0 dependency (MIT), underscore 1.13.8 (MIT), and bramp/js-sequence-diagrams 2.0.1 (**BSD-2-Clause**, not MIT). Sources, pinned release URLs and SHA-256 digests are in `vendor/diagrams/SOURCES.json`; full licenses are in `vendor/diagrams/LICENSES`. The flowchart browser file is an esbuild bundle of the official npm release and its Raphaël dependency. The sequence renderer is the official Raphaël build from the tagged GitHub commit. No Typora code or assets are included.
 - Electron 44.4.5: MIT. Its full license and Chromium/third-party license notices are included in the packaged Electron runtime as `LICENSE.electron.txt` and `LICENSES.chromium.html`.
@@ -26,6 +27,10 @@ Qingye contains no Xodo/PDFTron DLLs, images, fonts or implementation code.
 ## Open WebUI（仅作设计参照）
 
 0.9.1 的 AI 协作面板与本地 AI 接口参考了 Open WebUI（https://github.com/open-webui/open-webui）的公开功能设计：模型连接与导入格式、聊天交互（流式输出、停止、重新生成、“/” 提示词）、以及 OpenAPI 工具服务器的对接方式。青页未包含、未复制 Open WebUI 的任何源代码、样式、图标、品牌或文档文本；导入功能只读取用户提供的配置文件中的连接字段。Open WebUI 的名称与标识归其所有者所有，青页与其无关联。
+
+## Xodo（仅作功能参照）
+
+0.14 的 PDF 批注与工具改进参照了 Xodo 6.3.4（Windows）安装包中的界面定义、动作参数与界面文字（研究过程见 docs/research/xodo-gap-analysis.md）。青页未包含、未复制 Xodo 或 Apryse（PDFTron）SDK 的任何代码、图标、印章图片或文档文本；所有功能基于 PyMuPDF 与 PDF.js 独立实现。Xodo 与 Apryse 是其所有者的产品与商标，青页与其无关联。
 
 ## Typora（仅作功能参照）
 

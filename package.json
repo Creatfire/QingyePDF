@@ -1,6 +1,6 @@
 {
   "name": "qingye-pdf",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Local-first open-source PDF reader with tabs and annotations",
   "author": "Qingye PDF contributors",
   "license": "AGPL-3.0-only",
