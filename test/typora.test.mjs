@@ -164,7 +164,7 @@ test('Pandoc without the mark extension: retried once without +mark (0.8)', { sk
   const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'qy-oldpandoc-'));
   try {
     const fake = path.join(dir, 'pandoc'), log = path.join(dir, 'calls.txt');
-    await fsp.writeFile(fake, `#!/bin/sh\necho "$2" >> "${log}"\ncase "$2" in *+mark*) echo "Unknown extension: mark" >&2; exit 23;; esac\ncat > /dev/null\nexit 0\n`, { mode: 0o755 });
+    await fsp.writeFile(fake, `#!/bin/sh\necho "$2" >> "${log}"\ncase "$2" in *+mark*) echo "Unknown extension: mark" >&2; exit 23;; esac\nprev=""; for a in "$@"; do if [ "$prev" = "-o" ]; then : > "$a"; fi; prev="$a"; done\ncat > /dev/null\nexit 0\n`, { mode: 0o755 });
     await tools.pandocExport(fake, { format: 'odt', text: '# T\n', out: path.join(dir, 'o.odt') });
     const calls = (await fsp.readFile(log, 'utf8')).trim().split('\n');
     assert.deepEqual(calls, [tools.PANDOC_FROM, tools.PANDOC_FROM_LEGACY]);

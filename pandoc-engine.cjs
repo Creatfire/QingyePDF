@@ -75,7 +75,9 @@ async function convertFile({ executable = bundledPath(), inputs, target, from = 
     const inputDirectory = path.dirname(originals[0]);
     const longCwd = process.platform === 'win32' && inputDirectory.length > 240;
     const args = longCwd ? await absoluteFileArgs(extra, inputDirectory) : [...extra];
+    // Markdown files read as the editor writes them (CJK line breaks, alerts, ==mark==) unless the user picked a reader.
     if (from !== 'auto') args.push('--from', from);
+    else if (!extra.some(arg => /^(?:--(?:from|read|defaults)(?:=|$)|-[fd])/.test(arg)) && originals.every(file => /\.(md|markdown|mdown|mkd|mkdn|mdwn)$/i.test(file))) args.push('--from', require('./pandoc-markdown.cjs').PANDOC_FROM);
     if (to !== 'custom' && to !== 'pdf') args.push('--to', to === 'pdf-chromium' ? 'html5' : to);
     if (standalone || to === 'pdf-chromium') args.push('--standalone');
     if (toc) args.push('--toc'); if (numberSections) args.push('--number-sections'); if (citeproc) args.push('--citeproc');

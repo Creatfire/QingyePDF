@@ -6,6 +6,7 @@ import { effectiveKeys, eventCombo, normalizeCombo } from './keys.mjs';
 import { scopeThemeCss } from './themes.mjs';
 import { setRenderOptions } from './parser.mjs';
 import { buildExport, isPandocFormat, FORMAT_INFO } from './export.mjs';
+import { preparePandocJob, PANDOC_PRIMARY } from './export-pandoc.mjs';
 import * as D from './typora-dialogs.mjs';
 import { el } from './typora-dialogs.mjs';
 
@@ -277,10 +278,18 @@ export function createTypora(deps) {
     if (s.editor.active) s.editor.syncFromDom(true);
     const text = s.editor.text, info = FORMAT_INFO[fmt];
     status('正在导出 ' + (info?.name || fmt) + '…');
-    if (isPandocFormat(fmt)) {
+    // Word and ePub go through Pandoc (native equations, real footnotes, themed styles) unless the
+    // user chose the built-in writer or the engine is missing; the other Pandoc formats require it.
+    const viaPandoc = isPandocFormat(fmt) || (PANDOC_PRIMARY.has(fmt) && prefs.get('docxEngine') !== 'builtin');
+    if (viaPandoc) {
       const p = await api.mdPandocInfo(prefs.get('pandocPath'));
-      if (!p.found) { await message('转换引擎不可用', '文档转换引擎缺失，请重新解压青页便携版。'); return; }
-      const r = await api.mdPandocExport(s.id, fmt, text, prefs.get('pandocPath')); status(r ? '已导出到 ' + r.path : '已取消导出'); return;
+      if (!p.found && isPandocFormat(fmt)) { await message('转换引擎不可用', '文档转换引擎缺失，请重新解压青页便携版。'); return; }
+      if (p.found) {
+        const theme = prefs.get('theme') && prefs.get('theme') !== 'custom' ? prefs.get('theme') : 'qingye';
+        const job = await preparePandocJob(text, { format: fmt, prefs: prefs.values, theme });
+        const r = await api.mdPandocExport(s.id, fmt, job.text, prefs.get('pandocPath'), job.options);
+        status(r ? '已导出到 ' + r.path : '已取消导出'); return;
+      }
     }
     const needCss = ['html', 'pdf', 'image'].includes(fmt);
     const built = await buildExport(fmt, { text, name: s.name, prefs: prefs.values, katexCss: needCss ? await api.mdKatexCss() : '', custom: prefs.get('theme') === 'custom' ? customCss : '', resolveAsset: src => api.markdownAsset(s.id, src) });

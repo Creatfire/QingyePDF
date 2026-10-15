@@ -64,7 +64,7 @@ contextBridge.exposeInMainWorld('desktop', {
   mdExportPdf: (id, html, options) => ipcRenderer.invoke('markdown-export-pdf', id, html, options),
   mdExportImage: (id, html, options) => ipcRenderer.invoke('markdown-export-image', id, html, options),
   mdPandocInfo: custom => ipcRenderer.invoke('markdown-pandoc-info', custom),
-  mdPandocExport: (id, format, text, custom) => ipcRenderer.invoke('markdown-pandoc-export', id, format, text, custom),
+  mdPandocExport: (id, format, text, custom, options) => ipcRenderer.invoke('markdown-pandoc-export', id, format, text, custom, options),
   mdPandocImport: custom => ipcRenderer.invoke('markdown-pandoc-import', custom),
   aiState: () => ipcRenderer.invoke('ai-state'),
   aiUpsert: input => ipcRenderer.invoke('ai-upsert', input),

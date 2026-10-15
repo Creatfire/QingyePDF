@@ -108,6 +108,26 @@ exports.run = async ({ window, openFiles, output }) => {
       if (format === 'image') assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
       result.exports[format] = { file: saved.path, bytes: bytes.length };
     }
+    // 0.14: Word / ePub through Pandoc with the renderer-prepared job (diagrams, [toc], theme styles).
+    if (pandoc.found) for (const format of ['docx', 'epub']) {
+      const target = path.join(dir, 'pandoc-export.' + format);
+      dialog.showSaveDialog = async () => ({ canceled: false, filePath: target });
+      const saved = await run(`(async () => {
+        const { preparePandocJob } = await import('./markdown/export-pandoc.mjs');
+        const s = ${S}; const job = await preparePandocJob('# 导出\\n\\n[toc]\\n\\n第一行\\n第二行\\n\\n\\x60\\x60\\x60mermaid\\nflowchart LR\\nA-->B\\n\\x60\\x60\\x60\\n', { format: ${JSON.stringify(format)} });
+        return desktop.mdPandocExport(s.id, ${JSON.stringify(format)}, job.text, '', job.options);
+      })()`);
+      const bytes = await fs.readFile(saved.path);
+      assert.equal(bytes.subarray(0, 2).toString(), 'PK', format);
+      const { readZip } = require('../pandoc-markdown.cjs');
+      const names = readZip(bytes).map(e => e.name);
+      assert.ok(names.some(n => /\.png$/.test(n)), format + ' contains the rendered diagram');
+      if (format === 'docx') {
+        const doc = readZip(bytes).find(e => e.name === 'word/document.xml').data.toString('utf8');
+        assert.match(doc, /TOC \\o/); assert.match(doc, /第一行第二行/);
+      }
+      result.exports['pandoc-' + format] = { file: saved.path, bytes: bytes.length };
+    }
     const server = require('node:http').createServer((_request, response) => { requests++; response.end('blocked-test'); });
     let requests = 0;
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));

@@ -6,7 +6,6 @@ const fsSync = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
-const { spawn } = require('node:child_process');
 const markdownFiles = require('./markdown-files.cjs');
 const pandocEngine = require('./pandoc-engine.cjs');
 
@@ -77,19 +76,7 @@ async function readVersion(base, file, name) {
 }
 
 // ——— Pandoc ———
-async function run(cmd, args, { cwd, input, timeout = 120000 } = {}) {
-  return new Promise((resolve, reject) => {
-    let child;
-    try { child = spawn(cmd, args, { cwd, windowsHide: true }); } catch (error) { reject(error); return; }
-    let out = Buffer.alloc(0), err = '', done = false;
-    const timer = setTimeout(() => { if (!done) { child.kill(); reject(new Error('Pandoc 运行超时。')); } }, timeout);
-    child.stdout.on('data', d => { out = Buffer.concat([out, d]); });
-    child.stderr.on('data', d => { err += d.toString(); });
-    child.on('error', error => { clearTimeout(timer); done = true; reject(error); });
-    child.on('close', code => { clearTimeout(timer); done = true; code === 0 ? resolve({ stdout: out, stderr: err }) : reject(new Error((err || `退出码 ${code}`).trim().slice(0, 800))); });
-    if (input != null) child.stdin.end(input); else child.stdin.end();
-  });
-}
+const run = (cmd, args, options = {}) => pandocEngine.run(cmd, args, { timeout: 120000, ...options });
 async function findPandoc(custom = '') {
   const candidates = [];
   if (custom) candidates.push(custom);
@@ -101,32 +88,10 @@ async function findPandoc(custom = '') {
   }
   return { found: false, path: '', version: '' };
 }
-const PANDOC_TARGETS = { odt: 'odt', rst: 'rst', mediawiki: 'mediawiki', textile: 'textile', opml: 'opml', org: 'org', asciidoc: 'asciidoc', pptx: 'pptx', docx: 'docx', epub: 'epub3', latex: 'latex', rtf: 'rtf', html: 'html5' };
-const PANDOC_SOURCES = { '.docx': 'docx', '.odt': 'odt', '.html': 'html', '.htm': 'html', '.epub': 'epub', '.tex': 'latex', '.latex': 'latex', '.rst': 'rst', '.org': 'org', '.textile': 'textile', '.wiki': 'mediawiki', '.opml': 'opml', '.rtf': 'rtf', '.ipynb': 'ipynb', '.csv': 'csv', '.tsv': 'tsv', '.adoc': 'asciidoc', '.txt': 'markdown' };
-// Markdown reader extensions. `mark` (==highlight==) exists only in Pandoc 3.1+; older versions stop
-// with "Unknown extension: mark", so the conversion is retried once without it.
-const PANDOC_FROM = 'markdown+emoji+task_lists+pipe_tables+footnotes+tex_math_dollars+strikeout+subscript+superscript+mark';
-const PANDOC_FROM_LEGACY = PANDOC_FROM.replace('+mark', '');
-async function runPandocConvert(pandoc, restArgs, options = {}) {
-  try { return await run(pandoc, ['-f', PANDOC_FROM, ...restArgs], options); }
-  catch (error) {
-    if (!/Unknown extension/i.test(error.message)) throw error;
-    return run(pandoc, ['-f', PANDOC_FROM_LEGACY, ...restArgs], options);
-  }
-}
-async function pandocExport(pandoc, { format, text, out, cwd }) {
-  const target = PANDOC_TARGETS[format];
-  if (!target) throw new Error('不支持的 Pandoc 格式：' + format);
-  await runPandocConvert(pandoc, ['-t', target, '-o', out, '--standalone', ...(cwd ? ['--resource-path', cwd] : [])], { cwd, input: text });
-  return out;
-}
-async function pandocImport(pandoc, file, { mediaDir } = {}) {
-  const from = PANDOC_SOURCES[path.extname(file).toLowerCase()];
-  if (!from) throw new Error('不支持导入此类型的文件。');
-  const args = ['-f', from, '-t', 'gfm+footnotes+tex_math_dollars', '--wrap=none', ...(mediaDir ? ['--extract-media', mediaDir] : [])];
-  const { stdout } = await run(pandoc, [...args, file], { cwd: path.dirname(file) });
-  return stdout.toString('utf8');
-}
+// Dialect, import writer and export staging live in pandoc-markdown.cjs (one owner for both the
+// editor and its tests); re-exported here for existing callers.
+const { PANDOC_FROM, PANDOC_FROM_LEGACY, TARGETS: PANDOC_TARGETS, SOURCES: PANDOC_SOURCES, pandocExport, pandocImport, withDialect } = require('./pandoc-markdown.cjs');
+const runPandocConvert = (pandoc, restArgs, options = {}) => withDialect(PANDOC_FROM, from => run(pandoc, ['-f', from, ...restArgs], options));
 
 // ——— Images ———
 function imageFolder(documentPath, { mode = 'assets', folder = 'assets', root = '' } = {}) {

@@ -11,7 +11,7 @@ export const DEFAULTS = {
   // images
   imageInsert: 'assets', imageFolder: 'assets', imageRoot: '', preferRelative: true,
   // export
-  pandocPath: '', pdfPageSize: 'A4', pdfMargin: 'normal', pdfLandscape: false, pdfHeaderFooter: false, pdfBackground: true, htmlEmbedCss: true,
+  pandocPath: '', docxEngine: 'pandoc', pdfPageSize: 'A4', pdfMargin: 'normal', pdfLandscape: false, pdfHeaderFooter: false, pdfBackground: true, htmlEmbedCss: true,
   // shortcuts: { commandId: 'Ctrl+Alt+X' | '' }
   shortcuts: {},
 };

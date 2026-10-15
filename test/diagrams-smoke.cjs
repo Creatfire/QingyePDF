@@ -43,6 +43,9 @@ exports.run = async window => {
       const rtf = await buildExport('rtf', { text: source });
       const pdf = await buildExport('pdf', { text: source });
       const image = await buildExport('image', { text: source });
+      const { preparePandocJob } = await import('./markdown/export-pandoc.mjs');
+      const job = await preparePandocJob(source + '\\n\\n\\x60\\x60\\x60mermaid\\nnot a diagram ((\\n\\x60\\x60\\x60', { format: 'docx' });
+      const pandocJob = { files: job.options.files.map(f => [f.name, f.data[1] === 0x50 && f.data[2] === 0x4e ? 'png' : 'other']), refs: (job.text.match(/!\\[\\]\\(qy-diagram-\\d\\.png\\)\\{width=\\d+px\\}/g) || []).length, fallback: job.text.includes('not a diagram (('), style: job.options.docxStyle };
       const fallbackRoot = document.createElement('div');
       fallbackRoot.append(sanitize(md.render('\\x60\\x60\\x60sequence\\nA->B: fallback\\n\\x60\\x60\\x60')));
       const parse = window.Diagram.parse;
@@ -57,7 +60,7 @@ exports.run = async window => {
         fallback, invalid, externalLinksRemoved: !/https:\\/\\/example.invalid|<a[ >]/.test(linked),
         htmlSvg: (html.data.match(/<svg/g) || []).length, docxBytes: docx.data.length,
         epubBytes: epub.data.length, rtfImages: (rtf.data.match(/\\\\pict\\\\pngblip/g) || []).length,
-        pdfSvg: (pdf.html.match(/<svg/g) || []).length, imageSvg: (image.html.match(/<svg/g) || []).length };
+        pdfSvg: (pdf.html.match(/<svg/g) || []).length, pandocJob, imageSvg: (image.html.match(/<svg/g) || []).length };
     } finally { root.remove(); }
   })().catch(error => { console.error(error.stack || error.message); throw error; })`, true);
   for (const [theme, diagrams] of [['light', result.light], ['dark', result.dark]]) {
@@ -73,6 +76,9 @@ exports.run = async window => {
   assert.equal(result.htmlSvg, 3); assert.equal(result.pdfSvg, 3); assert.equal(result.imageSvg, 3);
   assert.ok(result.docxBytes > 1000 && result.epubBytes > 1000);
   assert.equal(result.rtfImages, 3);
+  assert.deepEqual(result.pandocJob.files, [['qy-diagram-1.png', 'png'], ['qy-diagram-2.png', 'png'], ['qy-diagram-3.png', 'png']], 'Pandoc job carries rendered diagrams');
+  assert.equal(result.pandocJob.refs, 3); assert.ok(result.pandocJob.fallback, 'a broken diagram stays as code');
+  assert.equal(result.pandocJob.style.cjk, 'Microsoft YaHei');
   assert.equal(result.fallback, 'done'); assert.equal(result.invalid, true); assert.equal(result.externalLinksRemoved, true);
   // Read the installed reference examples only as test inputs; do not redistribute Typora text.
   const docs = process.env.QINGYE_TYPORA_DOCS || require('node:path').join(process.env.LOCALAPPDATA || '', 'Programs/Typora/resources/Docs/Draw Diagrams With Markdown.md');

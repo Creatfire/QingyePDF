@@ -7,6 +7,8 @@ const THEME_VARS = {
   pixyll: { bg: '#ffffff', ink: '#333333', muted: '#777777', line: '#e6e6e6', accent: '#e63946', soft: '#fafafa', code: '#f8f8f8', codeInk: '#c7254e', font: 'Merriweather,Georgia,"Noto Serif SC","Songti SC",serif', display: 'Lato,"Helvetica Neue","Microsoft YaHei UI",sans-serif', size: '17px', lh: '1.85', width: '720px' },
   whitey: { bg: '#ffffff', ink: '#111111', muted: '#6a6a6a', line: '#ececec', accent: '#111111', soft: '#fafafa', code: '#fafafa', codeInk: '#333333', font: '"Helvetica Neue","Segoe UI","PingFang SC","Microsoft YaHei UI",sans-serif', display: 'inherit', size: '16px', lh: '1.75', width: '800px' },
 };
+// Theme tokens for other exporters (Word reference styles, EPUB stylesheet).
+export const themeTokens = theme => ({ ...(THEME_VARS[theme] || THEME_VARS.qingye) });
 export function exportCss(theme = 'qingye', { custom = '', font = '', size = '', width = '' } = {}) {
   const t = { ...(THEME_VARS[theme] || THEME_VARS.qingye) };
   if (font) t.font = font; if (size) t.size = size; if (width) t.width = width;

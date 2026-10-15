@@ -5,6 +5,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const markdownFiles = require('./markdown-files.cjs');
 const tools = require('./markdown-tools.cjs');
+const pandocMarkdown = require('./pandoc-markdown.cjs');
 const { T } = require('./i18n-main.cjs');
 
 function register(ctx) {
@@ -130,20 +131,20 @@ function register(ctx) {
 
   // ——— Pandoc ———
   handle('markdown-pandoc-info', custom => tools.findPandoc(typeof custom === 'string' ? custom : ''));
-  handle('markdown-pandoc-export', async (id, format, text, custom) => {
+  // options: { files: [{ name, data }], toc, smart, docxStyle, css } — prepared by the editor
+  // (pandoc-prep.mjs): rendered diagrams, the [toc] decision and the current theme's styles.
+  handle('markdown-pandoc-export', async (id, format, text, custom, options = {}) => {
     const record = mdRecord(id); if (typeof text !== 'string') throw new Error('无效的内容。');
+    if (!pandocMarkdown.TARGETS[format]) throw new Error('不支持的 Pandoc 格式：' + format);
     const pandoc = await pandocPath(custom);
     const ext = { latex: 'tex', markdown: 'md', mediawiki: 'wiki', asciidoc: 'adoc', epub: 'epub' }[format] || format;
-    const target = await saveDialog(record, ext, '用 Pandoc 导出'); if (!target) return null;
-    const tmp = path.join(app.getPath('temp'), `qingye-pandoc-${Date.now()}.md`);
-    await fs.writeFile(tmp, text, 'utf8');
-    try {
-      const cwd = record.path ? path.dirname(record.path) : undefined;
-      const out = path.join(app.getPath('temp'), `qingye-pandoc-${Date.now()}.${ext}`);
-      await tools.runPandocConvert(pandoc, ['-t', tools.PANDOC_TARGETS[format] || format, '-o', out, '--standalone', ...(cwd ? ['--resource-path', cwd] : []), tmp], { cwd });
-      await writeOut(target, await fs.readFile(out)); fs.rm(out, { force: true }).catch(() => {});
-      return { path: target };
-    } finally { fs.rm(tmp, { force: true }).catch(() => {}); }
+    const files = Array.isArray(options?.files) ? options.files.slice(0, 200) : [];
+    if (files.some(file => !file || typeof file.name !== 'string' || !(file.data instanceof Uint8Array || ArrayBuffer.isView(file.data) || file.data instanceof ArrayBuffer))) throw new Error('无效的附加资源。');
+    const reference = format === 'docx' ? await pandocMarkdown.referenceDocx(pandoc, options?.docxStyle && typeof options.docxStyle === 'object' ? options.docxStyle : {}) : null;
+    const target = await saveDialog(record, ext, '导出为 ' + ext.toUpperCase()); if (!target) return null;
+    const { bytes, warnings } = await pandocMarkdown.exportDocument(pandoc, { format, text, cwd: record.path ? path.dirname(record.path) : undefined, files, toc: options?.toc === true, smart: options?.smart === true, reference, css: typeof options?.css === 'string' ? options.css.slice(0, 2e6) : '' });
+    await writeOut(target, bytes);
+    return { path: target, warnings: String(warnings || '').trim().slice(0, 2000) };
   });
   handle('markdown-pandoc-import', async custom => {
     const pandoc = await pandocPath(custom);
