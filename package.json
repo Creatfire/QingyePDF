@@ -97,6 +97,7 @@
       "test/features094-smoke.cjs",
       "test/notes010-smoke.cjs",
       "test/fixes013-smoke.cjs",
+      "test/xodo014-smoke.cjs",
       "test/fixtures/remote-link.pdf"
     ],
     "extraResources": [

@@ -19,7 +19,7 @@ const runningJobs=new Map();
 const canceledJobs=new Set();
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'qingye', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } }]);
-const smoke = process.argv.includes('--smoke-test')||process.argv.includes('--edit-smoke')||process.argv.includes('--markdown-smoke')||process.argv.includes('--conversion-smoke')||process.argv.includes('--basic-smoke')||process.argv.includes('--fix-smoke')||process.argv.includes('--fix-close-smoke')||process.argv.includes('--features-smoke')||process.argv.includes('--notes-smoke')||process.argv.includes('--links-smoke')||process.argv.includes('--fix013-smoke');
+const smoke = process.argv.includes('--smoke-test')||process.argv.includes('--edit-smoke')||process.argv.includes('--markdown-smoke')||process.argv.includes('--conversion-smoke')||process.argv.includes('--basic-smoke')||process.argv.includes('--fix-smoke')||process.argv.includes('--fix-close-smoke')||process.argv.includes('--features-smoke')||process.argv.includes('--notes-smoke')||process.argv.includes('--links-smoke')||process.argv.includes('--fix013-smoke')||process.argv.includes('--x014-smoke');
 const safety = process.argv.includes('--safety-smoke');
 const safetyRole = process.env.QINGYE_SAFETY_ROLE || 'main';
 const benchmark=process.argv.includes('--startup-benchmark');
@@ -448,7 +448,7 @@ app.whenReady().then(async () => {
     if(result.unchanged)return {unchanged:true,note:result.note};
     const output=result.files[0]; if(!output) throw new Error('处理未生成文件。');
     if(request.draft){
-      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
+      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
       return {bytes:output.bytes,note:result.note};
     }
     // Integration tests exercise IPC and actual engine output without native picker interaction.
@@ -685,6 +685,7 @@ app.whenReady().then(async () => {
     console.log('Startup ready (ms):',Math.round(performance.now()-bootStarted));
     if(benchmark){await loadComplete;await fs.mkdir(path.join(smokeRoot,'test-output'),{recursive:true});await fs.writeFile(path.join(smokeRoot,'test-output','startup-timing.json'),JSON.stringify({mainReadyMs:Math.round(performance.now()-bootStarted),version:app.getVersion(),cachedRuntime:process.execPath,runId:diagnostics.runId}));diagnostics.success();allowClose=true;app.quit();return;}
     if (smoke) {
+      if(process.argv.includes('--x014-smoke')){try{await require('./test/xodo014-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/xodo014')});diagnostics.success();app.exit(0);}catch(error){fail('xodo014',error);}return;}
       if(process.argv.includes('--fix013-smoke')){try{await require('./test/fixes013-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/fixes013')});diagnostics.success();app.exit(0);}catch(error){fail('fixes013',error);}return;}
       if(process.argv.includes('--links-smoke')){try{await require('./test/links011-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/links011')});diagnostics.success();app.exit(0);}catch(error){fail('links011',error);}return;}
       if(process.argv.includes('--notes-smoke')){try{await require('./test/notes010-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/notes010')});diagnostics.success();app.exit(0);}catch(error){fail('notes010',error);}return;}

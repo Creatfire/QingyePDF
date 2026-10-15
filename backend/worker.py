@@ -606,6 +606,31 @@ def process(request, input_file, output):
             save(result, target)
             result.close()
             return {'files': ['result.pdf'], 'note': '已生成带中英文文字层的 PDF；识别页按 200 DPI 图像输出，识别内容请复核。'}
+        elif action == 'markup':
+            # Text markup from a viewer selection: one standard annotation per page whose quads
+            # follow each selected line (rects are fractions of the displayed page, like 'rect').
+            kind = request.get('annotation')
+            method = {'highlight': 'add_highlight_annot', 'underline': 'add_underline_annot', 'strikeout': 'add_strikeout_annot', 'squiggly': 'add_squiggly_annot'}.get(kind)
+            marks = request.get('marks') or []
+            if not method or not isinstance(marks, list) or not 0 < len(marks) <= 200:
+                raise ValueError('无效的文字批注。')
+            ink = color(request.get('color', '#d9482b'))
+            text = str(request.get('text', ''))[:10000]
+            author = str(request.get('author', ''))[:200]
+            opacity = number(request.get('opacity'), 0.1, 1, 1)
+            now = fitz.get_pdf_now()
+            for mark in marks:
+                index = int(number(mark.get('page'), 1, len(doc), 1)) - 1
+                page = doc[index]
+                rects = [region(page, r) for r in (mark.get('rects') or [])[:500]]
+                if not rects:
+                    raise ValueError('没有选中的文字。')
+                annot = getattr(page, method)([r.quad for r in rects])
+                annot.set_colors(stroke=ink)
+                if opacity < 1:
+                    annot.set_opacity(opacity)
+                annot.set_info(content=text, title=author, creationDate=now, modDate=now)
+                annot.update()
         elif action in ('redact', 'text', 'stamp', 'image', 'page-stamp', 'number', 'watermark', 'shape', 'annotation', 'form', 'crop'):
             if action == 'redact':
                 doc.bake(annots=True, widgets=True)

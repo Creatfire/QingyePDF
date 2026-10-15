@@ -89,3 +89,15 @@
 .readingTrail { display:flex;gap:2px;align-items:center;-webkit-app-region:no-drag; }.readingTrail button { width:28px;height:28px; }
 .searchOcr { display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--line);margin-top:10px;padding-top:10px; }.searchOcr p { width:100%;margin:3px 0;font-size:12px;line-height:1.6; }.searchOcr input { width:100%;box-sizing:border-box; }.searchOcr button { padding:5px 8px;font-size:12px; }.ocrCoverage,.ocrProgress { color:var(--muted); }
 .annotationSelectRow { display:flex;align-items:start;gap:6px; }.annotationSelectRow .navigationRow { flex:1;min-width:0; }
+
+/* 0.14 text markup bar (ui/markup.mjs) */
+.markupBar { position: fixed; z-index: 900; display: flex; align-items: center; gap: 2px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-md, 0 6px 22px rgb(0 0 0 / .16)); }
+.markupBar[hidden] { display: none; }
+.markupBar button { min-width: 34px; height: 30px; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: var(--ink); font-size: 12.5px; --icon-size: 15px; }
+.markupBar button:hover, .markupBar button:focus-visible { background: var(--surface-3); }
+.markupBar button[data-kind="copy"] { border-left: 1px solid var(--line); border-radius: 0 7px 7px 0; margin-left: 2px; }
+.markupSwatch { font-weight: 600; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.markup-highlight { background: color-mix(in srgb, var(--markup) 55%, transparent); padding: 0 3px; border-radius: 3px; }
+.markup-underline { text-decoration: underline var(--markup); text-decoration-thickness: 2px; }
+.markup-strikeout { text-decoration: line-through var(--markup); text-decoration-thickness: 2px; }
+.markup-squiggly { text-decoration: underline wavy var(--markup); text-decoration-thickness: 1.5px; }

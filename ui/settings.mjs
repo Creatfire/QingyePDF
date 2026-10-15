@@ -5,7 +5,7 @@ import { THEMES } from './markdown/themes.mjs';
 import { mountAiSettings } from './ai/settings-ai.mjs';
 
 const KEY = 'qingye.settings';
-export const DEFAULTS = { restoreOnStart: false, pdfZoom: 'page-width', pdfResume: true, confirmRecentClear: true };
+export const DEFAULTS = { restoreOnStart: false, pdfZoom: 'page-width', pdfResume: true, confirmRecentClear: true, annotAuthor: '', markupBar: true, markupCopyText: false, annotKeys: true };
 export function readSettings() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return { ...DEFAULTS }; } }
 function writeSettings(values) { try { localStorage.setItem(KEY, JSON.stringify(values)); } catch {} }
 
@@ -46,6 +46,11 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
           <label class="settingRow"><span><b>默认缩放</b><small>第一次打开某个 PDF 时使用；之后按文件记忆。</small></span><select id="setPdfZoom"><option value="page-width">适合宽度</option><option value="page-fit">适合页面</option><option value="auto">自动缩放</option><option value="1">100%</option></select></label>
           <label class="settingRow check"><span><b>回到上次阅读的位置</b><small>重新打开 PDF 时跳到上次的页码和滚动位置。</small></span><input id="setPdfResume" type="checkbox" role="switch"></label>
           <p class="settingsNote">页面排列、阅读配色、裁剪等视图设置在 PDF 工具栏的“视图”中，按文件分别记忆。</p>
+          <h3>批注</h3>
+          <label class="settingRow"><span><b>批注作者</b><small>写入新建批注的作者字段，其他阅读器会显示这个名字。留空则不写。</small></span><input id="setAnnotAuthor" type="text" maxlength="80" placeholder="例如：张三"></label>
+          <label class="settingRow check"><span><b>选中文字后显示批注工具条</b><small>提供高亮、下划线、删除线、波浪线和复制。</small></span><input id="setMarkupBar" type="checkbox" role="switch"></label>
+          <label class="settingRow check"><span><b>把所选文字写入批注备注</b><small>高亮、下划线等批注的备注里会带上被标记的原文。</small></span><input id="setMarkupCopyText" type="checkbox" role="switch"></label>
+          <label class="settingRow check"><span><b>单字母批注快捷键</b><small>H 高亮、U 下划线、S 删除线、G 波浪线、I 自由绘制、T 文本框、C 评论、P 或 Esc 退出批注。</small></span><input id="setAnnotKeys" type="checkbox" role="switch"></label>
         </section>
         <section class="settingsPane" data-pane="markdown" hidden>
           <h3>Markdown</h3>
@@ -136,6 +141,10 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
   // ——— PDF ———
   $('#setPdfZoom').onchange = e => set('pdfZoom', e.target.value);
   $('#setPdfResume').onchange = e => set('pdfResume', e.target.checked);
+  $('#setAnnotAuthor').onchange = e => set('annotAuthor', e.target.value.trim().slice(0, 80));
+  $('#setMarkupBar').onchange = e => set('markupBar', e.target.checked);
+  $('#setMarkupCopyText').onchange = e => set('markupCopyText', e.target.checked);
+  $('#setAnnotKeys').onchange = e => set('annotKeys', e.target.checked);
 
   // ——— Markdown ———
   const mdPrefs = () => markdown.typora.prefs;
@@ -190,6 +199,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
     $('#setRestore').checked = !!values.restoreOnStart;
     syncStyle();
     $('#setPdfZoom').value = values.pdfZoom; $('#setPdfResume').checked = !!values.pdfResume;
+    $('#setAnnotAuthor').value = values.annotAuthor || ''; $('#setMarkupBar').checked = values.markupBar !== false; $('#setMarkupCopyText').checked = !!values.markupCopyText; $('#setAnnotKeys').checked = values.annotKeys !== false;
     $('#setMdRead').checked = !!mdPrefs().get('openInReadMode'); $('#setMdAutoSave').checked = !!mdPrefs().get('autoSave');
     mdTheme.value = THEMES.some(([id]) => id === mdPrefs().get('theme')) ? mdPrefs().get('theme') : 'qingye';
     $('#aboutVersion').textContent = `${t('版本')} ${version()}`;

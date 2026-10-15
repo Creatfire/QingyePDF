@@ -130,6 +130,20 @@ def check():
         stretched=placed({'keepRatio':False})
         default=placed({})
         assert abs(kept-2)<.05 and abs(default-2)<.05 and abs(stretched-1.6)<.05,(kept,default,stretched)
+        # 0.14 text markup: one annotation per page, one quad per selected line, author and note.
+        lines=[[50/400,(80-22)/500,250/400,84/500],[50/400,(180-17)/500,220/400,184/500]]
+        for kind,subtype in (('underline','Underline'),('squiggly','Squiggly'),('strikeout','StrikeOut'),('highlight','Highlight')):
+            _,out=run({'action':'markup','annotation':kind,'marks':[{'page':1,'rects':lines},{'page':2,'rects':lines[:1]}],'color':'#1d7a57','author':'张三','text':'原文','opacity':.5})
+            with fitz.open(out/'result.pdf') as d:
+                one,two=d[0],d[1]
+                first=[a for a in one.annots() if a.type[1]==subtype]
+                assert len(first)==1 and len(first[0].vertices)==8,(kind,len(first))
+                assert first[0].info['title']=='张三' and first[0].info['content']=='原文'
+                assert 'SECRET' in one.get_textbox(first[0].rect)
+                assert len([a for a in two.annots() if a.type[1]==subtype])==1
+        for bad in ({'annotation':'circle','marks':[{'page':1,'rects':lines}]},{'annotation':'underline','marks':[]},{'annotation':'underline','marks':[{'page':1,'rects':[]}]}):
+            try:run({'action':'markup',**bad});assert False,bad
+            except ValueError:pass
         print(f'BACKEND PASS: {counter} jobs, exports, edits, encryption, redaction, OCR, outline, pages and comparison')
 
 

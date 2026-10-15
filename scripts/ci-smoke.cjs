@@ -22,6 +22,7 @@ const SUITES = [
   { name: 'features', flag: '--features-smoke', env: { QINGYE_094_SCAN_FIXTURE: path.join(root, 'test', 'fixtures', 'mixed-scan.pdf') } },
   { name: 'notes', flag: '--notes-smoke' },
   { name: 'links', flag: '--links-smoke' },
+  { name: 'pdf014', flag: '--x014-smoke' },
 ];
 const PACKAGED_SUITES = ['smoke', 'basic', 'features', 'notes', 'links'];
 

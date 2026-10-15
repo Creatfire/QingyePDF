@@ -4,7 +4,7 @@ const os = require('node:os');
 const { spawn } = require('node:child_process');
 const { pdfBytes } = require('./core.cjs');
 
-const actions = new Set(['inspect','normalize-annotations','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','form','crop','import','compare']);
+const actions = new Set(['inspect','normalize-annotations','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','markup','form','crop','import','compare']);
 function waitForAbort(promise, signal) {
   return new Promise((resolve, reject) => {
     const finish = (callback, value) => { signal?.removeEventListener('abort', abort); callback(value); };
