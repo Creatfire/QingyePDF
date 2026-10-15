@@ -16,6 +16,7 @@ const MARKER_AT_START = /^(\s{0,3}#{1,6}[ \t]+|\s{0,3}(?:>\s?)+|\s{0,3}(?:[-*+]|
 const MATH_SOURCE = /\$\$[\s\S]+?\$\$|\$(?![\s$])(?:\\\$|[^$\n])*?[^\s\\]\$(?!\d)/g;
 const SKIP_RENDERED = '.katex, .mdCodeHead, .mdFrontLabel, .mdLivePreview, .mdMermaid';
 const LAZY_CHARS = 60000;
+const HISTORY_CHARS = 4e6, HISTORY_STEPS = 2000;
 // Placeholder height (em) of a block not rendered yet, from its source.
 function estimateHeight(b) {
   const lines = (b.source.match(/\n/g) || []).length + 1;
@@ -419,7 +420,7 @@ export class MarkdownEditor {
       const wordBoundary = prev && /\s$/.test(prev.inserted) && change.insert && !/^\s/.test(change.insert);
       if (group === 'type' && last?.group === 'type' && contiguous && !wordBoundary && now - last.time < 1500 && last.changes.length < 80 && !this.breakUndo) { last.changes.push(entry); last.time = now; }
       else this.undoStack.push({ changes: [entry], selBefore: { ...selBefore }, selAfter: null, group, time: now });
-      if (this.undoStack.length > 500) this.undoStack.shift();
+      this.trimHistory();
       this.redoStack = []; this.breakUndo = false;
     }
     this.options.onChange?.();
@@ -435,6 +436,7 @@ export class MarkdownEditor {
     const entries = [];
     for (const c of sorted) { entries.push({ from: c.from, removed: this.text.slice(c.from, c.to), inserted: c.insert }); this.applyRaw(c, { record: false }); }
     this.undoStack.push({ changes: entries, selBefore, selAfter: selection ? { ...selection } : null, group, time: Date.now() });
+    this.trimHistory();
     this.redoStack = []; this.breakUndo = true;
     this.refresh(selection, focus, activate);
   }
@@ -449,6 +451,29 @@ export class MarkdownEditor {
     if (this.stale) this.reconcile();
     this.scroller.scrollTop = top;
     if (selection) { this.sel = { from: selection.from, to: selection.to }; if (activate) this.activateAt(selection.from, selection.to, { focus }); }
+  }
+  // Undo is bounded by the text it holds (Typora uses a weighted budget), not by a step count, so
+  // many small edits stay undoable while a few whole-document replacements cannot exhaust memory.
+  trimHistory() {
+    const size = e => e.changes.reduce((n, c) => n + c.removed.length + c.inserted.length, 0);
+    let total = this.undoStack.reduce((n, e) => n + size(e), 0);
+    while (this.undoStack.length > 1 && (total > HISTORY_CHARS || this.undoStack.length > HISTORY_STEPS)) total -= size(this.undoStack.shift());
+  }
+  // Serialized for crash recovery, so undo keeps working after a restored draft.
+  exportHistory() {
+    const plain = list => list.map(e => ({ changes: e.changes, selBefore: e.selBefore, selAfter: e.selAfter, group: e.group }));
+    return JSON.stringify({ v: 1, length: this.text.length, undo: plain(this.undoStack), redo: plain(this.redoStack) });
+  }
+  importHistory(json) {
+    let data; try { data = JSON.parse(json); } catch { return false; }
+    if (data?.v !== 1 || data.length !== this.text.length) return false;
+    const sel = s => s && Number.isInteger(s.from) && Number.isInteger(s.to) ? { from: s.from, to: s.to } : null;
+    const valid = list => Array.isArray(list) && list.every(e => Array.isArray(e?.changes) && e.changes.every(c => Number.isInteger(c?.from) && c.from >= 0 && typeof c.removed === 'string' && typeof c.inserted === 'string'));
+    if (!valid(data.undo) || !valid(data.redo)) return false;
+    const read = list => list.map(e => ({ changes: e.changes.map(c => ({ from: c.from, removed: c.removed, inserted: c.inserted })), selBefore: sel(e.selBefore) || { from: 0, to: 0 }, selAfter: sel(e.selAfter), group: String(e.group || 'edit'), time: 0 }));
+    this.undoStack = read(data.undo); this.redoStack = read(data.redo); this.breakUndo = true;
+    this.trimHistory();
+    return true;
   }
   undo() { this.history(this.undoStack, this.redoStack, true); }
   redo() { this.history(this.redoStack, this.undoStack, false); }

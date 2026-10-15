@@ -62,6 +62,19 @@ exports.run = async ({ window, openFiles, output }) => {
   assert.equal(result.conveniences.structural, '-', 'a rule / list marker line is not converted');
   assert.equal(result.conveniences.zoomUp, 10); assert.ok(result.conveniences.zoomBack);
 
+  // Undo history survives serialization (crash recovery) and is rejected for a different text.
+  result.history = await run(`(async () => {
+    const ed = ${S}.editor;
+    ed.replaceAll('一'); ed.activateAt(1); document.execCommand('insertText', false, '二'); ed.syncFromDom(true);
+    ed.breakUndo = true; ed.activateAt(2); document.execCommand('insertText', false, '三'); ed.syncFromDom(true);
+    const saved = ed.exportHistory(), text = ed.text;
+    ed.undoStack = []; ed.redoStack = [];
+    const imported = ed.importHistory(saved); ed.undo(); const afterUndo = ed.text;
+    const rejected = !ed.importHistory(JSON.stringify({ ...JSON.parse(saved), length: 999 }));
+    return { text, imported, afterUndo, rejected };
+  })()`);
+  assert.deepEqual(result.history, { text: '一二三', imported: true, afterUndo: '一二', rejected: true });
+
   // Large document timings (measured, reported; budgets are generous to stay stable on CI).
   const sample = await fs.readFile(path.join(__dirname, '../ui/markdown/sample.md'), 'utf8');
   let big = ''; while (big.length < 1024 * 1024) big += sample + '\n\n';

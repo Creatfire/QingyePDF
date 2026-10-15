@@ -257,7 +257,7 @@ async function checkpoint() {
   try{
     const items=[];
     for(const s of sessions.values())if(s.loaded&&!s.saving){
-      if(isMd(s)){syncDirty(s);const version=s.editor.version,changed=s.dirty&&s.draftVersion!==version;items.push({id:s.id,state:viewState(s),dirty:s.dirty,...(changed?{text:markdown.text(s)}:{})});if(changed)s.nextDraftVersion=version;continue;}
+      if(isMd(s)){syncDirty(s);const version=s.editor.version,changed=s.dirty&&s.draftVersion!==version;items.push({id:s.id,state:viewState(s),dirty:s.dirty,...(changed?{text:markdown.text(s),history:s.editor.exportHistory()}:{})});if(changed)s.nextDraftVersion=version;continue;}
       syncDirty(s);let hash=editingHash(s);const changed=s.dirty&&(s.draftHash!==hash||s.pendingInput);
       let bytes;
       if(changed){

@@ -29,3 +29,21 @@ test('tree reordering moves a complete branch and keeps valid levels',async()=>{
   assert.equal(subtreeEnd(rows,0),3);moveBranch(rows,3,0);assert.deepEqual(rows.map(r=>r[1]),['B','B1','A','A1','A1a']);
   moveBranch(rows,0,3);assert.deepEqual(rows.map(r=>r[1]),['A','B','B1','A1','A1a']);assert.deepEqual(rows.map(r=>r[0]),[1,2,3,2,3]);
 });
+
+test('Markdown drafts keep their undo history beside the draft and clean it up (0.14)',async()=>{
+  const folder=await fs.mkdtemp(path.join(os.tmpdir(),'qingye-recovery-history-'));
+  try{
+    const crashed=new Recovery(folder,99999999),id=randomUUID();
+    await crashed.checkpoint([{id,name:'n.md',kind:'markdown',dirty:true,text:'v1',history:'{"v":1,"step":1}'}],id);
+    await crashed.checkpoint([{id,name:'n.md',kind:'markdown',dirty:true,state:{caret:1}}],id);
+    const list=await new Recovery(folder).list(),entry=list[0].entries[0];
+    assert.equal(entry.history,entry.draft+'.history.json');
+    assert.equal(await fs.readFile(path.join(folder,entry.history),'utf8'),'{"v":1,"step":1}','unchanged text keeps the previous history');
+    await crashed.checkpoint([{id,name:'n.md',kind:'markdown',dirty:true,text:'v2'}],id);
+    assert.equal(crashed.entries[0].history,undefined,'a new draft without history drops the old sidecar');
+    assert.equal((await fs.readdir(folder)).filter(n=>n.endsWith('.history.json')).length,0);
+    await crashed.checkpoint([{id,name:'n.md',kind:'markdown',dirty:true,text:'v3',history:'{"v":1}'}],id);
+    const item=(await new Recovery(folder).list())[0];await new Recovery(folder).remove(item);
+    assert.deepEqual((await fs.readdir(folder)).filter(n=>/\.(md|json)$/.test(n)&&!n.endsWith(crashed.id+'.json')),[]);
+  }finally{await fs.rm(folder,{recursive:true,force:true});}
+});

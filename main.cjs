@@ -319,7 +319,7 @@ app.whenReady().then(async () => {
   handle('drop', files => openFiles(Array.isArray(files) ? files : []));
   handle('checkpoint',async (items,activeId) => {
     if(!Array.isArray(items)||items.length>64)throw new Error('恢复标签数量过多。');
-    const entries=items.filter(item=>documents.has(item.id)).map(item=>{const r=documentById(item.id);remember(r,item.state);const markdown=r.kind==='markdown';return {id:r.id,name:r.name,path:r.path,hash:r.hash,state:r.state,dirty:!!item.dirty,...(markdown?{kind:'markdown'}:{}),...(markdown&&typeof item.text==='string'?{text:item.text}:!markdown&&item.bytes?{bytes:pdfBytes(item.bytes)}:{})};});
+    const entries=items.filter(item=>documents.has(item.id)).map(item=>{const r=documentById(item.id);remember(r,item.state);const markdown=r.kind==='markdown';return {id:r.id,name:r.name,path:r.path,hash:r.hash,state:r.state,dirty:!!item.dirty,...(markdown?{kind:'markdown'}:{}),...(markdown&&typeof item.text==='string'?{text:item.text,...(typeof item.history==='string'?{history:item.history}:{})}:!markdown&&item.bytes?{bytes:pdfBytes(item.bytes)}:{})};});
     await recovery.checkpoint(entries,activeId);await persist();return true;
   });
   handle('recovery-list',async () => {
@@ -332,11 +332,12 @@ app.whenReady().then(async () => {
     for(const entry of item.entries){
       if(entry.draft&&entry.draft.endsWith('.md')){
         const text=await fs.readFile(path.join(recovery.folder,entry.draft),'utf8');
+        const history=entry.history?await fs.readFile(path.join(recovery.folder,entry.history),'utf8').catch(()=>null):null;
         const unchanged=entry.path&&!Array.from(documents.values()).some(r=>r.path&&key(r.path)===key(entry.path))&&await fingerprint(entry.path).catch(()=>null)===entry.hash;
         let meta={encoding:'utf-8',bom:false,eol:'\n'};
         if(unchanged){try{const d=markdownFiles.decodeMarkdown(await fs.readFile(entry.path));meta={encoding:d.encoding,bom:d.bom,eol:d.eol};}catch{}}
         const record={id:randomUUID(),kind:'markdown',name:entry.name,path:unchanged?entry.path:null,hash:unchanged?entry.hash:null,...meta,state:entry.state||{}};
-        documents.set(record.id,record);watchMarkdown(record);opened.push({...metadata(record),text,recovered:true,wasActive:entry.id===item.activeId});
+        documents.set(record.id,record);watchMarkdown(record);opened.push({...metadata(record),text,...(history?{history}:{}),recovered:true,wasActive:entry.id===item.activeId});
       }else if(entry.draft){
         const bytes=pdfBytes(await fs.readFile(path.join(recovery.folder,entry.draft)));
         const unchanged=entry.path&&!Array.from(documents.values()).some(r=>r.path&&key(r.path)===key(entry.path))&&await fingerprint(entry.path).catch(()=>null)===entry.hash;
@@ -345,7 +346,7 @@ app.whenReady().then(async () => {
       }else if(entry.path)opened.push(...(await openFiles([entry.path])).map(info=>({...info,wasActive:entry.id===item.activeId})));
     }
     // Remove the abandoned manifest only after the recovered drafts are durably checkpointed.
-    if(token){await recovery.checkpoint([...recovery.entries.filter(e=>documents.has(e.id)),...opened.filter(info=>info.bytes||typeof info.text==='string').map(info=>{const r=documentById(info.id);return {...metadata(r),hash:r.hash,dirty:!!info.recovered,...(info.recovered?(typeof info.text==='string'?{text:info.text}:{bytes:info.bytes}):{})};})],opened.at(-1)?.id);await recovery.remove(item);recoveryTokens.delete(token);}
+    if(token){await recovery.checkpoint([...recovery.entries.filter(e=>documents.has(e.id)),...opened.filter(info=>info.bytes||typeof info.text==='string').map(info=>{const r=documentById(info.id);return {...metadata(r),hash:r.hash,dirty:!!info.recovered,...(info.recovered?(typeof info.text==='string'?{text:info.text,...(typeof info.history==='string'?{history:info.history}:{})}:{bytes:info.bytes}):{})};})],opened.at(-1)?.id);await recovery.remove(item);recoveryTokens.delete(token);}
     return opened;
   });
   handle('discard-recovery',async token => {const item=recoveryTokens.get(token);if(item){await recovery.remove(item);recoveryTokens.delete(token);}return true;});

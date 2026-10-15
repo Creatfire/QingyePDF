@@ -13,13 +13,16 @@ class Recovery {
       const next=[];
       for(const entry of entries){
         const previous=this.entries.find(e=>e.id===entry.id);
-        let draft=entry.dirty?previous?.draft:null;
-        if(entry.kind==='markdown'&&typeof entry.text==='string'){draft=this.id+'-'+entry.id+'-'+randomUUID()+'.md';await atomicWrite(path.join(this.folder,draft),Buffer.from(entry.text,'utf8'),null);}
+        let draft=entry.dirty?previous?.draft:null,history=entry.dirty&&draft===previous?.draft?previous?.history:null;
+        if(entry.kind==='markdown'&&typeof entry.text==='string'){draft=this.id+'-'+entry.id+'-'+randomUUID()+'.md';await atomicWrite(path.join(this.folder,draft),Buffer.from(entry.text,'utf8'),null);history=null;
+          // Undo history of the draft (0.14), so undo still works after recovery.
+          if(typeof entry.history==='string'&&entry.history.length<8e6){history=draft+'.history.json';await atomicWrite(path.join(this.folder,history),Buffer.from(entry.history,'utf8'),null);}}
         else if(entry.bytes){draft=this.id+'-'+entry.id+'-'+randomUUID()+'.pdf';await atomicWrite(path.join(this.folder,draft),pdfBytes(entry.bytes),null);}
-        const {bytes,text,...rest}=entry;next.push({...rest,draft});
+        const {bytes,text,history:_history,...rest}=entry;next.push({...rest,draft,...(history?{history}:{})});
       }
       await atomicWrite(this.file,Buffer.from(JSON.stringify({pid:this.pid,activeId,updated:Date.now(),entries:next})),await fingerprint(this.file));
       const obsolete=this.entries.filter(e=>e.draft&&!next.some(n=>n.draft===e.draft));
+      for(const e of this.entries)if(e.history&&!next.some(n=>n.history===e.history))await fs.rm(path.join(this.folder,e.history),{force:true});
       this.entries=next;
       for(const e of obsolete)await fs.rm(path.join(this.folder,e.draft),{force:true});
     });
@@ -33,13 +36,13 @@ class Recovery {
         if(!Array.isArray(data.entries))continue;
         let live=false;try{process.kill(data.pid,0);live=true;}catch{}
         if(live)continue;
-        const entries=data.entries.filter(e=>typeof e.name==='string'&&(!e.draft||/^[\da-f-]+\.(pdf|md)$/i.test(e.draft)));
+        const entries=data.entries.filter(e=>typeof e.name==='string'&&(!e.draft||/^[\da-f-]+\.(pdf|md)$/i.test(e.draft))).map(e=>e.history&&!(e.draft&&e.history===e.draft+'.history.json')?{...e,history:undefined}:e);
         if(entries.length)items.push({file,...data,entries});
       }catch{}
     }
     return items.sort((a,b)=>b.updated-a.updated);
   }
-  async remove(item) { await fs.rm(item.file,{force:true});for(const e of item.entries)if(e.draft)await fs.rm(path.join(this.folder,e.draft),{force:true}); }
+  async remove(item) { await fs.rm(item.file,{force:true});for(const e of item.entries){if(e.draft)await fs.rm(path.join(this.folder,e.draft),{force:true});if(e.history)await fs.rm(path.join(this.folder,e.history),{force:true});} }
   async finish(entries, activeId) {
     await this.checkpoint([],null);
     await this.write(async()=>{const file=path.join(this.folder,'last-session.json');await atomicWrite(file,Buffer.from(JSON.stringify({entries,activeId})),await fingerprint(file));await fs.rm(this.file,{force:true});});

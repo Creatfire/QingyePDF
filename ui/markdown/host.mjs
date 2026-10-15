@@ -436,6 +436,8 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
     if (state.source) s.editor.setSourceMode(true);
     requestAnimationFrame(() => { s.editor.scrollTop = state.scrollTop || 0; if (state.caret) s.editor.sel = { from: Math.min(state.caret, info.text.length), to: Math.min(state.caret, info.text.length) }; });
     if (info.notice) banner(s, info.notice, [['知道了', () => {}]]);
+    // A recovered draft brings back its undo history (0.14).
+    if (info.recovered && typeof info.history === 'string') s.editor.importHistory(info.history);
     typora.attach(s);
     s.eol = info.eol || '\n'; s.readonly = false;
     if (!state.source && (state.reading ?? (typora.prefs.get('openInReadMode') && !!s.path && !!info.text.trim()))) typora.setReadonly(s, true);
