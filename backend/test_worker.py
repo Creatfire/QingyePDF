@@ -195,6 +195,25 @@ def check():
             _,out=run({'action':'compress','profile':profile},photo)
             with fitz.open(out/'result.pdf') as d:widths[profile]=d[0].get_images()[0][2]
         assert 1200>widths['quality']>=widths['balanced']>widths['small'],widths  # MuPDF subsamples by integer factors
+        # 0.14 drawn shapes and deleting annotations by xref.
+        made={}
+        for shape,request in (('rect',{'rect':[.1,.1,.4,.3],'fill':'#ffee00'}),('ellipse',{'rect':[.5,.1,.9,.3]}),('cloud',{'rect':[.1,.5,.4,.7]}),('line',{'points':[[.1,.8],[.9,.8]]}),('arrow',{'points':[[.1,.9],[.9,.85]]})):
+            _,out=run({'action':'draw','shape':shape,'page':1,'color':'#1d7a57','width':3,'author':'李四',**request})
+            with fitz.open(out/'result.pdf') as d:
+                one=d[0];annot=[a for a in one.annots() if a.info['title']=='李四'][0]
+                made[shape]=(annot.type[1],annot.border.get('width'),annot.line_ends if shape in ('line','arrow') else None,annot.colors.get('fill'))
+        assert made['rect'][0]=='Square' and made['rect'][3] and made['ellipse'][0]=='Circle' and made['cloud'][0]=='Square',made
+        assert made['line'][0]=='Line' and made['arrow'][2][1]==fitz.PDF_ANNOT_LE_OPEN_ARROW and made['rect'][1]==3,made
+        try:run({'action':'draw','shape':'line','page':1,'points':[[.1,.1],[.1,.1]]});assert False
+        except ValueError:pass
+        _,out=run({'action':'draw','shape':'rect','page':1,'rect':[.1,.1,.4,.3]},source)
+        with fitz.open(out/'result.pdf') as d:
+            xrefs=[(a.xref,a.type[1]) for a in d[0].annots()]
+        target=[x for x,t in xrefs if t=='Square'][0]
+        _,cleaned=run({'action':'annot-delete','items':[{'page':1,'xref':target}]},out/'result.pdf')
+        with fitz.open(cleaned/'result.pdf') as d:
+            assert [a.type[1] for a in d[0].annots()]==[t for x,t in xrefs if x!=target]
+        gone,_=run({'action':'annot-delete','items':[{'page':1,'xref':999999}]},source);assert gone.get('unchanged')
         for bad in ({'annotation':'circle','marks':[{'page':1,'rects':lines}]},{'annotation':'underline','marks':[]},{'annotation':'underline','marks':[{'page':1,'rects':[]}]}):
             try:run({'action':'markup',**bad});assert False,bad
             except ValueError:pass

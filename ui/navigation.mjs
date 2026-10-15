@@ -144,6 +144,8 @@ export function createNavigation({ current, guard, views, openTools, api, snapsh
     const actions=document.createElement('div');actions.className='navigationOptions';controls.append(actions);
     button('刷新',()=>show('comments'),actions);
     button('全选筛选结果',()=>{filtered().forEach(n=>selected.add(n));draw();},actions);button('清除批注选择',()=>{selected.clear();draw();},actions);
+    // 0.14: annotations written into the file (markup, shapes, older comments) can be removed here.
+    button('删除选中批注',async()=>{const items=[...selected].filter(n=>n.xref).map(n=>({page:n.page,xref:n.xref}));if(!items.length)throw new Error('请先勾选要删除的批注。');const result=await applyEdit(s,{action:'annot-delete',items},`删除 ${items.length} 条批注`);if(!result?.canceled)status(result?.note||'已删除批注，可撤销。');await show('comments');},actions).id='deleteAnnotations';
     button('将选中批注整理为笔记',async()=>{if(!selected.size)throw new Error('请先勾选要整理的批注。');const made=await api.notesMarkdown(s.id,[...selected]);
       // Notes mode: the notes go into the Markdown document beside this PDF instead of a new tab.
       const note=notesFor(s);if(note&&made[0]){insertNotes(note,made[0].text.replace(/^# .*\n+/,''));await api.closeDocument(made[0].id,{}).catch(()=>{});status('已整理到 '+note.name+' · 可撤销，尚未保存');return;}

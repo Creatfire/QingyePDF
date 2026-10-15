@@ -95,6 +95,39 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   await until(`(async () => { try { if (${P}.editBusy || !${P}.loaded) return false; const doc = ${P}.app.pdfDocument; const one = (await (await doc.getPage(1)).getTextContent()).items.map(i => i.str).join(' '), two = (await (await doc.getPage(2)).getTextContent()).items.map(i => i.str).join(' '); return two.includes('QY-005') && !one.includes('QY-'); } catch { return false; } })()`, 'Bates number on page 2 only');
   report.checks.bates = true;
   await run(`document.getElementById('toolsDialog').open && document.getElementById('closeTools').click()`);
+  // Shapes: drag a rectangle (menu / API), then an arrow via the A key; both stay as live annotations.
+  await until(`!${P}.editBusy`, 'idle before shapes');
+  const drag = (x0, y0, x1, y1) => run(`(() => {
+    const doc = ${P}.frame.contentDocument, page = doc.querySelector('.page[data-page-number="1"]'), box = page.querySelector('.canvasWrapper').getBoundingClientRect();
+    const at = (x, y) => ({ clientX: box.left + box.width * x, clientY: box.top + box.height * y, button: 0, pointerId: 1, bubbles: true, cancelable: true });
+    page.dispatchEvent(new PointerEvent('pointerdown', at(${x0}, ${y0})));
+    doc.dispatchEvent(new PointerEvent('pointermove', at((${x0} + ${x1}) / 2, (${y0} + ${y1}) / 2)));
+    doc.dispatchEvent(new PointerEvent('pointermove', at(${x1}, ${y1})));
+    doc.dispatchEvent(new PointerEvent('pointerup', at(${x1}, ${y1})));
+  })()`);
+  assert.equal(await run(`qingye.shapes.start('rect')`), true);
+  await until(`!document.querySelector('.shapeBar').hidden`, 'shape bar');
+  await drag(0.55, 0.55, 0.85, 0.7);
+  await until(`(${count('Square')}).then(n => n === 1)`, 'rectangle drawn');
+  assert.equal(await run(`qingye.shapes.active()`), 'rect', 'tool stays active for the next shape');
+  await until(`!${P}.editBusy`, 'idle after rectangle');
+  await run(`${P}.frame.contentDocument.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true }))`);
+  assert.equal(await run(`qingye.shapes.active()`), 'arrow');
+  await drag(0.1, 0.8, 0.5, 0.75);
+  await until(`(${count('Line')}).then(n => n === 1)`, 'arrow drawn');
+  await pause(200); await fs.writeFile(path.join(output, 'shapes.png'), (await window.webContents.capturePage()).toPNG());
+  await run(`${P}.frame.contentDocument.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))`);
+  assert.equal(await run(`qingye.shapes.active()`), null);
+  report.checks.shapes = true;
+
+  // The annotation list can delete annotations written into the file.
+  await until(`!${P}.editBusy`, 'idle before delete');
+  await run(`qingye.navigation.show('comments')`);
+  await until(`[...document.querySelectorAll('.annotationSelectRow')].some(r => r.textContent.includes('Square'))`, 'annotation list');
+  await run(`(() => { const row = [...document.querySelectorAll('.annotationSelectRow')].find(r => r.textContent.includes('Square')); const box = row.querySelector('input'); box.checked = true; box.dispatchEvent(new Event('change')); document.getElementById('deleteAnnotations').click(); })()`);
+  await until(`(${count('Square')}).then(n => n === 0)`, 'rectangle deleted');
+  assert.equal(await annotations('Line'), 1, 'other annotations stay');
+  report.checks.deleteAnnotation = true;
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;
 };

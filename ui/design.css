@@ -122,3 +122,13 @@
 .stampVarButtons button { padding: 2px 8px; font-size: 12px; }
 .batesFields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .batesFields input { width: 100%; }
+
+/* 0.14 shape drawing bar (ui/shapes.mjs) */
+.shapeBar { position: fixed; z-index: 900; display: flex; align-items: center; gap: 8px; padding: 5px 8px 5px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-md, 0 6px 22px rgb(0 0 0 / .16)); font-size: 12.5px; }
+.shapeBar[hidden] { display: none; }
+.shapeBar .shapeName { font-weight: 600; white-space: nowrap; }
+.shapeBar label { display: inline-flex; align-items: center; gap: 4px; }
+.shapeBar label[hidden] { display: none; }
+.shapeBar input[type="color"] { width: 26px; height: 22px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; }
+.shapeBar select { height: 26px; font-size: 12px; }
+.shapeBar button[data-done] { height: 26px; padding: 0 12px; }

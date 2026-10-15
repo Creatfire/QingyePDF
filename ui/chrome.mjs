@@ -1,5 +1,6 @@
 // Application chrome: title bar state, anchored popovers, the annotation tool menu,
 // the floating page navigator, and shared keyboard handling for menus.
+import { SHAPES } from './shapes.mjs';
 export const ANNOTATION_TOOLS = [
   // [label, PDF.js toolbar button id, icon, editor mode]
   ['高亮', 'editorHighlightButton', 'highlight', 9],
@@ -40,7 +41,7 @@ export function menuKeys(container, close) {
   });
 }
 
-export function createChrome({ api, current, guard, navigation, status }) {
+export function createChrome({ api, current, guard, navigation, status, shapes }) {
   const $ = id => document.getElementById(id);
   document.body.classList.add('platform-' + (api.platform || 'win32'));
 
@@ -84,6 +85,14 @@ export function createChrome({ api, current, guard, navigation, status }) {
       const item = menuItem(label, { icon, role: 'menuitemradio', checked: mode === toolMode, onSelect: () => { annotateMenu.hidePopover(); useTool(current(), id); } });
       item.disabled = !available(s, id);
       annotateMenu.append(item);
+    }
+    if (shapes) {
+      annotateMenu.append(menuSep(), menuLabel('图形'));
+      for (const [kind, label, key] of SHAPES) {
+        const item = menuItem(label, { icon: kind === 'line' ? 'minus' : kind === 'arrow' ? 'right' : 'shape', shortcut: key, role: 'menuitemradio', checked: shapes.active() === kind, onSelect: () => { annotateMenu.hidePopover(); shapes.start(kind); } });
+        item.disabled = !s?.loaded;
+        annotateMenu.append(item);
+      }
     }
     annotateMenu.append(menuSep(),
       menuItem('批注列表与导出', { icon: 'outline', onSelect: () => { annotateMenu.hidePopover(); guard(() => navigation.show('comments')); } }),

@@ -774,6 +774,49 @@ def process(request, input_file, output):
             doc.scrub(clean_pages=True, hidden_text=True, redactions=False, remove_links=False, reset_fields=False)
             count = sum(len(v) for v in by_page.values())
             note = f'已永久删除 {len(by_page)} 页上 {count} 处区域内的文字、图像与相交图形' + (f'，并移除 {removed} 个相交的批注 / 表单 / 链接' if removed else '') + '；同时清理元数据、附件与脚本。请检查结果。'
+        elif action == 'draw':
+            # Shapes drawn in the viewer, written as standard annotations other readers can edit.
+            shape = request.get('shape')
+            if shape not in ('rect', 'ellipse', 'line', 'arrow', 'cloud'):
+                raise ValueError('不支持的图形。')
+            page = doc[int(number(request.get('page'), 1, len(doc), 1)) - 1]
+            if shape in ('line', 'arrow'):
+                points = request.get('points') or []
+                if len(points) != 2:
+                    raise ValueError('请拖动画出直线。')
+                p1, p2 = [fitz.Point(number(x, 0, 1, 0) * page.rect.width, number(y, 0, 1, 0) * page.rect.height) * page.derotation_matrix for x, y in points]
+                if abs(p1 - p2) < 2:
+                    raise ValueError('线条太短。')
+                annot = page.add_line_annot(p1, p2)
+                if shape == 'arrow':
+                    annot.set_line_ends(fitz.PDF_ANNOT_LE_NONE, fitz.PDF_ANNOT_LE_OPEN_ARROW)
+            else:
+                rect = region(page, request.get('rect'))
+                annot = page.add_circle_annot(rect) if shape == 'ellipse' else page.add_rect_annot(rect)
+            fill = request.get('fill')
+            annot.set_colors(stroke=color(request.get('color', '#d9482b')), fill=color(fill) if fill and shape not in ('line', 'arrow') else None)
+            annot.set_border(width=number(request.get('width'), 0.5, 12, 2), clouds=2 if shape == 'cloud' else -1)
+            opacity = number(request.get('opacity'), 0.1, 1, 1)
+            if opacity < 1:
+                annot.set_opacity(opacity)
+            now = fitz.get_pdf_now()
+            annot.set_info(content=str(request.get('text', ''))[:10000], title=str(request.get('author', ''))[:200], creationDate=now, modDate=now)
+            annot.update()
+        elif action == 'annot-delete':
+            items = request.get('items') or []
+            if not isinstance(items, list) or not 0 < len(items) <= 5000:
+                raise ValueError('请先选择要删除的批注。')
+            deleted = 0
+            for item in items:
+                page = doc[int(number(item.get('page'), 1, len(doc), 1)) - 1]
+                xref = int(number(item.get('xref'), 1, 10**9, 0))
+                annot = next((a for a in page.annots() or [] if a.xref == xref), None)
+                if annot is not None:
+                    page.delete_annot(annot)
+                    deleted += 1
+            if not deleted:
+                return {'files': [], 'unchanged': True, 'note': '所选批注已不存在。'}
+            note = f'已删除 {deleted} 条批注。'
         elif action == 'markup':
             # Text markup from a viewer selection: one standard annotation per page whose quads
             # follow each selected line (rects are fractions of the displayed page, like 'rect').

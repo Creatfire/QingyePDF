@@ -30,7 +30,7 @@ export function selectionMarks(range, pages) {
   ]) })).filter(m => m.rects.length);
 }
 
-export function createMarkup({ current, applyEdit, guard, status }) {
+export function createMarkup({ current, applyEdit, guard, status, shapes }) {
   const bar = document.createElement('div');
   bar.className = 'markupBar'; bar.setAttribute('role', 'toolbar'); bar.setAttribute('aria-label', '文字批注'); bar.hidden = true;
   for (const [kind, label, color] of MARKUP_KINDS) {
@@ -99,6 +99,8 @@ export function createMarkup({ current, applyEdit, guard, status }) {
       if (kind && applyToSelection(kind, s)) return stop();
       const tool = { h: 'editorHighlightButton', i: 'editorInkButton', t: 'editorFreeTextButton', c: 'editorCommentButton' }[key];
       if (tool) { const b = doc.getElementById(tool); if (b && !b.disabled) { b.click(); stop(); } return; }
+      const shape = { r: 'rect', o: 'ellipse', l: 'line', a: 'arrow' }[key];
+      if (shape && shapes) { if (shapes.start(shape, s)) stop(); return; }
       if (key === 'p' && s.app.pdfViewer.annotationEditorMode > 0) { s.app.eventBus.dispatch('switchannotationeditormode', { source: null, mode: 0 }); stop(); }
     }, true);
   }

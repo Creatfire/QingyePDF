@@ -6,6 +6,7 @@ import { createDirectEditing } from './direct.mjs';
 import { userError } from './errors.mjs';
 import { createTextSelection } from './selection.mjs';
 import { createMarkup } from './markup.mjs';
+import { createShapes } from './shapes.mjs';
 import { createChrome } from './chrome.mjs';
 import { createMarkdownHost } from './markdown/host.mjs';
 import { createSettings } from './settings.mjs';
@@ -77,8 +78,9 @@ const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, c
 const converter = createConverter({ api, guard, status });
 const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigation,tools,historyStep,status,notesFor:s=>notes?.notesFor(s)||null,excerpt:(s,text,page)=>notes.excerpt(s,text,page,notes.selectionSource(s,page).rect),region:s=>notes.pickRegion(s),cite:s=>citations.open(s)});
 const textSelection=createTextSelection({current:currentPdf,api,applyEdit,guard,status,tools});
-const markup=createMarkup({current:currentPdf,applyEdit,guard,status});
-const chrome=createChrome({api,current:currentPdf,guard,navigation,status});
+const shapes=createShapes({current:currentPdf,applyEdit,guard,status});
+const markup=createMarkup({current:currentPdf,applyEdit,guard,status,shapes});
+const chrome=createChrome({api,current:currentPdf,guard,navigation,status,shapes});
 const markdown=createMarkdownHost({api,guard,status,message,addDocuments,workspace:$('viewers'),navigate:action=>readingTrail.record(action),onPdfLink:locatePdfSource,onChange:(s,{chrome:chromeOnly}={})=>{if(!chromeOnly){syncDirty(s);scheduleDraft();}if(s.id===activeId)tabs();}});
 statusHook = text => markdown.statusMessage(text);
 function bindStorage(s){const storage=s.app.pdfDocument.annotationStorage,modified=storage.onSetModified;storage.onSetModified=()=>{modified?.();queueMicrotask(()=>{syncDirty(s);scheduleDraft();});};}
@@ -387,7 +389,7 @@ async function addDocument(info) {
     s.resizeObserver.observe(childDoc.getElementById('viewerContainer'));
     s.savedHash = editingHash(s);
     s.history=createHistory();s.savedContentDigest=await contentDigest(info.bytes);
-    bindStorage(s);direct.bind(s);textSelection.bind(s);markup.bind(s);chrome.attachPager(s);
+    bindStorage(s);direct.bind(s);textSelection.bind(s);markup.bind(s);shapes.bind(s);chrome.attachPager(s);
     s.app.eventBus.on('editingstateschanged', ({source,details}) => { if(!s.loaded||(source&&source!==s.app.pdfViewer._layerProperties.annotationEditorUIManager))return;s.nativeHistory={...details};if(details?.hasSomethingToUndo&&!details.hasSomethingToRedo)s.history?.discardRedo();s.pendingInput = false; syncDirty(s);syncHistory(); });
     s.app.eventBus.on('pagechanging', () => {
       if (s.id === activeId) status(`第 ${s.app.pdfViewer.currentPageNumber} / ${s.app.pagesCount} 页${s.dirty ? ' · 有未保存批注' : ''}`);
@@ -665,5 +667,5 @@ activate(null);
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint, direct, textSelection, applyEdit, historyStep, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { shapes, markup, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint, direct, textSelection, applyEdit, historyStep, replaceDocument,readingTrail,locatePdfSource };
 api.ready();
