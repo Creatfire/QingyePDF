@@ -134,7 +134,7 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   const before = await run(sizeExpr);
   await run(`qingye.tools.open('crop')`);
   await until(`document.getElementById('toolAction').value === 'crop' && !document.getElementById('toolCropMode').closest('[data-for]').hidden`, 'crop fields');
-  await run(`(() => { const $ = id => document.getElementById(id); $('toolPages').value = '1'; $('toolCropMode').value = 'auto'; $('toolCropMode').dispatchEvent(new Event('change')); $('applyToolDraft').click(); })()`);
+  await run(`(() => { const $ = id => document.getElementById(id); $('toolPages').value = '1'; $('toolSubset').value = 'all'; $('toolCropMode').value = 'auto'; $('toolCropMode').dispatchEvent(new Event('change')); $('applyToolDraft').click(); })()`);
   await until(`${sizeExpr}.then(v => !!v && v[0] < ${before[0]} - 20 && v[1] < ${before[1]} - 20)`, 'page cropped to content');
   report.checks.autoCrop = true;
   await run(`document.getElementById('toolsDialog').open && document.getElementById('closeTools').click()`);
