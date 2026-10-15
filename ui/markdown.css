@@ -250,3 +250,7 @@ body.mdPrint a { color: inherit; }
 .mdTableTools button { font-size:12px;padding:4px 8px; }
 .mdTableCellInput { display:block;width:100%;min-width:90px;min-height:40px;box-sizing:border-box;resize:vertical;font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--accent,#249d75);padding:5px; }
 .mdPanel.isReading .mdTableTools { display:none; }
+/* 0.14 large documents: the browser skips layout and paint of off-screen blocks; blocks keep their
+   last rendered size as placeholder (editor.mjs also renders them lazily). */
+.mdDoc.isLarge > .mdBlock:not(.isActive) { content-visibility: auto; contain-intrinsic-size: auto 1.8em; }
+.mdDoc > .mdBlock.isPending > .mdRendered { min-height: inherit; }

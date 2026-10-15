@@ -15,6 +15,17 @@ const OPAQUE = new Set(['fence', 'codeBlock', 'math', 'table', 'html', 'frontMat
 const MARKER_AT_START = /^(\s{0,3}#{1,6}[ \t]+|\s{0,3}(?:>\s?)+|\s{0,3}(?:[-*+]|\d{1,9}[.)])[ \t]+(?:\[[ xX]\][ \t]+)?)/;
 const MATH_SOURCE = /\$\$[\s\S]+?\$\$|\$(?![\s$])(?:\\\$|[^$\n])*?[^\s\\]\$(?!\d)/g;
 const SKIP_RENDERED = '.katex, .mdCodeHead, .mdFrontLabel, .mdLivePreview, .mdMermaid';
+const LAZY_CHARS = 60000;
+// Placeholder height (em) of a block not rendered yet, from its source.
+function estimateHeight(b) {
+  const lines = (b.source.match(/\n/g) || []).length + 1;
+  if (/^\s*(```|~~~)\s*(mermaid|sequence|flow|flowchart)\b/i.test(b.source)) return 18;
+  if (b.kind === 'math') return Math.max(3, lines * 1.6);
+  if (b.kind === 'fence' || b.kind === 'codeBlock') return lines * 1.45 + 2.6;
+  if (b.kind === 'table') return lines * 2.1;
+  if (b.kind === 'heading') return 2.6;
+  return Math.max(1.8, lines * 1.78 + (/!\[[^\]]*\]\(|<img\b/i.test(b.source) ? 12 : 0) + 0.8);
+}
 
 function textBefore(root, node, offset) {
   const range = document.createRange();
@@ -151,12 +162,47 @@ export class MarkdownEditor {
       b.el.blockRef = b;
     }
     this.blocks = blocks; this.stale = false;
-    this.doc.replaceChildren(...blocks.map(b => b.el));
+    // Patch the children in place: an edit usually changes a block or two, and re-inserting every
+    // element of a large document would restyle all of them.
+    const keep = new Set(blocks.map(b => b.el));
+    let cursor = this.doc.firstChild;
+    for (const b of blocks) {
+      while (cursor && !keep.has(cursor)) { const next = cursor.nextSibling; cursor.remove(); cursor = next; }
+      if (cursor === b.el) { cursor = cursor.nextSibling; continue; }
+      this.doc.insertBefore(b.el, cursor);
+    }
+    while (cursor) { const next = cursor.nextSibling; cursor.remove(); cursor = next; }
     this.doc.classList.toggle('isEmpty', !blocks.length);
+    this.doc.classList.toggle('isLarge', this.text.length >= LAZY_CHARS);
     this.options.onStructure?.();
     if (this.search.options) this.highlightSearch();
   }
+  // Large documents (Typora's busy mode starts at 60 000 characters) render blocks lazily: a block
+  // starts as a placeholder sized from its source and is rendered once it comes near the viewport,
+  // so opening and editing do not pay for thousands of off-screen formulas and diagrams.
   renderBlock(b) {
+    if (this.text.length < LAZY_CHARS || b.temp) return this.renderBlockNow(b);
+    const el = document.createElement('div');
+    el.className = `mdBlock kind-${b.kind}${b.loose ? ' isLoose' : ''} isPending`;
+    el.style.minHeight = estimateHeight(b) + 'em';
+    const rendered = document.createElement('div'); rendered.className = 'mdRendered'; el.append(rendered);
+    el.pendingBlock = b;
+    (this.lazyObserver ??= new IntersectionObserver(entries => {
+      let hydrated = false;
+      for (const entry of entries) if (entry.isIntersecting && entry.target.pendingBlock) { this.hydrate(entry.target); hydrated = true; }
+      if (hydrated && this.search.options) { clearTimeout(this.lazySearchTimer); this.lazySearchTimer = setTimeout(() => this.highlightSearch(), 120); }
+    }, { root: this.scroller, rootMargin: '1200px 0px' })).observe(el);
+    return el;
+  }
+  hydrate(el) {
+    const b = el.pendingBlock; if (!b) return;
+    el.pendingBlock = null; this.lazyObserver?.unobserve(el);
+    const fresh = this.renderBlockNow(b), rendered = el.querySelector(':scope > .mdRendered'), next = fresh.querySelector(':scope > .mdRendered');
+    next.hidden = rendered.hidden;
+    rendered.replaceWith(next);
+    el.className = fresh.className; el.style.minHeight = '';
+  }
+  renderBlockNow(b) {
     const el = document.createElement('div');
     el.className = `mdBlock kind-${b.kind}${b.loose ? ' isLoose' : ''}`;
     const rendered = document.createElement('div'); rendered.className = 'mdRendered';

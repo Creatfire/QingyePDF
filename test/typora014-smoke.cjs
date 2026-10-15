@@ -61,5 +61,48 @@ exports.run = async ({ window, openFiles, output }) => {
   assert.equal(result.conveniences.enDash, 'x –'); assert.equal(result.conveniences.emDash, 'x —');
   assert.equal(result.conveniences.structural, '-', 'a rule / list marker line is not converted');
   assert.equal(result.conveniences.zoomUp, 10); assert.ok(result.conveniences.zoomBack);
+
+  // Large document timings (measured, reported; budgets are generous to stay stable on CI).
+  const sample = await fs.readFile(path.join(__dirname, '../ui/markdown/sample.md'), 'utf8');
+  let big = ''; while (big.length < 1024 * 1024) big += sample + '\n\n';
+  const bigFile = path.join(dir, 'big.md'); await fs.writeFile(bigFile, big);
+  const t0 = Date.now();
+  const bigOpened = await openFiles([bigFile]);
+  await run(`qingye.addDocuments(${JSON.stringify(bigOpened)})`);
+  const B = `qingye.sessions.get(${JSON.stringify(bigOpened[0].id)})`;
+  await until(`${B}?.loaded`);
+  result.large = { bytes: big.length, openMs: Date.now() - t0, ...(await run(`(async () => {
+    const ed = ${B}.editor, frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const time = async fn => { const t = performance.now(); fn(); await frame(); return Math.round(performance.now() - t); };
+    const mid = Math.floor(ed.text.length / 2), at = ed.text.indexOf('\\n\\n', mid) - 5;
+    const activate = await time(() => ed.activateAt(at));
+    const type = await time(() => { document.execCommand('insertText', false, '字'); ed.syncFromDom(); });
+    const enter = await time(() => ed.handleEnter(false, false));
+    const blocks = ed.blocks.length, nodes = ed.doc.querySelectorAll('*').length;
+    // Breakdown of one keystroke once nearby blocks have rendered (diagnostic).
+    ed.activateAt(at); await new Promise(r => setTimeout(r, 1500));
+    const parts = {}; const wrap = (obj, name) => { const fn = obj[name]; obj[name] = function (...a) { const t = performance.now(); try { return fn.apply(this, a); } finally { parts[name] = Math.round((parts[name] || 0) + performance.now() - t); obj[name] = fn; } }; };
+    wrap(ed, 'applyRaw'); wrap(ed, 'paint'); wrap(ed, 'schedulePreview'); const onChange = ed.options.onChange; ed.options.onChange = () => { const t = performance.now(); onChange(); parts.onChange = Math.round(performance.now() - t); };
+    const onSel = ed.options.onSelection; ed.options.onSelection = () => { const t = performance.now(); onSel(); parts.onSelection = Math.round((parts.onSelection || 0) + performance.now() - t); };
+    const t1 = performance.now(); document.execCommand('insertText', false, '字'); parts.execCommand = Math.round(performance.now() - t1);
+    const t2 = performance.now(); ed.syncFromDom(); parts.sync = Math.round(performance.now() - t2);
+    await frame(); parts.total = Math.round(performance.now() - t1);
+    ed.options.onChange = onChange; ed.options.onSelection = onSel;
+    // Breakdown of one structural edit (Enter).
+    await new Promise(r => setTimeout(r, 500));
+    const { analyze } = await import('./markdown/parser.mjs');
+    let t = performance.now(); analyze(ed.text); parts.analyze = Math.round(performance.now() - t);
+    const rec = ed.reconcile; ed.reconcile = function () { const s = performance.now(); try { return rec.call(this); } finally { parts.reconcile = Math.round(performance.now() - s); ed.reconcile = rec; } };
+    t = performance.now(); ed.handleEnter(false, false); parts.enterJs = Math.round(performance.now() - t);
+    await frame(); parts.enterTotal = Math.round(performance.now() - t);
+    window.__keystroke = parts;
+    return { blocks, domNodes: nodes, activateMs: activate, typeMs: type, enterMs: enter, keystroke: window.__keystroke };
+  })()`)) };
+  console.log('LARGE DOCUMENT', JSON.stringify(result.large));
+  // Regression budgets for a 1 MB document (0.13 did not finish opening it within 7 minutes).
+  assert.ok(result.large.openMs < 15000, 'opens a 1 MB document');
+  assert.ok(result.large.domNodes < 80000, 'off-screen blocks stay as placeholders');
+  assert.ok(result.large.keystroke.total < 1000 && result.large.keystroke.enterTotal < 4000, JSON.stringify(result.large.keystroke));
+  await run(`qingye.closeTab?.(${JSON.stringify(bigOpened[0].id)}, { force: true })`).catch(() => {});
   return result;
 };
