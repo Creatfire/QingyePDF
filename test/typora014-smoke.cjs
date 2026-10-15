@@ -37,5 +37,29 @@ exports.run = async ({ window, openFiles, output }) => {
   await run(`(() => { const ed = ${S}.editor; ed.activateAt(6); document.execCommand('insertText', false, '新'); ed.syncFromDom(true); })()`);
   assert.equal(await run(`${S}.editor.text`), '前文 **粗新体** 中间 [链接](https://example.invalid/x) 和 `code` 后文\n');
   result.reveal = true;
+
+  // Copy / cut with no selection takes the whole line; smart input; Ctrl + wheel zoom.
+  result.conveniences = await run(`(async () => {
+    const s = ${S}, ed = s.editor;
+    ed.replaceAll('第一行\\n第二行\\n第三行\\n'); ed.activateAt(5);
+    const clip = type => { const data = new DataTransfer(); ed.active.el.dispatchEvent(new ClipboardEvent(type, { clipboardData: data, bubbles: true, cancelable: true })); return data.getData('text/plain'); };
+    const copied = clip('copy'); const cut = clip('cut'); const afterCut = ed.text;
+    ed.prefs.smartInput = true;
+    ed.replaceAll('他说 a'); ed.activateAt(3);
+    const key = k => ed.active.el.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+    ed.replaceAll('x -'); ed.activateAt(3); key('-'); const enDash = ed.text; key('-'); const emDash = ed.text;
+    ed.replaceAll('-'); ed.activateAt(1); key('-'); const structural = ed.text;
+    ed.prefs.smartInput = false;
+    ed.replaceAll('他说 a'); ed.activateAt(3); const quotes = (() => { ed.prefs.smartInput = true; key('"'); ed.activateAt(ed.text.length); key('"'); ed.prefs.smartInput = false; return ed.text; })();
+    const zoom = ed.prefs.zoom; ed.active.el.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, ctrlKey: true, bubbles: true, cancelable: true }));
+    const zoomed = ed.prefs.zoom; ed.active.el.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, ctrlKey: true, bubbles: true, cancelable: true }));
+    return { copied, cut, afterCut, quotes, enDash, emDash, structural, zoomUp: Math.round((zoomed - zoom) * 100), zoomBack: ed.prefs.zoom === zoom };
+  })()`);
+  assert.equal(result.conveniences.copied, '第二行\n'); assert.equal(result.conveniences.cut, '第二行\n');
+  assert.equal(result.conveniences.afterCut, '第一行\n第三行\n');
+  assert.equal(result.conveniences.quotes, '他说 “a”');
+  assert.equal(result.conveniences.enDash, 'x –'); assert.equal(result.conveniences.emDash, 'x —');
+  assert.equal(result.conveniences.structural, '-', 'a rule / list marker line is not converted');
+  assert.equal(result.conveniences.zoomUp, 10); assert.ok(result.conveniences.zoomBack);
   return result;
 };

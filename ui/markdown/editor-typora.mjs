@@ -214,6 +214,33 @@ export function installTypora(Editor) {
       return null;
     },
 
+    // ——— Smart punctuation on input (Typora "Convert on Input") ———
+    // " and ' become curly quotes by context; -- becomes an en dash and --- an em dash. Code, math,
+    // URLs and structural lines (list markers, rules, table delimiters) are left alone.
+    smartInputKey(e) {
+      const caret = this.getCaret();
+      if (!caret || caret.start !== caret.end) return false;
+      const b = this.active.block;
+      if (['fence', 'codeBlock', 'math', 'html', 'table', 'frontMatter'].includes(b.kind)) return false;
+      if (getSelection().anchorNode?.parentElement?.closest('.sx-code, .sx-math, .sx-url, .sx-codeblock, .sx-html, .sx-fence, .sx-lang')) return false;
+      const src = this.text.slice(b.from, b.to), p = caret.start, before = src[p - 1] || '', line = src.slice(src.lastIndexOf('\n', p - 1) + 1, p);
+      let from = p, insert;
+      if (e.key === '-') {
+        if (/^[\s>|:\-–—]*$/.test(line)) return false;
+        if (before === '-') { from = p - 1; insert = '–'; } else if (before === '–') { from = p - 1; insert = '—'; } else return false;
+      } else {
+        const open = !before || /[\s([{“‘《「『（【]/.test(before);
+        insert = e.key === '"' ? (open ? '“' : '”') : (open ? '‘' : '’');
+      }
+      e.preventDefault(); e.stopPropagation();
+      this.applyRaw({ from: b.from + from, to: b.from + p, insert }, { group: 'type', selBefore: this.currentSelection() });
+      const at = from + insert.length;
+      this.sel = { from: b.from + at, to: b.from + at };
+      const last = this.undoStack.at(-1); if (last) last.selAfter = { ...this.sel };
+      this.paint(false); this.setCaret(at); this.schedulePreview();
+      return true;
+    },
+
     // ——— Auto pairing ———
     typoraKeyDown(e) {
       if (this.readonly && !(e.ctrlKey || e.metaKey) && e.key.length === 1) { e.preventDefault(); e.stopPropagation(); return; }
@@ -221,6 +248,7 @@ export function installTypora(Editor) {
       if (e.isComposing || e.keyCode === 229 || this.sourceMode || !this.active || e.target !== this.active.el) return;
       const mod = e.ctrlKey || e.metaKey;
       if (mod && e.shiftKey && e.key.toLowerCase() === 'v') { this.plainNext = true; return; }
+      if (!mod && !e.altKey && this.prefs.smartInput && (e.key === '"' || e.key === "'" || e.key === '-') && this.smartInputKey(e)) return;
       if (mod || e.altKey || this.prefs.autoPair === false) return;
       const key = e.key;
       const caret = this.getCaret();

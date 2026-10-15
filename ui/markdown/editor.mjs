@@ -599,6 +599,8 @@ export class MarkdownEditor {
       if (last && last.to === this.text.length && last.kind !== 'paragraph') { this.deactivate(); if (this.stale) this.reconcile(); this.openTemp(this.text.length); this.sel = { from: this.text.length, to: this.text.length }; this.setCaret(0); return; }
       this.activateAt(this.text.length);
     });
+    // Ctrl + mouse wheel zooms the document (Typora / Xodo); plain wheel scrolls as usual.
+    root.addEventListener('wheel', e => { if (e.ctrlKey && !e.altKey && this.options.onZoom) { e.preventDefault(); this.options.onZoom(e.deltaY < 0 ? 0.1 : -0.1); } }, { passive: false });
     root.addEventListener('copy', e => this.onCopy(e, false));
     root.addEventListener('cut', e => this.onCopy(e, true));
     root.addEventListener('paste', e => this.onPaste(e));
@@ -764,8 +766,32 @@ export class MarkdownEditor {
     // A selection ending exactly at a block end includes it completely.
     return { from: Math.min(a, b), to: Math.max(a, b) };
   }
+  // Typora: with no selection, copy / cut takes the whole line under the caret.
+  copyLine(e, cut) {
+    if (this.prefs?.copyLine === false || this.readonly && cut) return false;
+    let src, caret, base;
+    if (this.sourceMode) { const v = this.sourceView; if (document.activeElement !== v || v.selectionStart !== v.selectionEnd) return false; src = v.value.replace(/\r\n?/g, '\n'); caret = v.selectionStart; base = 0; }
+    else {
+      const sel = getSelection(), c = this.active && sel.rangeCount && sel.isCollapsed && this.active.el.contains(sel.anchorNode) && this.getCaret();
+      if (!c) return false;
+      this.syncFromDom(true);
+      const b = this.active.block; src = this.text.slice(b.from, b.to); caret = c.start; base = b.from;
+    }
+    const start = src.lastIndexOf('\n', caret - 1) + 1, nl = src.indexOf('\n', caret), end = nl < 0 ? src.length : nl + 1;
+    const line = src.slice(start, end);
+    e.preventDefault();
+    e.clipboardData.setData('text/plain', line.endsWith('\n') ? line : line + '\n');
+    if (cut) {
+      // Removing the last line also removes the newline before it.
+      const from = nl < 0 && start > 0 ? start - 1 : start;
+      if (this.sourceMode) { this.sourceView.setRangeText('', from, end, 'start'); this.syncSourceView(); }
+      else this.apply([{ from: base + from, to: base + end, insert: '' }], { from: base + from, to: base + from }, { group: 'cut' });
+    }
+    return true;
+  }
   onCopy(e, cut) {
     if(e.target.closest('.mdTableCellInput'))return;
+    if (this.copyLine(e, cut)) return;
     if (this.sourceMode) return;
     const sel = getSelection();
     if (!sel.rangeCount || sel.isCollapsed || !this.doc.contains(sel.anchorNode)) return;
