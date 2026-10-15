@@ -214,6 +214,18 @@ def check():
         with fitz.open(cleaned/'result.pdf') as d:
             assert [a.type[1] for a in d[0].annots()]==[t for x,t in xrefs if x!=target]
         gone,_=run({'action':'annot-delete','items':[{'page':1,'xref':999999}]},source);assert gone.get('unchanged')
+        # 0.14 smart crop: auto to content (odd pages only), then remove all cropping.
+        loose=base/'loose.pdf'
+        with fitz.open() as doc:
+            for n in range(2):doc.new_page(width=400,height=400).insert_text((150,200),f'Centered {n+1}',fontsize=14)
+            doc.save(loose)
+        _,out=run({'action':'crop','cropMode':'auto','margin':10,'subset':'odd','rect':[.1,.1,.9,.9]},loose)
+        with fitz.open(out/'result.pdf') as d:
+            first,second=d[0].cropbox,d[1].cropbox
+            assert 120<first.x0<150 and first.x1<300 and 160<first.y0<200 and first.y1<230,first
+            assert second==d[1].mediabox and 'Centered 1' in d[0].get_text()
+        _,reset=run({'action':'crop','cropMode':'reset','rect':[.1,.1,.9,.9]},out/'result.pdf')
+        with fitz.open(reset/'result.pdf') as d:assert d[0].cropbox==d[0].mediabox
         for bad in ({'annotation':'circle','marks':[{'page':1,'rects':lines}]},{'annotation':'underline','marks':[]},{'annotation':'underline','marks':[{'page':1,'rects':[]}]}):
             try:run({'action':'markup',**bad});assert False,bad
             except ValueError:pass

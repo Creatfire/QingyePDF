@@ -913,7 +913,23 @@ def process(request, input_file, output):
                     widget.border_width = 1
                     page.add_widget(widget)
                 elif action == 'crop':
-                    page.set_cropbox(rect)
+                    mode = request.get('cropMode', 'region')
+                    if mode == 'reset':
+                        page.set_cropbox(page.mediabox)
+                    elif mode == 'auto':
+                        # Tight box around everything painted on the page (text, images, vector art).
+                        box = fitz.Rect()
+                        for _kind, bbox in page.get_bboxlog():
+                            r = fitz.Rect(bbox)
+                            if r.is_valid and not r.is_empty and r.width < page.mediabox.width * 1.5:
+                                box |= r
+                        if box.is_empty:
+                            continue
+                        margin = number(request.get('margin'), 0, 144, 12)
+                        box = (box * page.derotation_matrix if page.rotation else box) + (-margin, -margin, margin, margin)
+                        page.set_cropbox(box & page.mediabox)
+                    else:
+                        page.set_cropbox(rect)
             if action == 'redact':
                 doc.scrub(clean_pages=True, hidden_text=True, redactions=False, remove_links=False, reset_fields=False)
                 note = '框选区域的文字、图像与相交图形已删除；同时清理元数据、附件与脚本。请检查导出副本。'

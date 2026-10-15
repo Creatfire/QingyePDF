@@ -28,7 +28,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
       <label data-for="sharpen">锐化程度 <select id="toolSharpen"><option value="mild">轻度</option><option value="standard" selected>标准</option><option value="strong">较强</option></select></label>
       <div data-for="scan"><label>顺时针旋转 <select id="scanAngle"><option value="0">不旋转</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label><label><input id="scanDeskew" type="checkbox" checked>自动纠正轻微倾斜（±5°）</label><label><input id="scanClean" type="checkbox" checked>清理浅色背景</label><label><input id="scanGray" type="checkbox">转换为灰度</label><label><input id="scanRecognize" type="checkbox" checked>重新识别中英文文字</label></div>
       <label data-for="text stamp watermark number annotation form">文字 <textarea id="toolText" rows="3" placeholder="印章文字、替换文本、批注内容或字段名称"></textarea></label>
-      <label data-for="stamp image page-stamp watermark number shape">应用到 <select id="toolSubset"><option value="all">所选范围内的全部页</option><option value="odd">仅奇数页</option><option value="even">仅偶数页</option></select></label>
+      <label data-for="stamp image page-stamp watermark number shape crop">应用到 <select id="toolSubset"><option value="all">所选范围内的全部页</option><option value="odd">仅奇数页</option><option value="even">仅偶数页</option></select></label>
       <details data-for="stamp watermark number" class="stampVars"><summary>变量与贝茨编号</summary><p class="toolHint">文字中可以使用：<code>{page}</code> 页码、<code>{total}</code> 总页数、<code>{file}</code> 文件名、<code>{date}</code> 日期、<code>{time}</code> 时间、<code>{title}</code> 标题、<code>{author}</code> 作者、<code>{bates}</code> 贝茨编号。</p><div class="stampVarButtons" role="group" aria-label="插入变量"><button type="button" data-var="{page}">页码</button><button type="button" data-var="{total}">总页数</button><button type="button" data-var="{file}">文件名</button><button type="button" data-var="{date}">日期</button><button type="button" data-var="{bates}">贝茨编号</button></div><div class="batesFields"><label>前缀 <input id="batesPrefix" maxlength="40" placeholder="例如：QY-"></label><label>起始号 <input id="batesStart" type="number" min="0" value="1"></label><label>位数 <input id="batesDigits" type="number" min="1" max="12" value="6"></label><label>后缀 <input id="batesSuffix" maxlength="40"></label></div></details>
       <label data-for="text stamp watermark number">字号 pt <input id="toolSize" type="number" min="6" max="100" value="18"></label>
       <label data-for="text stamp watermark number shape annotation">颜色 <input id="toolColor" type="color" value="#b91c1c"></label>
@@ -37,6 +37,9 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
       <label data-for="shape" class="toolCheck"><input id="toolFill" type="checkbox">填充图形</label>
       <label data-for="annotation">批注类型 <select id="toolAnnotation"><option value="underline">下划线</option><option value="strikeout">删除线</option><option value="highlight">高亮</option></select></label>
       <div data-for="redact" class="redactFind"><p class="toolHint">可以拖动框选一个区域，也可以按内容查找后逐条确认（勾选的结果会全部涂黑）。</p><label>查找文字（每行一个）<textarea id="redactTerms" rows="2" placeholder="例如：客户姓名"></textarea></label><div class="redactPresets" role="group" aria-label="常用格式"><label><input type="checkbox" value="mobile">手机号</label><label><input type="checkbox" value="phone">固定电话</label><label><input type="checkbox" value="idcard">身份证号</label><label><input type="checkbox" value="bankcard">银行卡号</label><label><input type="checkbox" value="email">邮箱</label><label><input type="checkbox" value="url">网址</label><label><input type="checkbox" value="money">金额</label><label><input type="checkbox" value="date">日期</label></div><label>正则表达式（可选）<input id="redactPattern" spellcheck="false" placeholder="例如：合同编号\\s*\\w+"></label><label class="toolCheck"><input id="redactCase" type="checkbox">区分大小写</label><label>涂黑颜色 <input id="redactFill" type="color" value="#000000"></label><div class="navigationOptions"><button id="redactFind" data-icon="search">查找</button><button id="redactClear">清除结果</button></div><div id="redactHits" class="redactHits" role="group" aria-label="查找结果"></div></div>
+      <label data-for="crop">裁剪方式 <select id="toolCropMode"><option value="region">按框选区域裁剪</option><option value="auto">自动裁到内容（文字、图片与图形）</option><option value="reset">移除全部裁剪，恢复完整页面</option></select></label>
+      <label data-for="crop">自动裁剪留白 pt <input id="toolCropMargin" type="number" min="0" max="144" value="12"></label>
+      <label data-for="stamp">标准印章 <select id="stampPreset"><option value="">自定义文字</option><option value="已审核|#1d7a57">已审核</option><option value="同意|#1d7a57">同意</option><option value="已完成|#1d7a57">已完成</option><option value="已付款|#1d7a57">已付款</option><option value="机密|#c62828">机密</option><option value="绝密|#c62828">绝密</option><option value="作废|#c62828">作废</option><option value="不同意|#c62828">不同意</option><option value="草稿|#1565c0">草稿</option><option value="仅供参考|#1565c0">仅供参考</option><option value="副本|#1565c0">副本</option><option value="待审核|#ef6c00">待审核</option><option value="请签字|#ef6c00">请签字</option><option value="{date}|#6a1b9a">日期章</option></select></label>
       <label data-for="form">字段类型 <select id="toolFieldType"><option value="text">文本输入框</option><option value="checkbox">复选框</option></select></label>
       <div data-for="image import"><button id="pickToolAsset" data-icon="open">选择文件…</button><span id="toolAssetName"></span></div>
     <label data-for="image" class="toolCheck"><input id="toolKeepRatio" type="checkbox" checked>保持图片比例（框内居中，不拉伸）</label>
@@ -70,7 +73,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     shape:'在框选区域绘制图形；直线连接区域的左上与右下。',
     annotation:'对框选区域添加可被其他阅读器识别的标准 PDF 批注。',
     form:'在框选区域创建可填写的文本或复选框字段，字段名按页码区分。',
-    crop:'将框选区域设为 PDF 页面的 CropBox。区域外内容仍在文件中；删除敏感内容请用永久涂黑。',
+    crop:'设置页面的 CropBox：按框选区域、自动裁到内容，或移除全部裁剪；可只作用于奇数页或偶数页（如书籍的左右页）。区域外内容仍在文件中，删除敏感内容请用永久涂黑。',
     flatten:'将批注、可视签名和表单外观写入页面，不再作为可编辑批注或字段。',
     outline:'直接修改章节标题和页码。选择左侧把手可调整层级、绑定当前页或删除分支；拖动把手移动整个分支。自动识别结果可编辑，导出副本后生效。',
     encrypt:'使用 AES-256。打开密码可留空；管理密码必须填写且与打开密码不同。权限限制依赖阅读器遵守。',
@@ -138,6 +141,8 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(redactHits.length){$('toolPreviewPage').value=redactHits[0].page;await preview();}
   }
   $('redactFind').onclick=()=>guard(findRedactions);
+  $('stampPreset').onchange=()=>{const [text,tint]=($('stampPreset').value||'').split('|');if(!text)return;$('toolText').value=text;$('toolColor').value=tint;updateSummary();};
+  $('toolCropMode').onchange=()=>{$('toolCropMargin').disabled=$('toolCropMode').value!=='auto';$('toolSelection').hidden=$('toolCropMode').value!=='region';};
   dialog.querySelector('.stampVarButtons').onclick=e=>{const v=e.target.closest('button')?.dataset.var;if(!v)return;const t=$('toolText'),at=t.selectionStart??t.value.length;t.setRangeText(v,at,t.selectionEnd??at,'end');t.focus();updateSummary();};
   $('toolCompressProfile').onchange=()=>{const on=!!$('toolCompressProfile').value;for(const id of ['toolLossy','toolDpi','toolQuality'])$(id).disabled=on;};
   $('redactClear').onclick=()=>{redactHits=[];renderHits();};
@@ -174,7 +179,8 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(a==='sharpen')Object.assign(r,{pages:'',strength:$('toolSharpen').value});
     if(a==='compare')Object.assign(r,{visual:$('compareVisual').checked,offset:Number($('toolCompareOffset').value)});
     if(a==='outline')r.toc=outlineEditor.get();
-    if(['stamp','image','page-stamp','watermark','number','shape'].includes(a))r.subset=$('toolSubset').value;
+    if(['stamp','image','page-stamp','watermark','number','shape','crop'].includes(a))r.subset=$('toolSubset').value;
+    if(a==='crop')Object.assign(r,{cropMode:$('toolCropMode').value,margin:Number($('toolCropMargin').value)||0});
     if(['stamp','watermark','number'].includes(a))Object.assign(r,{fileName:toolSession?.name||'',batesPrefix:$('batesPrefix').value,batesStart:Number($('batesStart').value)||0,batesDigits:Number($('batesDigits').value)||6,batesSuffix:$('batesSuffix').value});
     if(a==='compress'&&$('toolCompressProfile').value)r.profile=$('toolCompressProfile').value;
     if(a==='redact'){r.fill=$('redactFill').value;if(chosenHits().length)r.marks=chosenHits().map(h=>({page:h.page,rects:h.rects}));}

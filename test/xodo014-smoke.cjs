@@ -128,6 +128,16 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   await until(`(${count('Square')}).then(n => n === 0)`, 'rectangle deleted');
   assert.equal(await annotations('Line'), 1, 'other annotations stay');
   report.checks.deleteAnnotation = true;
+  // Smart crop: auto-crop page 1 to its content, applied to the open document.
+  await until(`!${P}.editBusy`, 'idle before crop');
+  const sizeExpr = `(async () => { try { if (${P}.editBusy || !${P}.loaded) return null; const v = (await ${P}.app.pdfDocument.getPage(1)).view; return [v[2] - v[0], v[3] - v[1]]; } catch { return null; } })()`;
+  const before = await run(sizeExpr);
+  await run(`qingye.tools.open('crop')`);
+  await until(`document.getElementById('toolAction').value === 'crop' && !document.getElementById('toolCropMode').closest('[data-for]').hidden`, 'crop fields');
+  await run(`(() => { const $ = id => document.getElementById(id); $('toolPages').value = '1'; $('toolCropMode').value = 'auto'; $('toolCropMode').dispatchEvent(new Event('change')); $('applyToolDraft').click(); })()`);
+  await until(`${sizeExpr}.then(v => !!v && v[0] < ${before[0]} - 20 && v[1] < ${before[1]} - 20)`, 'page cropped to content');
+  report.checks.autoCrop = true;
+  await run(`document.getElementById('toolsDialog').open && document.getElementById('closeTools').click()`);
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;
 };
