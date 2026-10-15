@@ -73,6 +73,7 @@
       "test/markdown-smoke.cjs",
       "test/diagrams-smoke.cjs",
       "test/typora-smoke.cjs",
+      "test/typora014-smoke.cjs",
       "markdown-tools.cjs",
       "markdown-ipc.cjs",
       "i18n-main.cjs",

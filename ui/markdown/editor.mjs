@@ -4,7 +4,7 @@
 // still formatted). All edits go through apply(), which records undo history and keeps
 // block offsets in sync, so saving always writes exactly what the user typed.
 import { analyze, renderBlockHtml, sanitize, escapeHtml, renderOptions } from './parser.mjs';
-import { styleSource } from './source-style.mjs';
+import { styleSource, INLINE_REVEAL } from './source-style.mjs';
 import * as C from './commands.mjs';
 import { createVisualTables } from './visual-table.mjs';
 import { renderDiagrams, fit as fitDiagram } from './diagrams.mjs';
@@ -267,7 +267,26 @@ export class MarkdownEditor {
     a.padded = src.endsWith('\n');
     a.el.innerHTML = styleSource(src, b.kind) + (a.padded ? '\n' : '');
     a.el.classList.toggle('isEmpty', !src);
+    a.el.classList.toggle('revealInline', this.prefs?.revealMarks !== 'block');
     if (caret) this.setCaret(caret.start, caret.end, document.activeElement === a.el);
+    this.updateReveal(caret);
+  }
+  // Typora-style reveal: an inline construct shows its Markdown markers only while the caret is
+  // inside it or touching its edge. One walk computes every construct's [start, end] offsets.
+  updateReveal(caret = this.getCaret()) {
+    const a = this.active;
+    if (!a || a.composing || !a.el.classList.contains('revealInline')) return;
+    const walker = document.createTreeWalker(a.el, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    const spans = [], open = [];
+    let pos = 0;
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      while (open.length && !open.at(-1).el.contains(n)) { const s = open.pop(); s.end = pos; }
+      if (n.nodeType === 3) pos += n.data.length;
+      else if (n.matches(INLINE_REVEAL)) { const s = { el: n, start: pos, end: pos }; spans.push(s); open.push(s); }
+    }
+    for (const s of open) s.end = pos;
+    const touches = (s, p) => p >= s.start && p <= s.end;
+    for (const s of spans) s.el.classList.toggle('isOpen', !!caret && (touches(s, caret.start) || touches(s, caret.end)));
   }
   readDom() {
     const a = this.active;
@@ -565,7 +584,7 @@ export class MarkdownEditor {
     root.addEventListener('compositionend', e => { if (e.target === this.active?.el) { this.active.composing = false; this.syncFromDom(); } });
     this.onSelectionChange = () => {
       if (this.sourceMode) { if (document.activeElement === this.sourceView) this.sel = { from: this.sourceView.selectionStart, to: this.sourceView.selectionEnd }; }
-      else { const c = this.active && this.getCaret(); if (c) { const b = this.active.block; this.sel = { from: b.from + c.start, to: b.from + c.end }; } }
+      else { const c = this.active && this.getCaret(); if (c) { const b = this.active.block; this.sel = { from: b.from + c.start, to: b.from + c.end }; this.updateReveal(c); } }
       this.options.onSelection?.();
     };
     document.addEventListener('selectionchange', this.onSelectionChange);

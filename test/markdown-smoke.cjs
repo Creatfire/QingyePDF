@@ -105,6 +105,7 @@ exports.run = async ({ window, openFiles, output, recoveryFolder }) => {
     result.closePrompt = true;
     console.log('Checking diagrams'); result.diagrams = await require('./diagrams-smoke.cjs').run(window);
     console.log('Checking Typora controls and IPC'); result.typora = await require('./typora-smoke.cjs').run({ window, openFiles, output });
+    console.log('Checking 0.14 editor behaviour'); result.typora014 = await require('./typora014-smoke.cjs').run({ window, openFiles, output });
     await fs.writeFile(path.join(output, 'markdown.png'), (await window.webContents.capturePage()).toPNG());
     return result;
   } finally { dialog.showMessageBox = originalBox; dialog.showSaveDialog = originalSave; }

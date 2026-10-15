@@ -1,6 +1,10 @@
 // Live styling for the block being edited: Markdown syntax stays visible but dimmed, while
 // the content is already formatted (heading sizes, bold, links, code, math…), Typora-style.
+// Inline constructs matched by INLINE_REVEAL hide their markers until the caret reaches them
+// (editor.mjs toggles .isOpen); the text never changes, so caret offsets stay exact.
 import { hljs, escapeHtml } from './parser.mjs';
+
+export const INLINE_REVEAL = '.sx-strong, .sx-em, .sx-strike, .sx-hl, .sx-sub, .sx-sup, .sx-code, .sx-link, .sx-escape';
 
 const span = (cls, html) => `<span class="${cls}">${html}</span>`;
 const mark = text => span('sx-mark', escapeHtml(text));
@@ -40,7 +44,7 @@ export function styleInline(text) {
       out += span(image ? 'sx-image' : 'sx-link', mark(s.slice(0, open)) + span('sx-linktext', image ? escapeHtml(s.slice(open, close)) : styleInline(s.slice(open, close))) + mark('](') + span('sx-url', escapeHtml(s.slice(close + 2, -1))) + mark(')'));
     }
     else if (g.reflink) { const mid = s.indexOf(']['); out += span('sx-link', mark('[') + span('sx-linktext', styleInline(s.slice(1, mid))) + mark(s.slice(mid))); }
-    else if (g.autolink) out += span('sx-link', mark('<') + span('sx-url', escapeHtml(s.slice(1, -1))) + mark('>'));
+    else if (g.autolink) out += span('sx-link sx-autolink', mark('<') + span('sx-url', escapeHtml(s.slice(1, -1))) + mark('>'));
     else if (g.url) out += span('sx-url', escapeHtml(s));
     else if (g.strong) out += span('sx-strong', mark(s.slice(0, 2)) + styleInline(s.slice(2, -2)) + mark(s.slice(-2)));
     else if (g.fnref) out += span('sx-fnref', escapeHtml(s));
@@ -50,7 +54,7 @@ export function styleInline(text) {
     else if (g.emoji) out += span('sx-emoji', escapeHtml(s));
     else if (g.strike) out += span('sx-strike', mark('~~') + styleInline(s.slice(2, -2)) + mark('~~'));
     else if (g.em) out += span('sx-em', mark(s[0]) + styleInline(s.slice(1, -1)) + mark(s.slice(-1)));
-    else if (g.escape) out += mark('\\') + escapeHtml(s.slice(1));
+    else if (g.escape) out += span('sx-escape', mark('\\') + escapeHtml(s.slice(1)));
     else if (g.html) out += span('sx-html', escapeHtml(s));
     last = m.index + s.length;
   }
