@@ -92,13 +92,8 @@ jobs:
         shell: pwsh
         run: node scripts/ci-smoke.cjs --packaged --report test-output/ci-packaged.json
 
-
-      - name: Build runnable zip (tags only)
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: pwsh
-        run: |
-          $version = node -p "require('./package.json').version"
-          Compress-Archive -LiteralPath dist/win-unpacked -DestinationPath "dist/QingyePDF-$version-win-x64.zip" -CompressionLevel Optimal
+      # The runnable zip is built by `npm run dist` itself (win target: nsis + zip); a separate
+      # Compress-Archive step here collided with that zip (0.13-era leftover).
 
       - name: Checksums
         shell: pwsh
