@@ -104,11 +104,6 @@ export function createShapes({ current, applyEdit, guard, status }) {
 
   function bind(s) {
     const doc = s.frame.contentDocument;
-    if (!doc.getElementById('qyShapeStyle')) {
-      const style = doc.createElement('style'); style.id = 'qyShapeStyle';
-      style.textContent = '.qyShapeDrawing .page, .qyShapeDrawing .page * { cursor: crosshair !important; user-select: none !important; }';
-      doc.head.append(style);
-    }
     doc.addEventListener('pointerdown', e => {
       if (tool?.session !== s || e.button !== 0) return;
       const pageEl = e.target.closest?.('.page[data-page-number]');

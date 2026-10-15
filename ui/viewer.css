@@ -67,3 +67,6 @@
 }
 @keyframes q-pop { from { opacity:0; transform:translateY(-4px) scale(.98); } }
 @media(prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
+/* Shape drawing (0.14): crosshair cursor while a shape drag is in progress. Lives here, not in a
+   JS-injected <style>, because the viewer frame's CSP (style-src 'self') blocks inline styles. */
+.qyShapeDrawing .page, .qyShapeDrawing .page * { cursor: crosshair !important; user-select: none !important; }
