@@ -1,6 +1,8 @@
 {
   "app": "QingyePDF",
-  "version": "0.15.0",
+  "version": "0.18.0",
+  "renumberedFrom": "0.15.0",
+  "supersedes": "v0.17.0 (abandoned broken line; archived on archive/0.17-broken-line)",
   "platform": [
     "win32"
   ],
@@ -11,7 +13,7 @@
     "nsis",
     "zip"
   ],
-  "artifactName": "QingyePDF-0.15.0-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.18.0-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -32,11 +34,11 @@
     "Markdown: Typora-style inline marker reveal, CodeMirror 6 source mode, equation numbering with eqref, lazy rendering for large documents, crash-safe undo history, whole-line copy, smart input, Ctrl+wheel zoom",
     "PDF: text markup bar (highlight/underline/strikeout/squiggly), shape annotations, deleting stored annotations, single-letter tools, redaction by content with Chinese presets, Bates numbering and stamp variables, odd/even pages, compression profiles, auto-crop, standard stamps"
   ],
-  "buildRevision": "0.15.0",
+  "buildRevision": "0.18.0",
   "fixes": [],
   "crossBuilt": false,
   "otherArtifacts": [
-    "QingyePDF-0.15.0-win-x64.zip"
+    "QingyePDF-0.18.0-win-x64.zip"
   ],
   "testSideCorrections": [],
   "pdfjsModified": true,
