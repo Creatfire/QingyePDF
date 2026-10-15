@@ -24,7 +24,7 @@ const SUITES = [
   { name: 'links', flag: '--links-smoke' },
   { name: 'pdf014', flag: '--x014-smoke' },
 ];
-const PACKAGED_SUITES = ['smoke', 'basic', 'features', 'notes', 'links'];
+const PACKAGED_SUITES = ['smoke', 'basic', 'features', 'notes', 'links', 'pdf014', 'markdown'];
 
 function executable() {
   // require('electron') resolves to the executable of the installed Electron on every platform
