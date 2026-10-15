@@ -138,6 +138,26 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   await until(`${sizeExpr}.then(v => !!v && v[0] < ${before[0]} - 20 && v[1] < ${before[1]} - 20)`, 'page cropped to content');
   report.checks.autoCrop = true;
   await run(`document.getElementById('toolsDialog').open && document.getElementById('closeTools').click()`);
+  // Office files open as PDF through the bundled LibreOffice (0.15).
+  const office = require('../office-convert.cjs');
+  if (office.sofficePath({ packaged: app.isPackaged, resources: process.resourcesPath })) {
+    const pandoc = require('../pandoc-engine.cjs'), md = path.join(output, 'office.md'), docx = path.join(output, '季度 报告.docx');
+    await fs.writeFile(md, '# 季度报告\n\n中文正文与表格。\n\n| 项目 | 金额 |\n|---|---|\n| 收入 | 100 |\n');
+    await pandoc.run(pandoc.bundledPath(), ['-o', docx, md]);
+    const before = await fs.readFile(docx);
+    const openedOffice = await openFiles([docx]);
+    assert.equal(openedOffice.length, 1); assert.equal(openedOffice[0].name, '季度 报告.pdf'); assert.equal(openedOffice[0].path, null);
+    await run(`qingye.addDocuments(${JSON.stringify(openedOffice.map(d => ({ ...d, bytes: Array.from(d.bytes) })))})`);
+    const O = `qingye.sessions.get(${JSON.stringify(openedOffice[0].id)})`;
+    await until(`${O}?.loaded`, 'converted document');
+    report.checks.officeText = await run(`(async () => (await (await ${O}.app.pdfDocument.getPage(1)).getTextContent()).items.map(i => i.str).join(''))()`);
+    assert.match(report.checks.officeText, /季度报告/); assert.match(report.checks.officeText, /收入/);
+    const again = await openFiles([docx]);
+    assert.equal(again[0].id, openedOffice[0].id, 'reopening focuses the existing PDF tab');
+    assert.deepEqual(await fs.readFile(docx), before, 'the Word file is not modified');
+    await pause(300); await fs.writeFile(path.join(output, 'office-as-pdf.png'), (await window.webContents.capturePage()).toPNG());
+    report.checks.officeAsPdf = true;
+  } else report.checks.officeAsPdf = 'skipped: LibreOffice not prepared';
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;
 };

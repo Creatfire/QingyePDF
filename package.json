@@ -1,6 +1,6 @@
 {
   "name": "qingye-pdf",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Local-first open-source PDF reader with tabs and annotations",
   "author": "Qingye PDF contributors",
   "license": "AGPL-3.0-only",
@@ -8,14 +8,13 @@
   "scripts": {
     "start": "electron .",
     "prepare:pdfjs": "node scripts/prepare-pdfjs.mjs",
-    "test": "node --test test/core.test.cjs test/offline.test.cjs test/recovery.test.cjs test/history.test.cjs test/diagnostics.test.cjs test/ui-errors.test.cjs test/markdown.test.mjs test/typora.test.mjs test/i18n.test.mjs test/ai.test.mjs test/ai-tools.test.mjs test/converter.test.cjs test/release093.test.cjs test/fixes093.test.cjs test/features094.test.mjs test/notes010.test.mjs test/links011.test.mjs test/platform012.test.mjs test/fixes013.test.cjs test/pandoc014.test.mjs test/math014.test.mjs",
+    "test": "node --test test/core.test.cjs test/offline.test.cjs test/recovery.test.cjs test/history.test.cjs test/diagnostics.test.cjs test/ui-errors.test.cjs test/markdown.test.mjs test/typora.test.mjs test/i18n.test.mjs test/ai.test.mjs test/ai-tools.test.mjs test/converter.test.cjs test/release093.test.cjs test/fixes093.test.cjs test/features094.test.mjs test/notes010.test.mjs test/links011.test.mjs test/platform012.test.mjs test/fixes013.test.cjs test/pandoc014.test.mjs test/math014.test.mjs test/office015.test.cjs",
     "build:backend": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-backend.ps1",
     "smoke": "electron . --smoke-test",
     "safety": "electron . --safety-smoke",
-    "dist": "node scripts/build-distribution.cjs portable",
+    "dist": "node scripts/build-distribution.cjs nsis zip",
     "deliver": "node scripts/prepare-delivery.cjs",
-    "dist:installer": "electron-builder --win nsis --x64 --publish never",
-    "dist:all": "node scripts/build-distribution.cjs portable nsis",
+    "dist:installer": "node scripts/build-distribution.cjs nsis",
     "smoke:markdown": "electron . --markdown-smoke",
     "build:markdown-vendor": "node scripts/build-markdown-vendor.mjs",
     "build:diagrams-vendor": "node scripts/build-diagrams-vendor.mjs",
@@ -32,7 +31,8 @@
     "dist:mac": "electron-builder --mac dmg",
     "build:backend:unix": "bash scripts/build-backend.sh",
     "test:013": "node --test test/fixes013.test.cjs",
-    "smoke:013": "electron . --fix013-smoke"
+    "smoke:013": "electron . --fix013-smoke",
+    "prepare:libreoffice": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-libreoffice.ps1"
   },
   "devDependencies": {
     "electron": "44.4.5",
@@ -81,6 +81,7 @@
       "file-associations.cjs",
       "pandoc-engine.cjs",
       "pandoc-markdown.cjs",
+      "office-convert.cjs",
       "converter-ipc.cjs",
       "ai-service.cjs",
       "ai-api-server.cjs",
@@ -129,16 +130,23 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "vendor/libreoffice",
+        "to": "libreoffice",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {
-      "target": "nsis",
+      "target": [
+        "nsis",
+        "zip"
+      ],
       "icon": "build/icon.ico",
       "signExecutable": false,
       "artifactName": "QingyePDF-${version}-win-x64.${ext}"
-    },
-    "portable": {
-      "requestExecutionLevel": "user"
     },
     "fileAssociations": [
       {

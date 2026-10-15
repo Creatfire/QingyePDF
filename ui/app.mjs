@@ -563,7 +563,8 @@ function shortcuts(event, s = current()) {
 async function onCommand(command, data) {
   if (command === 'open') return open();
   if (command === 'opened') return addDocuments(data);
-  if (command === 'first-run') { status('首次启动完成，下次启动会明显变快'); return message('首次启动说明', '便携版第一次运行需要先把本地运行环境解压到本机（约 500 MB，仅此一次）。在较慢的电脑或杀毒软件实时扫描时，这一步可能花十几秒，期间暂时看不到窗口，属于正常现象；之后再次启动通常一秒内完成。\n\n所有文档处理仍在本机完成，不联网、不上传文件。'); }
+  if (command === 'first-run') { status('欢迎使用青页 PDF'); return message('首次启动说明', '青页可以直接打开 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 文件。Office 文件由内置的 LibreOffice 转换后以 PDF 形式打开，原文件不会被改动；第一次转换需要几秒钟。\n\n所有文档处理都在本机完成，不联网、不上传文件。'); }
+  if (command === 'status') return status(String(data || ''));
   if (command === 'save' || command === 'save-as') return reviewSave(current(), command === 'save-as');
   if (command === 'close-tab') return closeTab(activeId);
   if (command === 'close-app') return closeApp();

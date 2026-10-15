@@ -13,10 +13,11 @@
 npm ci
 node scripts/prepare-pdfjs.mjs      # 下载官方 PDF.js 发行包、校验 SHA-256 并套用青页的两处改动
 ./scripts/prepare-pandoc.ps1        # 下载 Pandoc 3.12 到 vendor/pandoc/pandoc.exe 并校验 SHA-256
+./scripts/prepare-libreoffice.ps1   # 下载 LibreOffice 26.2.6 MSI、校验 SHA-256，解出程序文件到 vendor/libreoffice（约 640 MB）
 ./scripts/build-backend.ps1         # 建立 .backend-build 虚拟环境，PyInstaller 生成 backend/bin/QingyeWorker/
 ```
 
-`vendor/pandoc/pandoc.exe`、`backend/bin/`、`.backend-build/` 不入库（见 `.gitignore`）。
+`vendor/pandoc/pandoc.exe`、`vendor/libreoffice/`、`backend/bin/`、`.backend-build/` 不入库（见 `.gitignore`）。
 
 ## 运行与测试
 
@@ -33,12 +34,11 @@ npm run smoke:011                   # 只跑 0.11.0 的套件
 ## 打包
 
 ```powershell
-npm run dist                        # 便携版：dist/QingyePDF-<版本>-win-x64.exe
-npm run dist:installer              # NSIS 安装包
-npm run dist:all                    # 两者
+npm run dist                        # 安装版 dist/QingyePDF-<版本>-Setup-x64.exe 与安装目录 ZIP dist/QingyePDF-<版本>-win-x64.zip
+npm run dist:installer              # 只生成安装版
 ```
 
-便携版使用 `build/portable-cache.nsi`（首次运行解压到 `%LOCALAPPDATA%`，之后复用），由 `scripts/build-distribution.cjs` 在构建期间临时替换 electron-builder 的模板。
+0.15 起不再发布便携 EXE。`node scripts/build-distribution.cjs portable` 仍可手动生成（使用 `build/portable-cache.nsi`），但不属于发布物。
 
 ### 在 Linux / macOS 上交叉构建
 
@@ -67,7 +67,7 @@ npm test && npm run test:e2e         # 单元测试；手机尺寸的 Chromium �
 
 ## 持续集成
 
-- `.github/workflows/ci.yml`：每次推送和 PR 在 `windows-latest` 上运行单元测试、冒烟测试并构建便携版；推送 `v*` 标签时额外构建安装包，并把两者附到一个**草稿** Release。
+- `.github/workflows/ci.yml`：每次推送和 PR 在 `windows-latest` 上运行单元测试、冒烟测试并构建安装版与 ZIP；推送 `v*` 标签时把两者附到一个**草稿** Release。
 - `.github/workflows/macos.yml`：在 `macos-15`（arm64）与 `macos-15-intel`（x64）上运行单元测试并各构建一个 dmg；标签推送时附到同一个草稿 Release。
 - `.github/workflows/android.yml`：构建安卓 APK 并运行端到端测试。
 

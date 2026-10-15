@@ -1,5 +1,5 @@
 # Qingye PDF continuous integration (0.9.5).
-# Every push / pull request: unit tests, the Electron smoke suites and a portable build on Windows.
+# Every push / pull request: unit tests, the Electron smoke suites and the Windows installer + ZIP.
 # Tag pushes (v*) additionally build the installer and attach both to a draft GitHub release.
 # Code signing is used only when the repository secrets below are configured; without them the
 # build is unsigned and the job still passes (see docs/SIGNING.md).
@@ -48,6 +48,7 @@ jobs:
         run: |
           node scripts/prepare-pdfjs.mjs
           ./scripts/prepare-pandoc.ps1
+          ./scripts/prepare-libreoffice.ps1
 
       - name: Cache frozen backend
         id: backend-cache
@@ -80,7 +81,7 @@ jobs:
         shell: pwsh
         run: node scripts/ci-smoke.cjs --report test-output/ci-smoke.json
 
-      - name: Build portable exe
+      - name: Build installer and ZIP
         shell: pwsh
         env:
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
@@ -91,13 +92,6 @@ jobs:
         shell: pwsh
         run: node scripts/ci-smoke.cjs --packaged --report test-output/ci-packaged.json
 
-      - name: Build installer (tags only)
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: pwsh
-        env:
-          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-        run: npm run dist:installer
 
       - name: Build runnable zip (tags only)
         if: startsWith(github.ref, 'refs/tags/v')

@@ -10,6 +10,7 @@ const { spawn } = require('node:child_process');
 const { Recovery } = require('./recovery.cjs');
 const { createDiagnostics } = require('./diagnostics.cjs');
 const markdownFiles = require('./markdown-files.cjs');
+const officeConvert = require('./office-convert.cjs');
 const { createLibraryIndex } = require('./library-index.cjs');
 const {notesMarkdown,normalizeNotes}=require('./notes-markdown.cjs');
 const bootStarted=performance.now();
@@ -162,13 +163,27 @@ function remember(record, state = record.state) {
   } : {};
   preferences.recent = [{ path: record.path, name: record.name, state: record.state, opened: Date.now() }, ...preferences.recent.filter(r => key(r.path) !== key(record.path))].slice(0, 30);
 }
+// Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by the bundled
+// LibreOffice; the original file is never modified and Save asks where to write the PDF.
+const officeOptions = () => ({ packaged: app.isPackaged, resources: process.resourcesPath, profileDir: path.join(app.getPath('userData'), 'libreoffice-profile'), cacheDir: path.join(app.getPath('userData'), 'office-cache'), onProgress: text => command('status', text) });
+async function openOffice(file) {
+  const existing = [...documents.values()].find(r => r.source && key(r.source) === key(file));
+  if (existing) return metadata(existing);
+  const started = Date.now(), result = await officeConvert.toPdf(file, officeOptions());
+  const record = { id: randomUUID(), name: path.parse(file).name + '.pdf', path: null, hash: null, source: file, state: {} };
+  documents.set(record.id, record);
+  command('status', T('已将 {name} 以 PDF 形式打开（{seconds} 秒）；原文件未改动，保存时另存为 PDF。').replace('{name}', path.basename(file)).replace('{seconds}', result.cached ? '0' : String(Math.max(1, Math.round((Date.now() - started) / 1000)))));
+  return { ...metadata(record), bytes: result.bytes, converted: { from: path.basename(file), engine: officeConvert.engineInfo(officeOptions()) } };
+}
 async function openFiles(files) {
   const opened = [];
   for (const candidate of files) {
     try {
       const markdown = typeof candidate === 'string' && markdownFiles.isMarkdown(candidate);
-      if (typeof candidate !== 'string' || (!markdown && path.extname(candidate).toLowerCase() !== '.pdf')) throw new Error('请选择 PDF 或 Markdown 文件。');
+      const office = officeConvert.isOffice(candidate);
+      if (typeof candidate !== 'string' || (!markdown && !office && path.extname(candidate).toLowerCase() !== '.pdf')) throw new Error('请选择 PDF、Markdown 或 Office 文件。');
       const file = await fs.realpath(candidate);
+      if (office) { opened.push(await openOffice(file)); continue; }
       let record = [...documents.values()].find(r => r.path && key(r.path) === key(file));
       if (record) { opened.push(metadata(record)); continue; }
       if (markdown) {
@@ -313,7 +328,7 @@ app.whenReady().then(async () => {
   handle('recent-clear', async () => { preferences.recent = []; recentTokens.clear(); await persist(); return true; });
   handle('open-data-folder', async () => { const error = await shell.openPath(app.getPath('userData')); if (error) throw new Error(error); return true; });
   handle('open', async () => {
-    const result = await dialog.showOpenDialog(window, { title: T('打开文档'), filters: [{ name: T('PDF 与 Markdown'), extensions: ['pdf', ...markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1))] }, { name: T('PDF 文档'), extensions: ['pdf'] }, { name: T('Markdown 文档'), extensions: markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1)) }], properties: ['openFile', 'multiSelections'] });
+    const result = await dialog.showOpenDialog(window, { title: T('打开文档'), filters: [{ name: T('所有支持的文档'), extensions: ['pdf', ...markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1)), ...[...officeConvert.OFFICE_EXTENSIONS].map(e => e.slice(1))] }, { name: T('PDF 文档'), extensions: ['pdf'] }, { name: T('Office 文档（以 PDF 打开）'), extensions: [...officeConvert.OFFICE_EXTENSIONS].map(e => e.slice(1)) }, { name: T('Markdown 文档'), extensions: markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1)) }], properties: ['openFile', 'multiSelections'] });
     return result.canceled ? [] : openFiles(result.filePaths);
   });
   handle('drop', files => openFiles(Array.isArray(files) ? files : []));
@@ -385,7 +400,7 @@ app.whenReady().then(async () => {
   handle('fullscreen', () => { window.setFullScreen(!window.isFullScreen()); return window.isFullScreen(); });
   handle('exit-fullscreen', () => { if (window.isFullScreen()) window.setFullScreen(false); });
   handle('pick-asset', async kind => {
-    const filters = kind === 'import' ? [{name:T('可转换文件'),extensions:['docx','xlsx','pptx','txt','html','htm','epub','xps','cbz','svg','png','jpg','jpeg','tif','tiff','bmp','webp']}] : [{name:T('图片'),extensions:['png','jpg','jpeg','bmp','webp']}];
+    const filters = kind === 'import' ? [{name:T('可转换文件'),extensions:[...new Set([...[...officeConvert.OFFICE_EXTENSIONS].map(e=>e.slice(1)),'txt','html','htm','epub','xps','cbz','svg','png','jpg','jpeg','tif','tiff','bmp','webp'])]}] : [{name:T('图片'),extensions:['png','jpg','jpeg','bmp','webp']}];
     const result = await dialog.showOpenDialog(window,{title:kind==='import'?'导入并转换为 PDF':'选择图片印章',filters,properties:['openFile']});
     if(result.canceled) return null;
     const file=await fs.realpath(result.filePaths[0]);
@@ -443,7 +458,10 @@ app.whenReady().then(async () => {
     const safe={...request}; delete safe.mergeInputs;
     const jobId=typeof request.jobId==='string'?request.jobId.slice(0,80):randomUUID();if(runningJobs.has(jobId))throw new Error('任务编号重复。');const controller=new AbortController();runningJobs.set(jobId,controller);if(canceledJobs.delete(jobId))controller.abort();
     try {
-    const result=await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});
+    // Office imports keep their layout through the bundled LibreOffice; other formats use the backend.
+    const viaOffice=request.action==='import'&&officeConvert.isOffice(record.path)&&officeConvert.sofficePath(officeOptions());
+    const result=viaOffice?{files:[{name:'result.pdf',bytes:(await officeConvert.toPdf(record.path,{...officeOptions(),signal:controller.signal})).bytes}],note:'已用内置 LibreOffice 按原版式转换。'}
+      :await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});
     if(controller.signal.aborted) throw new Error('任务已取消。');
     if(request.action==='inspect'||request.action==='redact-find') return {data:result.data,note:result.note};
     if(result.unchanged)return {unchanged:true,note:result.note};

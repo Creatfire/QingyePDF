@@ -9,6 +9,8 @@ __pycache__/
 third-party-source/
 # 0.9.5: downloaded / generated at build time (see scripts/prepare-pandoc.ps1, prepare-pdfjs.mjs)
 vendor/pandoc/pandoc.exe
+# 0.15: LibreOffice engine extracted by scripts/prepare-libreoffice.ps1
+vendor/libreoffice/
 *.log
 .ci-profile/
 # Editors and operating systems

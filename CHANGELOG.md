@@ -1,3 +1,12 @@
+# 0.15.0 · Office 文件以 PDF 打开；只发布安装版
+
+- **Word、Excel、PowerPoint 等 Office 文件可以直接打开**（打开对话框、拖入、命令行均可）：由随包的 LibreOffice 26.2.6 在后台转换，以 PDF 标签打开，可阅读、批注、用工具箱处理。版式与原文件一致（不是内容重排）。支持 doc/docx、xls/xlsx/csv、ppt/pptx、odt/ods/odp、rtf、WPS 文件等。
+- 原文件不会被改动；PDF 标签是未保存的新文档，保存时另存为 PDF。同一文件再次打开会定位到已打开的标签；未改动的文件第二次打开直接使用缓存。
+- LibreOffice 使用独立的用户配置，禁止运行文档宏，不检查更新，不联网。第一次转换约需几秒。
+- 工具箱的“Office / 图片转 PDF”对 Office 文件也改用 LibreOffice，保留原版式。
+- **发布形式**：只提供安装版（`QingyePDF-<版本>-Setup-x64.exe`）和安装目录的 ZIP 压缩包（`QingyePDF-<版本>-win-x64.zip`，解压即用），不再提供便携 EXE。首次启动说明相应更新。
+- 新增 `scripts/prepare-libreoffice.ps1`（下载固定版本并校验 SHA-256，管理安装解出程序文件，只保留中英文资源，约 640 MB）、`office-convert.cjs`、`test/office015.test.cjs`；冒烟测试覆盖在真实应用中打开 Word 文件。
+
 # 0.14.0 · Typora / Xodo / Pandoc 能力对标
 
 研究依据见 [docs/research](docs/research)（Typora、Xodo、Pandoc 三份差距分析）。只学习功能和行为，没有使用这三个软件的代码或资源。

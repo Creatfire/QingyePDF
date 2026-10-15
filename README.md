@@ -35,7 +35,8 @@
 
 | 系统 | 文件 | 说明 |
 |---|---|---|
-| Windows 10 / 11（x64） | `QingyePDF-<版本>-win-x64.exe` | 便携版，双击即用；第一次启动要把运行环境解压到本机，需要十几秒 |
+| Windows 10 / 11（x64） | `QingyePDF-<版本>-Setup-x64.exe` | 安装版（可选安装位置，无需管理员权限） |
+| Windows 10 / 11（x64） | `QingyePDF-<版本>-win-x64.zip` | 安装目录的压缩包，解压后运行 `QingyePDF.exe` |
 | macOS 12+（Apple 芯片） | `QingyePDF-<版本>-mac-arm64.dmg` | 见 [docs/MACOS.md](docs/MACOS.md) |
 | macOS 12+（Intel） | `QingyePDF-<版本>-mac-x64.dmg` | 同上 |
 | Android 7+ | `QingyePDF-<版本>-android.apk`（仓库未配置签名密钥时是 `-android-debug.apk`） | 见 [mobile/README.md](mobile/README.md) |

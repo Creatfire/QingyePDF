@@ -1,6 +1,8 @@
-# 青页 PDF 0.14.0 功能范围
+# 青页 PDF 0.15.0 功能范围
 
-**当前发布版本：Windows 0.14.0。** 对标 Typora、Xodo、Pandoc 的优秀能力（研究见 [docs/research](docs/research)，更新内容见 [CHANGELOG](CHANGELOG.md)）：Typora 式行内标记按需显示、CodeMirror 源码模式、公式编号与引用、大文档按需渲染、可恢复的撤销记录；PDF 文字标记工具条（含波浪线）、图形批注、按内容涂黑、贝茨编号与印章变量、压缩方案、智能裁剪；Word / ePub 经 Pandoc 导出（原生公式、脚注、主题样式、参考文献）。安卓与 macOS 仍为 0.13.0。
+**当前发布版本：Windows 0.15.0。** Word、Excel、PowerPoint 等 Office 文件可直接以 PDF 形式打开（随包 LibreOffice 转换，保留原版式，原文件不改动）；只发布安装版与安装目录 ZIP。
+
+**0.14.0：** 对标 Typora、Xodo、Pandoc 的优秀能力（研究见 [docs/research](docs/research)，更新内容见 [CHANGELOG](CHANGELOG.md)）：Typora 式行内标记按需显示、CodeMirror 源码模式、公式编号与引用、大文档按需渲染、可恢复的撤销记录；PDF 文字标记工具条（含波浪线）、图形批注、按内容涂黑、贝茨编号与印章变量、压缩方案、智能裁剪；Word / ePub 经 Pandoc 导出（原生公式、脚注、主题样式、参考文献）。安卓与 macOS 仍为 0.13.0。
 
 **0.13.0：** Windows、Android、macOS 统一为 0.13.0。
 

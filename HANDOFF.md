@@ -1,4 +1,10 @@
-# 青页 PDF 0.14.0 开发交接
+# 青页 PDF 0.15.0 开发交接
+
+**0.15 新增**：Office 文件以 PDF 打开（`office-convert.cjs`，随包 LibreOffice 26.2.6，由 `scripts/prepare-libreoffice.ps1` 准备，打包到 `resources/libreoffice`）；工具箱 Office 导入也走 LibreOffice。发布物只有安装版和安装目录 ZIP。LibreOffice 启动时会加载自带的 Python，裁剪时不能删除。
+
+---
+
+以下为 0.14.0 的交接内容。
 
 基于 0.13.0（分支 `release-0.14`）。0.17 系列不在这条线上。研究与路线见 [docs/research](docs/research)，改动清单见 [CHANGELOG](CHANGELOG.md)，上一版交接见 [HANDOFF-0.13.0](docs/history/HANDOFF-0.13.0.md)。
 
@@ -6,7 +12,7 @@
 
 ```powershell
 npm ci; node node_modules/electron/install.js   # npm 11 默认不跑 Electron 的安装脚本，需手动下载二进制
-node scripts/prepare-pdfjs.mjs; ./scripts/prepare-pandoc.ps1; ./scripts/build-backend.ps1
+node scripts/prepare-pdfjs.mjs; ./scripts/prepare-pandoc.ps1; ./scripts/prepare-libreoffice.ps1; ./scripts/build-backend.ps1
 npm test                                          # 117 项（1 项仅 POSIX）
 .backend-build/Scripts/python.exe backend/test_worker.py
 node scripts/ci-smoke.cjs                         # 9 个套件，含新增 pdf014

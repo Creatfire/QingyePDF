@@ -1,6 +1,6 @@
 {
   "app": "QingyePDF",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "platform": [
     "win32"
   ],
@@ -9,10 +9,9 @@
   ],
   "target": [
     "nsis",
-    "portable",
     "zip"
   ],
-  "artifactName": "QingyePDF-0.14.0-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.15.0-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -28,20 +27,26 @@
     "Windows source: 117 unit tests passed, 1 POSIX-only test skipped; backend suite passed; 9 Electron smoke suites passed (including new pdf014 and 0.14 Markdown checks)"
   ],
   "newFeatures": [
+    "Office files (doc/docx, xls/xlsx/csv, ppt/pptx, ODF, RTF, WPS) open as PDF through bundled LibreOffice 26.2.6; installer + installed-directory ZIP only (no portable exe)",
     "Pandoc: CJK-correct dialect, editor-native import, Word/ePub through Pandoc with themed reference.docx, diagrams, [toc], alerts, equation numbers and citations",
     "Markdown: Typora-style inline marker reveal, CodeMirror 6 source mode, equation numbering with eqref, lazy rendering for large documents, crash-safe undo history, whole-line copy, smart input, Ctrl+wheel zoom",
     "PDF: text markup bar (highlight/underline/strikeout/squiggly), shape annotations, deleting stored annotations, single-letter tools, redaction by content with Chinese presets, Bates numbering and stamp variables, odd/even pages, compression profiles, auto-crop, standard stamps"
   ],
-  "buildRevision": "0.14.0",
+  "buildRevision": "0.15.0",
   "fixes": [],
   "crossBuilt": false,
   "otherArtifacts": [
-    "QingyePDF-0.14.0-win-x64.exe",
-    "QingyePDF-0.14.0-win-x64.zip"
+    "QingyePDF-0.15.0-win-x64.zip"
   ],
   "testSideCorrections": [],
   "pdfjsModified": true,
   "notBuilt": [
     "Android and macOS were not rebuilt for 0.14.0 (no mobile changes; macOS needs the GitHub Actions runners)"
-  ]
+  ],
+  "libreOffice": {
+    "version": "26.2.6",
+    "license": "MPL-2.0",
+    "bundled": true,
+    "modified": false
+  }
 }
