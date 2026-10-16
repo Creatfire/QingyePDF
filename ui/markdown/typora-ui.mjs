@@ -235,20 +235,48 @@ export function createTypora(deps) {
     const width = el('input'); width.type = 'text'; width.value = info.width || ''; width.placeholder = '宽度'; width.title = '宽度，如 320 或 50%'; width.style.cssText = 'width:64px;height:26px;text-align:center;font-size:12px';
     width.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); hideImageBar(); s.editor.setImageWidth(info, width.value.trim().replace(/px$/i, '')); } };
     imageBar.append(width);
-    btn('25%', i => s.editor.setImageWidth(i, '25%')); btn('50%', i => s.editor.setImageWidth(i, '50%')); btn('100%', i => s.editor.setImageWidth(i, '100%')); btn('原始', i => s.editor.setImageWidth(i, ''), '恢复原始大小');
+    // Zoom 25–200 % of the picture's own size: previews live, commits a pixel width on release.
+    const natural = img.naturalWidth || img.width, zoomNow = natural && img.width ? Math.round(img.getBoundingClientRect().width / natural * 100) : 100;
+    const zoom = el('input'); zoom.type = 'range'; zoom.min = '25'; zoom.max = '200'; zoom.step = '5'; zoom.value = String(Math.max(25, Math.min(200, zoomNow))); zoom.className = 'mdImageZoom'; zoom.title = '缩放（相对原始大小）'; zoom.setAttribute('aria-label', '图片缩放');
+    const zoomLabel = el('span', 'mdImageZoomLabel', zoom.value + '%');
+    zoom.oninput = () => { zoomLabel.textContent = zoom.value + '%'; if (natural) img.style.width = Math.round(natural * zoom.value / 100) + 'px'; };
+    zoom.onchange = () => { hideImageBar(); img.style.width = ''; guard(async () => s.editor.setImageWidth(info, Number(zoom.value) === 100 || !natural ? '' : String(Math.round(natural * zoom.value / 100)))); };
+    imageBar.append(zoom, zoomLabel);
+    btn('50%', i => s.editor.setImageWidth(i, '50%'), '页面宽度的一半'); btn('100%', i => s.editor.setImageWidth(i, '100%'), '铺满页面宽度'); btn('原始', i => s.editor.setImageWidth(i, ''), '恢复原始大小');
     btn(info.html ? '改用 Markdown 语法' : '改用 <img> 语法', i => s.editor.switchImageSyntax(i));
-    if (s.path && !/^(https?:|data:)/i.test(info.src)) { btn('显示文件', i => api.mdImageOp(s.id, i.src, 'reveal')); btn('复制路径', async i => { const p = await api.mdImageOp(s.id, i.src, 'copyPath'); await navigator.clipboard.writeText(p).catch(() => {}); status('已复制：' + p); }); }
+    btn('替代文字', i => editImageAlt(s, i), '图片的替代文字（无障碍、图片无法显示时）');
+    if (s.path && !/^(https?:|data:)/i.test(info.src)) { btn('重命名', i => renameImage(s, i), '重命名图片文件并更新文档中的所有引用'); btn('显示文件', i => api.mdImageOp(s.id, i.src, 'reveal')); btn('复制路径', async i => { const p = await api.mdImageOp(s.id, i.src, 'copyPath'); await navigator.clipboard.writeText(p).catch(() => {}); status('已复制：' + p); }); }
     btn('删除', i => s.editor.deleteImage(i), '从文档中删除此图片引用');
     imageBar.hidden = false;
     const r = img.getBoundingClientRect(), b = imageBar.getBoundingClientRect();
     imageBar.style.left = Math.max(8, Math.min(r.left, innerWidth - b.width - 8)) + 'px'; imageBar.style.top = Math.max(8, Math.min(r.bottom + 6, innerHeight - b.height - 8)) + 'px';
+  }
+  async function editImageAlt(s, info) {
+    const alt = await D.promptText({ title: '替代文字', label: '描述图片内容（屏幕阅读器朗读，图片无法显示时显示）：', value: info.alt || '' });
+    if (alt != null) s.editor.setImageAlt(info, alt.trim());
+  }
+  async function renameImage(s, info) {
+    const old = decodeURI(info.src).split(/[\\/]/).pop();
+    const name = await D.promptText({ title: '重命名图片文件', label: '新文件名（文档中所有引用会一起更新）：', value: old, okLabel: '重命名' });
+    if (!name || name.trim() === old) return;
+    const link = await api.mdImageOp(s.id, info.src, 'rename', name.trim());
+    const n = s.editor.retargetImages(info.src, link); status(`已重命名为 ${link.split('/').pop()}，更新了 ${n} 处引用`);
+  }
+  async function moveImage(s, info) {
+    const link = await api.mdImageOp(s.id, info.src, 'move', imageOptions());
+    if (link === info.src) { status('图片已在图片文件夹中'); return; }
+    const n = s.editor.retargetImages(info.src, link); status(`已移到 ${link}，更新了 ${n} 处引用`);
   }
   function imageMenu(s, img, x, y) {
     const info = s.editor.imageInfo(img); if (!info) return false;
     const local = s.path && !/^(https?:|data:)/i.test(info.src);
     D.popupMenu(x, y, [
       { label: '调整为 50% 宽度', run: () => s.editor.setImageWidth(info, '50%'), disabled: s.editor.readonly }, { label: '原始大小', run: () => s.editor.setImageWidth(info, ''), disabled: s.editor.readonly },
-      { label: info.html ? '改用 Markdown 语法' : '改用 <img> 语法', run: () => s.editor.switchImageSyntax(info), disabled: s.editor.readonly }, '-',
+      { label: info.html ? '改用 Markdown 语法' : '改用 <img> 语法', run: () => s.editor.switchImageSyntax(info), disabled: s.editor.readonly },
+      { label: '编辑替代文字…', run: () => guard(() => editImageAlt(s, info)), disabled: s.editor.readonly }, '-',
+      { label: '用默认程序打开', run: () => guard(() => api.mdImageOp(s.id, info.src, 'open')), disabled: !local },
+      { label: '重命名图片文件…', run: () => guard(() => renameImage(s, info)), disabled: !local || s.editor.readonly },
+      { label: '移到图片文件夹', run: () => guard(() => moveImage(s, info)), disabled: !local || s.editor.readonly },
       { label: '在资源管理器中显示', run: () => guard(() => api.mdImageOp(s.id, info.src, 'reveal')), disabled: !local },
       { label: '复制图片路径', run: () => guard(async () => { const p = await api.mdImageOp(s.id, info.src, 'copyPath'); await navigator.clipboard.writeText(p); status('已复制：' + p); }), disabled: !local }, '-',
       { label: '删除图片引用', run: () => s.editor.deleteImage(info), disabled: s.editor.readonly },

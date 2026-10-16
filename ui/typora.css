@@ -119,6 +119,9 @@
 .mdImageBar[hidden] { display: none; }
 .mdImageBar button { height: 26px; padding: 0 8px; border-radius: 6px; font-size: 12px; border: 0; background: transparent; color: var(--ink-2); }
 .mdImageBar button:hover { background: var(--surface-3); }
+.mdImageBar { align-items: center; flex-wrap: wrap; max-width: min(720px, calc(100vw - 16px)); }
+.mdImageBar .mdImageZoom { width: 110px; margin: 0 2px 0 8px; accent-color: var(--accent); }
+.mdImageBar .mdImageZoomLabel { min-width: 38px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* Print / export themes should not include app chrome */
 @media print { .mdMenubar, .mdOutline, .mdPill, .mdFindBar, .mdTableBar, .mdImageBar { display: none !important; } }

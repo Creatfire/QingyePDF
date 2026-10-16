@@ -218,11 +218,30 @@ function register(ctx) {
     while ((m = re.exec(text))) { out += text.slice(last, m.index) + await rewrite(m[0], m[1], m[2], m[3]); last = m.index + m[0].length; }
     return { text: out + text.slice(last), count, folder: dir };
   });
-  handle('markdown-image-op', async (id, source, op) => {
+  handle('markdown-image-op', async (id, source, op, arg) => {
     const record = mdRecord(id); const r = markdownFiles.resolveLocal(record.path, source);
     if (!r || !(await fs.stat(r.file).catch(() => null))) throw new Error('图片文件不存在或是远程图片。');
     if (op === 'reveal') { shell.showItemInFolder(r.file); return true; }
     if (op === 'copyPath') return r.file;
+    if (op === 'open') { const error = await shell.openPath(r.file); if (error) throw new Error(error); return true; }
+    // Rename in place / move into the image folder; returns the new link (relative to the document).
+    if (op === 'rename' || op === 'move') {
+      let target;
+      if (op === 'rename') {
+        let name = tools.safeFileName(arg); if (!name) throw new Error('文件名无效。');
+        if (!path.extname(name)) name += path.extname(r.file);
+        if (!markdownFiles.IMAGE_TYPES[path.extname(name).toLowerCase()]) throw new Error('请保留图片扩展名。');
+        target = path.join(path.dirname(r.file), name);
+        if (target.toLowerCase() !== r.file.toLowerCase() && await fs.stat(target).catch(() => null)) throw new Error(`“${name}”已存在。`);
+      } else {
+        if (!record.path) throw new Error('请先保存文档。');
+        const dir = tools.imageFolder(record.path, arg || {});
+        if (path.resolve(path.dirname(r.file)).toLowerCase() === path.resolve(dir).toLowerCase()) return markdownFiles.markdownPath(record.path, r.file);
+        await fs.mkdir(dir, { recursive: true }); target = await tools.uniqueFile(dir, path.basename(r.file));
+      }
+      if (target !== r.file) await fs.rename(r.file, target).catch(async error => { if (error.code !== 'EXDEV') throw error; await fs.copyFile(r.file, target); await fs.rm(r.file); });
+      return markdownFiles.markdownPath(record.path, target);
+    }
     if (op === 'trash') {
       const choice = await dialog.showMessageBox(win(), { type: 'warning', title: T('删除图片文件'), message: `将“${path.basename(r.file)}”移到回收站？`, buttons: [T('移到回收站'), T('取消')], defaultId: 1, cancelId: 1, noLink: true });
       if (choice.response !== 0) return false; await shell.trashItem(r.file); return true;

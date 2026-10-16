@@ -170,5 +170,28 @@ exports.run = async ({ window, openFiles, output }) => {
   assert.ok(result.large.domNodes < 80000, 'off-screen blocks stay as placeholders');
   assert.ok(result.large.keystroke.total < 1000 && result.large.keystroke.enterTotal < 4000, JSON.stringify(result.large.keystroke));
   await run(`qingye.closeTab?.(${JSON.stringify(bigOpened[0].id)}, { force: true })`).catch(() => {});
+  // Image workflow (0.19): rename / move the file with every reference updated, alt text, zoom slider.
+  await fs.writeFile(path.join(dir, 'pic.svg'), '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"><rect width="80" height="40" fill="#4a8"/></svg>');
+  result.images = await run(`(async () => {
+    const ed = ${S}.editor, frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    ed.replaceAll('![旧](pic.svg)\\n\\n<img src="pic.svg" width="60" />\\n'); await frame();
+    const renamed = await desktop.mdImageOp(${JSON.stringify(id)}, 'pic.svg', 'rename', 'chart');
+    const renamedRefs = ed.retargetImages('pic.svg', renamed);
+    const moved = await desktop.mdImageOp(${JSON.stringify(id)}, renamed, 'move', { mode: 'custom', folder: 'assets' });
+    const movedRefs = ed.retargetImages(renamed, moved);
+    ed.setImageAlt(ed.imageAt(0), '图 [1]');
+    ed.deactivate(); await frame();
+    const img = ed.doc.querySelector('.mdRendered img');
+    for (let i = 0; i < 50 && !img.naturalWidth; i++) await new Promise(r => setTimeout(r, 50));
+    img.dispatchEvent(new MouseEvent('click', { bubbles: true })); await new Promise(r => setTimeout(r, 50));
+    const zoom = document.querySelector('.mdImageBar:not([hidden]) .mdImageZoom');
+    if (zoom) { zoom.value = '50'; zoom.dispatchEvent(new Event('input')); zoom.dispatchEvent(new Event('change')); }
+    await frame();
+    return { renamed, renamedRefs, moved, movedRefs, zoom: !!zoom, text: ed.text };
+  })()`);
+  assert.deepEqual(result.images, { renamed: 'chart.svg', renamedRefs: 2, moved: 'assets/chart.svg', movedRefs: 2, zoom: true, text: '<img src="assets/chart.svg" alt="图 [1]" width="40" />\n\n<img src="assets/chart.svg" width="60" />\n' });
+  assert.ok(await fs.stat(path.join(dir, 'assets', 'chart.svg')).then(s => s.isFile()), 'image file moved on disk');
+  await assert.rejects(fs.stat(path.join(dir, 'pic.svg')), 'old image file is gone');
+
   return result;
 };

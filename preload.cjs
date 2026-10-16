@@ -108,7 +108,7 @@ contextBridge.exposeInMainWorld('desktop', {
   mdImageImportFiles: (id, files, options) => ipcRenderer.invoke('markdown-image-import', id, files.map(f => webUtils.getPathForFile(f)), options),
   mdPickImageFiles: id => ipcRenderer.invoke('markdown-pick-image-files', id),
   mdCopyImages: (id, text, options) => ipcRenderer.invoke('markdown-copy-images', id, text, options),
-  mdImageOp: (id, source, op) => ipcRenderer.invoke('markdown-image-op', id, source, op),
+  mdImageOp: (id, source, op, arg) => ipcRenderer.invoke('markdown-image-op', id, source, op, arg),
   alwaysOnTop: flag => ipcRenderer.invoke('always-on-top', flag),
   spellReplace: word => ipcRenderer.invoke('spell-replace', word),
   spellLearn: word => ipcRenderer.invoke('spell-learn', word),

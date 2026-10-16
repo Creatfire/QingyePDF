@@ -37,13 +37,13 @@ function imageMatches(src) {
     if (m[0][0] === '<') {
       const attr = name => (new RegExp(`\\b${name}\\s*=\\s*("([^"]*)"|'([^']*)')`, 'i').exec(m[0]) || [])[2] ?? (new RegExp(`\\b${name}\\s*=\\s*'([^']*)'`, 'i').exec(m[0]) || [])[1] ?? '';
       found.push({ from: m.index, to: m.index + m[0].length, src: attr('src'), alt: attr('alt'), title: attr('title'), width: attr('width'), html: true });
-    } else found.push({ from: m.index, to: m.index + m[0].length, src: m[2].replace(/^<|>$/g, ''), alt: m[1], title: m[3] ?? m[4] ?? '', width: '', html: false });
+    } else found.push({ from: m.index, to: m.index + m[0].length, src: m[2].replace(/^<|>$/g, ''), alt: m[1].replace(/\\([[\]\\])/g, '$1'), title: m[3] ?? m[4] ?? '', width: '', html: false });
   }
   return found;
 }
 export { imageMatches };
 const pathOf = src => (/[\s()]/.test(src) ? `<${src}>` : src);
-export function imageMarkdown(info) { return `![${info.alt}](${pathOf(info.src)}${info.title ? ` "${info.title.replace(/"/g, '&quot;')}"` : ''})`; }
+export function imageMarkdown(info) { return `![${String(info.alt || '').replace(/[[\]\\]/g, '\\$&')}](${pathOf(info.src)}${info.title ? ` "${info.title.replace(/"/g, '&quot;')}"` : ''})`; }
 export function imageHtml(info, width) {
   const a = v => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   return `<img src="${a(info.src)}"${info.alt ? ` alt="${a(info.alt)}"` : ''}${info.title ? ` title="${a(info.title)}"` : ''}${width ? ` width="${a(width)}"` : ''} />`;
@@ -332,6 +332,18 @@ export function installTypora(Editor) {
       this.setImage(info, next);
     },
     switchImageSyntax(info) { this.setImage(info, info.html ? imageMarkdown(info) : imageHtml(info, info.width)); },
+    // Points every reference to `from` at `to` (after the file was renamed or moved) as one undo step.
+    retargetImages(from, to) {
+      const same = src => src === from || decodeURI(src) === decodeURI(from);
+      const changes = imageMatches(this.text).filter(m => same(m.src)).map(m => {
+        const whole = this.text.slice(m.from, m.to);
+        const insert = m.html ? whole.replace(/(\bsrc\s*=\s*)("[^"]*"|'[^']*')/i, (_, k) => `${k}"${to.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`) : imageMarkdown({ ...m, src: to });
+        return { from: m.from, to: m.to, insert };
+      });
+      if (changes.length) this.apply(changes, null, { group: 'image', focus: false, activate: false });
+      return changes.length;
+    },
+    setImageAlt(info, alt) { this.setImage(info, info.html ? this.text.slice(info.from, info.to).replace(/\s+alt\s*=\s*("[^"]*"|'[^']*')/i, '').replace(/^<img\b/i, `<img alt="${alt.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`) : imageMarkdown({ ...info, alt })); },
     deleteImage(info) { this.apply([{ from: info.from, to: info.to, insert: '' }], { from: info.from, to: info.from }, { group: 'image', focus: false, activate: false }); },
   });
 }
