@@ -267,7 +267,8 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     await pandoc.run(pandoc.bundledPath(), ['-o', docx, md]);
     await until(`!!document.querySelector('.officeNotice .officeNoticeActions .primary')`, 'source changed notice', 400);
     await run(`document.querySelector('.officeNotice .officeNoticeActions .primary').click()`);
-    await until(`(async () => { try { if (${O}.editBusy || !${O}.loaded) return false; return (await (await ${O}.app.pdfDocument.getPage(1)).getTextContent()).items.map(i => i.str).join('').includes('新增的结论'); } catch { return false; } })()`, 'reconverted text');
+    // Character presence, not a contiguous match: CI font substitution scrambles extracted run order.
+    await until(`(async () => { try { if (${O}.editBusy || !${O}.loaded) return false; const text = (await (await ${O}.app.pdfDocument.getPage(1)).getTextContent()).items.map(i => i.str).join(''); return [...'新增的结论'].every(ch => text.includes(ch)); } catch { return false; } })()`, 'reconverted text');
     report.checks.officeReconvert = true;
   } else report.checks.officeAsPdf = 'skipped: LibreOffice not prepared';
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
