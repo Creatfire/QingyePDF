@@ -11,6 +11,8 @@ const APP_KEY = 'QingyePDF';
 const TYPES = {
   pdf: { progId: 'QingyePDF.pdf', exts: ['.pdf'], label: 'PDF 文档' },
   md: { progId: 'QingyePDF.md', exts: ['.md', '.markdown'], label: 'Markdown 文档' },
+  // 0.19: optional; Office files open as a converted PDF (the original is never changed).
+  office: { progId: 'QingyePDF.office', exts: ['.docx', '.doc', '.xlsx', '.xls', '.pptx', '.ppt', '.odt', '.ods', '.odp', '.rtf'], label: 'Office 文档（以 PDF 打开）' },
 };
 const CLASSES = 'HKCU\\Software\\Classes';
 const KNOWN = { MSEdgePDF: 'Microsoft Edge', 'AcroExch.Document.DC': 'Adobe Acrobat', 'Acrobat.Document.DC': 'Adobe Acrobat', 'AcroExch.Document': 'Adobe Acrobat', ChromeHTML: 'Google Chrome', FirefoxPDF: 'Firefox', FoxitReader: 'Foxit', 'FoxitReader.Document': 'Foxit', 'WPS.PDF.1': 'WPS', txtfile: '记事本', 'VSCode.md': 'Visual Studio Code', 'Typora.md': 'Typora', 'Applications\\notepad.exe': '记事本' };
@@ -88,7 +90,7 @@ function createAssociations({ app, shell }) {
     const reason = unsupported(); if (reason) throw new Error(reason);
     const t = TYPES[kind]; if (!t) throw new Error('未知的文件类型。');
     const sample = path.join(os.tmpdir(), `QingyePDF-默认打开方式${t.exts[0]}`);
-    await fs.writeFile(sample, kind === 'pdf' ? Buffer.from('%PDF-1.4\n%%EOF\n') : '# 青页\n');
+    await fs.writeFile(sample, kind === 'pdf' ? Buffer.from('%PDF-1.4\n%%EOF\n') : kind === 'md' ? '# 青页\n' : Buffer.alloc(0));
     await new Promise(resolve => execFile('rundll32.exe', ['shell32.dll,OpenAs_RunDLL', sample], { windowsHide: false }, () => resolve()));
     return true;
   }

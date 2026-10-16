@@ -84,7 +84,8 @@ let loadComplete;
 let window, allowClose = false, rendererReady = false;
 const singleInstance = smoke || safety || benchmark || process.argv.includes('--new-window') || app.requestSingleInstanceLock();
 if (!singleInstance) app.quit();
-const pdfArguments = args => args.filter(arg => !arg.startsWith('-') && (path.extname(arg).toLowerCase() === '.pdf' || markdownFiles.isMarkdown(arg)));
+// Documents passed on the command line / by Explorer: PDF, Markdown and Office files (opened as PDF).
+const pdfArguments = args => args.filter(arg => !arg.startsWith('-') && (path.extname(arg).toLowerCase() === '.pdf' || markdownFiles.isMarkdown(arg) || officeConvert.isOffice(arg)));
 let pendingFiles = pdfArguments(process.argv.slice(app.isPackaged ? 1 : 2));
 // macOS hands over documents (Finder "Open with", dropping on the Dock icon) through this event,
 // possibly before the window exists.

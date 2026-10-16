@@ -61,9 +61,10 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
         </section>
         <section class="settingsPane" data-pane="ai" hidden></section>
         <section class="settingsPane" data-pane="files" hidden>
-          <h3>用青页打开 PDF 和 Markdown</h3>
+          <h3>用青页打开 PDF、Markdown 和 Office 文件</h3>
           <p class="settingsNote">把青页注册为 PDF 与 Markdown 文件的打开程序，双击文件即可在青页中打开。Windows 10/11 不允许程序直接更改默认应用：注册后请在弹出的系统窗口中选择“青页 PDF”并确认“始终使用”。</p>
           <div class="assocRows"></div>
+          <label class="settingRow check"><span><b>注册时包含 Office 文件</b><small>Word、Excel、PowerPoint 等文件双击后在青页中以 PDF 形式打开（原文件不改动）。默认不勾选，不影响 Office / WPS 的关联。</small></span><input id="assocOffice" type="checkbox" role="switch"></label>
           <div class="settingsActions">
             <button id="assocRegister" class="primary" data-icon="check">注册为打开方式</button>
             <button id="assocSystem" data-icon="external">打开 Windows 默认应用设置</button>
@@ -156,7 +157,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
   $('#setMdMore').onclick = () => { dialog.close(); markdown.typora.H.openPrefs(null); };
 
   // ——— File associations ———
-  const KINDS = [['pdf', 'PDF 文档', '.pdf'], ['md', 'Markdown 文档', '.md、.markdown']];
+  const KINDS = [['pdf', 'PDF 文档', '.pdf'], ['md', 'Markdown 文档', '.md、.markdown'], ['office', 'Office 文档（以 PDF 打开）', '.docx、.doc、.xlsx、.xls、.pptx、.ppt、.odt、.ods、.odp、.rtf']];
   async function refreshAssociations() {
     const rows = $('.assocRows');
     let info;
@@ -181,7 +182,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
     $('#assocRemove').disabled = !info.supported || !anyRegistered;
     $('.assocPath').textContent = !info.supported ? info.reason : `注册的程序位置：${info.exe}。移动 exe 后需要重新注册。`;
   }
-  $('#assocRegister').onclick = () => guard(async () => { await api.assocRegister(['pdf', 'md']); await refreshAssociations(); status(t('已注册为 PDF 与 Markdown 的打开方式')); await api.assocOpenSettings(); });
+  $('#assocRegister').onclick = () => guard(async () => { const office = $('#assocOffice').checked; await api.assocRegister(office ? ['pdf', 'md', 'office'] : ['pdf', 'md']); await refreshAssociations(); status(t(office ? '已注册为 PDF、Markdown 与 Office 文件的打开方式' : '已注册为 PDF 与 Markdown 的打开方式')); await api.assocOpenSettings(); });
   $('#assocSystem').onclick = () => guard(() => api.assocOpenSettings());
   $('#assocRemove').onclick = () => guard(async () => { await api.assocUnregister(); await refreshAssociations(); status(t('已取消注册')); });
 

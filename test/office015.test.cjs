@@ -67,3 +67,10 @@ test('converts Word, PowerPoint and CSV with Chinese text, caches by content, re
     await assert.rejects(office.toPdf(broken, options), /无法转换|LibreOffice/);
   } finally { await fs.rm(dir, { recursive: true, force: true }); }
 });
+
+test('Office association type is optional and covers the common formats', () => {
+  const { TYPES } = require('../file-associations.cjs');
+  assert.equal(TYPES.office.progId, 'QingyePDF.office');
+  for (const ext of ['.docx', '.doc', '.xlsx', '.xls', '.pptx', '.ppt']) assert.ok(TYPES.office.exts.includes(ext), ext);
+  for (const ext of TYPES.office.exts) assert.ok(office.isOffice('a' + ext), ext + ' opens through the converter');
+});
