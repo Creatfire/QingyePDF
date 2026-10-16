@@ -132,3 +132,29 @@
 .shapeBar input[type="color"] { width: 26px; height: 22px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; }
 .shapeBar select { height: 26px; font-size: 12px; }
 .shapeBar button[data-done] { height: 26px; padding: 0 12px; }
+
+/* 0.19 Office conversion progress (ui/office-progress.mjs) */
+.officeJobs { position: fixed; right: 18px; bottom: calc(var(--status-h, 28px) + 14px); z-index: 950; display: flex; flex-direction: column; gap: 8px; width: min(380px, calc(100vw - 36px)); pointer-events: none; }
+.officeJob { pointer-events: auto; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-md, 0 8px 26px rgb(0 0 0 / .18)); font-size: 12.5px; animation: officeIn .18s ease-out; }
+.officeJob.isLeaving { opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
+@keyframes officeIn { from { opacity: 0; transform: translateY(8px); } }
+.officeJobHead { display: flex; align-items: center; gap: 8px; }
+.officeJobIcon { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; font-weight: 700; font-size: 12px; color: #fff; background: #2b579a; }
+.officeJobIcon[data-kind="excel"] { background: #217346; } .officeJobIcon[data-kind="powerpoint"] { background: #c43e1c; }
+.officeNotice .officeJobIcon { background: var(--accent); }
+.officeJobName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.officeJobTime { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+.officeJobCancel { flex: none; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; background: transparent; --icon-size: 14px; }
+.officeJobCancel:hover { background: var(--surface-3); }
+.officeJobStage { margin: 6px 0 7px; color: var(--muted); line-height: 1.45; }
+.officeJobBar { position: relative; height: 4px; overflow: hidden; border-radius: 4px; background: var(--surface-3); }
+.officeJobBar i { position: absolute; inset: 0 auto 0 0; width: 35%; border-radius: 4px; background: var(--accent); animation: officeBar 1.25s ease-in-out infinite; }
+@keyframes officeBar { from { left: -35%; } to { left: 100%; } }
+.officeJob[data-stage="done"] .officeJobBar i { animation: none; left: 0; width: 100%; }
+.officeJob[data-stage="error"] .officeJobBar i, .officeJob[data-stage="canceled"] .officeJobBar i { animation: none; width: 100%; background: var(--danger, #c62828); opacity: .6; }
+.officeJob[data-stage="error"] .officeJobStage { color: var(--danger, #c62828); }
+.officeJobHint:empty, .officeNotice .officeJobBar { display: none; }
+.officeJobHint { margin-top: 6px; color: var(--muted); }
+.officeNoticeActions { display: flex; justify-content: flex-end; gap: 6px; }
+.officeNoticeActions button { height: 28px; padding: 0 12px; }
+@media (prefers-reduced-motion: reduce) { .officeJob, .officeJobBar i { animation: none; } }

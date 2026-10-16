@@ -7,6 +7,7 @@ import { userError } from './errors.mjs';
 import { createTextSelection } from './selection.mjs';
 import { createMarkup } from './markup.mjs';
 import { createShapes } from './shapes.mjs';
+import { createOfficeProgress } from './office-progress.mjs';
 import { createChrome } from './chrome.mjs';
 import { createMarkdownHost } from './markdown/host.mjs';
 import { createSettings } from './settings.mjs';
@@ -79,6 +80,7 @@ const converter = createConverter({ api, guard, status });
 const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigation,tools,historyStep,status,notesFor:s=>notes?.notesFor(s)||null,excerpt:(s,text,page)=>notes.excerpt(s,text,page,notes.selectionSource(s,page).rect),region:s=>notes.pickRegion(s),cite:s=>citations.open(s)});
 const textSelection=createTextSelection({current:currentPdf,api,applyEdit,guard,status,tools});
 const shapes=createShapes({current:currentPdf,applyEdit,guard,status});
+const officeProgress=createOfficeProgress({api,guard,status});
 const markup=createMarkup({current:currentPdf,applyEdit,guard,status,shapes});
 const chrome=createChrome({api,current:currentPdf,guard,navigation,status,shapes});
 const markdown=createMarkdownHost({api,guard,status,message,addDocuments,workspace:$('viewers'),navigate:action=>readingTrail.record(action),onPdfLink:locatePdfSource,onChange:(s,{chrome:chromeOnly}={})=>{if(!chromeOnly){syncDirty(s);scheduleDraft();}if(s.id===activeId)tabs();}});
@@ -403,8 +405,20 @@ async function addDocument(info) {
     sessions.delete(s.id); panel.remove(); await api.closeDocument(s.id, s.state).catch(() => {}); activate(null); throw error;
   }
 }
-async function addDocuments(items) { for (const info of items) await addDocument(info);const selected=items.find(i=>i.wasActive);if(selected)activate(selected.id); await refreshRecent(); }
+async function addDocuments(items) { for (const info of items) { await addDocument(info); if (info.officeJob) officeProgress.opened(info.officeJob); }const selected=items.find(i=>i.wasActive);if(selected)activate(selected.id); await refreshRecent(); }
 async function open() { await addDocuments(await api.open()); }
+// The Word / Excel / PowerPoint original changed: convert again into the same tab (undoable).
+async function reconvertOffice(id) {
+  const s = sessions.get(id); if (!s?.loaded) return;
+  if (s.editBusy || s.saving) throw new Error('文档正在处理，请稍后再重新转换。');
+  s.editBusy = true; tabs();
+  try {
+    const before = await tools.snapshot(s), result = await api.officeReconvert(id);
+    if (!result?.bytes) { status('已取消重新转换'); return; }
+    await replaceDocument(s, result.bytes); s.history.push(before, result.bytes, '重新转换 ' + s.name); syncHistory();
+    status('已按更新后的原文件重新转换 · 可撤销');
+  } finally { s.editBusy = false; tabs(); scheduleDraft(); }
+}
 async function dropFiles(files) { await addDocuments(await api.dropped(Array.from(files))); }
 // ——— Home: recent files (filter by type, filter by name, remove from list) ———
 let recentItems = [], recentFilter = 'all', recentLimit = 12;
@@ -565,6 +579,8 @@ async function onCommand(command, data) {
   if (command === 'opened') return addDocuments(data);
   if (command === 'first-run') { status('欢迎使用青页 PDF'); return message('首次启动说明', '青页可以直接打开 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 文件。Office 文件由内置的 LibreOffice 转换后以 PDF 形式打开，原文件不会被改动；第一次转换需要几秒钟。\n\n所有文档处理都在本机完成，不联网、不上传文件。'); }
   if (command === 'status') return status(String(data || ''));
+  if (command === 'office-progress') return officeProgress.update(data);
+  if (command === 'office-source-changed') return officeProgress.sourceChanged(data, () => reconvertOffice(data.id));
   if (command === 'save' || command === 'save-as') return reviewSave(current(), command === 'save-as');
   if (command === 'close-tab') return closeTab(activeId);
   if (command === 'close-app') return closeApp();

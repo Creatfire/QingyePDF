@@ -145,7 +145,11 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     await fs.writeFile(md, '# 季度报告\n\n中文正文与表格。\n\n| 项目 | 金额 |\n|---|---|\n| 收入 | 100 |\n');
     await pandoc.run(pandoc.bundledPath(), ['-o', docx, md]);
     const before = await fs.readFile(docx);
-    const openedOffice = await openFiles([docx]);
+    // 0.19: a progress card shows the conversion stages and elapsed time while the file converts.
+    const pendingOpen = openFiles([docx]);
+    await until(`!!document.querySelector('.officeJob .officeJobName')?.textContent.includes('季度 报告.docx')`, 'office progress card');
+    report.checks.officeStages = await run(`document.querySelector('.officeJob').dataset.stage`);
+    const openedOffice = await pendingOpen;
     assert.equal(openedOffice.length, 1); assert.equal(openedOffice[0].name, '季度 报告.pdf'); assert.equal(openedOffice[0].path, null);
     await run(`qingye.addDocuments(${JSON.stringify(openedOffice.map(d => ({ ...d, bytes: Array.from(d.bytes) })))})`);
     const O = `qingye.sessions.get(${JSON.stringify(openedOffice[0].id)})`;
@@ -160,7 +164,28 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     assert.equal(again[0].id, openedOffice[0].id, 'reopening focuses the existing PDF tab');
     assert.deepEqual(await fs.readFile(docx), before, 'the Word file is not modified');
     await pause(300); await fs.writeFile(path.join(output, 'office-as-pdf.png'), (await window.webContents.capturePage()).toPNG());
+    await until(`![...document.querySelectorAll('.officeJob')].some(c => !['done'].includes(c.dataset.stage)) || !document.querySelector('.officeJob')`, 'card finishes');
     report.checks.officeAsPdf = true;
+
+    // Cancelling a conversion leaves no tab and no error dialog.
+    const other = path.join(output, '另一份.docx');
+    await fs.writeFile(md, '# 另一份\n\n' + '很长的段落。'.repeat(4000) + '\n');
+    await pandoc.run(pandoc.bundledPath(), ['-o', other, md]);
+    const canceledOpen = openFiles([other]);
+    await until(`!!document.querySelector('.officeJob .officeJobCancel:not([hidden])') && document.querySelector('.officeJob .officeJobName').textContent.includes('另一份')`, 'cancellable card');
+    await pause(250); await fs.writeFile(path.join(output, 'office-progress.png'), (await window.webContents.capturePage()).toPNG());
+    await run(`[...document.querySelectorAll('.officeJob')].find(c => c.textContent.includes('另一份')).querySelector('.officeJobCancel').click()`);
+    assert.deepEqual(await canceledOpen, [], 'cancelled file opens nothing');
+    await until(`[...document.querySelectorAll('.officeJob')].some(c => c.dataset.stage === 'canceled') || ![...document.querySelectorAll('.officeJob')].some(c => c.textContent.includes('另一份'))`, 'canceled card');
+    report.checks.officeCancel = true;
+
+    // Editing the original offers "convert again", which replaces the tab's PDF (undoable).
+    await fs.writeFile(md, '# 季度报告（修订）\n\n新增的结论。\n');
+    await pandoc.run(pandoc.bundledPath(), ['-o', docx, md]);
+    await until(`!!document.querySelector('.officeNotice .officeNoticeActions .primary')`, 'source changed notice', 400);
+    await run(`document.querySelector('.officeNotice .officeNoticeActions .primary').click()`);
+    await until(`(async () => { try { if (${O}.editBusy || !${O}.loaded) return false; return (await (await ${O}.app.pdfDocument.getPage(1)).getTextContent()).items.map(i => i.str).join('').includes('新增的结论'); } catch { return false; } })()`, 'reconverted text');
+    report.checks.officeReconvert = true;
   } else report.checks.officeAsPdf = 'skipped: LibreOffice not prepared';
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;

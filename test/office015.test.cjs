@@ -43,10 +43,14 @@ test('converts Word, PowerPoint and CSV with Chinese text, caches by content, re
     await pandoc.run(pandoc.bundledPath(), ['-o', docx, md]);
     await pandoc.run(pandoc.bundledPath(), ['-o', pptx, md]);
     await fs.writeFile(csv, '城市,人口\n北京,2189\n上海,2487\n');
+    const warmStarted = Date.now();
+    assert.equal(await office.prewarm(options), true, 'warm-up conversion succeeds'); assert.ok(office.isWarm());
+    console.log('warm-up', (Date.now() - warmStarted) + ' ms');
+    assert.equal(await office.prewarm(options), false, 'warm-up runs once');
     const messages = [];
     for (const [file, expect] of [[docx, ['季度报告', '中文正文', '收入']], [pptx, ['季度报告', '结论段落']], [csv, ['北京', '2487']]]) {
       const started = Date.now();
-      const result = await office.toPdf(file, { ...options, onProgress: m => messages.push(m) });
+      const result = await office.toPdf(file, { ...options, onProgress: p => messages.push(p) });
       assert.equal(result.bytes.subarray(0, 4).toString(), '%PDF', path.basename(file));
       assert.equal(result.cached, false);
       const out = path.join(dir, path.basename(file) + '.pdf'); await fs.writeFile(out, result.bytes);
@@ -54,7 +58,8 @@ test('converts Word, PowerPoint and CSV with Chinese text, caches by content, re
       if (info) { assert.ok(info.pages >= 1); for (const word of expect) assert.ok(hasContent(info.text, word), `${path.basename(file)} lacks ${word}: ${info.text.slice(0, 200)}`); }
       console.log(path.basename(file), (Date.now() - started) + ' ms', info?.pages + ' page(s)');
     }
-    assert.ok(messages.some(m => m.includes('报告 测试.docx')), 'progress names the file');
+    assert.ok(messages.some(m => m.text.includes('报告 测试.docx')), 'progress names the file');
+    assert.deepEqual([...new Set(messages.map(m => m.stage))].slice(0, 2), ['reading', 'converting'], 'warm engine skips the start-up stage');
     const again = await office.toPdf(docx, options);
     assert.equal(again.cached, true, 'unchanged files come from the cache');
     assert.ok((await fs.readFile(docx)).length > 0, 'original untouched');

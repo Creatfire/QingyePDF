@@ -44,6 +44,8 @@ contextBridge.exposeInMainWorld('desktop', {
   finishSession: (items,activeId) => ipcRenderer.invoke('finish-session',items,activeId),
   exportNotes: (id,notes,format,bytes) => ipcRenderer.invoke('export-notes',id,notes,format,bytes),
   dropped: files => ipcRenderer.invoke('drop', files.map(file => webUtils.getPathForFile(file))),
+  officeCancel: id => ipcRenderer.invoke('office-cancel', id),
+  officeReconvert: id => ipcRenderer.invoke('office-reconvert', id),
   newMarkdown: () => ipcRenderer.invoke('markdown-new'),
   markdownExample: () => ipcRenderer.invoke('markdown-example'),
   saveMarkdown: (id, text, saveAs) => ipcRenderer.invoke('save-markdown', id, text, saveAs),

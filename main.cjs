@@ -165,25 +165,61 @@ function remember(record, state = record.state) {
 }
 // Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by the bundled
 // LibreOffice; the original file is never modified and Save asks where to write the PDF.
-const officeOptions = () => ({ packaged: app.isPackaged, resources: process.resourcesPath, profileDir: path.join(app.getPath('userData'), 'libreoffice-profile'), cacheDir: path.join(app.getPath('userData'), 'office-cache'), onProgress: text => command('status', text) });
-async function openOffice(file) {
-  const existing = [...documents.values()].find(r => r.source && key(r.source) === key(file));
-  if (existing) return metadata(existing);
-  const started = Date.now(), result = await officeConvert.toPdf(file, officeOptions());
-  const record = { id: randomUUID(), name: path.parse(file).name + '.pdf', path: null, hash: null, source: file, state: {} };
-  documents.set(record.id, record);
-  command('status', T('已将 {name} 以 PDF 形式打开（{seconds} 秒）；原文件未改动，保存时另存为 PDF。').replace('{name}', path.basename(file)).replace('{seconds}', result.cached ? '0' : String(Math.max(1, Math.round((Date.now() - started) / 1000)))));
-  return { ...metadata(record), bytes: result.bytes, converted: { from: path.basename(file), engine: officeConvert.engineInfo(officeOptions()) } };
+const officeOptions = () => ({ packaged: app.isPackaged, resources: process.resourcesPath, profileDir: path.join(app.getPath('userData'), 'libreoffice-profile'), cacheDir: path.join(app.getPath('userData'), 'office-cache') });
+// Each conversion is a job the renderer shows as a progress card (stage, elapsed time, cancel).
+const officeJobs = new Map();
+const officeProgress = data => command('office-progress', data);
+function newOfficeJob(file) {
+  const job = { id: randomUUID(), file, name: path.basename(file), controller: new AbortController(), started: Date.now() };
+  officeJobs.set(job.id, job); officeProgress({ id: job.id, name: job.name, stage: 'waiting', text: T('等待打开') });
+  return job;
+}
+function rememberOffice(file) {
+  preferences.recent = [{ path: file, name: path.basename(file), kind: 'office', state: {}, opened: Date.now() }, ...preferences.recent.filter(r => key(r.path) !== key(file))].slice(0, 30);
+}
+async function openOffice(file, job = newOfficeJob(file)) {
+  try {
+    const existing = [...documents.values()].find(r => r.source && key(r.source) === key(file));
+    if (existing) { officeProgress({ id: job.id, stage: 'done', text: T('已打开') }); return metadata(existing); }
+    const result = await officeConvert.toPdf(file, { ...officeOptions(), signal: job.controller.signal, onProgress: p => officeProgress({ id: job.id, name: job.name, ...p }) });
+    const record = { id: randomUUID(), name: path.parse(file).name + '.pdf', path: null, hash: null, source: file, sourceDigest: result.digest, state: {} };
+    documents.set(record.id, record); rememberOffice(file); watchOfficeSource(record);
+    if (!preferences.officeUsed) { preferences.officeUsed = true; persist().catch(() => {}); }
+    const seconds = result.cached ? 0 : Math.max(1, Math.round((Date.now() - job.started) / 1000));
+    officeProgress({ id: job.id, stage: 'loading', text: T('正在载入 PDF…') });
+    command('status', T('已将 {name} 以 PDF 形式打开（{seconds} 秒）；原文件未改动，保存时另存为 PDF。').replace('{name}', job.name).replace('{seconds}', String(seconds)));
+    return { ...metadata(record), bytes: result.bytes, officeJob: job.id, converted: { from: job.name, engine: officeConvert.engineInfo(officeOptions()) } };
+  } catch (error) {
+    officeProgress({ id: job.id, stage: error.code === 'OFFICE_CANCELED' ? 'canceled' : 'error', text: error.code === 'OFFICE_CANCELED' ? T('已取消') : error.message });
+    throw error;
+  } finally { officeJobs.delete(job.id); }
+}
+// The Word / Excel / PowerPoint original changed after it was opened: offer to convert it again.
+function watchOfficeSource(record) {
+  unwatchMarkdown(record.id);
+  markdownWatchers.set(record.id, markdownFiles.createWatcher(record.source, async () => {
+    if (!documents.has(record.id)) return;
+    const raw = await fs.readFile(record.source).catch(() => null);
+    const now = raw ? require('node:crypto').createHash('sha256').update(raw).digest('hex') : 'deleted';
+    if (now !== record.sourceDigest && record.notified !== now) { record.notified = now; command('office-source-changed', { id: record.id, name: path.basename(record.source), deleted: !raw }); }
+  }));
+}
+// Idle warm-up once the user has opened an Office file before (first real conversion ~2 s, not ~7 s).
+function scheduleOfficeWarmup() {
+  if (!preferences.officeUsed || smoke || safety || benchmark) return;
+  setTimeout(() => { officeConvert.prewarm(officeOptions()).catch(() => {}); }, 15000).unref?.();
 }
 async function openFiles(files) {
   const opened = [];
+  // Every Office file gets its progress card at once, so a batch shows its whole queue.
+  const jobs = new Map(files.filter(file => officeConvert.isOffice(file)).map(file => [file, newOfficeJob(file)]));
   for (const candidate of files) {
     try {
       const markdown = typeof candidate === 'string' && markdownFiles.isMarkdown(candidate);
       const office = officeConvert.isOffice(candidate);
       if (typeof candidate !== 'string' || (!markdown && !office && path.extname(candidate).toLowerCase() !== '.pdf')) throw new Error('请选择 PDF、Markdown 或 Office 文件。');
       const file = await fs.realpath(candidate);
-      if (office) { opened.push(await openOffice(file)); continue; }
+      if (office) { opened.push(await openOffice(file, jobs.get(candidate))); continue; }
       let record = [...documents.values()].find(r => r.path && key(r.path) === key(file));
       if (record) { opened.push(metadata(record)); continue; }
       if (markdown) {
@@ -199,6 +235,7 @@ async function openFiles(files) {
       remember(record);
       opened.push({ ...metadata(record), bytes });
     } catch (error) {
+      if (error.code === 'OFFICE_CANCELED') continue;
       if (smoke || safety) throw error;
       await dialog.showMessageBox(window, { type: 'error', title: T('无法打开文件'), message: path.basename(String(candidate)), detail: error.message });
     }
@@ -240,7 +277,7 @@ app.whenReady().then(async () => {
   // First-ever launch on this machine: the portable exe has just spent time
   // extracting its runtime before our code could show anything.
   const firstRun = await fs.readFile(preferencesPath()).then(() => false, error => error.code === 'ENOENT');
-  try { const data = JSON.parse(await fs.readFile(preferencesPath(), 'utf8')); if (data.schemaVersion === 1 && Array.isArray(data.recent)){preferences.recent = data.recent.filter(r => typeof r.path === 'string').slice(0, 30);if(typeof data.language==='string')preferences.language=data.language;if(data.windowStyle)preferences.windowStyle=normalizeWindowStyle(data.windowStyle);preferences.stamps=Array.isArray(data.stamps)?data.stamps.slice(0,100):[];} } catch {}
+  try { const data = JSON.parse(await fs.readFile(preferencesPath(), 'utf8')); if (data.schemaVersion === 1 && Array.isArray(data.recent)){preferences.recent = data.recent.filter(r => typeof r.path === 'string').slice(0, 30);if(typeof data.language==='string')preferences.language=data.language;if(data.windowStyle)preferences.windowStyle=normalizeWindowStyle(data.windowStyle);preferences.stamps=Array.isArray(data.stamps)?data.stamps.slice(0,100):[];preferences.officeUsed=data.officeUsed===true;} } catch {}
   const mime = { '.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.ftl': 'text/plain', '.svg': 'image/svg+xml', '.png': 'image/png', '.wasm': 'application/wasm', '.pdf': 'application/pdf', '.bcmap': 'application/octet-stream', '.ttf': 'font/ttf', '.woff': 'font/woff', '.woff2': 'font/woff2' };
   protocol.handle('qingye', async request => {
     const url = new URL(request.url);
@@ -332,6 +369,19 @@ app.whenReady().then(async () => {
     return result.canceled ? [] : openFiles(result.filePaths);
   });
   handle('drop', files => openFiles(Array.isArray(files) ? files : []));
+  handle('office-cancel', id => { const job = officeJobs.get(id); if (job) job.controller.abort(); return !!job; });
+  // Convert the original again after it changed; the renderer replaces the tab's document.
+  handle('office-reconvert', async id => {
+    const record = documentById(id); if (!record.source) throw new Error('这个标签不是由 Office 文件转换而来。');
+    const job = newOfficeJob(record.source);
+    try {
+      const result = await officeConvert.toPdf(record.source, { ...officeOptions(), signal: job.controller.signal, onProgress: p => officeProgress({ id: job.id, name: job.name, ...p }) });
+      record.sourceDigest = result.digest; record.notified = null;
+      officeProgress({ id: job.id, stage: 'done', text: T('已重新转换') });
+      return { bytes: result.bytes };
+    } catch (error) { officeProgress({ id: job.id, stage: error.code === 'OFFICE_CANCELED' ? 'canceled' : 'error', text: error.message }); if (error.code === 'OFFICE_CANCELED') return null; throw error; }
+    finally { officeJobs.delete(job.id); }
+  });
   handle('checkpoint',async (items,activeId) => {
     if(!Array.isArray(items)||items.length>64)throw new Error('恢复标签数量过多。');
     const entries=items.filter(item=>documents.has(item.id)).map(item=>{const r=documentById(item.id);remember(r,item.state);const markdown=r.kind==='markdown';return {id:r.id,name:r.name,path:r.path,hash:r.hash,state:r.state,dirty:!!item.dirty,...(markdown?{kind:'markdown'}:{}),...(markdown&&typeof item.text==='string'?{text:item.text,...(typeof item.history==='string'?{history:item.history}:{})}:!markdown&&item.bytes?{bytes:pdfBytes(item.bytes)}:{})};});
@@ -494,7 +544,8 @@ app.whenReady().then(async () => {
   handle('recent', () => preferences.recent.map(item => {
     let token = [...recentTokens].find(([, file]) => file === item.path)?.[0];
     if (!token) { token = randomUUID(); recentTokens.set(token, item.path); }
-    return { id: token, name: item.name, path: item.path, opened: Number(item.opened) || 0, page: item.state?.kind === 'markdown' ? 0 : Number(item.state?.page) || 0 };
+    const kind = item.kind === 'office' || officeConvert.isOffice(item.path) ? 'office' : markdownFiles.isMarkdown(item.path) ? 'markdown' : 'pdf';
+    return { id: token, name: item.name, path: item.path, kind, ext: path.extname(item.path).slice(1).toLowerCase(), opened: Number(item.opened) || 0, page: kind === 'pdf' ? Number(item.state?.page) || 0 : 0 };
   }));
   // Home page: remove one entry from the recent list (the file itself is untouched).
   handle('recent-remove', async id => { const file = recentTokens.get(id); if (!file) return false; preferences.recent = preferences.recent.filter(r => key(r.path) !== key(file)); recentTokens.delete(id); await persist(); return true; });
@@ -701,6 +752,7 @@ app.whenReady().then(async () => {
   ipcMain.on('ready', async event => {
     if (event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame || rendererReady) return;
     rendererReady = true;
+    scheduleOfficeWarmup();
     console.log('Startup ready (ms):',Math.round(performance.now()-bootStarted));
     if(benchmark){await loadComplete;await fs.mkdir(path.join(smokeRoot,'test-output'),{recursive:true});await fs.writeFile(path.join(smokeRoot,'test-output','startup-timing.json'),JSON.stringify({mainReadyMs:Math.round(performance.now()-bootStarted),version:app.getVersion(),cachedRuntime:process.execPath,runId:diagnostics.runId}));diagnostics.success();allowClose=true;app.quit();return;}
     if (smoke) {
