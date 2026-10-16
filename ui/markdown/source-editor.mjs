@@ -5,7 +5,7 @@
 // editor's own history: CodeMirror has no history extension here and Ctrl+Z reaches editor.mjs.
 import { EditorState, Compartment, EditorView, keymap, drawSelection, highlightActiveLine, lineNumbers, highlightSpecialChars, defaultKeymap, syntaxHighlighting, HighlightStyle, bracketMatching, markdown, markdownLanguage, tags } from '../../vendor/codemirror/qingye-codemirror.mjs';
 
-const style = HighlightStyle.define([
+export const codeStyle = HighlightStyle.define([
   { tag: tags.heading, fontWeight: '700', color: 'var(--md-cm-heading, var(--accent))' },
   { tag: tags.strong, fontWeight: '700' },
   { tag: tags.emphasis, fontStyle: 'italic' },
@@ -19,6 +19,11 @@ const style = HighlightStyle.define([
   { tag: [tags.string, tags.special(tags.string)], color: '#2e7d32' },
   { tag: tags.comment, color: 'var(--faint, #8a948f)', fontStyle: 'italic' },
   { tag: tags.number, color: '#d84315' },
+  { tag: [tags.bool, tags.null, tags.atom], color: '#d84315' },
+  { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: '#1565c0' },
+  { tag: [tags.className, tags.definition(tags.typeName), tags.tagName], color: '#00838f' },
+  { tag: [tags.attributeName, tags.propertyName], color: '#8d6e00' },
+  { tag: tags.regexp, color: '#c2185b' },
 ]);
 
 export class SourceEditor extends EventTarget {
@@ -30,8 +35,9 @@ export class SourceEditor extends EventTarget {
     this.view = new EditorView({
       state: EditorState.create({ doc: '', extensions: [
         this.gutter.of(numbers ? lineNumbers() : []), highlightSpecialChars(), drawSelection(), highlightActiveLine(), bracketMatching(),
-        EditorView.lineWrapping, markdown({ base: markdownLanguage }), syntaxHighlighting(style),
-        keymap.of(defaultKeymap), // Tab inserts four spaces via editor.mjs, as in the textarea version this.editable.of(EditorView.editable.of(true)),
+        EditorView.lineWrapping, markdown({ base: markdownLanguage }), syntaxHighlighting(codeStyle),
+        keymap.of(defaultKeymap), // Tab inserts four spaces via editor.mjs, as in the textarea version
+        this.editable.of(EditorView.editable.of(true)),
         this.spell.of(EditorView.contentAttributes.of({ spellcheck: 'false', 'aria-label': 'Markdown 源代码' })),
         // User edits surface as an 'input' event, like a textarea; programmatic `value =` stays silent.
         EditorView.updateListener.of(update => { if (update.docChanged && !self.silent) self.dom.dispatchEvent(new Event('input', { bubbles: true })); if (update.selectionSet) document.dispatchEvent(new Event('selectionchange')); }),

@@ -1,7 +1,30 @@
-// Qingye PDF — offline CodeMirror 6 bundle for the Markdown source mode (third-party code only).
+// Qingye PDF — offline CodeMirror 6 bundle for the Markdown source mode and fenced code blocks (third-party code only).
 export { EditorState, Compartment, EditorSelection } from '@codemirror/state';
 export { EditorView, keymap, drawSelection, highlightActiveLine, lineNumbers, highlightSpecialChars, placeholder } from '@codemirror/view';
-export { defaultKeymap, indentWithTab } from '@codemirror/commands';
-export { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching } from '@codemirror/language';
+export { defaultKeymap, indentWithTab, insertNewlineAndIndent, indentMore, indentLess } from '@codemirror/commands';
+export { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, StreamLanguage, LanguageDescription, indentUnit } from '@codemirror/language';
+export { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
 export { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 export { tags } from '@lezer/highlight';
+// Code-block languages (fenced ``` blocks).
+export { javascript } from '@codemirror/lang-javascript';
+export { python } from '@codemirror/lang-python';
+export { css } from '@codemirror/lang-css';
+export { html } from '@codemirror/lang-html';
+export { json } from '@codemirror/lang-json';
+export { cpp } from '@codemirror/lang-cpp';
+export { java } from '@codemirror/lang-java';
+export { rust } from '@codemirror/lang-rust';
+export { sql } from '@codemirror/lang-sql';
+export { xml } from '@codemirror/lang-xml';
+export { go } from '@codemirror/lang-go';
+export { yaml } from '@codemirror/lang-yaml';
+export { shell } from '@codemirror/legacy-modes/mode/shell';
+export { powerShell } from '@codemirror/legacy-modes/mode/powershell';
+export { ruby } from '@codemirror/legacy-modes/mode/ruby';
+export { lua } from '@codemirror/legacy-modes/mode/lua';
+export { toml } from '@codemirror/legacy-modes/mode/toml';
+export { dockerFile } from '@codemirror/legacy-modes/mode/dockerfile';
+export { diff } from '@codemirror/legacy-modes/mode/diff';
+export { csharp, kotlin, dart } from '@codemirror/legacy-modes/mode/clike';
+export { swift } from '@codemirror/legacy-modes/mode/swift';

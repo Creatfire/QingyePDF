@@ -81,6 +81,36 @@ exports.run = async ({ window, openFiles, output }) => {
   })()`);
   assert.deepEqual(result.sourceMode, { codemirror: true, highlighted: true, typed: '# 标题\n\n正文 **粗**\n新行', tabbed: true, undone: '# 标题\n\n正文 **粗**\n', shown: '# 标题\n\n正文 **粗**\n', back: true });
 
+  // Fenced code blocks edit in CodeMirror (0.19): language colouring, auto-indent, bracket closing,
+  // Tab spaces, the editor's undo, and ArrowDown on the last line leaves the block.
+  const codeKey = `const content = () => ${S}.editor.active?.el.querySelector('.cm-content'), key = k => content().dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })), frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));`;
+  const codeStart = await run(`(async () => { ${codeKey}
+    const ed = ${S}.editor;
+    ed.replaceAll('前\\n\\n\\x60\\x60\\x60js\\nfunction f() {\\n\\x60\\x60\\x60\\n\\n后\\n');
+    ed.activateAt(ed.text.indexOf('{') + 1); await frame();
+    const editor = !!ed.active?.cm && ed.active.cm.hasFocus;
+    const coloured = [...ed.active.el.querySelectorAll('.cm-line span')].some(sp => sp.textContent === 'function' && getComputedStyle(sp).color === 'rgb(124, 77, 255)');
+    key('Enter'); await frame();
+    return { editor, coloured, indented: ed.text.includes('function f() {\\n    \\n') };
+  })()`);
+  // Real key presses: CodeMirror closes brackets on typed input only.
+  window.focus(); window.webContents.focus();
+  for (const ch of 'return [') window.webContents.sendInputEvent({ type: 'char', keyCode: ch });
+  await wait(200); await fs.writeFile(path.join(dir, 'code-block.png'), (await window.webContents.capturePage()).toPNG());
+  result.codeBlock = { ...codeStart, ...await run(`(async () => { ${codeKey}
+    const ed = ${S}.editor;
+    const closed = ed.text.includes('    return []\\n');
+    key('Tab'); await frame();
+    const tabbed = ed.text.includes('return [    ]');
+    ed.undo(); await frame();
+    const undone = !ed.text.includes('[    ]');
+    const synced = ed.active?.cm?.value === ed.text.slice(ed.active.block.from, ed.active.block.to);
+    ed.active.cm.select(ed.active.cm.value.length); key('ArrowDown'); await frame();
+    const left = !!ed.active && !ed.active.cm && ed.text.slice(ed.active.block.from, ed.active.block.to) === '后';
+    return { closed, tabbed, undone, synced, left };
+  })()`) };
+  assert.deepEqual(result.codeBlock, { editor: true, coloured: true, indented: true, closed: true, tabbed: true, undone: true, synced: true, left: true });
+
   await run(`(async () => { const ed = ${S}.editor; ed.replaceAll('# 源代码模式\\n\\n- 列表 **粗体** *斜体* [链接](https://example.invalid)\\n\\n\\x60\\x60\\x60js\\nconst a = [1, 2];\\n\\x60\\x60\\x60\\n\\n> 引用 \\x60code\\x60\\n'); ed.setSourceMode(true); ed.sourceView.setSelectionRange(12); })()`);
   await wait(300); await fs.writeFile(path.join(dir, 'source-mode.png'), (await window.webContents.capturePage()).toPNG());
   await run(`${S}.editor.setSourceMode(false)`);

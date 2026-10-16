@@ -172,7 +172,7 @@ export async function openVersions({ list, read, onRestore }) {
 // ——— Preferences ———
 const FIELDS = {
   general: [
-    ['h', '编辑'], ['select', 'revealMarks', '编辑时显示 Markdown 标记', [['inline', '只显示光标所在的格式（Typora 方式）'], ['block', '显示当前段落的全部标记']]], ['check', 'autoPair', '自动配对括号和引号'], ['check', 'sourceLineNumbers', '源代码模式显示行号'], ['check', 'smartPaste', '智能粘贴：把网页 / Word 中的格式转换为 Markdown'], ['check', 'copyMarkdown', '复制时默认使用 Markdown 源码'],
+    ['h', '编辑'], ['select', 'revealMarks', '编辑时显示 Markdown 标记', [['inline', '只显示光标所在的格式（Typora 方式）'], ['block', '显示当前段落的全部标记']]], ['check', 'autoPair', '自动配对括号和引号'], ['check', 'codeEditor', '代码块使用代码编辑器（语法着色、自动缩进、括号补全）'], ['check', 'sourceLineNumbers', '源代码模式显示行号'], ['check', 'smartPaste', '智能粘贴：把网页 / Word 中的格式转换为 Markdown'], ['check', 'copyMarkdown', '复制时默认使用 Markdown 源码'],
     ['check', 'emoji', '键入 : 后自动补全表情'], ['check', 'spellcheck', '键入时检查拼写（使用系统拼写检查器）'], ['check', 'smartPunctuation', '智能标点（仅渲染时转换引号、破折号，不改动源码）'], ['check', 'smartInput', '输入时转换标点：引号变为弯引号，-- 变为 –，--- 变为 —'], ['check', 'copyLine', '没有选中内容时，复制 / 剪切整行'],
     ['check', 'preserveBreaks', '保留单个换行符（渲染为 <br>）'],
     ['h', '保存'], ['check', 'finalNewline', '保存时在文末保证一个换行符'], ['check', 'autoSave', '自动保存已有路径的文件'], ['number', 'autoSaveSeconds', '自动保存间隔（秒）', 5, 600],

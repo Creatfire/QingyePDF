@@ -153,6 +153,7 @@ export function createTypora(deps) {
     if (name === 'outlineMode' || name === '*') for (const s of sessions) if (s.ui) host.renderOutline(s);
     if (name === 'revealMarks' || name === '*') for (const s of sessions) s.editor?.paint();
     if (name === 'sourceLineNumbers' || name === '*') for (const s of sessions) s.editor?.sourceView.setLineNumbers(!!prefs.get('sourceLineNumbers'));
+    if (name === 'codeEditor') for (const s of sessions) if (s.editor?.active?.block.kind === 'fence') s.editor.deactivate();
   });
 
   // ——— Sidebar panes (outline / files / recent) ———

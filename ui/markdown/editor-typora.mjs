@@ -281,7 +281,7 @@ export function installTypora(Editor) {
 
     // ——— Emoji completion (":smi" → suggestions) ———
     updateEmojiPopup() {
-      if (this.prefs.emoji === false || this.sourceMode || !this.active) return this.closeEmojiPopup();
+      if (this.prefs.emoji === false || this.sourceMode || !this.active || this.active.cm) return this.closeEmojiPopup();
       const caret = this.getCaret();
       if (!caret || caret.start !== caret.end) return this.closeEmojiPopup();
       const src = this.text.slice(this.active.block.from, this.active.block.from + caret.start);

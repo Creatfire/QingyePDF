@@ -1,7 +1,7 @@
 // Markdown preferences (per user, stored in the renderer's local storage; every access is guarded).
 export const DEFAULTS = {
   // editing
-  autoPair: true, revealMarks: 'inline', sourceLineNumbers: false, smartPaste: true, copyMarkdown: true, emoji: true, spellcheck: false, autoSave: false, autoSaveSeconds: 30, finalNewline: false,
+  autoPair: true, codeEditor: true, revealMarks: 'inline', sourceLineNumbers: false, smartPaste: true, copyMarkdown: true, emoji: true, spellcheck: false, autoSave: false, autoSaveSeconds: 30, finalNewline: false,
   smartPunctuation: false, mathNumbering: 'none', smartInput: false, copyLine: true, preserveBreaks: false, indentFirstLine: false, showBr: false,
   // appearance
   theme: 'qingye', customTheme: '', fontFamily: '', fontSize: 16, lineHeight: 1.78, pageWidth: 860, zoom: 1,

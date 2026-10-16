@@ -10,6 +10,7 @@ import { createVisualTables } from './visual-table.mjs';
 import { renderDiagrams, fit as fitDiagram } from './diagrams.mjs';
 import { installTypora, writeClipboard, CLIP_MARK } from './editor-typora.mjs';
 import { SourceEditor } from './source-editor.mjs';
+import { FenceEditor } from './fence-editor.mjs';
 
 const KIND_LABEL = { footnoteDef: '脚注', toc: '目录', paragraph: '段落', heading: '标题', blockquote: '引用', listItem: '列表项', fence: '代码块', codeBlock: '代码块', hr: '分隔线', html: 'HTML', table: '表格', math: '公式块', frontMatter: 'YAML 元数据', raw: '链接定义' };
 const OPAQUE = new Set(['fence', 'codeBlock', 'math', 'table', 'html', 'frontMatter', 'hr']);
@@ -285,6 +286,7 @@ export class MarkdownEditor {
     this.highlightSearch();
   }
   openEditor(b) {
+    if (b.kind === 'fence' && this.prefs?.codeEditor !== false) return this.openCodeEditor(b);
     const el = document.createElement('pre');
     el.className = 'mdSource'; el.contentEditable = 'plaintext-only'; el.spellcheck = !!this.prefs?.spellcheck;
     el.setAttribute('role', 'textbox'); el.setAttribute('aria-multiline', 'true');
@@ -295,6 +297,15 @@ export class MarkdownEditor {
     b.el.append(el);
     this.active = { block: b, el, preview: null, composing: false, padded: false };
     this.paint(false);
+    this.updatePreview();
+  }
+  // Fenced code: a CodeMirror editor with the code's syntax colouring, auto-indent and bracket closing.
+  openCodeEditor(b) {
+    const cm = new FenceEditor({ text: this.text.slice(b.from, b.to), onInput: () => this.syncFromDom(), onSelection: () => this.onSelectionChange() });
+    b.el.querySelector(':scope > .mdRendered').hidden = true;
+    b.el.classList.add('isActive');
+    b.el.append(cm.dom);
+    this.active = { block: b, el: cm.dom, cm, preview: null, composing: false, padded: false };
     this.updatePreview();
   }
   openTemp(pos) {
@@ -315,7 +326,7 @@ export class MarkdownEditor {
     this.breakUndo = true;
     if (a.composing) this.syncFromDom(true);
     this.active = null;
-    a.el.remove(); a.preview?.remove(); clearTimeout(a.previewTimer);
+    a.cm?.destroy(); a.el.remove(); a.preview?.remove(); clearTimeout(a.previewTimer);
     a.block.el.classList.remove('isActive');
     const rendered = a.block.el.querySelector(':scope > .mdRendered'); if (rendered) rendered.hidden = false;
     if (a.block.temp) { a.block.el.remove(); this.doc.classList.toggle('isEmpty', !this.blocks.length); }
@@ -325,6 +336,7 @@ export class MarkdownEditor {
     const a = this.active;
     if (!a) return;
     const b = a.block, src = this.text.slice(b.from, b.to);
+    if (a.cm) { a.cm.value = src; return; }
     const caret = keepCaret ? this.getCaret() : null;
     a.padded = src.endsWith('\n');
     a.el.innerHTML = styleSource(src, b.kind) + (a.padded ? '\n' : '');
@@ -352,12 +364,14 @@ export class MarkdownEditor {
   }
   readDom() {
     const a = this.active;
+    if (a.cm) return a.cm.value;
     let t = a.el.textContent.replace(/\r\n?/g, '\n').replace(/ /g, ' ');
     if (a.padded && t.endsWith('\n')) t = t.slice(0, -1);
     return t;
   }
   getCaret() {
     const a = this.active, sel = getSelection();
+    if (a?.cm) { const max = a.block.to - a.block.from; return { start: Math.min(max, a.cm.from), end: Math.min(max, a.cm.to) }; }
     if (!a || !sel.rangeCount) return null;
     const r = sel.getRangeAt(0);
     if (!a.el.contains(r.startContainer) || !a.el.contains(r.endContainer)) return null;
@@ -367,6 +381,7 @@ export class MarkdownEditor {
   setCaret(start, end = start, focus = true) {
     const a = this.active;
     if (!a) return;
+    if (a.cm) { if (focus) a.cm.focus(); a.cm.select(start, end, focus); return; }
     if (focus && document.activeElement !== a.el) a.el.focus({ preventScroll: true });
     if (!focus && document.activeElement !== a.el) return;
     const sel = getSelection();
@@ -734,6 +749,7 @@ export class MarkdownEditor {
   onKeyDown(e) {
     if(e.target.closest('.mdTableCellInput'))return;
     if (e.isComposing || e.keyCode === 229) return;
+    if (this.active?.cm && this.active.el.contains(e.target)) return this.onCodeKey(e);
     const action = this.shortcut(e);
     if (action) { e.preventDefault(); e.stopPropagation(); action(); return; }
     if (this.sourceMode) return;
@@ -755,6 +771,28 @@ export class MarkdownEditor {
       return;
     }
     if (e.target === this.doc) this.onDocKey(e);
+  }
+  // Keys inside a CodeMirror code block: CodeMirror edits, the editor keeps history and block moves.
+  onCodeKey(e) {
+    const a = this.active, cm = a.cm, mod = e.ctrlKey || e.metaKey, key = e.key.toLowerCase();
+    const len = a.block.to - a.block.from, empty = cm.from === cm.to, stop = fn => { e.preventDefault(); e.stopPropagation(); fn(); };
+    if (mod && !e.altKey && (key === 'z' || key === 'y' || key === '/' || key === 'f' || key === 'h' || (key === 'enter' && !e.shiftKey))) {
+      if (key === 'z') return stop(() => (e.shiftKey ? this.redo() : this.undo()));
+      if (key === 'y') return stop(() => this.redo());
+      if (key === 'enter') return stop(() => this.handleEnter(false, true));
+      if (!e.shiftKey) return stop(() => (key === '/' ? this.setSourceMode(!this.sourceMode) : this.options.onFind?.(key === 'h')));
+    }
+    if (e.key === 'F3') return stop(() => this.options.onFindStep?.(e.shiftKey ? -1 : 1));
+    if (mod || e.altKey || e.shiftKey) return;
+    switch (e.key) {
+      case 'Escape': return stop(() => { this.deactivate(); this.doc.focus({ preventScroll: true }); });
+      case 'ArrowUp': if (cm.onFirstLine) stop(() => this.move(-1)); return;
+      case 'ArrowDown': if (cm.onLastLine) stop(() => this.move(1)); return;
+      case 'ArrowLeft': if (empty && cm.from === 0) stop(() => this.move(-1)); return;
+      case 'ArrowRight': if (empty && cm.from >= len) stop(() => this.move(1)); return;
+      case 'Backspace': if (empty && cm.from === 0) stop(() => this.backspaceAtStart()); return;
+      case 'Delete': if (empty && cm.from >= len) stop(() => this.deleteAtEnd()); return;
+    }
   }
   selectDocument() {
     this.deactivate();
@@ -838,7 +876,7 @@ export class MarkdownEditor {
     const element = node.nodeType === 1 ? node : node.parentElement;
     const blockEl = element?.closest('.mdBlock'), b = blockEl?.blockRef;
     if (!b) return null;
-    if (this.active?.block === b && this.active.el.contains(node)) return b.from + lengthUntil(this.active.el, node, offset);
+    if (this.active?.block === b && this.active.el.contains(node)) { const a = this.active, p = a.cm ? a.cm.posAtDOM(node, offset) : lengthUntil(a.el, node, offset); return p == null ? null : b.from + p; }
     const rendered = blockEl.querySelector(':scope > .mdRendered');
     if (!rendered.contains(node)) return offset === 0 ? b.from : b.to;
     return b.from + alignRendered(this.text.slice(b.from, b.to), b.kind, textBefore(rendered, node, offset));
@@ -894,6 +932,7 @@ export class MarkdownEditor {
   async onPaste(e) {
     if(e.target.closest('.mdTableCellInput'))return;
     if(this.visualTables.paste(e))return;
+    if (this.active?.cm && this.active.el.contains(e.target)) return; // CodeMirror pastes plain text into code
     if ((this.sourceMode || this.sourceView.contains(e.target)) && ![...(e.clipboardData?.files||[])].some(file=>file.type.startsWith('image/'))) return;
     const data = e.clipboardData;
     if (!data) return;
@@ -1082,7 +1121,7 @@ export class MarkdownEditor {
         for (const node of nodes) { pattern.lastIndex = 0; for (let m; (m = pattern.exec(node.data)) && all.length < 3000;) { if (!m[0].length) { pattern.lastIndex++; continue; } const r = document.createRange(); r.setStart(node, m.index); r.setEnd(node, m.index + m[0].length); all.push(r); } }
       }
       const a = this.active;
-      if (a) for (const [i, m] of s.matches.entries()) {
+      if (a && !a.cm) for (const [i, m] of s.matches.entries()) {
         if (m.from < a.block.from || m.to > a.block.to) continue;
         const r = rangeAt(a.el, m.from - a.block.from, m.to - a.block.from);
         (i === s.index ? current : all).push(r);
