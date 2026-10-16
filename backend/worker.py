@@ -99,6 +99,10 @@ def region(page, values):
     return fitz.Rect(x0 * r.width, y0 * r.height, x1 * r.width, y1 * r.height) * page.derotation_matrix
 
 
+MOVABLE_ANNOTS = ('Square', 'Circle', 'FreeText', 'Stamp', 'Text', 'Caret', 'FileAttachment', 'Sound')
+FILLABLE_ANNOTS = ('Square', 'Circle', 'Polygon', 'FreeText', 'Line', 'PolyLine')
+BORDERED_ANNOTS = ('Square', 'Circle', 'Line', 'Polygon', 'PolyLine', 'Ink', 'FreeText')
+
 # kind: (downsample when above this DPI, target DPI, JPEG quality); bitonal quality is ignored.
 COMPRESS_PROFILES = {
     'small': {'color': (150, 96, 45), 'gray': (150, 96, 45), 'bitonal': (300, 200, 0)},
@@ -802,6 +806,41 @@ def process(request, input_file, output):
             now = fitz.get_pdf_now()
             annot.set_info(content=str(request.get('text', ''))[:10000], title=str(request.get('author', ''))[:200], creationDate=now, modDate=now)
             annot.update()
+        elif action == 'annot-update':
+            # Edit an annotation already in the file (0.19): move / resize boxes, move line ends,
+            # change colours, width, opacity and the note. Text markup keeps its quads (it follows text).
+            page = doc[int(number(request.get('page'), 1, len(doc), 1)) - 1]
+            xref = int(number(request.get('xref'), 1, 10**9, 0))
+            annot = next((a for a in page.annots() or [] if a.xref == xref), None)
+            if annot is None:
+                raise ValueError('找不到这条批注，可能已被删除。')
+            kind = annot.type[1]
+            if request.get('rect') is not None:
+                if kind not in MOVABLE_ANNOTS:
+                    raise ValueError('这类批注不能移动或缩放。')
+                annot.set_rect(region(page, request.get('rect')))
+            if request.get('points') is not None:
+                if kind != 'Line' or len(request.get('points')) != 2:
+                    raise ValueError('只有直线可以移动端点。')
+                ends = [fitz.Point(number(x, 0, 1, 0) * page.rect.width, number(y, 0, 1, 0) * page.rect.height) * page.derotation_matrix * ~page.transformation_matrix for x, y in request.get('points')]
+                doc.xref_set_key(annot.xref, 'L', '[%g %g %g %g]' % (ends[0].x, ends[0].y, ends[1].x, ends[1].y))
+                annot = next(a for a in page.annots() if a.xref == xref)
+            if request.get('color'):
+                stroke = color(request.get('color'))
+                if 'fill' in request and kind in FILLABLE_ANNOTS:
+                    annot.set_colors(stroke=stroke, fill=color(request['fill']) if request.get('fill') else None)
+                else:
+                    annot.set_colors(stroke=stroke)
+            elif 'fill' in request and kind in FILLABLE_ANNOTS:
+                annot.set_colors(fill=color(request['fill']) if request.get('fill') else None)
+            if request.get('width') is not None and kind in BORDERED_ANNOTS:
+                annot.set_border(width=number(request.get('width'), 0.5, 12, 2))
+            if request.get('opacity') is not None:
+                annot.set_opacity(number(request.get('opacity'), 0.1, 1, 1))
+            if request.get('text') is not None:
+                annot.set_info(content=str(request.get('text'))[:10000], modDate=fitz.get_pdf_now())
+            annot.update()
+            note = '已修改批注。'
         elif action == 'annot-delete':
             items = request.get('items') or []
             if not isinstance(items, list) or not 0 < len(items) <= 5000:

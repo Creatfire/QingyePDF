@@ -70,3 +70,14 @@
 /* Shape drawing (0.14): crosshair cursor while a shape drag is in progress. Lives here, not in a
    JS-injected <style>, because the viewer frame's CSP (style-src 'self') blocks inline styles. */
 .qyShapeDrawing .page, .qyShapeDrawing .page * { cursor: crosshair !important; user-select: none !important; }
+
+/* Annotation editing (0.19, ui/annot-edit.mjs): selection frame and handles inside the page. */
+.qyAnnotSel { position: absolute; z-index: 40; box-sizing: border-box; border: 1.5px dashed #1d7a57; background: rgb(29 122 87 / .06); pointer-events: auto; }
+.qyAnnotSel.isMovable { cursor: move; }
+.qyAnnotSel.isLine { border-color: transparent; background: transparent; cursor: move; }
+.qyAnnotSel .qyHandle { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; box-sizing: border-box; border: 1.5px solid #1d7a57; border-radius: 2px; background: #fff; }
+.qyAnnotSel .qyHandle[data-handle="nw"] { left: 0; top: 0; cursor: nwse-resize; } .qyAnnotSel .qyHandle[data-handle="n"] { left: 50%; top: 0; cursor: ns-resize; }
+.qyAnnotSel .qyHandle[data-handle="ne"] { left: 100%; top: 0; cursor: nesw-resize; } .qyAnnotSel .qyHandle[data-handle="e"] { left: 100%; top: 50%; cursor: ew-resize; }
+.qyAnnotSel .qyHandle[data-handle="se"] { left: 100%; top: 100%; cursor: nwse-resize; } .qyAnnotSel .qyHandle[data-handle="s"] { left: 50%; top: 100%; cursor: ns-resize; }
+.qyAnnotSel .qyHandle[data-handle="sw"] { left: 0; top: 100%; cursor: nesw-resize; } .qyAnnotSel .qyHandle[data-handle="w"] { left: 0; top: 50%; cursor: ew-resize; }
+.qyAnnotSel .qyEnd { border-radius: 50%; cursor: crosshair; }

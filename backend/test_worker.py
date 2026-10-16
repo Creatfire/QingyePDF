@@ -226,6 +226,29 @@ def check():
             assert second==d[1].mediabox and 'Centered 1' in d[0].get_text()
         _,reset=run({'action':'crop','cropMode':'reset','rect':[.1,.1,.9,.9]},out/'result.pdf')
         with fitz.open(reset/'result.pdf') as d:assert d[0].cropbox==d[0].mediabox
+        # 0.19 editing annotations in the file: move/resize a rectangle, move line ends, restyle markup.
+        _,base_doc=run({'action':'draw','shape':'rect','page':1,'rect':[.1,.1,.3,.2],'color':'#1d7a57','width':2})
+        _,base_doc=run({'action':'draw','shape':'arrow','page':1,'points':[[.1,.5],[.5,.5]]},base_doc/'result.pdf')
+        _,base_doc=run({'action':'markup','annotation':'highlight','marks':[{'page':1,'rects':[[50/400,58/500,250/400,84/500]]}]},base_doc/'result.pdf')
+        with fitz.open(base_doc/'result.pdf') as d:
+            ids={a.type[1]:a.xref for a in d[0].annots()}
+        edited=base_doc/'result.pdf'
+        def xrefs(file):  # saving compacts the file, so object numbers are read again after each step
+            with fitz.open(file) as d:return {a.type[1]:a.xref for a in d[0].annots()}
+        _,out=run({'action':'annot-update','page':1,'xref':ids['Square'],'rect':[.5,.6,.9,.8],'color':'#c62828','fill':'#ffee58','width':4,'opacity':.6,'text':'改过'},edited)
+        _,out=run({'action':'annot-update','page':1,'xref':xrefs(out/'result.pdf')['Line'],'points':[[.2,.9],[.8,.7]]},out/'result.pdf')
+        _,out=run({'action':'annot-update','page':1,'xref':xrefs(out/'result.pdf')['Highlight'],'color':'#42a5f5','text':'注释'},out/'result.pdf')
+        with fitz.open(out/'result.pdf') as d:
+            page=d[0];found={a.type[1]:a for a in page.annots()}
+            sq=found['Square'];r=sq.rect
+            assert abs(r.x0-200)<6 and abs(r.y0-300)<6 and abs(r.x1-360)<6 and abs(r.y1-400)<6,r
+            assert sq.border['width']==4 and abs(sq.opacity-.6)<.01 and sq.info['content']=='改过'
+            assert [round(c,2) for c in sq.colors['stroke']]==[.78,.16,.16] and sq.colors['fill']
+            v=found['Line'].vertices;assert abs(v[0][0]-80)<2 and abs(v[0][1]-450)<2 and abs(v[1][0]-320)<2 and abs(v[1][1]-350)<2,v
+            hl=found['Highlight'];assert [round(c,2) for c in hl.colors['stroke']]==[.26,.65,.96] and hl.info['content']=='注释' and len(hl.vertices)==4
+        for bad in ({'xref':ids['Highlight'],'rect':[.1,.1,.2,.2]},{'xref':ids['Square'],'points':[[.1,.1],[.2,.2]]},{'xref':999999,'color':'#000000'}):
+            try:run({'action':'annot-update','page':1,**bad},edited);assert False,bad
+            except ValueError:pass
         for bad in ({'annotation':'circle','marks':[{'page':1,'rects':lines}]},{'annotation':'underline','marks':[]},{'annotation':'underline','marks':[{'page':1,'rects':[]}]}):
             try:run({'action':'markup',**bad});assert False,bad
             except ValueError:pass

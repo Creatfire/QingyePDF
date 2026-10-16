@@ -158,3 +158,11 @@
 .officeNoticeActions { display: flex; justify-content: flex-end; gap: 6px; }
 .officeNoticeActions button { height: 28px; padding: 0 12px; }
 @media (prefers-reduced-motion: reduce) { .officeJob, .officeJobBar i { animation: none; } }
+
+/* 0.19 annotation edit bar and shape presets */
+.annotEditBar input[type="range"] { width: 80px; }
+.annotEditBar button { height: 26px; padding: 0 9px; }
+.annotEditBar label[hidden] { display: none; }
+.shapePresets { display: inline-flex; gap: 4px; }
+.shapePresets:empty { display: none; }
+.shapePreset { width: 22px; height: 22px; min-width: 0; padding: 0; border: 2px solid var(--preset); border-radius: 5px; background: var(--preset-fill); }

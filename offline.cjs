@@ -4,7 +4,7 @@ const os = require('node:os');
 const { spawn } = require('node:child_process');
 const { pdfBytes } = require('./core.cjs');
 
-const actions = new Set(['inspect','normalize-annotations','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','markup','form','crop','import','compare','redact-find','draw','annot-delete']);
+const actions = new Set(['inspect','normalize-annotations','notes-export','scan','sharpen','ocr-layer','export','encrypt','decrypt','organize','outline','compress','flatten','ocr','redact','text','stamp','image','page-stamp','number','watermark','shape','annotation','markup','form','crop','import','compare','redact-find','draw','annot-delete','annot-update']);
 function waitForAbort(promise, signal) {
   return new Promise((resolve, reject) => {
     const finish = (callback, value) => { signal?.removeEventListener('abort', abort); callback(value); };
@@ -36,7 +36,11 @@ async function runOffline({ bytes, request, packaged = false, resources = '', as
     const engine = process.platform === 'win32' ? 'QingyeWorker.exe' : 'QingyeWorker';
     const executable = packaged ? path.join(resources,'backend',engine) : path.join(__dirname,'backend','bin','QingyeWorker',engine);
     let program = executable, args = [config];
-    try { await fs.access(program); } catch {
+    try {
+      await fs.access(program);
+      // In a source checkout a frozen worker older than backend/worker.py would hide new actions.
+      if (!packaged) { const [exe, src] = await Promise.all([fs.stat(program), fs.stat(path.join(__dirname,'backend','worker.py'))]); if (src.mtimeMs > exe.mtimeMs) throw new Error('stale frozen worker'); }
+    } catch {
       if (packaged) throw new Error('本地处理引擎缺失，请重新解压完整发布包。');
       program = process.platform === 'win32' ? path.join(__dirname,'.backend-build','Scripts','python.exe') : path.join(__dirname,'.backend-build','bin','python'); args = [path.join(__dirname,'backend','worker.py'),config];
     }

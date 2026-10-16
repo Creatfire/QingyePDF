@@ -1,5 +1,7 @@
 import { createHistory } from './history.mjs';
 import { createSearchOcr } from './search-ocr.mjs';
+// Annotation types as shown in the list (PDF subtype names are English).
+const ANNOT_LABEL={Highlight:'高亮',Underline:'下划线',StrikeOut:'删除线',Squiggly:'波浪线',Text:'便签',FreeText:'文本框',Square:'矩形',Circle:'椭圆',Line:'直线',Polygon:'多边形',PolyLine:'折线',Ink:'自由绘制',Stamp:'印章 / 图片',Caret:'插入符',FileAttachment:'附件',Sound:'声音',Redact:'待涂黑'};
 export function createNavigation({ current, guard, views, openTools, api, snapshot, addDocuments, applyEdit,navigate=action=>action(),readingTrail,status=()=>{},isProcessing,notesFor=()=>null,insertNotes }) {
   const $ = id => document.getElementById(id);
   const pane=document.createElement('aside');pane.id='navigationPanel';pane.hidden=true;
@@ -135,11 +137,11 @@ export function createNavigation({ current, guard, views, openTools, api, snapsh
     const result=await api.toolsJob(s.id,await snapshot(s),{action:'inspect',annotations:true});if(myTicket!==ticket)return;
     const notes=result.data.notes||[];s.notes=notes;const selected=new Set();
     const term=input('筛选批注或摘录');const type=document.createElement('select'),color=document.createElement('select');
-    for(const [select,label,values]of [[type,'全部类型',[...new Set(notes.map(n=>n.type))]],[color,'全部颜色',[...new Set(notes.map(n=>n.color).filter(Boolean))]]]){select.setAttribute('aria-label',label);const all=document.createElement('option');all.value='';all.textContent=label;select.append(all);for(const v of values){const o=document.createElement('option');o.value=o.textContent=v;select.append(o);}controls.append(select);}
+    for(const [select,label,values]of [[type,'全部类型',[...new Set(notes.map(n=>n.type))]],[color,'全部颜色',[...new Set(notes.map(n=>n.color).filter(Boolean))]]]){select.setAttribute('aria-label',label);const all=document.createElement('option');all.value='';all.textContent=label;select.append(all);for(const v of values){const o=document.createElement('option');o.value=v;o.textContent=select===type?(ANNOT_LABEL[v]||v):v;select.append(o);}controls.append(select);}
     const filtered=()=>notes.filter(n=>(!type.value||n.type===type.value)&&(!color.value||n.color===color.value)&&(!term.value||(n.text+' '+n.excerpt).toLocaleLowerCase().includes(term.value.toLocaleLowerCase())));
     const draw=()=>{content.replaceChildren();const found=filtered();progress.textContent=`${found.length} / ${notes.length} 条批注 · 包含未保存修改`;
       for(const n of found){const holder=document.createElement('div');holder.className='annotationSelectRow';const check=document.createElement('input');check.type='checkbox';check.checked=selected.has(n);check.setAttribute('aria-label','选择第 '+n.page+' 页批注');check.onchange=()=>{if(check.checked)selected.add(n);else selected.delete(n);};holder.append(check);
-        const row=button(`第 ${n.page} 页 · ${n.type}\n${n.excerpt||''}${n.excerpt&&n.text?'\n':''}${n.text||''}`,()=>navigate(()=>{s.app.pdfViewer.currentPageNumber=n.page;}),holder);row.className='navigationRow';if(n.color)row.style.borderLeft='4px solid '+n.color;content.append(holder);}
+        const row=button(`第 ${n.page} 页 · ${ANNOT_LABEL[n.type]||n.type}\n${n.excerpt||''}${n.excerpt&&n.text?'\n':''}${n.text||''}`,()=>navigate(()=>{s.app.pdfViewer.currentPageNumber=n.page;}),holder);row.className='navigationRow';if(n.color)row.style.borderLeft='4px solid '+n.color;content.append(holder);}
       if(!found.length)content.textContent='没有符合条件的批注。';};term.oninput=type.onchange=color.onchange=draw;draw();
     const actions=document.createElement('div');actions.className='navigationOptions';controls.append(actions);
     button('刷新',()=>show('comments'),actions);

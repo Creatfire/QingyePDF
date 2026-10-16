@@ -5,7 +5,7 @@ import { THEMES } from './markdown/themes.mjs';
 import { mountAiSettings } from './ai/settings-ai.mjs';
 
 const KEY = 'qingye.settings';
-export const DEFAULTS = { restoreOnStart: false, pdfZoom: 'page-width', pdfResume: true, confirmRecentClear: true, annotAuthor: '', markupBar: true, markupCopyText: false, annotKeys: true };
+export const DEFAULTS = { restoreOnStart: false, pdfZoom: 'page-width', pdfResume: true, confirmRecentClear: true, annotAuthor: '', markupBar: true, markupCopyText: false, annotKeys: true, annotEdit: true };
 export function readSettings() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return { ...DEFAULTS }; } }
 function writeSettings(values) { try { localStorage.setItem(KEY, JSON.stringify(values)); } catch {} }
 
@@ -50,6 +50,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
           <label class="settingRow"><span><b>批注作者</b><small>写入新建批注的作者字段，其他阅读器会显示这个名字。留空则不写。</small></span><input id="setAnnotAuthor" type="text" maxlength="80" placeholder="例如：张三"></label>
           <label class="settingRow check"><span><b>选中文字后显示批注工具条</b><small>提供高亮、下划线、删除线、波浪线和复制。</small></span><input id="setMarkupBar" type="checkbox" role="switch"></label>
           <label class="settingRow check"><span><b>把所选文字写入批注备注</b><small>高亮、下划线等批注的备注里会带上被标记的原文。</small></span><input id="setMarkupCopyText" type="checkbox" role="switch"></label>
+          <label class="settingRow check"><span><b>单击批注即可编辑</b><small>选中已保存在文件里的图形、文字标记或便签后，可拖动、缩放、改颜色和备注。</small></span><input id="setAnnotEdit" type="checkbox" role="switch"></label>
           <label class="settingRow check"><span><b>单字母批注快捷键</b><small>H 高亮、U 下划线、S 删除线、G 波浪线、I 自由绘制、T 文本框、C 评论、P 或 Esc 退出批注。</small></span><input id="setAnnotKeys" type="checkbox" role="switch"></label>
         </section>
         <section class="settingsPane" data-pane="markdown" hidden>
@@ -146,6 +147,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
   $('#setMarkupBar').onchange = e => set('markupBar', e.target.checked);
   $('#setMarkupCopyText').onchange = e => set('markupCopyText', e.target.checked);
   $('#setAnnotKeys').onchange = e => set('annotKeys', e.target.checked);
+  $('#setAnnotEdit').onchange = e => set('annotEdit', e.target.checked);
 
   // ——— Markdown ———
   const mdPrefs = () => markdown.typora.prefs;
@@ -200,7 +202,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
     $('#setRestore').checked = !!values.restoreOnStart;
     syncStyle();
     $('#setPdfZoom').value = values.pdfZoom; $('#setPdfResume').checked = !!values.pdfResume;
-    $('#setAnnotAuthor').value = values.annotAuthor || ''; $('#setMarkupBar').checked = values.markupBar !== false; $('#setMarkupCopyText').checked = !!values.markupCopyText; $('#setAnnotKeys').checked = values.annotKeys !== false;
+    $('#setAnnotAuthor').value = values.annotAuthor || ''; $('#setMarkupBar').checked = values.markupBar !== false; $('#setMarkupCopyText').checked = !!values.markupCopyText; $('#setAnnotKeys').checked = values.annotKeys !== false; $('#setAnnotEdit').checked = values.annotEdit !== false;
     $('#setMdRead').checked = !!mdPrefs().get('openInReadMode'); $('#setMdAutoSave').checked = !!mdPrefs().get('autoSave');
     mdTheme.value = THEMES.some(([id]) => id === mdPrefs().get('theme')) ? mdPrefs().get('theme') : 'qingye';
     $('#aboutVersion').textContent = `${t('版本')} ${version()}`;

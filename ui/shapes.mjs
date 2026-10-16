@@ -3,6 +3,7 @@
 // Square / Circle / Line annotation ('draw' action), undoable through the edit history. The tool
 // stays active for the next shape (continuous drawing) until Esc, P or the bar's 完成 button.
 import { readSettings } from './settings.mjs';
+import { readPresets, SHAPE_KIND } from './annot-presets.mjs';
 
 export const SHAPES = [
   ['rect', '矩形', 'R'], ['ellipse', '椭圆', 'O'], ['line', '直线', 'L'], ['arrow', '箭头', 'A'], ['cloud', '云形框', ''],
@@ -26,6 +27,7 @@ export function createShapes({ current, applyEdit, guard, status }) {
     + '<label title="线条颜色"><input type="color" data-style="color"></label>'
     + '<label title="线宽"><select data-style="width"><option value="1">细</option><option value="2">标准</option><option value="4">粗</option><option value="8">很粗</option></select></label>'
     + '<label class="shapeFill" title="填充"><input type="checkbox" data-style="fillOn"> 填充 <input type="color" data-style="fill"></label>'
+    + '<span class="shapePresets" role="group" aria-label="样式预设"></span>'
     + '<button type="button" data-done>完成</button>';
   document.body.append(bar);
   let tool = null, drag = null;
@@ -39,6 +41,14 @@ export function createShapes({ current, applyEdit, guard, status }) {
     bar.querySelector('[data-style="fillOn"]').checked = !!style.fill;
     bar.querySelector('[data-style="fill"]').value = style.fill || '#ffee58';
     bar.querySelector('.shapeFill').hidden = tool.kind === 'line' || tool.kind === 'arrow';
+    // Saved presets for this kind of shape (annot-presets.mjs) as one-click swatches.
+    const swatches = bar.querySelector('.shapePresets'); swatches.replaceChildren();
+    for (const p of readPresets(SHAPE_KIND[tool.kind])) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'shapePreset'; b.title = `预设：${p.color}，线宽 ${p.width}${p.fill ? '，填充' : ''}`;
+      b.style.setProperty('--preset', p.color); b.style.setProperty('--preset-fill', p.fill || 'transparent'); b.style.borderWidth = Math.min(4, p.width) + 'px';
+      b.onclick = () => { writeStyle({ color: p.color, width: p.width, fill: tool.kind === 'line' || tool.kind === 'arrow' ? '' : p.fill }); syncBar(); };
+      swatches.append(b);
+    }
     bar.hidden = false;
     const frame = tool.session.frame.getBoundingClientRect();
     bar.style.left = Math.round(frame.left + frame.width / 2 - bar.offsetWidth / 2) + 'px';
@@ -112,7 +122,7 @@ export function createShapes({ current, applyEdit, guard, status }) {
       const box = (pageEl.querySelector('.canvasWrapper') || pageEl).getBoundingClientRect();
       const overlay = doc.createElementNS(SVG, 'svg');
       overlay.setAttribute('class', 'qyShapePreview'); overlay.setAttribute('viewBox', '0 0 1000 1000'); overlay.setAttribute('preserveAspectRatio', 'none');
-      Object.assign(overlay.style, { position: 'absolute', left: (box.left - pageEl.getBoundingClientRect().left) + 'px', top: (box.top - pageEl.getBoundingClientRect().top) + 'px', width: box.width + 'px', height: box.height + 'px', pointerEvents: 'none', zIndex: 30, overflow: 'visible' });
+      Object.assign(overlay.style, { position: 'absolute', left: (box.left - pageEl.getBoundingClientRect().left - pageEl.clientLeft) + 'px', top: (box.top - pageEl.getBoundingClientRect().top - pageEl.clientTop) + 'px', width: box.width + 'px', height: box.height + 'px', pointerEvents: 'none', zIndex: 30, overflow: 'visible' });
       pageEl.append(overlay);
       const a = pagePoint(box, e);
       drag = { overlay, box, kind: tool.kind, page: Number(pageEl.dataset.pageNumber), a, b: a };

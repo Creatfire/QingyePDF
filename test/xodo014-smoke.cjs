@@ -123,11 +123,57 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   // The annotation list can delete annotations written into the file.
   await until(`!${P}.editBusy`, 'idle before delete');
   await run(`qingye.navigation.show('comments')`);
-  await until(`[...document.querySelectorAll('.annotationSelectRow')].some(r => r.textContent.includes('Square'))`, 'annotation list');
-  await run(`(() => { const row = [...document.querySelectorAll('.annotationSelectRow')].find(r => r.textContent.includes('Square')); const box = row.querySelector('input'); box.checked = true; box.dispatchEvent(new Event('change')); document.getElementById('deleteAnnotations').click(); })()`);
+  await until(`[...document.querySelectorAll('.annotationSelectRow')].some(r => r.textContent.includes('矩形'))`, 'annotation list');
+  await run(`(() => { const row = [...document.querySelectorAll('.annotationSelectRow')].find(r => r.textContent.includes('矩形')); const box = row.querySelector('input'); box.checked = true; box.dispatchEvent(new Event('change')); document.getElementById('deleteAnnotations').click(); })()`);
   await until(`(${count('Square')}).then(n => n === 0)`, 'rectangle deleted');
   assert.equal(await annotations('Line'), 1, 'other annotations stay');
   report.checks.deleteAnnotation = true;
+  // 0.19: annotations in the file can be selected, moved, restyled and deleted.
+  await until(`!${P}.editBusy`, 'idle before annotation editing');
+  await run(`qingye.shapes.start('rect')`);
+  await drag(0.2, 0.55, 0.45, 0.7);
+  await until(`(${count('Square')}).then(n => n === 1)`, 'rectangle for editing');
+  await run(`${P}.frame.contentDocument.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))`);
+  await until(`!${P}.editBusy && !qingye.shapes.active()`, 'shape tool closed');
+  const squareRect = `(async () => { try { if (${P}.editBusy || !${P}.loaded) return null; const page = await ${P}.app.pdfDocument.getPage(1); const a = (await page.getAnnotations()).find(x => x.subtype === 'Square'); return a ? { rect: a.rect.map(Math.round), color: a.color ? [...a.color] : null } : null; } catch { return null; } })()`;
+  const click = (x, y) => run(`(() => {
+    const doc = ${P}.frame.contentDocument, page = doc.querySelector('.page[data-page-number="1"]'), box = page.querySelector('.canvasWrapper').getBoundingClientRect();
+    const at = { clientX: box.left + box.width * ${x}, clientY: box.top + box.height * ${y}, button: 0, bubbles: true, cancelable: true };
+    const target = doc.elementFromPoint(at.clientX, at.clientY) || page;
+    target.dispatchEvent(new PointerEvent('pointerdown', at)); target.dispatchEvent(new PointerEvent('pointerup', at));
+  })()`);
+  const squareBefore = await run(squareRect);
+  await click(0.32, 0.62);
+  await until(`qingye.annotEdit.selected()?.kind === 'Square' && !document.querySelector('.annotEditBar').hidden`, 'rectangle selected');
+  await pause(200); await fs.writeFile(path.join(output, 'annot-selected.png'), (await window.webContents.capturePage()).toPNG());
+  // Drag the selection frame 10% to the right.
+  await run(`(() => {
+    const doc = ${P}.frame.contentDocument, frame = doc.querySelector('.qyAnnotSel'), r = frame.getBoundingClientRect(), page = doc.querySelector('.page[data-page-number="1"] .canvasWrapper').getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height / 2, dx = page.width * 0.1;
+    frame.dispatchEvent(new PointerEvent('pointerdown', { clientX: x, clientY: y, button: 0, bubbles: true, cancelable: true }));
+    doc.dispatchEvent(new PointerEvent('pointermove', { clientX: x + dx / 2, clientY: y, bubbles: true }));
+    doc.dispatchEvent(new PointerEvent('pointermove', { clientX: x + dx, clientY: y, bubbles: true }));
+    doc.dispatchEvent(new PointerEvent('pointerup', { clientX: x + dx, clientY: y, bubbles: true }));
+  })()`);
+  await until(`${squareRect}.then(v => !!v && v.rect[0] > ${squareBefore.rect[0]} + 20)`, 'rectangle moved');
+  await until(`qingye.annotEdit.selected()?.kind === 'Square'`, 'still selected after the move');
+  // Recolour from the bar.
+  await run(`(() => { const c = document.querySelector('.annotEditBar [data-edit="color"]'); c.value = '#1565c0'; c.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await until(`${squareRect}.then(v => !!v && v.color && v.color[2] > 150 && v.color[0] < 60)`, 'rectangle recoloured');
+  await until(`qingye.annotEdit.selected()?.kind === 'Square'`, 'selected after recolour');
+  // Save the style as a preset: the shape tool shows it as a swatch.
+  await run(`document.querySelector('.annotEditBar [data-edit="preset"]').click()`);
+  await run(`qingye.shapes.start('rect')`);
+  report.checks.presetSwatches = await run(`[...document.querySelectorAll('.shapeBar:not(.annotEditBar) .shapePreset')].map(b => b.style.getPropertyValue('--preset'))`);
+  assert.equal(report.checks.presetSwatches[0], '#1565c0', 'newest preset first');
+  await run(`qingye.shapes.stop()`);
+  // Delete with the Delete key.
+  await click(0.42, 0.62);
+  await until(`qingye.annotEdit.selected()?.kind === 'Square'`, 'selected for deletion');
+  await run(`${P}.frame.contentDocument.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true }))`);
+  await until(`(${count('Square')}).then(n => n === 0)`, 'rectangle deleted with Delete');
+  report.checks.annotEdit = true;
+
   // Smart crop: auto-crop page 1 to its content, applied to the open document.
   await until(`!${P}.editBusy`, 'idle before crop');
   const sizeExpr = `(async () => { try { if (${P}.editBusy || !${P}.loaded) return null; const v = (await ${P}.app.pdfDocument.getPage(1)).view; return [v[2] - v[0], v[3] - v[1]]; } catch { return null; } })()`;
