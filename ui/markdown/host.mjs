@@ -190,9 +190,25 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
     if (current == null) {
       if (s.editor.sourceMode) { const pos = s.editor.sel.from; current = [...s.headings].reverse().find(h => h.offset <= pos)?.offset; }
       else {
-        const top = s.editor.scroller.getBoundingClientRect().top + 90;
-        for (const h of s.headings) { const el = s.editor.elementAt(h.offset); if (!el) continue; if (el.getBoundingClientRect().top <= top) current = h.offset; else break; }
-        current ??= s.headings[0].offset;
+        // Headings are in document order, so their positions increase: binary search measures about
+        // log2(n) elements instead of every heading above the viewport (0.19, large documents).
+        const top = s.editor.scroller.getBoundingClientRect().top + 90, hs = s.headings;
+        // Inside an off-screen chunk (large documents) the chunk's own box answers without forcing
+        // the browser to lay out its skipped content.
+        const above = i => {
+          const el = s.editor.elementAt(hs[i].offset); if (!el) return null;
+          const chunk = el.closest('.mdChunk');
+          if (chunk) { const r = chunk.getBoundingClientRect(); if (r.bottom <= top) return true; if (r.top > top) return false; }
+          return el.getBoundingClientRect().top <= top;
+        };
+        let lo = 0, hi = hs.length - 1, found = -1;
+        while (lo <= hi) {
+          const mid = (lo + hi) >> 1; let probe = mid, r = above(mid);
+          while (r === null && probe > lo) r = above(--probe); // a heading without an element: look just above it
+          if (r === null) { lo = mid + 1; continue; }
+          if (r) { found = probe; lo = mid + 1; } else hi = probe - 1;
+        }
+        current = found >= 0 ? hs[found].offset : hs[0].offset;
       }
     }
     for (const b of s.ui.list.children) { const on = Number(b.dataset.offset) === current; b.classList.toggle('isCurrent', on); if (on) b.setAttribute('aria-current', 'location'); else b.removeAttribute('aria-current'); }

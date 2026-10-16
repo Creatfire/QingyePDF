@@ -1,7 +1,7 @@
 /* Typora-style features: menu bar, sidebar tabs, file tree, palette, dialogs, modes. */
 /* ——— Modes ——— */
-.mdEditor.isFocusMode .mdDoc:has(.mdBlock.isActive) > .mdBlock:not(.isActive) { opacity: .28; transition: opacity .25s var(--ease, ease); }
-.mdEditor.isFocusMode .mdDoc > .mdBlock { transition: opacity .25s var(--ease, ease); }
+.mdEditor.isFocusMode .mdDoc:has(.mdBlock.isActive) > .mdBlock:not(.isActive), .mdEditor.isFocusMode .mdDoc:has(.mdBlock.isActive) > .mdChunk > .mdBlock:not(.isActive) { opacity: .28; transition: opacity .25s var(--ease, ease); }
+.mdEditor.isFocusMode .mdDoc > .mdBlock, .mdEditor.isFocusMode .mdDoc > .mdChunk > .mdBlock { transition: opacity .25s var(--ease, ease); }
 .mdEditor.isTypewriter .mdTail { min-height: 60vh; }
 .mdEditor.isTypewriter .mdDoc { padding-top: 40vh; }
 .mdEditor.isReadonly .mdDoc { cursor: default; }

@@ -87,7 +87,7 @@ body.dark {
 .mdDoc h4 { font-size: 1.12em; }
 .mdDoc h5 { font-size: 1em; }
 .mdDoc h6 { font-size: .95em; color: var(--muted); }
-.mdDoc > .mdBlock:first-child :is(h1, h2, h3, h4, h5, h6) { margin-top: .2em; }
+.mdDoc > .mdBlock:first-child :is(h1, h2, h3, h4, h5, h6), .mdDoc > .mdChunk:first-child > .mdBlock:first-child :is(h1, h2, h3, h4, h5, h6) { margin-top: .2em; }
 .mdDoc p { margin: .75em 0; }
 .mdDoc a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); text-underline-offset: 3px; cursor: text; }
 .mdDoc a:hover { text-decoration-color: currentColor; }
@@ -262,5 +262,6 @@ body.mdPrint a { color: inherit; }
 .mdPanel.isReading .mdTableTools { display:none; }
 /* 0.14 large documents: the browser skips layout and paint of off-screen blocks; blocks keep their
    last rendered size as placeholder (editor.mjs also renders them lazily). */
-.mdDoc.isLarge > .mdBlock:not(.isActive) { content-visibility: auto; contain-intrinsic-size: auto 1.8em; }
-.mdDoc > .mdBlock.isPending > .mdRendered { min-height: inherit; }
+.mdDoc.isLarge > .mdChunk { content-visibility: auto; contain-intrinsic-size: auto 120em; }
+.mdDoc.isLarge > .mdChunk:has(.isActive) { content-visibility: visible; }
+.mdDoc .mdBlock.isPending > .mdRendered { min-height: inherit; }

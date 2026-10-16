@@ -16,7 +16,19 @@ const OPAQUE = new Set(['fence', 'codeBlock', 'math', 'table', 'html', 'frontMat
 const MARKER_AT_START = /^(\s{0,3}#{1,6}[ \t]+|\s{0,3}(?:>\s?)+|\s{0,3}(?:[-*+]|\d{1,9}[.)])[ \t]+(?:\[[ xX]\][ \t]+)?)/;
 const MATH_SOURCE = /\$\$[\s\S]+?\$\$|\$(?![\s$])(?:\\\$|[^$\n])*?[^\s\\]\$(?!\d)/g;
 const SKIP_RENDERED = '.katex, .mdCodeHead, .mdFrontLabel, .mdLivePreview, .mdMermaid';
-const LAZY_CHARS = 60000;
+const LAZY_CHARS = 60000, CHUNK_BLOCKS = 80;
+// Makes `parent`'s children exactly `els`, moving only what changed (an edit usually touches a block
+// or two; re-inserting every element would restyle all of them).
+function patchChildren(parent, els) {
+  const keep = new Set(els);
+  let cursor = parent.firstChild;
+  for (const el of els) {
+    while (cursor && !keep.has(cursor)) { const next = cursor.nextSibling; cursor.remove(); cursor = next; }
+    if (cursor === el) { cursor = cursor.nextSibling; continue; }
+    parent.insertBefore(el, cursor);
+  }
+  while (cursor) { const next = cursor.nextSibling; cursor.remove(); cursor = next; }
+}
 const HISTORY_CHARS = 4e6, HISTORY_STEPS = 2000;
 // Placeholder height (em) of a block not rendered yet, from its source.
 function estimateHeight(b) {
@@ -164,18 +176,20 @@ export class MarkdownEditor {
       b.el.blockRef = b;
     }
     this.blocks = blocks; this.stale = false;
-    // Patch the children in place: an edit usually changes a block or two, and re-inserting every
-    // element of a large document would restyle all of them.
-    const keep = new Set(blocks.map(b => b.el));
-    let cursor = this.doc.firstChild;
-    for (const b of blocks) {
-      while (cursor && !keep.has(cursor)) { const next = cursor.nextSibling; cursor.remove(); cursor = next; }
-      if (cursor === b.el) { cursor = cursor.nextSibling; continue; }
-      this.doc.insertBefore(b.el, cursor);
-    }
-    while (cursor) { const next = cursor.nextSibling; cursor.remove(); cursor = next; }
+    // Large documents group blocks into chunks with content-visibility: layout then handles a few
+    // hundred chunk boxes instead of every block (a 1 MB document has ~15 000 blocks).
+    const large = this.text.length >= LAZY_CHARS;
+    if (large) {
+      const chunks = [];
+      for (let i = 0; i < blocks.length; i += CHUNK_BLOCKS) {
+        const k = chunks.length, chunk = this.chunks?.[k] || Object.assign(document.createElement('div'), { className: 'mdChunk' });
+        patchChildren(chunk, blocks.slice(i, i + CHUNK_BLOCKS).map(b => b.el)); chunks.push(chunk);
+      }
+      this.chunks = chunks;
+      patchChildren(this.doc, chunks);
+    } else { this.chunks = null; patchChildren(this.doc, blocks.map(b => b.el)); }
     this.doc.classList.toggle('isEmpty', !blocks.length);
-    this.doc.classList.toggle('isLarge', this.text.length >= LAZY_CHARS);
+    this.doc.classList.toggle('isLarge', large);
     this.options.onStructure?.();
     if (this.search.options) this.highlightSearch();
   }
@@ -291,7 +305,7 @@ export class MarkdownEditor {
     b.el = document.createElement('div'); b.el.className = 'mdBlock kind-paragraph isTemp';
     const rendered = document.createElement('div'); rendered.className = 'mdRendered'; b.el.append(rendered);
     const next = this.blocks.find(x => x.from >= pos);
-    this.doc.insertBefore(b.el, next ? next.el : null);
+    (next?.el.parentNode || this.doc).insertBefore(b.el, next ? next.el : null);
     this.doc.classList.remove('isEmpty');
     this.openEditor(b);
   }

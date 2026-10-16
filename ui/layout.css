@@ -75,8 +75,8 @@ body[data-mode="md"] #workspace { background: var(--surface); }
 .mdPanel[data-mdtheme="qingye"] .mdDoc img { border-radius: 8px; }
 
 /* Blocks hint that they are editable (live mode only) */
-.mdPanel:not(.isReading) .mdDoc > .mdBlock:not(.isActive):hover { background: color-mix(in srgb, var(--surface-2) 70%, transparent); border-radius: 8px; box-shadow: -14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent), 14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent); }
-.mdEditor.isFocusMode .mdDoc > .mdBlock:hover { background: none; box-shadow: none; }
+.mdPanel:not(.isReading) .mdDoc > .mdBlock:not(.isActive):hover, .mdPanel:not(.isReading) .mdDoc > .mdChunk > .mdBlock:not(.isActive):hover { background: color-mix(in srgb, var(--surface-2) 70%, transparent); border-radius: 8px; box-shadow: -14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent), 14px 0 0 color-mix(in srgb, var(--surface-2) 70%, transparent); }
+.mdEditor.isFocusMode .mdDoc > .mdBlock:hover, .mdEditor.isFocusMode .mdDoc > .mdChunk > .mdBlock:hover { background: none; box-shadow: none; }
 
 /* ——— Reading mode: calm page, no editing affordances ——— */
 .mdPanel.isReading .mdEditorHost { background: color-mix(in srgb, var(--surface-2) 55%, var(--surface)); }
