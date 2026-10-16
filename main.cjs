@@ -82,8 +82,20 @@ let finishingClose = false;
 let converterLifecycle;
 let loadComplete;
 let window, allowClose = false, rendererReady = false;
-const singleInstance = smoke || safety || benchmark || process.argv.includes('--new-window') || app.requestSingleInstanceLock();
-if (!singleInstance) app.quit();
+// Installer hooks (build/installer.nsh): --register-file-types=pdf,md · --refresh-file-types ·
+// --unregister-file-types. They update the per-user "Open with" entries and exit without a window.
+const installerTask = process.argv.find(arg => /^--(?:register|refresh|unregister)-file-types(?:=|$)/.test(arg));
+async function runInstallerTask(arg) {
+  const associations = createAssociations({ app, shell }); let code = 0;
+  try {
+    if (arg.startsWith('--unregister')) await associations.unregister();
+    else if (arg.startsWith('--refresh')) { const { types } = await associations.status(); const kinds = Object.keys(types).filter(k => types[k].registered); if (kinds.length) await associations.register(kinds); }
+    else { const kinds = (arg.split('=')[1] || 'pdf,md').split(',').filter(k => associations.TYPES[k]); if (kinds.length) await associations.register(kinds); }
+  } catch { code = 1; }
+  app.exit(code);
+}
+const singleInstance = !installerTask && (smoke || safety || benchmark || process.argv.includes('--new-window') || app.requestSingleInstanceLock());
+if (installerTask) runInstallerTask(installerTask); else if (!singleInstance) app.quit();
 // Documents passed on the command line / by Explorer: PDF, Markdown and Office files (opened as PDF).
 const pdfArguments = args => args.filter(arg => !arg.startsWith('-') && (path.extname(arg).toLowerCase() === '.pdf' || markdownFiles.isMarkdown(arg) || officeConvert.isOffice(arg)));
 let pendingFiles = pdfArguments(process.argv.slice(app.isPackaged ? 1 : 2));

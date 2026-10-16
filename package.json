@@ -149,28 +149,12 @@
       "signExecutable": false,
       "artifactName": "QingyePDF-${version}-win-x64.${ext}"
     },
-    "fileAssociations": [
-      {
-        "ext": "pdf",
-        "name": "PDF document",
-        "description": "PDF document",
-        "role": "Viewer"
-      },
-      {
-        "ext": [
-          "md",
-          "markdown"
-        ],
-        "name": "Markdown document",
-        "description": "Markdown document",
-        "role": "Editor"
-      }
-    ],
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
+      "include": "build/installer.nsh",
       "artifactName": "QingyePDF-${version}-Setup-x64.${ext}"
     },
     "extraMetadata": {
