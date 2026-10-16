@@ -1,0 +1,232 @@
+1530	Office documents (open as PDF)	Office 文件（以 PDF 開啟）	Office 文書（PDF として開く）	Office 문서(PDF로 열기)
+1531	Waiting to open	等待開啟	開く準備中	열기 대기 중
+1532	Opened	已開啟	開きました	열림
+1533	Loading PDF…	正在載入 PDF…	PDF を読み込んでいます…	PDF 불러오는 중…
+1534	Opened {name} as a PDF ({seconds} s). The original file is unchanged; saving creates a new PDF.	已將 {name} 以 PDF 形式開啟（{seconds} 秒）；原檔案未變更，儲存時另存為 PDF。	{name} を PDF として開きました（{seconds} 秒）。元のファイルは変更されません。保存すると PDF として別名保存します。	{name}을(를) PDF로 열었습니다({seconds}초). 원본 파일은 바뀌지 않으며 저장하면 PDF로 따로 저장됩니다.
+1535	Canceled	已取消	キャンセルしました	취소됨
+1536	Choose a PDF, Markdown or Office file.	請選擇 PDF、Markdown 或 Office 檔案。	PDF、Markdown、Office ファイルを選択してください。	PDF, Markdown 또는 Office 파일을 선택하세요.
+1537	Invalid release page address.	無效的發布頁位址。	リリースページのアドレスが無効です。	릴리스 페이지 주소가 올바르지 않습니다.
+1538	All supported documents	所有支援的文件	サポートされているすべての文書	지원되는 모든 문서
+1539	This tab was not converted from an Office file.	這個分頁不是由 Office 檔案轉換而來。	このタブは Office ファイルから変換されたものではありません。	이 탭은 Office 파일에서 변환된 것이 아닙니다.
+1540	Converted again	已重新轉換	再変換しました	다시 변환했습니다
+1541	This operation does not support document drafts.	此操作不支援文件草稿。	この操作は文書の下書きに対応していません。	이 작업은 문서 초안을 지원하지 않습니다.
+1542	Invalid attached resource.	無效的附加資源。	添付リソースが無効です。	첨부 리소스가 올바르지 않습니다.
+1543	The clipboard content is too large.	剪貼簿內容過大。	クリップボードの内容が大きすぎます。	클립보드 내용이 너무 큽니다.
+1544	Invalid file name.	檔案名稱無效。	ファイル名が無効です。	파일 이름이 올바르지 않습니다.
+1545	Keep the image file extension.	請保留圖片副檔名。	画像の拡張子は残してください。	이미지 확장자를 유지하세요.
+1546	Opening canceled.	已取消開啟。	開くのをキャンセルしました。	열기를 취소했습니다.
+1547	Conversion timed out: the file may be too large or complex.	轉換逾時：檔案可能過大或過於複雜。	変換がタイムアウトしました：ファイルが大きすぎるか複雑すぎる可能性があります。	변환 시간이 초과되었습니다. 파일이 너무 크거나 복잡할 수 있습니다.
+1548	The bundled LibreOffice converter is missing. Reinstall Qingye PDF.	內建的 LibreOffice 轉換引擎遺失，請重新安裝青頁。	内蔵の LibreOffice 変換エンジンが見つかりません。青頁 PDF を再インストールしてください。	내장 LibreOffice 변환 엔진이 없습니다. Qingye PDF를 다시 설치하세요.
+1549	The file is larger than 512 MB and cannot be converted.	檔案超過 512 MB，無法轉換。	ファイルが 512 MB を超えているため変換できません。	파일이 512MB를 넘어 변환할 수 없습니다.
+1550	Invalid content.	無效的內容。	内容が無効です。	내용이 올바르지 않습니다.
+1551	Invalid attached resource name.	無效的附加資源名稱。	添付リソース名が無効です。	첨부 리소스 이름이 올바르지 않습니다.
+1552	Invalid bibliography file.	無效的文獻庫檔案。	文献ライブラリファイルが無効です。	참고문헌 파일이 올바르지 않습니다.
+1553	This file type cannot be imported.	不支援匯入此類型的檔案。	この種類のファイルはインポートできません。	이 형식의 파일은 가져올 수 없습니다.
+1554	Invalid ZIP data.	無效的 ZIP 資料。	ZIP データが無効です。	ZIP 데이터가 올바르지 않습니다.
+1555	Polygon	多邊形	多角形	다각형
+1556	Polyline	折線	折れ線	꺾은선
+1557	Note	便籤	付箋	메모
+1558	Squiggly	波浪線	波線	물결선
+1559	Caret	插入符號	挿入記号	삽입 기호
+1560	Attachment	附件	添付ファイル	첨부 파일
+1561	Sound	聲音	サウンド	소리
+1562	Edit annotation	編輯註解	注釈を編集	주석 편집
+1563	Line width	線寬	線の太さ	선 두께
+1564	Thin	細	細い	가늘게
+1565	Thick	粗	太い	굵게
+1566	Extra thick	很粗	極太	매우 굵게
+1567	Fill	填滿	塗りつぶし	채우기
+1568	Note…	備註…	メモ…	메모…
+1569	Save the current style as a preset for this annotation type	把目前樣式存為這類註解的預設	現在のスタイルをこの種類の注釈のプリセットとして保存	현재 스타일을 이 주석 유형의 프리셋으로 저장
+1570	Save as preset	存為預設	プリセットに保存	프리셋으로 저장
+1571	Delete this annotation	刪除這則註解	この注釈を削除	이 주석 삭제
+1572	Move line	移動直線	直線を移動	직선 이동
+1573	Resize	調整大小	サイズ変更	크기 조정
+1574	Move annotation	移動註解	注釈を移動	주석 이동
+1575	Change style	修改樣式	スタイルを変更	스타일 변경
+1576	Annotation deleted · can be undone	已刪除註解 · 可復原	注釈を削除しました · 元に戻せます	주석을 삭제했습니다 · 실행 취소 가능
+1577	Annotation note	註解備註	注釈のメモ	주석 메모
+1578	Edit note	修改備註	メモを変更	메모 수정
+1579	Style saved as a preset. Pick it from the shape toolbar.	已把目前樣式存為預設，可在圖形工具列中選用。	スタイルをプリセットに保存しました。図形ツールバーから選べます。	현재 스타일을 프리셋으로 저장했습니다. 도형 도구 모음에서 선택할 수 있습니다.
+1580	Sync zoom	同步縮放	ズームを同期	확대/축소 동기화
+1581	Compare the text of both documents: deletions marked red on the left, additions green on the right	比較兩份文件的文字，左側標出刪除（紅），右側標出新增（綠）	2 つの文書のテキストを比較し、削除を左に赤、追加を右に緑で表示	두 문서의 텍스트를 비교해 삭제는 왼쪽에 빨간색, 추가는 오른쪽에 초록색으로 표시
+1582	Previous difference	上一處差異	前の差分	이전 차이
+1583	Next difference	下一處差異	次の差分	다음 차이
+1584	Mark differences	標出差異	差分を表示	차이 표시
+1585	Previous	上一處	前へ	이전
+1586	Next	下一處	次へ	다음
+1587	No text differences	文字沒有差異	テキストの差分はありません	텍스트 차이 없음
+1588	Both documents have the same text (images and layout are not compared).	兩份文件的文字相同（不比較圖片和版面）。	2 つの文書のテキストは同じです（画像とレイアウトは比較しません）。	두 문서의 텍스트가 같습니다(이미지와 레이아웃은 비교하지 않음).
+1589	The document is busy. Convert again later.	文件正在處理，請稍後再重新轉換。	文書を処理中です。しばらくしてから再変換してください。	문서를 처리하는 중입니다. 잠시 후 다시 변환하세요.
+1590	Conversion canceled	已取消重新轉換	再変換をキャンセルしました	다시 변환을 취소했습니다
+1591	Convert again	重新轉換	再変換	다시 변환
+1592	Converted again from the updated original · can be undone	已依更新後的原檔案重新轉換 · 可復原	更新された元ファイルから再変換しました · 元に戻せます	업데이트된 원본으로 다시 변환했습니다 · 실행 취소 가능
+1593	Open a PDF, Markdown or Word / Excel / PPT file (or drag it into the window), or start with the samples on the right.	開啟 PDF、Markdown 或 Word / Excel / PPT 檔案（也可以直接拖進視窗），或先看看右側的範例。	PDF、Markdown、Word / Excel / PPT ファイルを開く（ウィンドウにドラッグしても可）か、右のサンプルをご覧ください。	PDF, Markdown 또는 Word / Excel / PPT 파일을 열거나(창으로 끌어와도 됨) 오른쪽 예제를 먼저 보세요.
+1594	Opens as PDF	以 PDF 開啟	PDF として開く	PDF로 열기
+1595	Qingye opens PDF, Markdown and Office files such as Word, Excel and PowerPoint. Office files are converted by the bundled LibreOffice and open as PDFs; the original files are never changed. The first conversion takes a few seconds.⏎⏎All processing happens on this computer. Nothing is uploaded.	青頁可以直接開啟 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 檔案。Office 檔案由內建的 LibreOffice 轉換後以 PDF 形式開啟，原檔案不會被變更；第一次轉換需要幾秒鐘。⏎⏎所有文件處理都在本機完成，不連網、不上傳檔案。	青頁 PDF は PDF、Markdown、および Word・Excel・PowerPoint などの Office ファイルを開けます。Office ファイルは内蔵の LibreOffice で変換して PDF として開き、元のファイルは変更しません。初回の変換には数秒かかります。⏎⏎すべての処理はこのコンピューター上で行われ、ファイルはアップロードされません。	Qingye는 PDF, Markdown과 Word, Excel, PowerPoint 같은 Office 파일을 열 수 있습니다. Office 파일은 내장 LibreOffice로 변환해 PDF로 열며 원본은 바뀌지 않습니다. 첫 변환은 몇 초 걸립니다.⏎⏎모든 처리는 이 컴퓨터에서 이루어지며 파일을 업로드하지 않습니다.
+1596	Open document: PDF, Markdown, Word, Excel, PowerPoint · Ctrl+O	開啟文件：PDF、Markdown、Word、Excel、PowerPoint · Ctrl+O	文書を開く：PDF、Markdown、Word、Excel、PowerPoint · Ctrl+O	문서 열기: PDF, Markdown, Word, Excel, PowerPoint · Ctrl+O
+1597	Open a PDF, Markdown, Word, Excel or PowerPoint document · Ctrl+O	開啟 PDF、Markdown、Word、Excel 或 PowerPoint 文件 · Ctrl+O	PDF、Markdown、Word、Excel、PowerPoint の文書を開く · Ctrl+O	PDF, Markdown, Word, Excel 또는 PowerPoint 문서 열기 · Ctrl+O
+1598	Cleaning up pasted content…	正在整理貼上內容…	貼り付け内容を整えています…	붙여넣은 내용을 정리하는 중…
+1599	Editing code block, Esc to finish	正在編輯程式碼區塊，Esc 結束編輯	コードブロックを編集中、Esc で終了	코드 블록 편집 중, Esc로 끝내기
+1600	Table of contents: right-click in Word and choose “Update Field”	目錄：在 Word 中按右鍵選擇「更新功能變數」產生	目次：Word で右クリックして「フィールド更新」を選ぶと生成されます	목차: Word에서 마우스 오른쪽 단추를 눌러 “필드 업데이트”를 선택하세요
+1601	Show Markdown marks while editing	編輯時顯示 Markdown 標記	編集時に Markdown 記号を表示	편집 중 Markdown 기호 표시
+1602	Only around the cursor (Typora style)	只顯示游標所在的格式（Typora 方式）	カーソル位置の書式だけ（Typora 方式）	커서가 있는 서식만(Typora 방식)
+1603	All marks in the current paragraph	顯示目前段落的全部標記	現在の段落のすべての記号	현재 단락의 모든 기호
+1604	Edit code blocks in a code editor (syntax colours, auto-indent, bracket closing)	程式碼區塊使用程式碼編輯器（語法著色、自動縮排、括號補全）	コードブロックをコードエディターで編集（構文の色分け、自動インデント、括弧の補完）	코드 블록을 코드 편집기로 편집(구문 색상, 자동 들여쓰기, 괄호 자동 닫기)
+1605	Line numbers in source mode	原始碼模式顯示行號	ソースモードで行番号を表示	소스 모드에서 줄 번호 표시
+1606	Convert punctuation while typing: curly quotes, -- to –, --- to —	輸入時轉換標點：引號變為彎引號，-- 變為 –，--- 變為 —	入力時に記号を変換：引用符を曲線引用符に、-- を –、--- を — に	입력 중 문장 부호 변환: 둥근 따옴표, -- → –, --- → —
+1607	Copy / cut the whole line when nothing is selected	沒有選取內容時，複製 / 剪下整行	選択がないときは行全体をコピー / 切り取り	선택한 내용이 없으면 줄 전체 복사 / 잘라내기
+1608	Equation numbering	公式自動編號	数式の自動番号	수식 자동 번호
+1609	No automatic numbers (only \tag)	不自動編號（只使用 \tag）	自動番号なし（\tag のみ）	자동 번호 없음(\tag만 사용)
+1610	AMS rules (equation, align and similar environments, and blocks with \label)	AMS 規則（equation、align 等環境，以及帶 \label 的公式區塊）	AMS 規則（equation・align などの環境と \label 付きの数式ブロック）	AMS 규칙(equation, align 등 환경과 \label이 있는 수식 블록)
+1611	Number all equation blocks	為所有公式區塊編號	すべての数式ブロックに番号	모든 수식 블록에 번호
+1612	References	參考文獻	参考文献	참고문헌
+1613	Citation style .csl file (empty = Chicago author-date; styles such as GB/T 7714 are in the Zotero style repository)	引用樣式 .csl 檔案（留空使用 Chicago 作者-年份；GB/T 7714 等樣式可從 Zotero 樣式庫下載）	引用スタイル .csl ファイル（空欄で Chicago 著者-年形式。GB/T 7714 などは Zotero スタイルリポジトリから入手）	인용 스타일 .csl 파일(비우면 Chicago 저자-연도, GB/T 7714 등은 Zotero 스타일 저장소에서 받을 수 있음)
+1614	When exporting to Word, ePub and similar formats, [@key] citations get a reference list from the Qingye library (PDF “Citation info”); a bibliography in the document YAML is used instead when present.	筆記裡的 [@key] 會在匯出 Word、ePub 等格式時依青頁文獻庫（PDF 的「引用資訊」）自動產生參考文獻；文件 YAML 裡寫了 bibliography 時改用該檔案。	ノートの [@key] は Word・ePub などへの書き出し時に青頁の文献ライブラリ（PDF の「引用情報」）から参考文献を自動生成します。文書の YAML に bibliography がある場合はそのファイルを使います。	노트의 [@key]는 Word, ePub 등으로 내보낼 때 Qingye 문헌 라이브러리(PDF의 “인용 정보”)로 참고문헌을 자동 생성합니다. 문서 YAML에 bibliography가 있으면 그 파일을 사용합니다.
+1615	How Word and ePub files are generated	Word 與 ePub 的產生方式	Word と ePub の生成方法	Word 및 ePub 생성 방식
+1616	Pandoc (native equations, real footnotes, styles from the theme)	Pandoc（原生公式、真正的註腳、依主題產生樣式）	Pandoc（ネイティブ数式、本物の脚注、テーマからスタイル生成）	Pandoc(기본 수식, 실제 각주, 테마 기반 스타일)
+1617	Qingye built-in generator	青頁內建產生器	青頁内蔵の生成機能	Qingye 내장 생성기
+1618	Falls back to the built-in generator when Pandoc is unavailable. LaTeX, RTF, HTML, PDF, images and plain text are always generated by Qingye.	Pandoc 無法使用時自動改用內建產生器。LaTeX、RTF、HTML、PDF、圖片、純文字始終由青頁自己產生。	Pandoc が使えない場合は内蔵の生成機能に切り替えます。LaTeX、RTF、HTML、PDF、画像、テキストは常に青頁が生成します。	Pandoc을 쓸 수 없으면 내장 생성기를 사용합니다. LaTeX, RTF, HTML, PDF, 이미지, 일반 텍스트는 항상 Qingye가 생성합니다.
+1619	Zoom (relative to original size)	縮放（相對原始大小）	ズーム（元のサイズ基準）	확대/축소(원래 크기 기준)
+1620	Image zoom	圖片縮放	画像のズーム	이미지 확대/축소
+1621	Half the page width	頁面寬度的一半	ページ幅の半分	페이지 너비의 절반
+1622	Full page width	填滿頁面寬度	ページ幅いっぱい	페이지 너비에 맞춤
+1623	Alt text	替代文字	代替テキスト	대체 텍스트
+1624	Alternative text for the image (screen readers, or when it cannot be shown)	圖片的替代文字（無障礙、圖片無法顯示時）	画像の代替テキスト（スクリーンリーダー、表示できない場合）	이미지 대체 텍스트(화면 읽기 프로그램, 이미지를 표시할 수 없을 때)
+1625	Rename the image file and update every reference in the document	重新命名圖片檔案並更新文件中的所有參照	画像ファイルの名前を変更し、文書内のすべての参照を更新	이미지 파일 이름을 바꾸고 문서의 모든 참조를 업데이트
+1626	Describe the image (read by screen readers, shown when the image cannot be displayed):	描述圖片內容（螢幕閱讀器朗讀，圖片無法顯示時顯示）：	画像の内容を説明してください（スクリーンリーダーが読み上げ、画像を表示できないときに表示）：	이미지 내용을 설명하세요(화면 읽기 프로그램이 읽고, 이미지를 표시할 수 없을 때 표시됨):
+1627	Rename image file	重新命名圖片檔案	画像ファイルの名前を変更	이미지 파일 이름 바꾸기
+1628	New file name (all references in the document are updated):	新檔案名稱（文件中所有參照會一起更新）：	新しいファイル名（文書内のすべての参照も更新されます）：	새 파일 이름(문서의 모든 참조가 함께 업데이트됨):
+1629	The image is already in the image folder	圖片已在圖片資料夾中	画像はすでに画像フォルダーにあります	이미지가 이미 이미지 폴더에 있습니다
+1630	Use <img> syntax	改用 <img> 語法	<img> 構文に切り替え	<img> 구문으로 바꾸기
+1631	Edit alt text…	編輯替代文字…	代替テキストを編集…	대체 텍스트 편집…
+1632	Open with default app	用預設程式開啟	既定のアプリで開く	기본 앱으로 열기
+1633	Rename image file…	重新命名圖片檔案…	画像ファイルの名前を変更…	이미지 파일 이름 바꾸기…
+1634	Move to image folder	移到圖片資料夾	画像フォルダーへ移動	이미지 폴더로 이동
+1635	The document converter is missing. Reinstall Qingye PDF.	文件轉換引擎遺失，請重新安裝青頁。	文書変換エンジンが見つかりません。青頁 PDF を再インストールしてください。	문서 변환 엔진이 없습니다. Qingye PDF를 다시 설치하세요.
+1636	Text markup	文字註解	テキスト注釈	텍스트 주석
+1637	Selected text copied.	已複製所選文字。	選択したテキストをコピーしました。	선택한 텍스트를 복사했습니다.
+1638	Cannot write to the clipboard.	無法寫入剪貼簿。	クリップボードに書き込めません。	클립보드에 쓸 수 없습니다.
+1639	To redact	待塗黑	墨消し予定	가릴 항목
+1640	Delete selected annotations	刪除選取的註解	選択した注釈を削除	선택한 주석 삭제
+1641	Tick the annotations to delete first.	請先勾選要刪除的註解。	削除する注釈にチェックを入れてください。	삭제할 주석을 먼저 선택하세요.
+1642	Annotations deleted. You can undo this.	已刪除註解，可復原。	注釈を削除しました。元に戻せます。	주석을 삭제했습니다. 실행 취소할 수 있습니다.
+1643	Waiting	等待中	待機中	대기 중
+1644	Reading file	讀取檔案	ファイルを読み込み中	파일 읽는 중
+1645	Queued	排隊中	順番待ち	대기열에 있음
+1646	Starting converter	啟動轉換引擎	変換エンジンを起動中	변환 엔진 시작 중
+1647	Converting to PDF	轉換為 PDF	PDF に変換中	PDF로 변환 중
+1648	Using cached copy	使用快取	キャッシュを使用	캐시 사용
+1649	Loading PDF	載入 PDF	PDF を読み込み中	PDF 불러오는 중
+1650	Failed	失敗	失敗	실패
+1651	The file is large or complex and is still converting. Please wait, or cancel.	檔案較大或較複雜，仍在轉換，請稍候；也可以取消。	ファイルが大きいか複雑なため変換を続けています。しばらくお待ちください（キャンセルも可能）。	파일이 크거나 복잡해 아직 변환 중입니다. 잠시 기다리거나 취소하세요.
+1652	Cancel opening	取消開啟	開くのをキャンセル	열기 취소
+1653	Cannot open	無法開啟	開けません	열 수 없음
+1654	The original file was deleted or moved; this PDF tab can still be used.	原檔案已被刪除或移動；這個 PDF 分頁仍可使用。	元のファイルは削除または移動されました。この PDF タブは引き続き使えます。	원본 파일이 삭제되었거나 이동되었습니다. 이 PDF 탭은 계속 사용할 수 있습니다.
+1655	The original file has changed. Converting again replaces the PDF in this tab (unsaved annotations are lost; can be undone).	原檔案已更新。重新轉換會取代目前分頁裡的 PDF（未儲存的註解會遺失，可復原）。	元のファイルが更新されました。再変換するとこのタブの PDF が置き換わります（未保存の注釈は失われます。元に戻せます）。	원본 파일이 변경되었습니다. 다시 변환하면 이 탭의 PDF가 바뀝니다(저장하지 않은 주석은 사라지며 실행 취소 가능).
+1656	Not now	暫不	後で	나중에
+1657	e.g. Jane Doe	例如：王小明	例：山田太郎	예: 홍길동
+1658	Registered as an app for PDF, Markdown and Office files	已註冊為 PDF、Markdown 與 Office 檔案的開啟方式	PDF・Markdown・Office ファイルを開くアプリとして登録しました	PDF, Markdown, Office 파일을 여는 앱으로 등록했습니다
+1659	Checking…	正在查詢…	確認しています…	확인하는 중…
+1660	No release has been published yet.	還沒有正式發布的版本。	まだ正式リリースはありません。	아직 정식 출시된 버전이 없습니다.
+1661	Arrow	箭頭	矢印	화살표
+1662	Cloud	雲形框	雲形	구름 모양
+1663	Shape annotations	圖形註解	図形注釈	도형 주석
+1664	Line colour	線條顏色	線の色	선 색
+1665	Style presets	樣式預設	スタイルのプリセット	스타일 프리셋
+1666	Apply or cancel the current page edit before drawing shapes.	請先套用或取消目前頁面編輯，再繪製圖形。	図形を描く前に、現在のページ編集を適用またはキャンセルしてください。	도형을 그리기 전에 현재 페이지 편집을 적용하거나 취소하세요.
+1667	Shape drawing finished.	已結束圖形繪製。	図形の描画を終了しました。	도형 그리기를 마쳤습니다.
+1668	Insert variable	插入變數	変数を挿入	변수 삽입
+1669	e.g. QY-	例如：QY-	例：QY-	예: QY-
+1670	e.g. customer name	例如：客戶姓名	例：顧客名	예: 고객 이름
+1671	Common patterns	常用格式	よく使う形式	자주 쓰는 형식
+1672	e.g. Contract No\.\s*\w+	例如：合約編號\s*\w+	例：契約番号\s*\w+	예: 계약번호\s*\w+
+1673	Matches	尋找結果	検索結果	찾은 결과
+1674	Permanently removes text, images and intersecting graphics in the selected areas; annotations, form fields and links that touch the areas are removed, other annotations are kept; metadata, attachments and scripts are cleaned. Check the result after exporting or applying.	永久刪除所選區域內的文字、圖像與相交圖形；與區域相交的註解、表單和連結會被移除，其他註解保留；同時清理中繼資料、附件與指令碼。匯出或套用後請檢查結果。	選択範囲内のテキスト・画像・交差する図形を完全に削除します。範囲に重なる注釈・フォーム・リンクは削除され、その他の注釈は残ります。メタデータ・添付ファイル・スクリプトも消去します。書き出しまたは適用後に結果を確認してください。	선택 영역의 텍스트, 이미지, 겹치는 그래픽을 영구 삭제합니다. 영역과 겹치는 주석, 양식, 링크는 제거되고 다른 주석은 유지되며 메타데이터, 첨부 파일, 스크립트도 정리됩니다. 내보내거나 적용한 뒤 결과를 확인하세요.
+1675	Sets the page CropBox: from a selected area, automatically to the content, or removes all cropping; can apply to odd or even pages only (left/right pages of a book). Content outside stays in the file; use permanent redaction to remove sensitive content.	設定頁面的 CropBox：依框選區域、自動裁到內容，或移除全部裁剪；可只作用於奇數頁或偶數頁（如書籍的左右頁）。區域外內容仍在檔案中，刪除敏感內容請用永久塗黑。	ページの CropBox を設定します：選択範囲、内容への自動トリミング、またはトリミングの全解除。奇数ページまたは偶数ページだけにも適用できます（本の左右ページなど）。範囲外の内容はファイルに残るため、機密内容の削除には完全墨消しを使ってください。	페이지 CropBox 설정: 선택 영역, 내용에 맞춰 자동 자르기, 모든 자르기 제거. 홀수 또는 짝수 페이지에만 적용할 수 있습니다(책의 왼쪽/오른쪽 페이지). 영역 밖 내용은 파일에 남으므로 민감한 내용은 영구 가리기로 지우세요.
+1676	Select all · total	全選 · 共	すべて選択 · 計	모두 선택 · 총
+1677	matches, selected	處，已選	件、選択	개, 선택
+1678	matches	處	件	개
+1679	Too many results; showing the first 2000. Narrow the page range or the search.	結果過多，只顯示前 2000 處；請縮小頁碼範圍或尋找條件。	結果が多すぎるため最初の 2000 件だけ表示します。ページ範囲か検索条件を絞ってください。	결과가 너무 많아 처음 2000개만 표시합니다. 페이지 범위나 검색 조건을 좁히세요.
+1680	No matches found.	沒有找到相符的內容。	一致する内容が見つかりません。	일치하는 내용이 없습니다.
+1681	Update check timed out. Check your network connection.	檢查更新逾時，請檢查網路連線。	更新の確認がタイムアウトしました。ネットワーク接続を確認してください。	업데이트 확인 시간이 초과되었습니다. 네트워크 연결을 확인하세요.
+1682	Cannot reach GitHub. Check your network connection.	無法連線到 GitHub，請檢查網路連線。	GitHub に接続できません。ネットワーク接続を確認してください。	GitHub에 연결할 수 없습니다. 네트워크 연결을 확인하세요.
+1683	Annotation author	註解作者	注釈の作成者	주석 작성자
+1684	Written to the author field of new annotations; other readers show this name. Leave empty to omit.	寫入新建註解的作者欄位，其他閱讀器會顯示這個名字。留空則不寫。	新しい注釈の作成者欄に書き込まれ、他のリーダーにも表示されます。空欄なら書き込みません。	새 주석의 작성자 필드에 기록되어 다른 뷰어에도 표시됩니다. 비워 두면 기록하지 않습니다.
+1685	Show the markup toolbar after selecting text	選取文字後顯示註解工具列	テキスト選択時に注釈ツールバーを表示	텍스트 선택 후 주석 도구 모음 표시
+1686	Highlight, underline, strikeout, squiggly and copy.	提供螢光標示、底線、刪除線、波浪線和複製。	ハイライト、下線、取り消し線、波線、コピー。	강조, 밑줄, 취소선, 물결선, 복사를 제공합니다.
+1687	Put the selected text in the annotation note	把所選文字寫入註解備註	選択テキストを注釈のメモに書き込む	선택한 텍스트를 주석 메모에 기록
+1688	Highlight, underline and similar annotations carry the marked text in their note.	螢光標示、底線等註解的備註裡會帶上被標記的原文。	ハイライトや下線などの注釈のメモに、マークした原文が入ります。	강조, 밑줄 등 주석의 메모에 표시한 원문이 들어갑니다.
+1689	Click an annotation to edit it	按一下註解即可編輯	注釈をクリックして編集	주석을 클릭해 편집
+1690	Select shapes, text markup or notes saved in the file to move, resize, recolour or annotate them.	選取已儲存在檔案裡的圖形、文字標記或便籤後，可拖動、縮放、改顏色和備註。	ファイルに保存された図形・テキスト注釈・付箋を選択して、移動・サイズ変更・色やメモの変更ができます。	파일에 저장된 도형, 텍스트 주석, 메모를 선택해 이동, 크기 조정, 색과 메모 변경을 할 수 있습니다.
+1691	Single-letter annotation shortcuts	單字母註解快速鍵	1 文字の注釈ショートカット	한 글자 주석 단축키
+1692	H highlight, U underline, S strikeout, G squiggly, I freehand, T text box, C comment, P or Esc to leave annotation mode.	H 螢光標示、U 底線、S 刪除線、G 波浪線、I 自由繪製、T 文字方塊、C 評論、P 或 Esc 離開註解。	H ハイライト、U 下線、S 取り消し線、G 波線、I フリーハンド、T テキストボックス、C コメント、P または Esc で注釈を終了。	H 강조, U 밑줄, S 취소선, G 물결선, I 자유 그리기, T 텍스트 상자, C 댓글, P 또는 Esc로 주석 종료.
+1693	Open PDF, Markdown and Office files with Qingye	用青頁開啟 PDF、Markdown 和 Office 檔案	PDF・Markdown・Office ファイルを青頁で開く	PDF, Markdown, Office 파일을 Qingye로 열기
+1694	Include Office files when registering	註冊時包含 Office 檔案	登録時に Office ファイルを含める	등록할 때 Office 파일 포함
+1695	Double-clicked Word, Excel, PowerPoint files open in Qingye as PDFs (the original is unchanged). Off by default; Office / WPS associations are not affected.	Word、Excel、PowerPoint 等檔案按兩下後在青頁中以 PDF 形式開啟（原檔案不變更）。預設不勾選，不影響 Office / WPS 的關聯。	Word・Excel・PowerPoint などをダブルクリックすると青頁で PDF として開きます（元ファイルは変更しません）。既定ではオフで、Office / WPS の関連付けには影響しません。	Word, Excel, PowerPoint 파일을 두 번 클릭하면 Qingye에서 PDF로 열립니다(원본은 바뀌지 않음). 기본값은 꺼짐이며 Office / WPS 연결에는 영향을 주지 않습니다.
+1696	Check for updates	檢查更新	更新を確認	업데이트 확인
+1697	Asks GitHub for the latest version only when you click. Nothing is downloaded or installed automatically.	只在按下時向 GitHub 查詢最新版本，不會自動下載或安裝。	クリックしたときだけ GitHub で最新バージョンを確認します。自動でダウンロードやインストールはしません。	클릭할 때만 GitHub에서 최신 버전을 확인합니다. 자동으로 다운로드하거나 설치하지 않습니다.
+1698	Go to download	前往下載	ダウンロードページへ	다운로드하러 가기
+1699	New version available:	有新版本	新しいバージョンがあります：	새 버전:
+1700	current	目前	現在	현재
+1701	You have the latest version	已是最新版本	最新バージョンです	최신 버전입니다
+1702	Update check failed.	檢查更新失敗。	更新の確認に失敗しました。	업데이트 확인에 실패했습니다.
+1703	Compression profile	壓縮方案	圧縮プロファイル	압축 방식
+1704	Lossless cleanup only (or custom below)	只做無損清理（或下方自訂）	可逆的な整理のみ（または下で個別設定）	무손실 정리만(또는 아래에서 직접 설정)
+1705	High quality · downsample only above 300 DPI	高品質 · 超過 300 DPI 才降低取樣	高画質 · 300 DPI を超える場合のみダウンサンプリング	고품질 · 300DPI 초과 시에만 다운샘플링
+1706	Balanced · above 225 DPI down to 150 DPI	平衡 · 超過 225 DPI 降到 150 DPI	バランス · 225 DPI 超を 150 DPI に	균형 · 225DPI 초과 시 150DPI로
+1707	Smallest file · about 96 DPI	最小檔案 · 降到約 96 DPI	最小サイズ · 約 96 DPI に	최소 크기 · 약 96DPI로
+1708	Apply to	套用到	適用先	적용 대상
+1709	All pages in the range	所選範圍內的全部頁	範囲内のすべてのページ	범위의 모든 페이지
+1710	Odd pages only	僅奇數頁	奇数ページのみ	홀수 페이지만
+1711	Even pages only	僅偶數頁	偶数ページのみ	짝수 페이지만
+1712	Variables and Bates numbering	變數與貝茲編號	変数とベイツ番号	변수와 베이츠 번호
+1713	You can use in the text:	文字中可以使用：	テキストで使えるもの：	텍스트에 사용할 수 있는 항목:
+1714	page,	頁碼、	ページ番号、	페이지 번호,
+1715	total pages,	總頁數、	総ページ数、	전체 페이지 수,
+1716	file name,	檔案名稱、	ファイル名、	파일 이름,
+1717	date,	日期、	日付、	날짜,
+1718	time,	時間、	時刻、	시간,
+1719	title,	標題、	タイトル、	제목,
+1720	author,	作者、	作成者、	작성자,
+1721	Bates number.	貝茲編號。	ベイツ番号。	베이츠 번호.
+1722	Total pages	總頁數	総ページ数	전체 페이지 수
+1723	File name	檔案名稱	ファイル名	파일 이름
+1724	Date	日期	日付	날짜
+1725	Bates number	貝茲編號	ベイツ番号	베이츠 번호
+1726	Prefix	前綴	接頭辞	접두사
+1727	Start number	起始號	開始番号	시작 번호
+1728	Digits	位數	桁数	자릿수
+1729	Suffix	後綴	接尾辞	접미사
+1730	Drag to select an area, or find by content and confirm each match (all ticked matches are redacted).	可以拖動框選一個區域，也可以依內容尋找後逐條確認（勾選的結果會全部塗黑）。	ドラッグして範囲を選ぶか、内容で検索して 1 件ずつ確認できます（チェックした結果はすべて墨消しされます）。	드래그해 영역을 선택하거나 내용으로 찾아 하나씩 확인할 수 있습니다(선택한 결과는 모두 가려집니다).
+1731	Text to find (one per line)	尋找文字（每行一個）	検索するテキスト（1 行に 1 つ）	찾을 텍스트(한 줄에 하나)
+1732	Mobile number	手機號碼	携帯電話番号	휴대폰 번호
+1733	Landline	市話	固定電話	유선 전화
+1734	ID card number	身分證號	身分証番号	신분증 번호
+1735	Bank card number	銀行卡號	銀行カード番号	은행 카드 번호
+1736	Email	電子郵件	メール	이메일
+1737	URL	網址	URL	URL
+1738	Amount	金額	金額	금액
+1739	Regular expression (optional)	規則運算式（選用）	正規表現（任意）	정규식(선택)
+1740	Redaction colour	塗黑顏色	墨消しの色	가리기 색
+1741	Clear results	清除結果	結果をクリア	결과 지우기
+1742	Crop mode	裁剪方式	トリミング方法	자르기 방식
+1743	Crop to the selected area	依框選區域裁剪	選択範囲でトリミング	선택 영역으로 자르기
+1744	Auto-crop to content (text, images, graphics)	自動裁到內容（文字、圖片與圖形）	内容に合わせて自動トリミング（テキスト・画像・図形）	내용에 맞춰 자동 자르기(텍스트, 이미지, 그래픽)
+1745	Remove all cropping and restore full pages	移除全部裁剪，恢復完整頁面	トリミングをすべて解除してページ全体に戻す	모든 자르기를 제거하고 전체 페이지 복원
+1746	Auto-crop margin (pt)	自動裁剪留白 pt	自動トリミングの余白 pt	자동 자르기 여백 pt
+1747	Standard stamps	標準印章	標準スタンプ	표준 도장
+1748	Custom text	自訂文字	カスタムテキスト	사용자 지정 텍스트
+1749	Approved	同意	承認	승인
+1750	Completed	已完成	完了	완료
+1751	Paid	已付款	支払済	지불 완료
+1752	Confidential	機密	機密	기밀
+1753	Top secret	絕密	極秘	극비
+1754	Void	作廢	無効	무효
+1755	Not approved	不同意	不承認	불승인
+1756	Draft	草稿	下書き	초안
+1757	For reference only	僅供參考	参考用	참고용
+1758	Copy	副本	控え	사본
+1759	Pending review	待審核	確認待ち	검토 대기
+1760	Please sign	請簽名	署名してください	서명 필요
+1761	Date stamp	日期章	日付スタンプ	날짜 도장

@@ -76,6 +76,10 @@ PATTERNS = [
     (r'^已把引用插入 (.+) · 可撤销，尚未保存$', {'en': 'Reference inserted into $1 · undoable, not saved yet', 'zh-TW': '已把引用插入 $1 · 可復原，尚未儲存', 'ja': '参考文献を $1 に挿入しました · 元に戻せます、未保存', 'ko': '참고문헌을 $1에 삽입했습니다 · 실행 취소 가능, 저장 안 됨'}),
     (r'^已导出 (\d+) 条文献到 (.+)$', {'en': '$1 references exported to $2', 'zh-TW': '已匯出 $1 條文獻到 $2', 'ja': '$1 件の文献を $2 に書き出しました', 'ko': '문헌 $1개를 $2에 내보냈습니다'}),
     (r'^doi\.org 返回了错误（(\d+)）。$', {'en': 'doi.org answered with an error ($1).', 'zh-TW': 'doi.org 傳回了錯誤（$1）。', 'ja': 'doi.org がエラーを返しました（$1）。', 'ko': 'doi.org가 오류를 반환했습니다($1).'}),
+    (r'^(\d+) 秒$', {'en': '$1 s', 'zh-TW': '$1 秒', 'ja': '$1 秒', 'ko': '$1초'}),
+    (r'^已重命名为 (.+)，更新了 (\d+) 处引用$', {'en': 'Renamed to $1, $2 references updated', 'zh-TW': '已重新命名為 $1，更新了 $2 處參照', 'ja': '$1 に名前を変更し、$2 か所の参照を更新しました', 'ko': '$1(으)로 이름을 바꾸고 참조 $2곳을 업데이트했습니다'}),
+    (r'^已移到 (.+)，更新了 (\d+) 处引用$', {'en': 'Moved to $1, $2 references updated', 'zh-TW': '已移到 $1，更新了 $2 處參照', 'ja': '$1 に移動し、$2 か所の参照を更新しました', 'ko': '$1(으)로 옮기고 참조 $2곳을 업데이트했습니다'}),
+    (r'^删除：(\d+) · 新增：(\d+)$', {'en': 'Removed: $1 · Added: $2', 'zh-TW': '刪除：$1 · 新增：$2', 'ja': '削除：$1 · 追加：$2', 'ko': '삭제: $1 · 추가: $2'}),
 ]
 SINGLE = {'开': {'en': 'on', 'zh-TW': '開', 'ja': 'オン', 'ko': '켬'}, '关': {'en': 'off', 'zh-TW': '關', 'ja': 'オフ', 'ko': '끔'}}
 # Catalog fragments used as prefixes of longer runtime strings ("已复制路径：C:\…").

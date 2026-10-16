@@ -11,9 +11,10 @@
 
 | | |
 |---|---|
-| **PDF 阅读** | 多标签、全文搜索、目录 / 书签 / 缩略图、高亮 / 墨迹 / 文本框 / 签名批注、并排比较、文字重排 |
+| **PDF 阅读** | 多标签、全文搜索、目录 / 书签 / 缩略图、高亮 / 墨迹 / 文本框 / 图形 / 签名批注（已有批注可拖动、缩放、改样式）、并排比较与差异高亮、文字重排 |
+| **Office 文件** | Word、Excel、PowerPoint、WPS 文件直接打开，随包 LibreOffice 在本机转换成 PDF（保留版式，原文件不改动），有进度和取消 |
 | **笔记模式** | PDF 与 Markdown 左右并排；摘录选中文字或框选区域（公式、图表），链接可回到原文并高亮；批注一键同步到笔记；翻页时笔记跟随 |
-| **Markdown** | 所见即所得编辑（Typora 风格）、源码模式、数学公式、Mermaid 图表、表格、导出 PDF / Word / HTML / EPUB |
+| **Markdown** | 所见即所得编辑（Typora 风格）、代码块编辑器（语法着色、自动缩进）、源码模式、数学公式、Mermaid 图表、表格、图片缩放与重命名、从 Word 干净粘贴、导出 PDF / Word / HTML / EPUB |
 | **全库搜索** | 在所有打开过的 PDF 和笔记的内容里搜索，索引只保存在本机 |
 | **引用信息** | 识别 DOI / arXiv / 标题 / 作者，生成 BibTeX、GB/T 7714、APA，导出 `.bib` 文献库 |
 | **PDF 工具箱** | 合并、拆分、页面重排、压缩、OCR（中英文）、原文替换、永久涂黑、水印、印章、加密 |
@@ -55,16 +56,17 @@ cd QingyePDF
 npm ci
 node scripts/prepare-pdfjs.mjs      # 重新下载并校验 PDF.js（仓库已带一份，可跳过）
 ./scripts/prepare-pandoc.ps1        # 下载并校验 Pandoc 3.12（约 235 MB，不入库）
+./scripts/prepare-libreoffice.ps1   # 下载并校验 LibreOffice 26.2.6，用于打开 Office 文件（约 640 MB，不入库）
 ./scripts/build-backend.ps1         # 用 PyInstaller 冻结 PDF 工具箱后端（不入库）
 npm start
 ```
 
-只想改界面而不用工具箱和转换功能时，后两步可以跳过。在 Mac 上把两个 `.ps1` 换成 `bash scripts/prepare-pandoc.sh` 和 `bash scripts/build-backend.sh`。打包与发布见 [docs/BUILDING.md](docs/BUILDING.md)。
+只想改界面而不用工具箱、转换和 Office 打开时，后三步可以跳过。在 Mac 上把两个 `.ps1` 换成 `bash scripts/prepare-pandoc.sh` 和 `bash scripts/build-backend.sh`。打包与发布见 [docs/BUILDING.md](docs/BUILDING.md)。
 
 ```powershell
 npm test                            # 单元测试
 node scripts/ci-smoke.cjs           # Electron 冒烟测试（真实窗口）
-npm run dist                        # 生成 dist/QingyePDF-<版本>-win-x64.exe
+npm run dist                        # 生成 dist/QingyePDF-<版本>-Setup-x64.exe 和 -win-x64.zip
 ```
 
 ## 仓库结构
@@ -92,7 +94,7 @@ docs/                      使用说明、构建说明、架构说明、历史�
 ## 隐私
 
 - 不联网也能使用全部阅读、编辑、搜索和转换功能；应用的窗口进程禁止访问任何网络地址。
-- 只有两处会在你明确操作时联网：**AI 协作**（把问题和模型读取的文档片段发送到你自己配置的服务）和**引用信息的“联网补全”**（只把 DOI 发送到 doi.org）。
+- 只有三处会在你明确操作时联网：**AI 协作**（把问题和模型读取的文档片段发送到你自己配置的服务）、**引用信息的“联网补全”**（只把 DOI 发送到 doi.org）和**设置 → 关于 →“检查更新”**（向 GitHub Releases 查询一次最新版本号，不发送任何文档信息，不自动下载）。
 - 最近文件、阅读位置、全库搜索索引、引用信息都保存在本机用户数据目录。
 
 ## 参与

@@ -38,6 +38,8 @@ npm run dist                        # 安装版 dist/QingyePDF-<版本>-Setup-x6
 npm run dist:installer              # 只生成安装版
 ```
 
+安装程序的附加选项页（桌面快捷方式、文件关联）、升级时保留选择、卸载时询问是否删除用户数据，写在 `build/installer.nsh`（electron-builder 的 NSIS include，UTF-8 带 BOM）；文件关联通过运行 `QingyePDF.exe --register-file-types=pdf,md,office` / `--refresh-file-types` / `--unregister-file-types` 完成，与设置中的文件关联使用同一套注册表项（`file-associations.cjs`）。
+
 0.15 起不再发布便携 EXE。`node scripts/build-distribution.cjs portable` 仍可手动生成（使用 `build/portable-cache.nsi`），但不属于发布物。
 
 ### 在 Linux / macOS 上交叉构建
@@ -83,4 +85,8 @@ npm test && npm run test:e2e         # 单元测试；手机尺寸的 Chromium �
 
 ## 示例文档
 
-首页的“PDF 使用示例”有三个版本：`ui/sample-guide.pdf`（Windows）、`ui/sample-guide-mac.pdf`（Mac 快捷键）、`ui/sample-guide-touch.pdf`（安卓，手势说明）。它们由同一份 `scripts/sample-guide/guide.html` 生成：`python3 scripts/sample-guide/build.py`（需要 Pillow、fontTools、Playwright 和 Noto Sans CJK 字体）。
+首页的“PDF 使用示例”有三个版本：`ui/sample-guide.pdf`（Windows）、`ui/sample-guide-mac.pdf`（Mac 快捷键）、`ui/sample-guide-touch.pdf`（安卓，手势说明）。它们由同一份 `scripts/sample-guide/guide.html` 生成：`python3 scripts/sample-guide/build.py`（需要 Pillow、fontTools 和 Noto Sans CJK SC 字体）。Linux 上使用 fonts-noto-cjk 的 `.ttc`；Windows 上使用系统自带的 `NotoSansSC-VF.ttf`（实例化为常规 / 粗体）。装了 Playwright 时用它的 Chromium 打印，否则用项目自己的 Electron（`scripts/sample-guide/render.cjs`）。Markdown 示例是 `ui/markdown/sample.md`。
+
+## CodeMirror 离线包
+
+`vendor/codemirror/qingye-codemirror.mjs` 是 CodeMirror 6 的离线打包，供源码模式和代码块编辑器使用（0.19 起包含 24 种代码语言）。需要更新时按 `scripts/build-codemirror-vendor.mjs` 顶部注释安装固定版本的包（可以装在临时目录，用 `--modules` 指过去），再运行该脚本。`@codemirror/state` 和 `@codemirror/view` 必须只有一份（`npm ls @codemirror/state` 只显示一个版本），否则编辑器会报 “Unrecognized extension value”。
