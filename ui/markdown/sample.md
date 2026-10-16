@@ -66,7 +66,7 @@ tags: [示例, 本地, 功能导览]
 
 ## 四、代码
 
-代码块支持语法高亮，悬停右上角可以复制。
+代码块支持语法高亮，悬停右上角可以复制。点击代码块会打开**代码编辑器**：按语言着色（Python、JavaScript、C/C++、Java、Go、Rust、SQL、Shell 等二十多种），Enter 自动缩进，括号和引号自动补全，`Tab` / `Shift + Tab` 调整缩进；在第一行按 ↑、最后一行按 ↓ 或按 `Esc` 离开代码块。不习惯的话，可以在“偏好设置 → 编辑”里关掉。
 
 ```python
 def greet(name: str) -> str:
@@ -75,6 +75,9 @@ def greet(name: str) -> str:
 
 print(greet("青页"))
 ```
+
+> [!TIP]
+> **动手试试**：点击上面 Python 代码中 `def greet` 那一行的末尾，按 Enter 看看自动缩进，再输入 `(` 看看括号补全；改完按 `Ctrl + Z` 撤销。
 
 ```javascript
 const tags = ['本地', '私密', '开源'];
@@ -285,7 +288,18 @@ GitHub 风格的警告框共五种：
 
 [^note]: 脚注的内容写在这里。
 
-## 八、导出与分享
+## 八、图片与粘贴
+
+单击图片会出现图片工具条：用滑块按 25%–200% 缩放（相对原始大小），一键设为页面宽度的 50% / 100% 或恢复原始大小，切换 Markdown 与 `<img>` 写法，填写替代文字。对已保存文档中的本地图片，还可以**重命名图片文件**或**移到图片文件夹**——文档里所有引用会一起更新；右键菜单里有“用默认程序打开”“在资源管理器中显示”和“移到回收站”。
+
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='120' viewBox='0 0 360 120'%3E%3Crect width='360' height='120' rx='14' fill='%23e7f3ec'/%3E%3Ccircle cx='60' cy='60' r='30' fill='%232f8f5b'/%3E%3Crect x='110' y='38' width='200' height='14' rx='7' fill='%232f8f5b' opacity='.7'/%3E%3Crect x='110' y='66' width='140' height='14' rx='7' fill='%232f8f5b' opacity='.4'/%3E%3C/svg%3E" alt="示例图片" />
+
+从 Word、WPS、Excel 复制内容粘贴进来时，青页会用内置转换引擎整理：编号和项目符号变成真正的列表，表格第一行变成表头，Word 的隐藏格式全部去掉。网页内容也会转换成 Markdown；只想要纯文字时按 `Ctrl + Shift + V`。
+
+> [!TIP]
+> **动手试试**：单击上面的图片，拖动缩放滑块到 50%，松开后看看源码里的宽度。
+
+## 九、导出与分享
 
 “文件 → 导出”支持 PDF、HTML、Word（.docx）、ePub、LaTeX、RTF、纯文本和 PNG 长图；内置转换引擎还可以导出 ODT、RST、PPTX 等格式，并从 Word、HTML 等导入。首页与标题栏的“文档转换”提供更多输入输出格式、模板、引用样式和过滤器。
 
@@ -302,6 +316,8 @@ GitHub 风格的警告框共五种：
 | `Ctrl + T` | 插入表格 |
 | `Ctrl + Shift + K` | 代码块 |
 | `Ctrl + Shift + M` | 公式块 |
+| `Ctrl + Shift + V` | 粘贴为纯文本 |
+| `Esc` | 结束编辑当前块（包括代码块） |
 | `Ctrl + F` / `Ctrl + H` | 查找 / 替换 |
 | `Ctrl + Shift + P` | 命令面板（可搜索全部命令） |
 | `Ctrl + P` | 快速打开文件 |

@@ -1,6 +1,8 @@
 # Builds ui/sample-guide.pdf, ui/sample-guide-mac.pdf and ui/sample-guide-touch.pdf (the "PDF 示例"
 # opened from the home page on Windows, macOS and Android).
-# Requires: Pillow, Playwright + Chromium, Noto Sans CJK fonts. Run: python3 scripts/sample-guide/build.py
+# Requires: Pillow, fontTools and Noto Sans CJK SC (Linux: fonts-noto-cjk .ttc; Windows: the system's
+# NotoSansSC-VF.ttf). PDFs are printed by Playwright + Chromium when installed, otherwise by the
+# project's Electron (render.cjs). Run: python3 scripts/sample-guide/build.py
 import asyncio, os, subprocess, sys
 from pathlib import Path
 from PIL import Image
@@ -13,7 +15,7 @@ Image.open(here / 'scan.png').convert('L').save(here / 'scan.jpg', quality=78, o
 # used also drops the Kangxi/CJK radical code points that share glyphs with 一/青/页…, which would
 # otherwise end up in the PDF's ToUnicode map and break search and copy.
 import re, shutil
-from fontTools.ttLib import TTCollection
+from fontTools.ttLib import TTCollection, TTFont
 from fontTools import subset
 source = (here / 'guide.html').read_text(encoding='utf8')
 
@@ -45,16 +47,37 @@ def touch(html):
     return html
 VARIANTS = {'sample-guide.pdf': lambda html: html, 'sample-guide-mac.pdf': mac, 'sample-guide-touch.pdf': touch}
 
+LINUX_FONTS = Path('/usr/share/fonts/opentype/noto')
+WINDOWS_VF = Path(os.environ.get('WINDIR', 'C:/Windows')) / 'Fonts' / 'NotoSansSC-VF.ttf'
+def cjk_font(weight):
+    if (LINUX_FONTS / 'NotoSansCJK-Regular.ttc').exists():
+        coll = TTCollection(str(LINUX_FONTS / ('NotoSansCJK-Bold.ttc' if weight == 'bold' else 'NotoSansCJK-Regular.ttc')))
+        return next(f for f in coll.fonts if 'Noto Sans CJK SC' in f['name'].getDebugName(1))
+    if WINDOWS_VF.exists():
+        from fontTools.varLib import instancer
+        font = instancer.instantiateVariableFont(TTFont(str(WINDOWS_VF)), {'wght': 700 if weight == 'bold' else 400})
+        style = 'Bold' if weight == 'bold' else 'Regular'  # the variable font's default instance is named "Thin"
+        for record_id, text in ((1, 'Noto Sans SC'), (2, style), (4, f'Noto Sans SC {style}'), (6, f'NotoSansSC-{style}'), (16, 'Noto Sans SC'), (17, style)):
+            font['name'].setName(text, record_id, 3, 1, 0x409)
+        return font
+    sys.exit('Noto Sans CJK SC not found (install fonts-noto-cjk, or Noto Sans SC on Windows).')
 def fonts_for(html):
     text = re.sub(r'<style>[\s\S]*?</style>', '', html) + ''.join(chr(c) for c in range(0x20, 0x7f)) + '“”‘’、，。：；！？（）《》—…·→'
     chars = {ord(c) for c in text if not (0x2E80 <= ord(c) <= 0x2FDF)}
     (here / 'fonts').mkdir(exist_ok=True)
-    for weight, file in (('regular', 'NotoSansCJK-Regular.ttc'), ('bold', 'NotoSansCJK-Bold.ttc')):
-        coll = TTCollection('/usr/share/fonts/opentype/noto/' + file)
-        font = next(f for f in coll.fonts if 'Noto Sans CJK SC' in f['name'].getDebugName(1))
+    for weight in ('regular', 'bold'):
+        font = cjk_font(weight)
         opts = subset.Options(); opts.layout_features = ['*']; opts.name_IDs = ['*']; opts.notdef_outline = True
         sub = subset.Subsetter(opts); sub.populate(unicodes=chars); sub.subset(font)
         font.save(str(here / 'fonts' / f'guide-{weight}.otf'))
+def electron_render():
+    exe = root / 'node_modules' / 'electron' / 'dist' / ('electron.exe' if os.name == 'nt' else 'electron')
+    for name, adapt in VARIANTS.items():
+        html = adapt(source); fonts_for(html)
+        page_file = here / '.variant.html'; page_file.write_text(html, encoding='utf8')
+        subprocess.run([str(exe), str(here / 'render.cjs'), str(page_file), str(root / 'ui' / name)], check=True)
+        page_file.unlink()
+        print('ui/' + name, (root / 'ui' / name).stat().st_size, 'bytes')
 async def main():
     from playwright.async_api import async_playwright
     async with async_playwright() as p:
@@ -70,5 +93,9 @@ async def main():
             await pg.close(); page_file.unlink()
             print('ui/' + name, (root / 'ui' / name).stat().st_size, 'bytes')
         await b.close()
-asyncio.run(main())
+try:
+    import playwright  # noqa: F401
+    asyncio.run(main())
+except ImportError:
+    electron_render()
 shutil.rmtree(here / 'fonts'); (here / 'scan.jpg').unlink()

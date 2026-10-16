@@ -6,7 +6,14 @@ out = sys.argv[1]
 W, H = 1240, 1754
 img = Image.new('L', (W, H), 238)
 d = ImageDraw.Draw(img)
-F = lambda size, bold=False: ImageFont.truetype('/usr/share/fonts/opentype/noto/NotoSansCJK-%s.ttc' % ('Bold' if bold else 'Regular'), size, index=2)
+import os
+LINUX = '/usr/share/fonts/opentype/noto/NotoSansCJK-%s.ttc'
+WINDOWS_VF = os.path.join(os.environ.get('WINDIR', 'C:/Windows'), 'Fonts', 'NotoSansSC-VF.ttf')
+def F(size, bold=False):
+    if os.path.exists(LINUX % 'Regular'): return ImageFont.truetype(LINUX % ('Bold' if bold else 'Regular'), size, index=2)
+    font = ImageFont.truetype(WINDOWS_VF, size)
+    font.set_variation_by_axes([700 if bold else 400])
+    return font
 d.text((120, 150), '扫描件示例', font=F(64, True), fill=35)
 d.text((120, 245), 'Scanned page · 文字识别演示', font=F(30), fill=90)
 d.line((120, 310, 1120, 310), fill=110, width=3)
