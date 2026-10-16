@@ -253,7 +253,9 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     await fs.writeFile(md, '# 另一份\n\n' + '很长的段落。'.repeat(4000) + '\n');
     await pandoc.run(pandoc.bundledPath(), ['-o', other, md]);
     const canceledOpen = openFiles([other]);
-    await until(`!!document.querySelector('.officeJob .officeJobCancel:not([hidden])') && document.querySelector('.officeJob .officeJobName').textContent.includes('另一份')`, 'cancellable card');
+    // Find the card by name instead of document order: on an occluded CI window the renderer's
+    // removal timers are throttled, so older finished cards can linger ahead of this one.
+    await until(`[...document.querySelectorAll('.officeJob')].some(c => c.querySelector('.officeJobName')?.textContent.includes('另一份') && !c.querySelector('.officeJobCancel')?.hidden)`, 'cancellable card');
     await pause(250); await fs.writeFile(path.join(output, 'office-progress.png'), (await window.webContents.capturePage()).toPNG());
     await run(`[...document.querySelectorAll('.officeJob')].find(c => c.textContent.includes('另一份')).querySelector('.officeJobCancel').click()`);
     assert.deepEqual(await canceledOpen, [], 'cancelled file opens nothing');
