@@ -37,7 +37,8 @@ test('no keyboard hints are shown on a touch screen', async () => {
     return found;
   });
   assert.deepEqual(hints, []);
-  assert.equal(await page.evaluate(() => document.getElementById('openButton').title), '打开文档');
+  // 0.19 lists the supported kinds after the label: 打开文档：PDF、Markdown、Word、Excel、PowerPoint
+  assert.match(await page.evaluate(() => document.getElementById('openButton').title), /^打开文档/);
   // The PDF page menu and the notes menu are built on demand: check them when open.
   await page.click('#qmMore');
   const more = await page.locator('#qmMoreMenu button').allTextContents();
