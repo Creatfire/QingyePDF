@@ -38,7 +38,7 @@
   </header>
   <header class="appbar" id="pdfToolbar" role="toolbar" aria-label="PDF 工具栏">
     <div class="barGroup">
-      <button id="openButton" class="primary" data-icon="open" title="打开文档 · Ctrl+O"><span class="label">打开</span></button>
+      <button id="openButton" class="primary" data-icon="open" title="打开文档：PDF、Markdown、Word、Excel、PowerPoint · Ctrl+O"><span class="label">打开</span></button>
       <button id="saveButton" data-icon="save" disabled title="保存 · Ctrl+S" aria-label="保存"><span class="label">保存</span></button>
       <button id="saveAsButton" data-icon="saveas" disabled title="另存为 · Ctrl+Shift+S" aria-label="另存为"><span class="label">另存为</span></button>
     </div>
@@ -77,14 +77,14 @@
         <div class="homeGrid">
           <div class="homeMain">
             <div class="homeActions">
-              <button id="welcomeOpen" class="actionTile isPrimary" title="打开 PDF 或 Markdown 文档 · Ctrl+O"><span class="tileGlyph" data-icon="open" aria-hidden="true"></span><span class="tileText"><strong>打开文件</strong><small>PDF / Markdown · Ctrl+O</small></span></button>
+              <button id="welcomeOpen" class="actionTile isPrimary" title="打开 PDF、Markdown、Word、Excel 或 PowerPoint 文档 · Ctrl+O"><span class="tileGlyph" data-icon="open" aria-hidden="true"></span><span class="tileText"><strong>打开文档</strong><small>PDF · Markdown · Word · Excel · PPT · Ctrl+O</small></span></button>
               <button id="newMarkdownButton" class="actionTile" title="新建 Markdown 文档 · Ctrl+N"><span class="tileGlyph" data-icon="newdoc" aria-hidden="true"></span><span class="tileText"><strong>新建 Markdown</strong><small>空白文档 · Ctrl+N</small></span></button>
               <button id="homeConvertButton" class="actionTile" style="grid-column:1 / -1" title="文档转换中心"><span class="tileGlyph" data-icon="tools" aria-hidden="true"></span><span class="tileText"><strong>文档转换</strong><small>Word / EPUB / Markdown / PDF · 内置转换引擎</small></span></button>
             </div>
             <section class="recentPanel" aria-labelledby="recentTitle">
               <div class="recentHeading" id="recentHeading">
                 <h2 id="recentTitle">最近打开</h2>
-                <div class="segmented recentFilter" role="group" aria-label="按类型筛选"><button data-filter="all" aria-pressed="true">全部</button><button data-filter="pdf" aria-pressed="false">PDF</button><button data-filter="md" aria-pressed="false">Markdown</button></div>
+                <div class="segmented recentFilter" role="group" aria-label="按类型筛选"><button data-filter="all" aria-pressed="true">全部</button><button data-filter="pdf" aria-pressed="false">PDF</button><button data-filter="markdown" aria-pressed="false">Markdown</button><button data-filter="office" aria-pressed="false">Office</button></div>
                 <input id="recentSearch" type="search" placeholder="筛选文件名" aria-label="筛选最近文件">
               </div>
               <div id="recent" class="recent" role="list" aria-labelledby="recentTitle"></div>

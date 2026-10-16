@@ -167,6 +167,16 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     await until(`![...document.querySelectorAll('.officeJob')].some(c => !['done'].includes(c.dataset.stage)) || !document.querySelector('.officeJob')`, 'card finishes');
     report.checks.officeAsPdf = true;
 
+    // The home page lists the Word file in the recent list (Office filter, DOC badge, opens as PDF).
+    report.checks.recentOffice = await run(`(async () => {
+      qingye.activate(null); document.querySelector('.recentFilter [data-filter="office"]').click(); await new Promise(r => setTimeout(r, 50));
+      const rows = [...document.querySelectorAll('#recent .recentRow')].map(r => ({ badge: r.querySelector('.recentIcon').textContent, kind: r.querySelector('.recentIcon').className, name: r.querySelector('.recentName').textContent, asPdf: !!r.querySelector('.recentAsPdf') }));
+      document.querySelector('.recentFilter [data-filter="all"]').click();
+      return { rows, tile: document.querySelector('#welcomeOpen strong').textContent };
+    })()`);
+    assert.deepEqual(report.checks.recentOffice.rows, [{ badge: 'DOC', kind: 'recentIcon word', name: '季度 报告.docx', asPdf: true }]);
+    assert.equal(report.checks.recentOffice.tile, '打开文档');
+
     // Cancelling a conversion leaves no tab and no error dialog.
     const other = path.join(output, '另一份.docx');
     await fs.writeFile(md, '# 另一份\n\n' + '很长的段落。'.repeat(4000) + '\n');

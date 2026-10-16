@@ -411,6 +411,8 @@ async function open() { await addDocuments(await api.open()); }
 async function reconvertOffice(id) {
   const s = sessions.get(id); if (!s?.loaded) return;
   if (s.editBusy || s.saving) throw new Error('文档正在处理，请稍后再重新转换。');
+  // PDF.js only renders a visible tab, so the document is replaced in the foreground.
+  if (activeId !== id) activate(id);
   s.editBusy = true; tabs();
   try {
     const before = await tools.snapshot(s), result = await api.officeReconvert(id);
@@ -423,6 +425,16 @@ async function dropFiles(files) { await addDocuments(await api.dropped(Array.fro
 // ——— Home: recent files (filter by type, filter by name, remove from list) ———
 let recentItems = [], recentFilter = 'all', recentLimit = 12;
 const isMdPath = p => /\.(md|markdown|mdown|mkdn?|mdwn)$/i.test(p || '');
+// Recent entries carry their kind (pdf / markdown / office) and extension from the main process.
+const recentKind = i => i.kind || (isMdPath(i.path) ? 'markdown' : 'pdf');
+function recentBadge(i) {
+  const kind = recentKind(i), ext = (i.ext || '').toLowerCase();
+  if (kind === 'markdown') return ['MD', 'md'];
+  if (kind !== 'office') return ['PDF', ''];
+  if (/^(xls|xlsx|xlsm|xlsb|ods|csv|et)$/.test(ext)) return [ext === 'csv' ? 'CSV' : 'XLS', 'excel'];
+  if (/^(ppt|pptx|pptm|pps|ppsx|odp|dps)$/.test(ext)) return ['PPT', 'powerpoint'];
+  return [/^(odt|ott)$/.test(ext) ? 'ODT' : ext === 'rtf' ? 'RTF' : 'DOC', 'word'];
+}
 function when(ms) {
   if (!ms) return '';
   const d = new Date(ms), now = new Date(), day = 86400000, start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -434,28 +446,29 @@ function when(ms) {
 }
 function renderRecent() {
   const term = $('recentSearch').value.trim().toLowerCase(), list = $('recent');
-  const shown = recentItems.filter(i => (recentFilter === 'all' || (recentFilter === 'md') === isMdPath(i.path)) && (!term || i.name.toLowerCase().includes(term) || i.path.toLowerCase().includes(term)));
+  const shown = recentItems.filter(i => (recentFilter === 'all' || recentKind(i) === recentFilter) && (!term || i.name.toLowerCase().includes(term) || i.path.toLowerCase().includes(term)));
   list.replaceChildren();
   if (!shown.length) {
     const empty = document.createElement('div'); empty.className = 'emptyRecent';
     const title = document.createElement('strong'), hint = document.createElement('span');
     title.textContent = recentItems.length ? '没有符合条件的文件' : '还没有打开过文件';
-    hint.textContent = recentItems.length ? '换个关键词或类型试试。' : '打开一个 PDF 或 Markdown，或者先看看右侧的示例。';
+    hint.textContent = recentItems.length ? '换个关键词或类型试试。' : '打开 PDF、Markdown 或 Word / Excel / PPT 文件（也可以直接拖进窗口），或者先看看右侧的示例。';
     empty.append(title, hint); list.append(empty); return;
   }
   for (const item of shown.slice(0, recentLimit)) {
-    const md = isMdPath(item.path);
+    const [badge, badgeKind] = recentBadge(item);
     const row = document.createElement('div'); row.className = 'recentRow'; row.setAttribute('role', 'listitem');
     const open = document.createElement('button'); open.className = 'recentOpen'; open.title = item.path; open.setAttribute('aria-label', `打开 ${item.name}`);
     open.style.cssText = 'position:absolute;inset:0;border-radius:10px;padding:0;background:none';
     open.onclick = () => guard(async () => addDocuments(await api.openRecent(item.id)));
-    const icon = document.createElement('span'); icon.className = 'recentIcon' + (md ? ' md' : ''); icon.textContent = md ? 'MD' : 'PDF'; icon.setAttribute('aria-hidden', 'true');
+    const icon = document.createElement('span'); icon.className = 'recentIcon' + (badgeKind ? ' ' + badgeKind : ''); icon.textContent = badge; icon.setAttribute('aria-hidden', 'true');
     const text = document.createElement('span'); text.className = 'recentText';
     const name = document.createElement('span'); name.className = 'recentName'; name.textContent = item.name;
     const file = document.createElement('span'); file.className = 'recentPath'; file.textContent = item.path.replace(/[\\/][^\\/]*$/, '') || item.path;
     text.append(name, file);
     const meta = document.createElement('span'); meta.className = 'recentMeta';
     if (item.page > 1) { const b = document.createElement('b'); b.textContent = `读到第 ${item.page} 页`; meta.append(b); }
+    if (recentKind(item) === 'office') { const b = document.createElement('b'); b.className = 'recentAsPdf'; b.textContent = '以 PDF 打开'; meta.append(b); }
     meta.append(document.createTextNode(when(item.opened)));
     const remove = document.createElement('button'); remove.className = 'recentRemove'; remove.dataset.icon = 'x'; remove.title = '从最近列表中移除（不删除文件）'; remove.setAttribute('aria-label', `从最近列表中移除 ${item.name}`);
     remove.onclick = event => { event.stopPropagation(); guard(async () => { if (await api.recentRemove?.(item.id)) { recentItems = recentItems.filter(x => x !== item); renderRecent(); } }); };

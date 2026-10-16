@@ -91,3 +91,9 @@
   .workspaceBadge, .recentFilter { display: none; }
   .homeSide { grid-template-columns: 1fr; }
 }
+
+/* 0.19 Office entries in the recent list */
+.recentIcon.word { background: color-mix(in srgb, #2b579a 16%, var(--surface)); color: color-mix(in srgb, #2b579a 85%, var(--ink)); }
+.recentIcon.excel { background: color-mix(in srgb, #217346 16%, var(--surface)); color: color-mix(in srgb, #217346 85%, var(--ink)); }
+.recentIcon.powerpoint { background: color-mix(in srgb, #c43e1c 14%, var(--surface)); color: color-mix(in srgb, #c43e1c 85%, var(--ink)); }
+.recentAsPdf { font-weight: 500; color: var(--muted); }
