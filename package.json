@@ -82,6 +82,7 @@
       "pandoc-engine.cjs",
       "pandoc-markdown.cjs",
       "office-convert.cjs",
+      "update-check.cjs",
       "converter-ipc.cjs",
       "ai-service.cjs",
       "ai-api-server.cjs",

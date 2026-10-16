@@ -1,6 +1,8 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron');
 contextBridge.exposeInMainWorld('desktop', {
   appVersion: () => ipcRenderer.invoke('app-version'),
+  checkUpdate: () => ipcRenderer.invoke('check-update'),
+  openReleasePage: url => ipcRenderer.invoke('open-release-page', url),
   platform: process.platform,
   titleBarTheme: dark => ipcRenderer.invoke('title-bar-theme', !!dark),
   windowState: () => ipcRenderer.invoke('window-state'),

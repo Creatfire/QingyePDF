@@ -355,6 +355,10 @@ app.whenReady().then(async () => {
   ]));
   buildAppMenu();
   handle('app-version',()=>app.getVersion());
+  // Manual update check: one GitHub Releases request per click, nothing automatic (update-check.cjs).
+  // Its own in-memory session: the default session keeps blocking all web requests.
+  handle('check-update',()=>require('./update-check.cjs').checkForUpdate({current:app.getVersion(),fetch:(url,options)=>session.fromPartition('qingye-update-check').fetch(url,{...options,cache:'no-store'})}));
+  handle('open-release-page',url=>{if(!require('./update-check.cjs').isReleasePage(url))throw new Error('无效的发布页地址。');return shell.openExternal(url);});
   // ——— Settings (0.8.2): language, file associations, data ———
   const associations = createAssociations({ app, shell });
   handle('set-language', async (code, explicit) => { const next = setLanguage(code); const stored = explicit ? next : undefined; if (preferences.language !== stored) { preferences.language = stored; await persist(); } buildAppMenu(); if (window) window.setTitle(T('青页 PDF')); return next; });

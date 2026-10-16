@@ -82,6 +82,7 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
         <section class="settingsPane" data-pane="about" hidden>
           <div class="aboutCard"><span class="aboutMark">青</span><div><b>青页 PDF</b><span id="aboutVersion"></span></div></div>
           <p class="settingsNote">本地、开源的 PDF 阅读器与 Markdown 编辑器。无账号、无会员、无广告。按 AGPL-3.0 许可证开源，第三方组件及其许可证见随附的 THIRD_PARTY_NOTICES。</p>
+          <div class="settingRow"><span><b>检查更新</b><small id="aboutUpdate">只在点击时向 GitHub 查询最新版本，不会自动下载或安装。</small></span><span class="settingsActions"><button id="aboutOpenRelease" data-icon="external" hidden>前往下载</button><button id="aboutCheckUpdate" data-icon="refresh">检查更新</button></span></div>
           <div class="settingsActions"><button id="aboutPdfSample" data-icon="file">PDF 使用示例</button><button id="aboutMdSample" data-icon="markdown">Markdown 示例</button></div>
         </section>
       </div>
@@ -195,6 +196,20 @@ export function createSettings({ api, guard, status, message, markdown, theme, v
   // ——— About ———
   $('#aboutPdfSample').onclick = () => { dialog.close(); document.getElementById('exampleButton').click(); };
   $('#aboutMdSample').onclick = () => { dialog.close(); document.getElementById('markdownExampleButton').click(); };
+  let releaseUrl = '';
+  $('#aboutCheckUpdate').onclick = async () => {
+    const button = $('#aboutCheckUpdate'), note = $('#aboutUpdate'), open = $('#aboutOpenRelease');
+    button.disabled = true; open.hidden = true; note.textContent = t('正在查询…');
+    try {
+      const r = await api.checkUpdate(); releaseUrl = r.url;
+      const size = r.installer?.size ? `（${(r.installer.size / 1048576).toFixed(0)} MB）` : '';
+      if (r.newer) { note.textContent = `${t('有新版本')} ${r.latest}${size} · ${t('当前')} ${r.current}`; open.hidden = false; }
+      else if (r.latest) note.textContent = `${t('已是最新版本')}（${r.current}）`;
+      else { note.textContent = t('还没有正式发布的版本。'); open.hidden = false; }
+    } catch (error) { note.textContent = error?.message?.replace(/^Error invoking remote method '[^']+': (?:Error: )?/, '') || t('检查更新失败。'); }
+    finally { button.disabled = false; }
+  };
+  $('#aboutOpenRelease').onclick = () => guard(() => api.openReleasePage(releaseUrl));
 
   function sync() {
     lang.value = languageChoice();

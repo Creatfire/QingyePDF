@@ -42,3 +42,24 @@ test('style presets: newest first, deduplicated, four per type', async () => {
   assert.equal(list[0].color, '#123456'); assert.equal(list.filter(p => p.color === '#123456').length, 1); assert.equal(list.length, 4);
   assert.equal(writePreset('Square', { color: 'red' })[0].color, '#123456', 'invalid colours are ignored');
 });
+
+test('update check: version order, latest release fields, release page only', async () => {
+  const { createRequire } = await import('node:module');
+  const u = createRequire(import.meta.url)('../update-check.cjs');
+  assert.equal(u.compareVersions('0.19.0', '0.18.0'), 1);
+  assert.equal(u.compareVersions('v0.19.0', '0.19.0'), 0);
+  assert.equal(u.compareVersions('0.19.0-beta.2', '0.19.0'), -1);
+  assert.equal(u.compareVersions('0.10.0', '0.9.9'), 1);
+  const seen = [];
+  const fetch = async (url, options) => { seen.push([url, options.headers.Accept]); return { ok: true, status: 200, json: async () => ({ tag_name: 'v0.20.0', name: '0.20', html_url: 'https://github.com/Creatfire/QingyePDF/releases/tag/v0.20.0', body: 'notes', assets: [{ name: 'QingyePDF-0.20.0-Setup-x64.exe', size: 300e6 }, { name: 'QingyePDF-0.20.0-x64.zip', size: 400e6 }] }) }; };
+  const r = await u.checkForUpdate({ current: '0.19.0', fetch });
+  assert.deepEqual([r.latest, r.newer, r.url, r.installer.name, r.zip.name], ['0.20.0', true, 'https://github.com/Creatfire/QingyePDF/releases/tag/v0.20.0', 'QingyePDF-0.20.0-Setup-x64.exe', 'QingyePDF-0.20.0-x64.zip']);
+  assert.deepEqual(seen, [[u.LATEST, 'application/vnd.github+json']]);
+  assert.equal((await u.checkForUpdate({ current: '0.20.0', fetch })).newer, false);
+  const evil = async () => ({ ok: true, status: 200, json: async () => ({ tag_name: 'v9.0.0', html_url: 'https://evil.example/x' }) });
+  assert.equal((await u.checkForUpdate({ current: '0.19.0', fetch: evil })).url, 'https://github.com/Creatfire/QingyePDF/releases');
+  assert.equal(u.isReleasePage('https://github.com/Creatfire/QingyePDF/releases/tag/v1'), true);
+  assert.equal(u.isReleasePage('https://github.com/Creatfire/QingyePDF.evil/releases'), false);
+  await assert.rejects(u.checkForUpdate({ current: '0.19.0', fetch: async () => { throw new TypeError('net'); } }), /无法连接/);
+  assert.equal((await u.checkForUpdate({ current: '0.19.0', fetch: async () => ({ ok: false, status: 404 }) })).newer, false);
+});
