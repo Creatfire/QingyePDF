@@ -1,6 +1,6 @@
 {
   "app": "QingyePDF",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "renumberedFrom": "0.15.0",
   "supersedes": "v0.17.0 (abandoned broken line; archived on archive/0.17-broken-line)",
   "platform": [
@@ -13,7 +13,7 @@
     "nsis",
     "zip"
   ],
-  "artifactName": "QingyePDF-0.18.0-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.19.0-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -26,24 +26,24 @@
     "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
   ],
   "acceptance": [
-    "Windows source: 117 unit tests passed, 1 POSIX-only test skipped; backend suite passed; 9 Electron smoke suites passed (including new pdf014 and 0.14 Markdown checks)"
+    "Windows source: 127 unit tests passed, 1 POSIX-only test skipped; backend suite passed (84 jobs); 9 Electron smoke suites passed (smoke, markdown, conversion, safety, basic, features, notes, links, pdf014)"
   ],
   "newFeatures": [
-    "Office files (doc/docx, xls/xlsx/csv, ppt/pptx, ODF, RTF, WPS) open as PDF through bundled LibreOffice 26.2.6; installer + installed-directory ZIP only (no portable exe)",
-    "Pandoc: CJK-correct dialect, editor-native import, Word/ePub through Pandoc with themed reference.docx, diagrams, [toc], alerts, equation numbers and citations",
-    "Markdown: Typora-style inline marker reveal, CodeMirror 6 source mode, equation numbering with eqref, lazy rendering for large documents, crash-safe undo history, whole-line copy, smart input, Ctrl+wheel zoom",
-    "PDF: text markup bar (highlight/underline/strikeout/squiggly), shape annotations, deleting stored annotations, single-letter tools, redaction by content with Chinese presets, Bates numbering and stamp variables, odd/even pages, compression profiles, auto-crop, standard stamps"
+    "Office open: progress cards with cancel, idle warm-up, source-changed notice with convert-again, optional Office association; home and recent list for all document types",
+    "PDF: edit stored annotations (select, move, resize, restyle, note, delete), per-tool style presets, in-viewer compare with text difference marks and navigation",
+    "Markdown: CodeMirror code-block editor with 24 languages, image zoom slider / rename / move / alt text, Word and Office paste through Pandoc, faster large documents",
+    "Installer options page (desktop shortcut, file types), keep-or-delete user data on uninstall, manual update check against GitHub Releases"
   ],
-  "buildRevision": "0.18.0",
+  "buildRevision": "0.19.0",
   "fixes": [],
   "crossBuilt": false,
   "otherArtifacts": [
-    "QingyePDF-0.18.0-win-x64.zip"
+    "QingyePDF-0.19.0-win-x64.zip"
   ],
   "testSideCorrections": [],
   "pdfjsModified": true,
   "notBuilt": [
-    "Android and macOS were not rebuilt for 0.14.0 (no mobile changes; macOS needs the GitHub Actions runners)"
+    "Android and macOS were not rebuilt for 0.19.0 (no mobile changes; macOS needs the GitHub Actions runners)"
   ],
   "libreOffice": {
     "version": "26.2.6",
