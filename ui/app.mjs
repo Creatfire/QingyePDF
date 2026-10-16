@@ -9,6 +9,7 @@ import { createMarkup } from './markup.mjs';
 import { createShapes } from './shapes.mjs';
 import { createOfficeProgress } from './office-progress.mjs';
 import { createAnnotEdit } from './annot-edit.mjs';
+import { createCompareDiff } from './compare-diff.mjs';
 import { createChrome } from './chrome.mjs';
 import { createMarkdownHost } from './markdown/host.mjs';
 import { createSettings } from './settings.mjs';
@@ -127,12 +128,19 @@ function showHistory(continuation){
 }
 $('undoButton').onclick=()=>guard(()=>historyStep());$('redoButton').onclick=()=>guard(()=>historyStep(true));$('historyButton').onclick=()=>showHistory();
 const compareBar = document.createElement('div'); compareBar.id='compareBar';compareBar.hidden=true;
-compareBar.innerHTML='<strong>并排比较</strong><label><input id="syncComparePages" type="checkbox" checked>同步页码</label><label>右侧页差 <input id="compareOffset" type="number" value="0" min="-100000" max="100000" title="右侧页码 = 左侧页码 + 页差"></label><span id="compareNames"></span><div class="spacer"></div><button id="endCompare">结束比较</button>';
+compareBar.innerHTML='<strong>并排比较</strong><label><input id="syncComparePages" type="checkbox" checked>同步页码</label><label><input id="syncCompareZoom" type="checkbox" checked>同步缩放</label><label>右侧页差 <input id="compareOffset" type="number" value="0" min="-100000" max="100000" title="右侧页码 = 左侧页码 + 页差"></label><span id="compareNames"></span><div class="spacer"></div>'
+  +'<button id="compareDiffRun" data-icon="compare" title="比较两份文档的文字，左侧标出删除（红），右侧标出新增（绿）">标出差异</button><button id="compareDiffPrev" data-icon="up" title="上一处差异" disabled>上一处</button><button id="compareDiffNext" data-icon="down" title="下一处差异" disabled>下一处</button><span id="compareDiffCount" class="compareDiffCount"></span>'
+  +'<button id="endCompare">结束比较</button>';
 $('workspace').append(compareBar);
 $('endCompare').onclick=endCompare;
+// 0.19: text differences drawn on both pages, stepped through from the bar (compare-diff.mjs).
+const compareDiff=createCompareDiff({sessions,status});
+const diffButtons=on=>{$('compareDiffPrev').disabled=$('compareDiffNext').disabled=!on;};
+$('compareDiffRun').onclick=()=>guard(async()=>{if(!compareIds)return;$('compareDiffRun').disabled=true;try{const offset=Number($('compareOffset').value)||0;const r=await compareDiff.compute(compareIds[0],compareIds[1],offset,(p,n)=>{$('compareDiffCount').textContent=`正在比较 ${p} / ${n} 页…`;});$('compareDiffCount').textContent=r.hunks?`共 ${r.hunks} 处差异`+(r.truncated?'（只比较前 300 页）':''):'文字没有差异';diffButtons(r.hunks>0);status(r.hunks?`找到 ${r.hunks} 处文字差异：左侧红色为删除，右侧绿色为新增。`:'两份文档的文字相同（不比较图片和版式）。');}finally{$('compareDiffRun').disabled=false;}});
+for(const [id,dir] of [['compareDiffPrev',-1],['compareDiffNext',1]])$(id).onclick=()=>{comparingPage=true;try{const r=compareDiff.step(dir);if(r){$('compareDiffCount').textContent=`第 ${r.index} / ${r.total} 处`;status(`第 ${r.index} / ${r.total} 处差异`+(r.removed?` · 删除：${r.removed.slice(0,40)}`:'')+(r.added?` · 新增：${r.added.slice(0,40)}`:''));}}finally{comparingPage=false;}};
 function endCompare() {
   const saved=[...sessions.values()].filter(s=>s.compareView);
-  compareIds=null;activate(activeId);
+  compareIds=null;compareDiff.clear();diffButtons(false);$('compareDiffCount').textContent='';activate(activeId);
   for(const s of saved){const v=s.app.pdfViewer;v.scrollMode=s.compareView.scrollMode;v.spreadMode=s.compareView.spreadMode;v.currentScaleValue=s.compareView.zoom;delete s.compareView;}
 }
 async function compare(left,right) {
@@ -393,12 +401,13 @@ async function addDocument(info) {
     s.resizeObserver.observe(childDoc.getElementById('viewerContainer'));
     s.savedHash = editingHash(s);
     s.history=createHistory();s.savedContentDigest=await contentDigest(info.bytes);
-    bindStorage(s);direct.bind(s);textSelection.bind(s);markup.bind(s);shapes.bind(s);annotEdit.bind(s);chrome.attachPager(s);
+    bindStorage(s);direct.bind(s);textSelection.bind(s);markup.bind(s);shapes.bind(s);annotEdit.bind(s);compareDiff.bind(s);
+    s.app.eventBus.on('scalechanging',e=>{if(compareIds?.includes(s.id)&&s.id===activeId&&!comparingPage&&$('syncCompareZoom').checked){const other=sessions.get(compareIds.find(id=>id!==s.id));if(other?.loaded){comparingPage=true;try{other.app.pdfViewer.currentScaleValue=String(e.presetValue||e.scale);}finally{comparingPage=false;}}}});chrome.attachPager(s);
     s.app.eventBus.on('editingstateschanged', ({source,details}) => { if(!s.loaded||(source&&source!==s.app.pdfViewer._layerProperties.annotationEditorUIManager))return;s.nativeHistory={...details};if(details?.hasSomethingToUndo&&!details.hasSomethingToRedo)s.history?.discardRedo();s.pendingInput = false; syncDirty(s);syncHistory(); });
     s.app.eventBus.on('pagechanging', () => {
       if (s.id === activeId) status(`第 ${s.app.pdfViewer.currentPageNumber} / ${s.app.pagesCount} 页${s.dirty ? ' · 有未保存批注' : ''}`);
       notes?.pageChanged(s, s.app.pdfViewer.currentPageNumber);
-      if(compareIds?.includes(s.id)&&s.id===activeId&&!comparingPage&&$('syncComparePages').checked){
+      if(compareIds?.includes(s.id)&&s.id===activeId&&!comparingPage&&$('syncComparePages').checked&&!compareDiff.active()){
         const other=sessions.get(compareIds.find(id=>id!==s.id));if(other?.loaded){comparingPage=true;try{const offset=(Number($('compareOffset').value)||0)*(s.id===compareIds[0]?1:-1);other.app.pdfViewer.currentPageNumber=Math.max(1,Math.min(other.app.pagesCount,s.app.pdfViewer.currentPageNumber+offset));}finally{comparingPage=false;}}
       }
     });
@@ -699,5 +708,5 @@ activate(null);
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { shapes, markup, annotEdit, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint, direct, textSelection, applyEdit, historyStep, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint, direct, textSelection, applyEdit, historyStep, replaceDocument,readingTrail,locatePdfSource };
 api.ready();

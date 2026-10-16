@@ -174,6 +174,31 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   await until(`(${count('Square')}).then(n => n === 0)`, 'rectangle deleted with Delete');
   report.checks.annotEdit = true;
 
+  // 0.19: side-by-side compare marks text differences and steps through them.
+  {
+    const a = path.join(output, 'compare-a.pdf'), b = path.join(output, 'compare-b.pdf');
+    await fs.writeFile(a, samplePdf('Compare version 0.18', true)); await fs.writeFile(b, samplePdf('Compare version 0.19', true));
+    const pair = await openFiles([a, b]);
+    await run(`qingye.addDocuments(${JSON.stringify(pair.map(d => ({ ...d, bytes: Array.from(d.bytes) })))})`);
+    const [A, B] = pair.map(d => `qingye.sessions.get(${JSON.stringify(d.id)})`);
+    await until(`${A}?.loaded && ${B}?.loaded`, 'compare documents');
+    await run(`qingye.compare(${JSON.stringify(pair[0].id)}, ${JSON.stringify(pair[1].id)})`);
+    await until(`!document.getElementById('compareBar').hidden`, 'compare bar');
+    await run(`document.getElementById('compareDiffRun').click()`);
+    await until(`/共 \\d+ 处差异/.test(document.getElementById('compareDiffCount').textContent)`, 'differences counted');
+    report.checks.compareCount = await run(`document.getElementById('compareDiffCount').textContent`);
+    await run(`document.getElementById('compareDiffNext').click()`);
+    await until(`document.getElementById('compareDiffCount').textContent.startsWith('第 1 /')`, 'first difference');
+    await until(`!!${A}.frame.contentDocument.querySelector('.qyDiffMark.isRemoved.isCurrent') && !!${B}.frame.contentDocument.querySelector('.qyDiffMark.isAdded.isCurrent')`, 'current difference marked on both sides');
+    report.checks.compareStatus = await run(`document.getElementById('statusText').textContent`);
+    assert.match(report.checks.compareStatus, /删除：0\.18.*新增：0\.19|删除：18.*新增：19/);
+    await pause(300); await fs.writeFile(path.join(output, 'compare-diff.png'), (await window.webContents.capturePage()).toPNG());
+    await run(`document.getElementById('endCompare').click()`);
+    assert.equal(await run(`!!${A}.frame.contentDocument.querySelector('.qyDiffMark')`), false, 'marks cleared when compare ends');
+    report.checks.compareDiff = true;
+    await run(`qingye.activate(${JSON.stringify(opened[0].id)})`);
+  }
+
   // Smart crop: auto-crop page 1 to its content, applied to the open document.
   await until(`!${P}.editBusy`, 'idle before crop');
   const sizeExpr = `(async () => { try { if (${P}.editBusy || !${P}.loaded) return null; const v = (await ${P}.app.pdfDocument.getPage(1)).view; return [v[2] - v[0], v[3] - v[1]]; } catch { return null; } })()`;
