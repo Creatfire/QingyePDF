@@ -75,6 +75,7 @@
       "test/diagrams-smoke.cjs",
       "test/typora-smoke.cjs",
       "test/typora014-smoke.cjs",
+      "test/fixtures/word-clipboard.html",
       "markdown-tools.cjs",
       "markdown-ipc.cjs",
       "i18n-main.cjs",

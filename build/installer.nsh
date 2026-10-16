@@ -19,6 +19,19 @@
   Var qyBoxMd
   Var qyBoxOffice
 
+!endif
+
+!macro customInit
+  ; Defaults, also used by silent installs (/S) where the page is not shown.
+  StrCpy $qyDesktop ${BST_CHECKED}
+  StrCpy $qyPdf ${BST_CHECKED}
+  StrCpy $qyMd ${BST_CHECKED}
+  StrCpy $qyOffice ${BST_UNCHECKED}
+!macroend
+
+; Defined here (not at the top of the include) because ${isUpdated} only exists once the
+; electron-builder templates are loaded, which is when this macro is expanded.
+!macro customPageAfterChangeDir
   Function qyOptionsPage
     ${if} ${isUpdated}
       Abort
@@ -52,17 +65,6 @@
     ${NSD_GetState} $qyBoxMd $qyMd
     ${NSD_GetState} $qyBoxOffice $qyOffice
   FunctionEnd
-!endif
-
-!macro customInit
-  ; Defaults, also used by silent installs (/S) where the page is not shown.
-  StrCpy $qyDesktop ${BST_CHECKED}
-  StrCpy $qyPdf ${BST_CHECKED}
-  StrCpy $qyMd ${BST_CHECKED}
-  StrCpy $qyOffice ${BST_UNCHECKED}
-!macroend
-
-!macro customPageAfterChangeDir
   Page custom qyOptionsPage qyOptionsLeave
 !macroend
 
