@@ -68,6 +68,7 @@ contextBridge.exposeInMainWorld('desktop', {
   mdPandocInfo: custom => ipcRenderer.invoke('markdown-pandoc-info', custom),
   mdPandocExport: (id, format, text, custom, options) => ipcRenderer.invoke('markdown-pandoc-export', id, format, text, custom, options),
   mdPandocImport: custom => ipcRenderer.invoke('markdown-pandoc-import', custom),
+  mdPasteHtml: (html, custom) => ipcRenderer.invoke('markdown-paste-html', html, custom),
   aiState: () => ipcRenderer.invoke('ai-state'),
   aiUpsert: input => ipcRenderer.invoke('ai-upsert', input),
   aiRemove: id => ipcRenderer.invoke('ai-remove', id),

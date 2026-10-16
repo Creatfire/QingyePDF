@@ -13,6 +13,7 @@ import { SourceEditor } from './source-editor.mjs';
 import { FenceEditor } from './fence-editor.mjs';
 
 const KIND_LABEL = { footnoteDef: '脚注', toc: '目录', paragraph: '段落', heading: '标题', blockquote: '引用', listItem: '列表项', fence: '代码块', codeBlock: '代码块', hr: '分隔线', html: 'HTML', table: '表格', math: '公式块', frontMatter: 'YAML 元数据', raw: '链接定义' };
+const OFFICE_HTML = /urn:schemas-microsoft-com:office|class="?Mso|mso-[a-z-]+:|<meta[^>]+(?:Microsoft (?:Word|Excel)|LibreOffice|WPS|Kingsoft)/i;
 const OPAQUE = new Set(['fence', 'codeBlock', 'math', 'table', 'html', 'frontMatter', 'hr']);
 const MARKER_AT_START = /^(\s{0,3}#{1,6}[ \t]+|\s{0,3}(?:>\s?)+|\s{0,3}(?:[-*+]|\d{1,9}[.)])[ \t]+(?:\[[ xX]\][ \t]+)?)/;
 const MATH_SOURCE = /\$\$[\s\S]+?\$\$|\$(?![\s$])(?:\\\$|[^$\n])*?[^\s\\]\$(?!\d)/g;
@@ -938,11 +939,17 @@ export class MarkdownEditor {
     if (!data) return;
     if (this.readonly) { e.preventDefault(); return; }
     const images = [...data.files].filter(f => f.type.startsWith('image/'));
+    const html = data.getData('text/html');
     const { text: rawText, converted } = this.smartPasteText(data);
-    const text = rawText;
+    let text = rawText;
     if (!images.length && !text) return;
     e.preventDefault();
     const sel = this.currentSelection();
+    // Office HTML (Word, Excel, WPS, LibreOffice) goes through Pandoc: real lists, tables with headers, no Mso residue.
+    if (converted && OFFICE_HTML.test(html) && this.options.onPasteHtml) {
+      this.options.onStatus?.('正在整理粘贴内容…');
+      try { const md = await this.options.onPasteHtml(html); if (md?.trim()) text = md; } catch {}
+    }
     const urlEdit = !converted && this.smartUrl(text, sel);
     if (urlEdit) { this.apply([{ from: urlEdit.from, to: urlEdit.to, insert: urlEdit.insert }], { from: urlEdit.from + urlEdit.insert.length, to: urlEdit.from + urlEdit.insert.length }, { group: 'paste' }); return; }
     if (images.length && (!text || this.sourceMode)) {

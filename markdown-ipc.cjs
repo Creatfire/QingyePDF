@@ -146,6 +146,11 @@ function register(ctx) {
     await writeOut(target, bytes);
     return { path: target, warnings: String(warnings || '').trim().slice(0, 2000) };
   });
+  // Rich paste: clipboard HTML (Word, web) → Markdown via the bundled Pandoc.
+  handle('markdown-paste-html', async (html, custom) => {
+    if (typeof html !== 'string' || html.length > 8e6) throw new Error('剪贴板内容过大。');
+    return require('./pandoc-markdown.cjs').pandocHtmlToMarkdown(await pandocPath(custom), html);
+  });
   handle('markdown-pandoc-import', async custom => {
     const pandoc = await pandocPath(custom);
     const exts = Object.keys(tools.PANDOC_SOURCES).map(e => e.slice(1));

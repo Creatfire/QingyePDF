@@ -90,6 +90,55 @@ async function pandocImport(pandoc, file, { mediaDir, trackChanges = 'accept', s
   return stdout.toString('utf8');
 }
 
+// ——— Clipboard HTML (Word, web pages) → Markdown ———
+// Word's clipboard HTML carries conditional comments, Office XML, <o:p>, MsoList paragraphs with
+// typed-in numbers and tables without header cells. These are normalised to plain HTML first;
+// Pandoc then rebuilds the structure (headings, lists, tables, emphasis, links).
+const WORD_LIST = /<p\b[^>]*class="?MsoList[^>]*>[\s\S]*?<\/p>/gi;
+function wordLists(html) {
+  return html.replace(/(?:<p\b[^>]*class="?MsoList[^>]*>[\s\S]*?<\/p>\s*)+/gi, run => {
+    const items = run.match(WORD_LIST).map(p => {
+      const level = Number((/level(\d+)/i.exec(p) || [])[1] || 1);
+      const marker = (/<!\[if !supportLists\]>([\s\S]*?)<!\[endif\]>/i.exec(p) || [])[1] || '';
+      const text = marker.replace(/<[^>]+>/g, '').replace(/&nbsp;|\s/g, '');
+      const body = p.replace(/<!\[if !supportLists\]>[\s\S]*?<!\[endif\]>/i, '').replace(/^<p\b[^>]*>/i, '').replace(/<\/p>$/i, '');
+      return { level, ordered: /^[(（]?[\dA-Za-z一二三四五六七八九十ivxIVX]+[.)、．）]$/.test(text), body };
+    });
+    let out = '', stack = [];
+    for (const it of items) {
+      while (stack.length > it.level) out += '</li></' + stack.pop() + '>';
+      if (stack.length === it.level) out += '</li>';
+      while (stack.length < it.level) { const tag = it.ordered ? 'ol' : 'ul'; stack.push(tag); out += '<' + tag + '>'; }
+      out += '<li>' + it.body;
+    }
+    while (stack.length) out += '</li></' + stack.pop() + '>';
+    return out;
+  });
+}
+// A table without <th> gets its first row as the header (Markdown pipe tables need one).
+function tableHeaders(html) {
+  return html.replace(/<table\b[\s\S]*?<\/table>/gi, table => {
+    if (/<th\b/i.test(table)) return table;
+    return table.replace(/<tr\b[^>]*>[\s\S]*?<\/tr>/i, row => row.replace(/<(\/?)td\b/gi, '<$1th'));
+  });
+}
+function cleanClipboardHtml(html) {
+  let s = String(html || '');
+  const start = s.indexOf('<!--StartFragment-->'), end = s.indexOf('<!--EndFragment-->');
+  if (start >= 0 && end > start) s = s.slice(start + 20, end);
+  s = s.replace(/<(style|script|xml|head)\b[\s\S]*?<\/\1>/gi, '')
+    .replace(/<!--\[if (?!!supportLists)[\s\S]*?<!\[endif\]-->/gi, '');
+  s = wordLists(s);
+  s = s.replace(/<!\[if [^\]]*\]>[\s\S]*?<!\[endif\]>/gi, '').replace(/<\/?o:p>/gi, '').replace(/<\/?(?:o|v|w|m):[^>]*>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
+  return tableHeaders(s);
+}
+const PASTE_FROM = 'html-native_divs-native_spans';
+async function pandocHtmlToMarkdown(pandoc, html, { signal } = {}) {
+  const { stdout } = await engine.run(pandoc, ['-f', PASTE_FROM, '-t', IMPORT_TO, '--wrap=none'], { input: Buffer.from(cleanClipboardHtml(html), 'utf8'), signal, timeout: 20000 });
+  // One space after list markers, as typed in the editor.
+  return stdout.toString('utf8').replace(/\r\n?/g, '\n').replace(/^(\s*)([-*+]|\d+[.)])[ ]{2,}(?=\S)/gm, '$1$2 ').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 // ——— Themed reference.docx ———
 // Minimal ZIP reader for the reference document Pandoc prints (stored or deflated entries).
 function readZip(buffer) {
@@ -136,4 +185,4 @@ async function referenceDocx(pandoc, style = {}) {
   return referenceCache.get(key);
 }
 
-module.exports = { PANDOC_FROM, PANDOC_FROM_LEGACY, IMPORT_TO, TARGETS, SOURCES, withDialect, readerFor, exportDocument, pandocExport, pandocImport, referenceDocx, themeStyles, readZip };
+module.exports = { PANDOC_FROM, PANDOC_FROM_LEGACY, IMPORT_TO, TARGETS, SOURCES, withDialect, readerFor, exportDocument, pandocExport, pandocImport, referenceDocx, themeStyles, readZip, cleanClipboardHtml, pandocHtmlToMarkdown };

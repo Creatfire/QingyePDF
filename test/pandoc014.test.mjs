@@ -129,3 +129,16 @@ test('real Pandoc: converter center reads .md with the editor dialect', { skip: 
     assert.equal((await fs.readFile(target, 'utf8')).trim(), '第一行第二行');
   } finally { await fs.rm(dir, { recursive: true, force: true }); }
 });
+
+test('cleanClipboardHtml: Word lists, conditional comments and header-less tables (0.19)', async () => {
+  const html = await fs.readFile(new URL('./fixtures/word-clipboard.html', import.meta.url), 'utf8');
+  const clean = bridge.cleanClipboardHtml(html);
+  assert.doesNotMatch(clean, /<o:p>|<!\[if|<style|OfficeDocumentSettings|StartFragment/);
+  assert.match(clean, /<ol><li>第一项<ul><li>子项<\/li><\/ul><\/li><li>第二项<\/li><\/ol>/);
+  assert.match(clean, /<th\b[^>]*><p class="MsoNormal">指标/);
+});
+
+test('real Pandoc: Word clipboard HTML pastes as clean Markdown (0.19)', { skip: !hasPandoc && 'bundled Pandoc not prepared' }, async () => {
+  const html = await fs.readFile(new URL('./fixtures/word-clipboard.html', import.meta.url), 'utf8');
+  assert.equal(await bridge.pandocHtmlToMarkdown(pandoc, html), '# 季度报告\n\n**重点** 和 *说明*\n\n1. 第一项\n    - 子项\n2. 第二项\n\n| 指标 | 数值 |\n|------|------|\n| 收入 | 120  |\n\n[完整报告](https://example.invalid/report)');
+});

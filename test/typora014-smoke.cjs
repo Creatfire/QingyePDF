@@ -193,5 +193,17 @@ exports.run = async ({ window, openFiles, output }) => {
   assert.ok(await fs.stat(path.join(dir, 'assets', 'chart.svg')).then(s => s.isFile()), 'image file moved on disk');
   await assert.rejects(fs.stat(path.join(dir, 'pic.svg')), 'old image file is gone');
 
+  // Pasting Word HTML goes through Pandoc (0.19): real nested lists and a table header row.
+  const wordHtml = await fs.readFile(path.join(__dirname, 'fixtures', 'word-clipboard.html'), 'utf8');
+  result.wordPaste = await run(`(async () => {
+    const ed = ${S}.editor;
+    ed.replaceAll(''); ed.activateAt(0);
+    const dt = new DataTransfer(); dt.setData('text/html', ${JSON.stringify(wordHtml)}); dt.setData('text/plain', '季度报告');
+    ed.active.el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    for (let i = 0; i < 100 && !ed.text.includes('|'); i++) await new Promise(r => setTimeout(r, 50));
+    return ed.text;
+  })()`);
+  assert.match(result.wordPaste, /^# 季度报告\n\n\*\*重点\*\* 和 \*说明\*\n\n1\. 第一项\n {4}- 子项\n2\. 第二项\n\n\| 指标 \| 数值 \|/);
+
   return result;
 };

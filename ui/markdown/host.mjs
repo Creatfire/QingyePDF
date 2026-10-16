@@ -415,6 +415,7 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
       onInsertImage: () => typora.H.pickImage(s),
       onStatus: status,
       onZoom: delta => typora.H.zoom(delta),
+      onPasteHtml: html => api.mdPasteHtml(html, typora.prefs.get('pandocPath')),
       onPasteImage: async file => guard(async () => api.mdImageSave(s.id, new Uint8Array(await file.arrayBuffer()), (file.type.split('/')[1] || 'png').replace('svg+xml', 'svg'), typora.imageOptions())),
       onDropImages: async files => guard(async () => {
         try{const paths=await api.mdImageImportFiles(s.id,files,typora.imageOptions());if(paths?.length)return paths;}catch(error){if(!files.every(file=>typeof file.arrayBuffer==='function'))throw error;}
