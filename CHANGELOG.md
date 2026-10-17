@@ -1,3 +1,38 @@
+# 0.19.1 · 工程护栏：静态检查、测试发现、发布一致性；拆分主进程与界面入口
+
+> 在 0.19.0 之上只做工程质量与代码整理，界面与功能不变。功能范围仍以 0.19.0 为准（见本文件下一节与 [FEATURES.md](FEATURES.md)）。
+
+**新增的自动检查**
+
+- **静态检查（oxlint）**：`npm run lint`。只启用正确性一类规则（未使用的变量 / 导入 / 参数、多余转义、可疑写法、恒为假的条件等），不做格式化改写，代码风格保持原样。`npm run verify` 等于 `lint + 单测`；CI 在单元测试之前增加 lint 步骤。关闭的三条规则与原因写在 [CONTRIBUTING.md](CONTRIBUTING.md)。
+- **测试按 glob 发现**：`npm test` 改为 `node --test "test/*.test.*"`，新增测试文件不必再改 `package.json`（原先手工列了 23 个文件，容易漏）。`npm run test:coverage` 输出覆盖率。
+- **发布一致性测试**（`test/consistency.test.mjs`）：版本号在 `package.json`、`RELEASE-TARGET.json`、`CHANGELOG.md`、`FEATURES.md`、`HANDOFF.md` 五处必须一致；Android 的 `versionName` / `versionCode` 必须与 `mobile/package.json` 同步（安卓暂不发布，但这两个数字不能各走各的）；每个顶层 `.cjs` 必须出现在打包清单 `build.files` 里，且清单里每一项都真实存在——新增模块忘记登记会在这里失败，而不是等到用户机器上“找不到模块”。
+- `package.json` 增加 `engines.node >= 22`，并新增 `.nvmrc`。
+
+**代码整理（行为不变，全部由 9 个冒烟套件复验）**
+
+- **主进程拆分**：`main.cjs` 818 → 616 行，按域拆出 5 个模块：`qingye-protocol.cjs`（`qingye://` 协议、CSP、断网与权限拦截）、`window-shell.cjs`（窗口、标题栏、应用菜单、窗口控制）、`installer-hooks.cjs`（`--register/refresh/unregister-file-types`）、`office-task.cjs`（Office 转换任务、进度卡片、取消、重新转换、空闲预热）、`reference-ipc.cjs`（全库搜索、DOI 查询、导出 `.bib`）。
+- **界面入口拆分**：`ui/app.mjs` 713 → 558 行，拆出 6 个模块：`ui/recent-list.mjs`（首页最近列表）、`ui/theme.mjs`（浅色 / 深色）、`ui/draft-recovery.mjs`（草稿备份）、`ui/shortcuts.mjs`（快捷键）、`ui/commands.mjs`（主进程命令分发）、`ui/history-ui.mjs`（撤销 / 重做与编辑历史对话框）。各模块沿用既有的 `createX({...})` 工厂写法，`window.qingye` 导出的名字（`historyStep`、`checkpoint` 等）保持不变。
+- **全库搜索更快**：Markdown 段落的行号改为增量计数（原先每个段落都从文档开头重新切分计算，长笔记上是 O(n²)）；查询缓存小写后的正文，连续输入不再每次重新折叠整个索引；缓存有 24 MB 上限，超出后按需计算。
+- **清理静态检查发现的问题**：未使用的导入 / 变量 / 参数、字符类里多余的转义、空回退的展开写法；删除一处恒为假的分支（`[TOC]` 后的内容校验自加入起就带 `&& false`，删除后行为不变）和一个未被调用的 DOCX 图片处理函数。
+- 保留了三处刻意的自赋值（`viewer.currentScaleValue = viewer.currentScaleValue`，用于让 PDF.js 按新宽度重算缩放）和三处必要的集合快照（遍历时修改集合），并在行内注明原因。
+
+**文档**
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)：提交前跑什么、测试怎么加、lint 关闭的规则及原因。
+- [docs/BUILDING.md](docs/BUILDING.md)：lint、覆盖率与一致性测试命令。
+- 新增 [SECURITY.md](SECURITY.md)：报告渠道与威胁模型（本地优先、窗口进程断网、三处联网入口、本地 AI 接口）。
+- 新增 [test/e2e/README.md](test/e2e/README.md)：说明 0.7–0.9 期的 Python + Playwright 脚本是历史验证证据，不在 CI 中运行。
+
+**验证**
+
+- 单元测试 131 项通过（含 4 项新增的一致性检查），1 项仅 POSIX 跳过；`npm run lint` 0 告警 0 错误；9 个 Electron 冒烟套件（smoke、markdown、conversion、safety、basic、features、notes、links、pdf014）全部通过。
+
+**本版未做**
+
+- `main.cjs`（616 行）与 `ui/app.mjs`（558 行）仍是各自最大的文件，PDF 标签生命周期（`addDocument`）与工具箱任务流水线还可以继续下沉，留待下一个重构版本。
+- 安装包体积、跨平台重建、自动更新不在本版范围。
+
 # 0.19.0 · 转换进度、编辑已有批注、差异高亮、代码块编辑器、安装选项
 
 > 直接从 0.18.0 升到 0.19.0（没有 0.16 / 0.17 这条线上的版本）。

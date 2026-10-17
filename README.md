@@ -54,6 +54,7 @@
 git clone https://github.com/<你的用户名>/QingyePDF.git
 cd QingyePDF
 npm ci
+node node_modules/electron/install.js   # npm 11 默认不运行 Electron 的安装脚本，需要手动下载二进制
 node scripts/prepare-pdfjs.mjs      # 重新下载并校验 PDF.js（仓库已带一份，可跳过）
 ./scripts/prepare-pandoc.ps1        # 下载并校验 Pandoc 3.12（约 235 MB，不入库）
 ./scripts/prepare-libreoffice.ps1   # 下载并校验 LibreOffice 26.2.6，用于打开 Office 文件（约 640 MB，不入库）
@@ -64,7 +65,7 @@ npm start
 只想改界面而不用工具箱、转换和 Office 打开时，后三步可以跳过。在 Mac 上把两个 `.ps1` 换成 `bash scripts/prepare-pandoc.sh` 和 `bash scripts/build-backend.sh`。打包与发布见 [docs/BUILDING.md](docs/BUILDING.md)。
 
 ```powershell
-npm test                            # 单元测试
+npm run verify                      # 静态检查（oxlint）+ 单元测试
 node scripts/ci-smoke.cjs           # Electron 冒烟测试（真实窗口）
 npm run dist                        # 生成 dist/QingyePDF-<版本>-Setup-x64.exe 和 -win-x64.zip
 ```

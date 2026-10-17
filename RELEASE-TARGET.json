@@ -1,6 +1,6 @@
 {
   "app": "QingyePDF",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "renumberedFrom": "0.15.0",
   "supersedes": "v0.17.0 (abandoned broken line; archived on archive/0.17-broken-line)",
   "platform": [
@@ -13,7 +13,7 @@
     "nsis",
     "zip"
   ],
-  "artifactName": "QingyePDF-0.19.0-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.19.1-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -26,24 +26,29 @@
     "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
   ],
   "acceptance": [
-    "Windows source: 127 unit tests passed, 1 POSIX-only test skipped; backend suite passed (84 jobs); 9 Electron smoke suites passed (smoke, markdown, conversion, safety, basic, features, notes, links, pdf014)"
+    "Windows source: oxlint clean (163 files); 131 unit tests passed, 1 POSIX-only test skipped; 9 Electron smoke suites passed (smoke, markdown, conversion, safety, basic, features, notes, links, pdf014)",
+    "No installer was built for 0.19.1; the packaging paths keep their 0.19.0 acceptance"
   ],
-  "newFeatures": [
-    "Office open: progress cards with cancel, idle warm-up, source-changed notice with convert-again, optional Office association; home and recent list for all document types",
-    "PDF: edit stored annotations (select, move, resize, restyle, note, delete), per-tool style presets, in-viewer compare with text difference marks and navigation",
-    "Markdown: CodeMirror code-block editor with 24 languages, image zoom slider / rename / move / alt text, Word and Office paste through Pandoc, faster large documents",
-    "Installer options page (desktop shortcut, file types), keep-or-delete user data on uninstall, manual update check against GitHub Releases"
+  "newFeatures": [],
+  "engineeringChanges": [
+    "Static analysis: oxlint with correctness rules only (npm run lint, npm run verify); CI runs lint before the unit tests",
+    "Tests are discovered by glob (test/*.test.*) instead of a hand-maintained list; npm run test:coverage added",
+    "test/consistency.test.mjs: version stated in five places must agree, Android versionName/versionCode must match mobile/package.json, every top-level .cjs must be listed in build.files and every listed file must exist",
+    "main.cjs split 818 -> 616 lines into qingye-protocol.cjs, window-shell.cjs, installer-hooks.cjs, office-task.cjs, reference-ipc.cjs",
+    "ui/app.mjs split 713 -> 558 lines into ui/recent-list.mjs, ui/theme.mjs, ui/draft-recovery.mjs, ui/shortcuts.mjs, ui/commands.mjs, ui/history-ui.mjs",
+    "Library search: Markdown paragraph line numbers counted incrementally (was O(n^2) per query) and folded text cached (24 MB cap)"
   ],
-  "buildRevision": "0.19.0",
-  "fixes": [],
+  "buildRevision": "0.19.1",
+  "fixes": [
+    "Library search: a long Markdown note recomputed every paragraph's line number from the start of the document on every keystroke; the folded index text was rebuilt for each query"
+  ],
   "crossBuilt": false,
-  "otherArtifacts": [
-    "QingyePDF-0.19.0-win-x64.zip"
-  ],
+  "otherArtifacts": [],
   "testSideCorrections": [],
   "pdfjsModified": true,
   "notBuilt": [
-    "Android and macOS were not rebuilt for 0.19.0 (no mobile changes; macOS needs the GitHub Actions runners)"
+    "Android and macOS were not rebuilt for 0.19.1 (Windows-only development line; no mobile changes)",
+    "No Windows installer or ZIP was built for 0.19.1 either - dist/ still holds the 0.19.0 artifacts"
   ],
   "libreOffice": {
     "version": "26.2.6",

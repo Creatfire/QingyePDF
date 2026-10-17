@@ -23,11 +23,16 @@ node scripts/prepare-pdfjs.mjs      # 下载官方 PDF.js 发行包、校验 SHA
 
 ```powershell
 npm start                           # 开发运行
-npm test                            # 单元测试
+npm run lint                        # 静态检查（oxlint，只查正确性；关闭的三条规则见 CONTRIBUTING）
+npm test                            # 单元测试（按 test/*.test.* 发现文件，新增文件不用登记）
+npm run test:coverage               # 单元测试 + 覆盖率
+npm run verify                      # lint + 单测，提交前跑这个
 .backend-build/Scripts/python.exe backend/test_worker.py
 node scripts/ci-smoke.cjs           # 逐个启动 Electron 冒烟套件，每个套件使用独立的数据目录
 npm run smoke:011                   # 只跑 0.11.0 的套件
 ```
+
+`test/consistency.test.mjs` 检查版本号五处一致、Android 的 `versionName` / `versionCode` 与 `mobile/package.json` 同步，以及 `package.json` 的 `build.files` 是否完整——新增主进程模块必须登记进去，否则安装包里会缺文件。
 
 冒烟测试会打开真实窗口；在无显示器的 Linux 上用 `xvfb-run`。
 
