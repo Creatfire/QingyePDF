@@ -74,6 +74,9 @@ jobs:
         run: |
           .backend-build/Scripts/python.exe backend/test_worker.py
 
+      - name: Static analysis
+        run: npm run lint
+
       - name: Unit tests
         run: npm test
 

@@ -1,5 +1,5 @@
 const {pathToFileURL}=require('node:url');
-const escape=text=>String(text||'').replace(/[\\`*_{}\[\]<>#]/g,'\\$&');
+const escape=text=>String(text||'').replace(/[\\`*_{}[\]<>#]/g,'\\$&');
 function normalizeNotes(notes) {
   if(!Array.isArray(notes)||notes.length>100000)throw new Error('一次最多处理 100000 条批注。');
   return notes.map(n=>{const page=Math.floor(Number(n.page));if(!Number.isFinite(page)||page<1||page>1000000)throw new Error('批注页码无效。');

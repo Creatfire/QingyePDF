@@ -6,7 +6,7 @@ import { mkdtemp, writeFile, rm, utimes } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
-import { sourceHref, excerptMarkdown, sourceLinks, linksInto, excerptStart, pageAnchor, annotationsMarkdown, regionMarkdown, regionBox, fileHref } from '../ui/notes-mode.mjs';
+import { sourceHref, excerptMarkdown, sourceLinks, linksInto, excerptStart, pageAnchor, annotationsMarkdown, regionMarkdown, regionBox } from '../ui/notes-mode.mjs';
 import { parseSourceFragment } from '../ui/source-links.mjs';
 import { joinTextItems, summarize } from '../ui/library.mjs';
 import { findDoi, findArxiv, splitAuthors, guessTitle, guessYear, detect, fromCsl, citeKey, bibtex, formatReference, libraryBibtex, normalize } from '../ui/citation.mjs';

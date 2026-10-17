@@ -9,7 +9,7 @@ const pandocMarkdown = require('./pandoc-markdown.cjs');
 const { T } = require('./i18n-main.cjs');
 
 function register(ctx) {
-  const { handle, getWindow, dialog, shell, app, session, BrowserWindow, documents, documentById, openFiles, atomicWrite, fingerprint, digest, preferences, persist, watchMarkdown, key, command } = ctx;
+  const { handle, getWindow, dialog, shell, app, BrowserWindow, documents, documentById, openFiles, atomicWrite, fingerprint, digest, persist, watchMarkdown, key, command } = ctx;
   const historyBase = path.join(app.getPath('userData'), 'md-history');
   const themeDir = path.join(app.getPath('userData'), 'md-themes');
   const roots = new Set();

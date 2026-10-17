@@ -162,6 +162,7 @@ export function createViews({ current, commit, guard, api }) {
     }
     if (['layout', 'cover', 'vertical', 'rotate'].includes(action)) {
       viewer.currentPageNumber = page;
+      // oxlint-disable-next-line no-self-assign -- 见 app.mjs resizePdf：重新赋值让 PDF.js 重算缩放。
       viewer.currentScaleValue = viewer.currentScaleValue;
       viewer.update();
     }

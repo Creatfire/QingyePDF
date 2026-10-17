@@ -40,7 +40,7 @@ function run(suite, timeoutMs = 10 * 60 * 1000) {
   fs.rmSync(smokeRoot, { recursive: true, force: true });
   fs.mkdirSync(smokeRoot, { recursive: true });
   const { file, pre } = executable();
-  const env = { ...process.env, QINGYE_SMOKE_ROOT: smokeRoot, ...(suite.env || {}) };
+  const env = { ...process.env, QINGYE_SMOKE_ROOT: smokeRoot, ...suite.env };
   if (suite.env?.QINGYE_094_SCAN_FIXTURE && !fs.existsSync(suite.env.QINGYE_094_SCAN_FIXTURE)) delete env.QINGYE_094_SCAN_FIXTURE;
   const started = Date.now();
   return new Promise(resolve => {

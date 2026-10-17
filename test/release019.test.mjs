@@ -19,7 +19,7 @@ test('compare: hunks group consecutive changes with removed / added text', () =>
   assert.equal(hunks[0].left.page, 3); assert.equal(hunks[0].right.page, 4);
   assert.ok(hunks[0].left.rects.length === 1 && hunks[0].right.rects.length === 2);
   assert.deepEqual(diffTokens([], [{ text: 'a' }]), [['+', 0]]);
-  assert.equal(diffTokens(new Array(3000).fill({ text: 'a' }), new Array(3000).fill({ text: 'b' }), 1e6), null, 'oversized pages fall back');
+  assert.equal(diffTokens(Array.from({ length: 3000 }, () => ({ text: 'a' })), Array.from({ length: 3000 }, () => ({ text: 'b' })), 1e6), null, 'oversized pages fall back');
 });
 
 test('annotation picking prefers the smallest box and finds thin lines', async () => {

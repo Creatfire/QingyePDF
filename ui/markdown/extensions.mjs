@@ -116,8 +116,6 @@ function toc(md) {
     if (state.sCount[startLine] - state.blkIndent >= 4) return false;
     const line = state.src.slice(state.bMarks[startLine] + state.tShift[startLine], state.eMarks[startLine]).trim();
     if (!/^\[(toc|TOC)\]$/.test(line)) return false;
-    const after = startLine + 1;
-    if (after < endLine && state.bMarks[after] + state.tShift[after] < state.eMarks[after] && state.sCount[after] >= state.blkIndent && false) return false;
     if (silent) return true;
     const token = state.push('toc', 'nav', 0); token.block = true; token.map = [startLine, startLine + 1];
     state.line = startLine + 1;

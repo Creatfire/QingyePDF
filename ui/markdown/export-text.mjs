@@ -41,7 +41,7 @@ const CJK = /[\u3400-\u9fff\uf900-\ufaff\u3040-\u30ff\uac00-\ud7af]/;
 export function toLatex(root, { title = '', text = '' } = {}) {
   const fm = frontMatter(text);
   const defs = new Map([...root.querySelectorAll('.mdFootnoteDef')].map(d => [d.id.replace(/^fn-/, ''), d.querySelector('.mdFootnoteBody')]));
-  const hasMath = !!root.querySelector('.katex'), hasCjk = CJK.test(root.textContent), hasStrike = !!root.querySelector('del, s'), hasMark = !!root.querySelector('mark');
+  const hasCjk = CJK.test(root.textContent), hasStrike = !!root.querySelector('del, s'), hasMark = !!root.querySelector('mark');
   const inline = node => {
     let s = '';
     for (const c of node.childNodes) {
@@ -90,7 +90,7 @@ export function toLatex(root, { title = '', text = '' } = {}) {
           const cols = Math.max(...rows.map(r => r.children.length));
           const aligns = [...rows[0].children].map(x => { const a = x.style?.textAlign || x.getAttribute('align') || ''; return a === 'center' ? 'c' : a === 'right' ? 'r' : 'l'; });
           out += `\\begin{center}\n\\begin{tabular}{|${Array.from({ length: cols }, (_, i) => aligns[i] || 'l').join('|')}|}\n\\hline\n`;
-          rows.forEach((r, i) => { out += [...r.children].map(x => inline(x).trim()).join(' & ') + ' \\\\ \\hline\n'; });
+          rows.forEach(r => { out += [...r.children].map(x => inline(x).trim()).join(' & ') + ' \\\\ \\hline\n'; });
           out += '\\end{tabular}\n\\end{center}\n\n'; break;
         }
         case 'DIV': case 'SECTION': case 'NAV': case 'ARTICLE': out += blocks(c, depth); break;

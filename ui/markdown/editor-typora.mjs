@@ -181,7 +181,7 @@ export function installTypora(Editor) {
 
     // ——— Copy flavours ———
     copyAs(kind) {
-      const { text, from, to } = this.selectedSource();
+      const { text } = this.selectedSource();
       let source = text;
       if (!source) { const b = this.currentBlock(); source = b ? this.text.slice(b.from, b.to) : ''; }
       if (!source) return;

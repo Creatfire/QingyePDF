@@ -7,7 +7,7 @@ const { createAiService } = require('./ai-service.cjs');
 const { createApiServer } = require('./ai-api-server.cjs');
 const { T } = require('./i18n-main.cjs');
 
-function register({ handle, getWindow, app, dialog, session, safeStorage, ipcMain, testMode }) {
+function register({ handle, getWindow, app, dialog, session, safeStorage, testMode }) {
   const canEncrypt = () => { try { return !!safeStorage?.isEncryptionAvailable(); } catch { return false; } };
   // Requests go through a dedicated session: the app's default session blocks all web traffic,
   // and Chromium's network stack honours the system proxy.

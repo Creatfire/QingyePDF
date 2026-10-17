@@ -84,7 +84,7 @@ function convert(node, ctx, inInline = false) {
       return `[${label}](${/[\s()]/.test(href) ? `<${href}>` : href}${title ? ` "${title.replace(/"/g, '\\"')}"` : ''})`;
     }
     case 'IMG': {
-      const src = node.getAttribute('src') || '', alt = (node.getAttribute('alt') || '').replace(/[\[\]]/g, '');
+      const src = node.getAttribute('src') || '', alt = (node.getAttribute('alt') || '').replace(/[[\]]/g, '');
       if (!src) return '';
       return `![${alt}](${/[\s()]/.test(src) ? `<${src}>` : src})`;
     }

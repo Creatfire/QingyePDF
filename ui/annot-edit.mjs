@@ -3,7 +3,7 @@
 // opacity and the note from the bar. Changes are written by the backend ('annot-update' action) and
 // are undoable; text markup keeps its position because it follows the text.
 import { readSettings } from './settings.mjs';
-import { readPresets, writePreset } from './annot-presets.mjs';
+import { writePreset } from './annot-presets.mjs';
 
 const SKIP = new Set(['Link', 'Widget', 'Popup']);
 export const MOVABLE = new Set(['Square', 'Circle', 'FreeText', 'Stamp', 'Text', 'Caret', 'FileAttachment', 'Sound']);

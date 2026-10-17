@@ -42,7 +42,7 @@ const inspectSource = bytes => `(async () => {
   return { freeText: texts, pageText };
 })()`;
 
-async function crashDrill({ window, app, output, openFiles }) {
+async function crashDrill({ window, app: _app, output, openFiles }) {
   const run = source => window.webContents.executeJavaScript(source, true);
   // Register the document through the real open path so the main process knows
   // its id; synthetic ids would be filtered out of every checkpoint.
@@ -171,7 +171,7 @@ async function largeFileRun({ window, app, openFiles, diagnostics }) {
   }
 }
 
-exports.run = async ({ window, openFiles, documents, samplePdf, app, recovery, diagnostics, role }) => {
+exports.run = async ({ window, openFiles, documents: _documents, samplePdf, app, recovery, diagnostics, role }) => {
   const output = path.join(smokeRoot(), 'test-output');
   await fs.mkdir(output, { recursive: true });
   if (role === 'crash') return crashDrill({ window, app, output, openFiles });

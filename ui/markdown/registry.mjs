@@ -196,7 +196,7 @@ export function buildRegistry(H) {
 }
 
 // Menu model: [label, items]; items are command ids, '-' separators, or [label, [items…]] submenus.
-export function menuModel(reg) {
+export function menuModel(_reg) {
   const exportItems = EXPORT_FORMATS.map(([id]) => `export:${id}`);
   const pandocItems = PANDOC_FORMATS.map(([id]) => `export:${id}`);
   return [

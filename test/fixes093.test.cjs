@@ -51,7 +51,7 @@ test('implicit AI tools stay bound to their turn document, even after close or t
 
 test('conversion shutdown waits for cancellation and cleanup before allowing process exit', () => temporary(async dir => {
   const input = path.join(dir, 'large.md'); await fs.writeFile(input, '# Large\n\n' + 'line of text\n'.repeat(250000));
-  const handlers = new Map(); let stop, started;
+  const handlers = new Map(); let started;
   const running = new Promise(resolve => { started = resolve; });
   const lifecycle = require('../converter-ipc.cjs').register({ app: { getPath: () => dir, on() {} }, handle: (name, fn) => handlers.set(name, fn), getWindow: () => null,
     dialog: { showOpenDialog: async (_w, options) => ({ canceled: false, filePaths: options.properties.includes('openDirectory') ? [dir] : [input] }) }, shell: {}, documents: new Map(), key: p => path.resolve(p).toLowerCase(),

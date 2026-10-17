@@ -192,8 +192,8 @@ function createAiService({ folder, fetchImpl = globalThis.fetch, encrypt = s => 
     let data; try { data = JSON.parse(await fs.readFile(file, 'utf8')); } catch { data = null; }
     config = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
     config.connections = Array.isArray(config.connections) ? config.connections : [];
-    config.defaults = { ...DEFAULTS, ...(config.defaults || {}) };
-    config.server = { ...SERVER_DEFAULTS, ...(config.server || {}) };
+    config.defaults = { ...DEFAULTS, ...config.defaults };
+    config.server = { ...SERVER_DEFAULTS, ...config.server };
     config.prompts = Array.isArray(config.prompts) ? config.prompts : null;
     return config;
   }

@@ -18,7 +18,7 @@ class Recovery {
           // Undo history of the draft (0.14), so undo still works after recovery.
           if(typeof entry.history==='string'&&entry.history.length<8e6){history=draft+'.history.json';await atomicWrite(path.join(this.folder,history),Buffer.from(entry.history,'utf8'),null);}}
         else if(entry.bytes){draft=this.id+'-'+entry.id+'-'+randomUUID()+'.pdf';await atomicWrite(path.join(this.folder,draft),pdfBytes(entry.bytes),null);}
-        const {bytes,text,history:_history,...rest}=entry;next.push({...rest,draft,...(history?{history}:{})});
+        const {bytes:_bytes,text:_text,history:_history,...rest}=entry;next.push({...rest,draft,...(history?{history}:{})});
       }
       await atomicWrite(this.file,Buffer.from(JSON.stringify({pid:this.pid,activeId,updated:Date.now(),entries:next})),await fingerprint(this.file));
       const obsolete=this.entries.filter(e=>e.draft&&!next.some(n=>n.draft===e.draft));

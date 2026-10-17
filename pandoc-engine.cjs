@@ -2,7 +2,6 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
-const { randomUUID } = require('node:crypto');
 const { spawn } = require('node:child_process');
 const { pathToFileURL } = require('node:url');
 const { atomicWrite, fingerprint } = require('./core.cjs');

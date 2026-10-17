@@ -109,7 +109,7 @@ export function createShapes({ current, applyEdit, guard, status }) {
     const style = readStyle(), label = SHAPES.find(x => x[0] === kind)[1];
     const result = await applyEdit(s, { action: 'draw', shape: kind, page, color: style.color, width: style.width, fill: style.fill || null, author: readSettings().annotAuthor || '', ...request }, `${label} · 第 ${page} 页`);
     if (!result?.canceled) status(`已添加${label}（第 ${page} 页），可撤销；继续拖动可画下一个，Esc 结束。`);
-    if (tool?.session === s) s.frame.contentDocument.body.classList.add('qyShapeDrawing'), syncBar();
+    if (tool?.session === s) { s.frame.contentDocument.body.classList.add('qyShapeDrawing'); syncBar(); }
   }
 
   function bind(s) {

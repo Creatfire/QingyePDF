@@ -30,7 +30,7 @@ export function sourceHref({ id, path, page, rect }) {
   const params = new URLSearchParams({ page: String(page) }); if (box) params.set('rect', box.join(','));
   return fileHref(path) + '#' + params;
 }
-const escapeMd = text => String(text).replace(/[\\`*_{}\[\]<>#]/g, '\\$&');
+const escapeMd = text => String(text).replace(/[\\`*_{}[\]<>#]/g, '\\$&');
 /** A quoted passage followed by a link to where it came from. */
 export function excerptMarkdown({ id, name, path, page, text, rect }) {
   const quote = String(text).replace(/\r\n?/g, '\n').split('\n').map(line => line.trim()).filter(Boolean).map(line => '> ' + escapeMd(line)).join('\n');

@@ -20,7 +20,7 @@ export const DOCX_TOC_FIELD = '<w:sdt><w:sdtPr><w:docPartObj><w:docPartGallery w
   + '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>目录：在 Word 中右键选择“更新域”生成</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p></w:sdtContent></w:sdt>';
 
 const attr = (tag, name) => { const m = new RegExp(`\\s${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i').exec(tag); return m ? (m[2] ?? m[3] ?? m[4]) : null; };
-const escapeAlt = s => String(s).replace(/([\[\]\\])/g, '\\$1');
+const escapeAlt = s => String(s).replace(/([[\]\\])/g, '\\$1');
 // <img src="a.png" width="300" style="zoom:50%"> → ![](a.png){width=50%}
 export function htmlImageToPandoc(tag) {
   const src = attr(tag, 'src'); if (!src) return tag;

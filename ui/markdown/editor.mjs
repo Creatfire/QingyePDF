@@ -3,12 +3,12 @@
 // the block under the caret switches to its live-styled source (syntax revealed, content
 // still formatted). All edits go through apply(), which records undo history and keeps
 // block offsets in sync, so saving always writes exactly what the user typed.
-import { analyze, renderBlockHtml, sanitize, escapeHtml, renderOptions } from './parser.mjs';
+import { analyze, renderBlockHtml, sanitize, renderOptions } from './parser.mjs';
 import { styleSource, INLINE_REVEAL } from './source-style.mjs';
 import * as C from './commands.mjs';
 import { createVisualTables } from './visual-table.mjs';
 import { renderDiagrams, fit as fitDiagram } from './diagrams.mjs';
-import { installTypora, writeClipboard, CLIP_MARK } from './editor-typora.mjs';
+import { installTypora, CLIP_MARK } from './editor-typora.mjs';
 import { SourceEditor } from './source-editor.mjs';
 import { FenceEditor } from './fence-editor.mjs';
 

@@ -28,7 +28,7 @@ export async function buildEpub(root, { text = '', name = '', theme = 'qingye', 
   // KaTeX: keep MathML only
   for (const k of root.querySelectorAll('.katex-html')) k.remove();
   const hasMath = !!root.querySelector('math');
-  for (const el of root.querySelectorAll('[id^="fn-"], [id^="fnref-"]')) { /* ids stay valid XML names */ }
+  // Footnote ids stay valid XML names, so they are kept as they are.
   for (const el of root.querySelectorAll('input')) { const box = document.createElement('span'); box.textContent = el.checked || el.hasAttribute('checked') ? '☑ ' : '☐ '; el.replaceWith(box); }
   const doc = document.implementation.createHTMLDocument(title);
   doc.documentElement.setAttribute('lang', lang);
@@ -36,7 +36,7 @@ export async function buildEpub(root, { text = '', name = '', theme = 'qingye', 
   const article = doc.createElement('article'); article.setAttribute('class', 'mdExport');
   article.innerHTML = root.innerHTML;
   doc.body.append(article);
-  for (const el of doc.querySelectorAll('[style*="margin-left"]')) { /* toc indents are fine */ }
+  // TOC indents stay inline styles; nothing to rewrite for EPUB.
   const xhtml = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' + new XMLSerializer().serializeToString(doc.documentElement);
   const css = exportCss(theme).replace(/\.mdExport \{[^}]*\}/, '.mdExport { padding: 0 .5em; }').replace(/html \{[^}]*\}/, '').replace(/@media print[^}]*\}[^}]*\}/, '');
   const id = `urn:uuid:${uuid()}`;

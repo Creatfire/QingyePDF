@@ -41,6 +41,7 @@ test('the adapter is chosen by platform and leaves Windows text untouched', () =
 test('every shortcut the interface shows is understood by the adapter', () => {
   // Any "Ctrl+…" left in adapted text would be a hint the adapter failed to recognise.
   const sources = ['ui/app.mjs', 'ui/notes-mode.mjs', 'ui/direct.mjs', 'ui/chrome.mjs', 'ui/markdown/host.mjs', 'ui/markdown/registry.mjs', 'ui/index.html'].map(f => readFileSync(new URL('../' + f, import.meta.url), 'utf8')).join('\n');
+  // oxlint-disable-next-line no-useless-escape -- \[ 紧邻 \]，去掉转义会变成空字符类。
   const combos = [...new Set(sources.match(/(?:Ctrl|Alt|Shift)(?:\+(?:Ctrl|Alt|Shift))*\+(?:F\d{1,2}|Tab|Enter|[←→↑↓]|\\\\|[A-Za-z0-9/\[\]\-=`;',.])(?![A-Za-z])/g) || [])].map(c => c.replace('\\\\', '\\'));
   assert.ok(combos.length > 40, 'combos found: ' + combos.length);
   for (const text of combos) { assert.doesNotMatch(macText(text), /Ctrl|Alt|Shift/, text); assert.equal(touchText('标签 · ' + text), '标签', text); }

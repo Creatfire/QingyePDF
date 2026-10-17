@@ -243,7 +243,7 @@ export function tableDeleteRow(text, pos) {
 export function enter(text, block, sel, { shift = false } = {}) {
   let { from, to } = sel;
   const lineStart = lineStartAt(text, from), lineEnd = lineEndAt(text, to), line = text.slice(lineStart, lineEnd);
-  const beforeCaret = text.slice(lineStart, from), afterCaret = text.slice(to, lineEnd);
+  const afterCaret = text.slice(to, lineEnd);
   const kind = block?.kind || 'paragraph';
   const indentOf = l => /^[ \t]*/.exec(l)[0];
   if (['fence', 'codeBlock', 'math', 'frontMatter', 'html'].includes(kind)) {
@@ -380,7 +380,7 @@ export function expandReplacement(match, replacement, regex) {
 const CJK = /[㐀-䶿一-鿿豈-﫿぀-ヿ가-힣]/g;
 export function countWords(text) {
   const cjk = (text.match(CJK) || []).length;
-  const words = (text.replace(CJK, ' ').match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu) || []).length;
+  const words = (text.replace(CJK, ' ').match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu) || []).length;
   return { words: cjk + words, characters: text.replace(/\s/g, '').length, lines: text ? text.split('\n').length : 0 };
 }
 
@@ -495,7 +495,7 @@ export function indentSelection(text, sel, outdent) {
   const unit = pos => (inList ? listUnit(text, pos) : 4);
   const { start } = linesIn(text, sel);
   let offset = start;
-  return indentLines(text, sel, outdent, (l, i) => { const u = unit(offset); offset += l.length + 1; return u; });
+  return indentLines(text, sel, outdent, l => { const u = unit(offset); offset += l.length + 1; return u; });
 }
 
 // ——— Table editing ———
@@ -581,7 +581,7 @@ export function lineRange(text, pos) {
   const start = lineStartAt(text, pos), end = lineEndAt(text, pos), line = text.slice(start, end);
   const lead = /^\s*(?:>\s?)*(?:(?:[-*+]|\d{1,9}[.)])\s+(?:\[[ xX]\]\s+)?|#{1,6}\s+)?/.exec(line)[0].length;
   // Sentence inside the line
-  const at = pos - start, bounds = [lead];
+  const at = pos - start;
   const re = /[^。！？!?；;.]+[。！？!?；;.]*[”’"')\]）】]*\s*/g;
   const sentences = [];
   for (let m; (m = re.exec(line.slice(lead)));) sentences.push([lead + m.index, lead + m.index + m[0].length]);

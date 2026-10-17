@@ -63,7 +63,7 @@ export function hunksOf(ops, left, right, leftPage, rightPage) {
   return hunks;
 }
 
-export function createCompareDiff({ sessions, status }) {
+export function createCompareDiff({ sessions }) {
   let state = null; // { ids, hunks, index, marks: [Map(page → [{rect, hunk}]), Map] }
 
   async function compute(leftId, rightId, offset = 0, onProgress = () => {}) {

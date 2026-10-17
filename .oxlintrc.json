@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "off",
+    "pedantic": "off",
+    "perf": "off",
+    "style": "off",
+    "restriction": "off",
+    "nursery": "off"
+  },
+  "rules": {
+    "no-control-regex": "off",
+    "unicorn/prefer-string-starts-ends-with": "off",
+    "unicorn/no-useless-spread": "off",
+    "no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }]
+  },
+  "ignorePatterns": [
+    "vendor/**",
+    "dist/**",
+    "build/**",
+    "test-output/**",
+    "backend/**",
+    "mobile/**",
+    "third-party-source/**",
+    ".backend-build/**",
+    ".downloads/**"
+  ]
+}
