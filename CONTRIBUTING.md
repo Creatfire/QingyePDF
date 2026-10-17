@@ -15,9 +15,11 @@
 ## 提交改动前
 
 ```
-npm run verify                 # oxlint + 单元测试，必须全部通过
+npm run verify                 # oxlint + 文档链接检查 + 单元测试，必须全部通过
 node scripts/ci-smoke.cjs      # 改动了界面或主进程时运行
 ```
+
+- **文档**：全部文档的入口是 [docs/README.md](docs/README.md)（文档地图）。新增文档后在那张表里加一行：给用户看的放 `docs/`，过程记录放 `docs/history/`，调研放 `docs/research/`。根目录的 `README / FEATURES / CHANGELOG / CONVERSION / THIRD_PARTY_NOTICES / RELEASE-TARGET.json` 会随安装包分发（`package.json` 的 `build.files`），不要移动。相对链接由 `npm run check:docs` 检查。
 
 - **静态检查**：`npm run lint`（oxlint），只启用正确性一类规则，不做格式化改写。三条规则是刻意关闭的，不要顺手打开：
   - `no-control-regex`：文件名与正文清洗里确实要匹配控制字符（`\x00-\x1f`）。

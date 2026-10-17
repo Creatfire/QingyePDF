@@ -1,6 +1,6 @@
 # 青页 PDF 0.11.0 开发交接
 
-基于 0.10.0。上一版交接见 [docs/history/HANDOFF-0.10.0.md](docs/history/HANDOFF-0.10.0.md)。
+基于 0.10.0。上一版交接见 [HANDOFF-0.10.0.md](HANDOFF-0.10.0.md)。
 
 ## 新增
 

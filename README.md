@@ -23,7 +23,7 @@
 | **界面** | 浅色 / 深色，Windows 或 macOS 风格窗口，简体中文 / 繁體中文 / English / 日本語 / 한국어 |
 | **平台** | Windows、macOS、Android（手机竖屏时笔记模式上下分屏，轻点页面收起工具栏） |
 
-完整说明见 [docs/USER-GUIDE.md](docs/USER-GUIDE.md)，功能范围与限制见 [FEATURES.md](FEATURES.md)，各版本改动见 [CHANGELOG.md](CHANGELOG.md)。
+完整说明见 [docs/USER-GUIDE.md](docs/USER-GUIDE.md)，功能范围与限制见 [FEATURES.md](FEATURES.md)，各版本改动见 [CHANGELOG.md](CHANGELOG.md)。所有文档的入口是 [docs/README.md](docs/README.md)（文档地图：哪份文档讲什么、给谁看）。
 
 <table><tr>
 <td><img src="docs/images/library.png" alt="全库搜索"></td>

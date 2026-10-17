@@ -6,13 +6,13 @@
 
 ```powershell
 npm ci; node node_modules/electron/install.js   # npm 11 默认不跑 Electron 的安装脚本，需手动下载二进制
-npm run verify                                    # oxlint + 单元测试（131 项，1 项仅 POSIX 跳过）
+npm run verify                                    # oxlint + 文档链接检查 + 单元测试（131 项，1 项仅 POSIX 跳过）
 npm run test:coverage                             # 可选：带覆盖率
 node scripts/ci-smoke.cjs                         # 9 个 Electron 冒烟套件
 npm run dist                                      # 安装版 + 安装目录 ZIP
 ```
 
-0.19.1 验证结果：`npm run lint` 0 告警 0 错误（163 个文件）；单元测试 131 项通过、1 项跳过；9 个冒烟套件（smoke、markdown、conversion、safety、basic、features、notes、links、pdf014）全部通过。**本版没有重新打包**：`dist/` 里仍是 0.19.0 的产物，发布前需要 `npm run dist`。
+0.19.1 验证结果：`npm run lint` 0 告警 0 错误（163 个文件）；`npm run check:docs` 28 份 Markdown 无失效相对链接；单元测试 131 项通过、1 项跳过；9 个冒烟套件（smoke、markdown、conversion、safety、basic、features、notes、links、pdf014）全部通过。**本版没有重新打包**：`dist/` 里仍是 0.19.0 的产物，发布前需要 `npm run dist`。
 
 ## 0.19.1 新增模块与改动点
 
@@ -32,6 +32,7 @@ npm run dist                                      # 安装版 + 安装目录 ZIP
 | `ui/commands.mjs` | 主进程命令分发（菜单、窗口事件、转换卡片） |
 | `ui/history-ui.mjs` | 撤销 / 重做（PDF.js 原生历史与字节快照两条线）与编辑历史对话框 |
 | `library-index.cjs` | Markdown 行号增量计数、折叠文本缓存（24 MB 上限） |
+| `docs/README.md` + `scripts/check-docs.cjs` | 文档地图（每份文档给谁看、目录约定）与 Markdown 相对链接检查（`npm run check:docs`） |
 
 拆分时踩到的两个坑（都已修，留作提醒）：工厂函数返回值的形状要和调用点一致（`commands` 一度返回函数却被当成 `{run}` 调用，`guard` 把它变成一句错误提示，四个冒烟套件超时）；跨模块的延迟依赖要用 getter 传（`notes` / `library` / `ai` 在主进程里是后创建的 `let`，直接按值传会拿到 undefined）。
 

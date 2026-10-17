@@ -105,7 +105,7 @@ PDF 与 Markdown 文档右侧可以打开 **AI 协作** 面板（PDF 工具栏�
 
 ## 文档转换（0.9.0）
 
-首页“文档转换”或标题栏“转换”打开文档转换中心。内置官方 Pandoc 3.12，无需用户单独安装；直接提供原版 51 个输入 / 76 个输出格式入口、模板、Defaults、引用排版和 Lua 过滤器。PDF 默认可选青页内置排版，无需 TeX；Pandoc 外部 PDF 引擎仍需对应程序。详情见 [CONVERSION.md](CONVERSION.md)。
+首页“文档转换”或标题栏“转换”打开文档转换中心。内置官方 Pandoc 3.12，无需用户单独安装；直接提供原版 51 个输入 / 76 个输出格式入口、模板、Defaults、引用排版和 Lua 过滤器。PDF 默认可选青页内置排版，无需 TeX；Pandoc 外部 PDF 引擎仍需对应程序。详情见 [CONVERSION.md](../CONVERSION.md)。
 
 独立重写引擎的旧路线已停止，本版复用原版引擎。原有 PDF 阅读、编辑、OCR 和 Markdown 工作流保留。
 

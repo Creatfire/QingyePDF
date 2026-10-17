@@ -21,6 +21,9 @@
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)：提交前跑什么、测试怎么加、lint 关闭的规则及原因。
 - [docs/BUILDING.md](docs/BUILDING.md)：lint、覆盖率与一致性测试命令。
+- 新增 [docs/README.md](docs/README.md) 作为**文档地图**：每份文档讲什么、给谁看、放在哪，并写明目录约定（根目录哪些文件随安装包分发、不能移动；其余一律进 `docs/`，历史进 `docs/history/`，调研进 `docs/research/`）。README 与 CONTRIBUTING 都指向它。
+- `docs/FIX-REPORT-0.13.0.md` 归入 [docs/history/](docs/history/)；修好 5 处早已失效的相对链接（`docs/history/` 里几个交接文档按“仓库根目录”写的路径，以及 USER-GUIDE 指向 `CONVERSION.md` 的链接）。
+- 新增 `npm run check:docs`（`scripts/check-docs.cjs`）：检查所有 Markdown 的相对链接是否指向真实文件，跳过代码块与外部链接；已并入 `npm run verify` 与 CI。
 - 新增 [SECURITY.md](SECURITY.md)：报告渠道与威胁模型（本地优先、窗口进程断网、三处联网入口、本地 AI 接口）。
 - 新增 [test/e2e/README.md](test/e2e/README.md)：说明 0.7–0.9 期的 Python + Playwright 脚本是历史验证证据，不在 CI 中运行。
 
@@ -115,7 +118,7 @@
 - 修复未就绪图片阻断保存、工具等待保存时不能取消、阅读旋转空白；中文文本批注使用嵌入字体外观。
 - 修复 Markdown 代码块光标、快捷键冲突、外部修改保存反馈、失效摘录链接、本地图片刷新与粘贴/拖放；搜索结果直接显示路径。
 - PDF 同目录跨文档链接经本地代理打开；新 AI 批注补齐时间，文档替换时过滤旧编辑器状态，保持撤销有效。
-- 首启说明只出现一次。修复阶段先生成 Windows x64 安装包，发布阶段补齐便携 EXE、完整目录 ZIP、Android APK 和 macOS 两种架构 DMG；测试侧路径/解压编码问题的核验见 [修复报告](docs/FIX-REPORT-0.13.0.md)。
+- 首启说明只出现一次。修复阶段先生成 Windows x64 安装包，发布阶段补齐便携 EXE、完整目录 ZIP、Android APK 和 macOS 两种架构 DMG；测试侧路径/解压编码问题的核验见 [修复报告](docs/history/FIX-REPORT-0.13.0.md)。
 
 # 0.12.0 · macOS 版、安卓版的笔记模式与触屏操作
 

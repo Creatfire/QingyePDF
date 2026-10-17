@@ -26,7 +26,8 @@ npm start                           # 开发运行
 npm run lint                        # 静态检查（oxlint，只查正确性；关闭的三条规则见 CONTRIBUTING）
 npm test                            # 单元测试（按 test/*.test.* 发现文件，新增文件不用登记）
 npm run test:coverage               # 单元测试 + 覆盖率
-npm run verify                      # lint + 单测，提交前跑这个
+npm run check:docs                  # 检查所有 Markdown 的相对链接
+npm run verify                      # lint + 文档链接检查 + 单测，提交前跑这个
 .backend-build/Scripts/python.exe backend/test_worker.py
 node scripts/ci-smoke.cjs           # 逐个启动 Electron 冒烟套件，每个套件使用独立的数据目录
 npm run smoke:011                   # 只跑 0.11.0 的套件
