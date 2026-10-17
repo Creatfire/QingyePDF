@@ -6,8 +6,32 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 
-const LIMITS = { pages: 5000, pageChars: 200000, documentChars: 24 * 1024 * 1024, hitsPerDocument: 20, hits: 300, terms: 8 };
+const LIMITS = { pages: 5000, pageChars: 200000, documentChars: 24 * 1024 * 1024, hitsPerDocument: 20, hits: 300, terms: 8, cachedChars: 24 * 1024 * 1024 };
 const fold = text => String(text).toLowerCase();
+// Lower-cased text is reused across keystrokes; without the cache every query folds the whole
+// index again. Entries are the keys, so re-indexing a document drops its cached copy by itself,
+// and caching stops once it would hold more text than the index itself is worth.
+const foldedCache = new WeakMap();
+let cachedChars = 0;
+function cached(entry, build) {
+  const hit = foldedCache.get(entry); if (hit) return hit;
+  const units = build();
+  const chars = units.reduce((sum, unit) => sum + (typeof unit === 'string' ? unit.length : unit.low.length), 0);
+  if (cachedChars + chars <= LIMITS.cachedChars) { cachedChars += chars; foldedCache.set(entry, units); }
+  return units;
+}
+/** Paragraphs of a Markdown note: where each starts, its folded text and its 1-based line. */
+function markdownBlocks(text) {
+  const blocks = []; let counted = 0, line = 1;
+  for (const block of text.matchAll(/[^\n]+(?:\n[^\n]+)*/g)) {
+    // Newlines are counted only up to the previous paragraph. Recomputing the line from the start of
+    // the document for every paragraph is quadratic, which a long note feels on every keystroke.
+    for (let at = counted; at < block.index; at++) if (text.charCodeAt(at) === 10) line++;
+    counted = block.index;
+    blocks.push({ at: block.index, low: fold(block[0]), line });
+  }
+  return blocks;
+}
 /** "deep learning" 图像 → ['deep learning', '图像'] */
 function parseQuery(query) {
   const terms = [], pattern = /"([^"]+)"|“([^”]+)”|(\S+)/g;
@@ -22,15 +46,18 @@ function snippet(text, at, length, radius = 48) {
  *  each occurrence of the first term is one hit. */
 function searchDocument(entry, terms, limit = LIMITS.hitsPerDocument) {
   const hits = []; let total = 0;
-  const scan = (text, base, place) => {
-    const low = fold(text); if (!terms.every(term => low.includes(term))) return;
+  const scan = (text, low, base, place) => {
+    if (!terms.every(term => low.includes(term))) return;
     for (let at = low.indexOf(terms[0]); at >= 0; at = low.indexOf(terms[0], at + terms[0].length)) { total++; if (hits.length < limit) hits.push({ ...place, offset: base + at, ...snippet(text, at, terms[0].length) }); }
   };
   if (entry.kind === 'markdown') {
-    const text = entry.pages[0] || ''; let line = 1;
+    const text = entry.pages[0] || '';
     // Paragraphs: blocks separated by blank lines.
-    for (const block of text.matchAll(/[^\n]+(?:\n[^\n]+)*/g)) { scan(block[0], block.index, { line: text.slice(0, block.index).split('\n').length }); line++; }
-  } else entry.pages.forEach((text, index) => scan(text, 0, { page: index + 1 }));
+    for (const block of cached(entry, () => markdownBlocks(text))) scan(text, block.low, block.at, { line: block.line });
+  } else {
+    const folded = cached(entry, () => entry.pages.map(fold));
+    entry.pages.forEach((text, index) => scan(text, folded[index], 0, { page: index + 1 }));
+  }
   return { hits, total };
 }
 function search(entries, query, { limit = LIMITS.hits } = {}) {
