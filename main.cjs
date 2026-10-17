@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, protocol, shell, session, safeStorage } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, protocol, shell, session, safeStorage } = require('electron');
 const { T, TF, setLanguage, getLanguage, chromiumLocale } = require('./i18n-main.cjs');
 const { createAssociations } = require('./file-associations.cjs');
 const fs = require('node:fs/promises');
@@ -11,15 +11,19 @@ const { Recovery } = require('./recovery.cjs');
 const { createDiagnostics } = require('./diagnostics.cjs');
 const markdownFiles = require('./markdown-files.cjs');
 const officeConvert = require('./office-convert.cjs');
-const { createLibraryIndex } = require('./library-index.cjs');
 const {notesMarkdown,normalizeNotes}=require('./notes-markdown.cjs');
+const installerHooks = require('./installer-hooks.cjs');
+const qingyeProtocol = require('./qingye-protocol.cjs');
+const { createOfficeTasks } = require('./office-task.cjs');
+const { createWindowShell } = require('./window-shell.cjs');
+const referenceIpc = require('./reference-ipc.cjs');
 const bootStarted=performance.now();
 let recovery;
 const recoveryTokens=new Map();
 const runningJobs=new Map();
 const canceledJobs=new Set();
 
-protocol.registerSchemesAsPrivileged([{ scheme: 'qingye', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true } }]);
+qingyeProtocol.registerSchemes(protocol);
 const smoke = process.argv.includes('--smoke-test')||process.argv.includes('--edit-smoke')||process.argv.includes('--markdown-smoke')||process.argv.includes('--conversion-smoke')||process.argv.includes('--basic-smoke')||process.argv.includes('--fix-smoke')||process.argv.includes('--fix-close-smoke')||process.argv.includes('--features-smoke')||process.argv.includes('--notes-smoke')||process.argv.includes('--links-smoke')||process.argv.includes('--fix013-smoke')||process.argv.includes('--x014-smoke')||process.argv.includes('--markdown-profile');
 const safety = process.argv.includes('--safety-smoke');
 const safetyRole = process.env.QINGYE_SAFETY_ROLE || 'main';
@@ -74,28 +78,17 @@ let windowStyle = normalizeWindowStyle(null);
   try { windowStyle = normalizeWindowStyle(JSON.parse(require('node:fs').readFileSync(path.join(app.getPath('userData'), 'reading-state.json'), 'utf8')).windowStyle); } catch {}
   if (smoke || safety || benchmark) windowStyle = normalizeWindowStyle({ style: 'windows' });
 }
-const drawnCaption = windowStyle.style === 'macos' && process.platform !== 'darwin';
-const windowAcrylic = drawnCaption && windowStyle.vibrancy && acrylicSupported;
 const relaunched = process.argv.includes('--qingye-relaunch');
-let relaunchOnClose = false;
 let finishingClose = false;
 let converterLifecycle;
 let loadComplete;
+let windowShell;
 let window, allowClose = false, rendererReady = false;
-// Installer hooks (build/installer.nsh): --register-file-types=pdf,md · --refresh-file-types ·
-// --unregister-file-types. They update the per-user "Open with" entries and exit without a window.
-const installerTask = process.argv.find(arg => /^--(?:register|refresh|unregister)-file-types(?:=|$)/.test(arg));
-async function runInstallerTask(arg) {
-  const associations = createAssociations({ app, shell }); let code = 0;
-  try {
-    if (arg.startsWith('--unregister')) await associations.unregister();
-    else if (arg.startsWith('--refresh')) { const { types } = await associations.status(); const kinds = Object.keys(types).filter(k => types[k].registered); if (kinds.length) await associations.register(kinds); }
-    else { const kinds = (arg.split('=')[1] || 'pdf,md').split(',').filter(k => associations.TYPES[k]); if (kinds.length) await associations.register(kinds); }
-  } catch { code = 1; }
-  app.exit(code);
-}
+// Installer hooks (installer-hooks.cjs): they update the per-user "Open with" entries and exit
+// without a window.
+const installerTask = installerHooks.taskIn(process.argv);
 const singleInstance = !installerTask && (smoke || safety || benchmark || process.argv.includes('--new-window') || app.requestSingleInstanceLock());
-if (installerTask) runInstallerTask(installerTask); else if (!singleInstance) app.quit();
+if (installerTask) installerHooks.run(installerTask, { app, shell }); else if (!singleInstance) app.quit();
 // Documents passed on the command line / by Explorer: PDF, Markdown and Office files (opened as PDF).
 const pdfArguments = args => args.filter(arg => !arg.startsWith('-') && (path.extname(arg).toLowerCase() === '.pdf' || markdownFiles.isMarkdown(arg) || officeConvert.isOffice(arg)));
 let pendingFiles = pdfArguments(process.argv.slice(app.isPackaged ? 1 : 2));
@@ -178,61 +171,19 @@ function remember(record, state = record.state) {
 }
 // Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by the bundled
 // LibreOffice; the original file is never modified and Save asks where to write the PDF.
-const officeOptions = () => ({ packaged: app.isPackaged, resources: process.resourcesPath, profileDir: path.join(app.getPath('userData'), 'libreoffice-profile'), cacheDir: path.join(app.getPath('userData'), 'office-cache') });
-// Each conversion is a job the renderer shows as a progress card (stage, elapsed time, cancel).
-const officeJobs = new Map();
-const officeProgress = data => command('office-progress', data);
-function newOfficeJob(file) {
-  const job = { id: randomUUID(), file, name: path.basename(file), controller: new AbortController(), started: Date.now() };
-  officeJobs.set(job.id, job); officeProgress({ id: job.id, name: job.name, stage: 'waiting', text: T('等待打开') });
-  return job;
-}
-function rememberOffice(file) {
-  preferences.recent = [{ path: file, name: path.basename(file), kind: 'office', state: {}, opened: Date.now() }, ...preferences.recent.filter(r => key(r.path) !== key(file))].slice(0, 30);
-}
-async function openOffice(file, job = newOfficeJob(file)) {
-  try {
-    const existing = [...documents.values()].find(r => r.source && key(r.source) === key(file));
-    if (existing) { officeProgress({ id: job.id, stage: 'done', text: T('已打开') }); return metadata(existing); }
-    const result = await officeConvert.toPdf(file, { ...officeOptions(), signal: job.controller.signal, onProgress: p => officeProgress({ id: job.id, name: job.name, ...p }) });
-    const record = { id: randomUUID(), name: path.parse(file).name + '.pdf', path: null, hash: null, source: file, sourceDigest: result.digest, state: {} };
-    documents.set(record.id, record); rememberOffice(file); watchOfficeSource(record);
-    if (!preferences.officeUsed) { preferences.officeUsed = true; persist().catch(() => {}); }
-    const seconds = result.cached ? 0 : Math.max(1, Math.round((Date.now() - job.started) / 1000));
-    officeProgress({ id: job.id, stage: 'loading', text: T('正在载入 PDF…') });
-    command('status', T('已将 {name} 以 PDF 形式打开（{seconds} 秒）；原文件未改动，保存时另存为 PDF。').replace('{name}', job.name).replace('{seconds}', String(seconds)));
-    return { ...metadata(record), bytes: result.bytes, officeJob: job.id, converted: { from: job.name, engine: officeConvert.engineInfo(officeOptions()) } };
-  } catch (error) {
-    officeProgress({ id: job.id, stage: error.code === 'OFFICE_CANCELED' ? 'canceled' : 'error', text: error.code === 'OFFICE_CANCELED' ? T('已取消') : error.message });
-    throw error;
-  } finally { officeJobs.delete(job.id); }
-}
-// The Word / Excel / PowerPoint original changed after it was opened: offer to convert it again.
-function watchOfficeSource(record) {
-  unwatchMarkdown(record.id);
-  markdownWatchers.set(record.id, markdownFiles.createWatcher(record.source, async () => {
-    if (!documents.has(record.id)) return;
-    const raw = await fs.readFile(record.source).catch(() => null);
-    const now = raw ? require('node:crypto').createHash('sha256').update(raw).digest('hex') : 'deleted';
-    if (now !== record.sourceDigest && record.notified !== now) { record.notified = now; command('office-source-changed', { id: record.id, name: path.basename(record.source), deleted: !raw }); }
-  }));
-}
-// Idle warm-up once the user has opened an Office file before (first real conversion ~2 s, not ~7 s).
-function scheduleOfficeWarmup() {
-  if (!preferences.officeUsed || smoke || safety || benchmark) return;
-  setTimeout(() => { officeConvert.prewarm(officeOptions()).catch(() => {}); }, 15000).unref?.();
-}
+// The whole conversion domain (jobs, progress cards, re-convert, idle warm-up) lives in office-task.cjs.
+const office = createOfficeTasks({ app, T, command, documents, metadata, documentById, preferences, persist, key, watchFile, officeConvert, quiet: smoke || safety || benchmark });
 async function openFiles(files) {
   const opened = [];
   // Every Office file gets its progress card at once, so a batch shows its whole queue.
-  const jobs = new Map(files.filter(file => officeConvert.isOffice(file)).map(file => [file, newOfficeJob(file)]));
+  const jobs = new Map(files.filter(file => officeConvert.isOffice(file)).map(file => [file, office.newJob(file)]));
   for (const candidate of files) {
     try {
       const markdown = typeof candidate === 'string' && markdownFiles.isMarkdown(candidate);
-      const office = officeConvert.isOffice(candidate);
-      if (typeof candidate !== 'string' || (!markdown && !office && path.extname(candidate).toLowerCase() !== '.pdf')) throw new Error('请选择 PDF、Markdown 或 Office 文件。');
+      const isOfficeFile = officeConvert.isOffice(candidate);
+      if (typeof candidate !== 'string' || (!markdown && !isOfficeFile && path.extname(candidate).toLowerCase() !== '.pdf')) throw new Error('请选择 PDF、Markdown 或 Office 文件。');
       const file = await fs.realpath(candidate);
-      if (office) { opened.push(await openOffice(file, jobs.get(candidate))); continue; }
+      if (isOfficeFile) { opened.push(await office.open(file, jobs.get(candidate))); continue; }
       let record = [...documents.values()].find(r => r.path && key(r.path) === key(file));
       if (record) { opened.push(metadata(record)); continue; }
       if (markdown) {
@@ -261,12 +212,13 @@ function documentById(id) {
   if (!record) throw new Error('文档已经关闭，请重新打开。');
   return record;
 }
-// External-change detection for open Markdown files.
+// External-change detection for open files (Markdown sources and Office originals).
 const markdownWatchers = new Map();
 function unwatchMarkdown(id) { markdownWatchers.get(id)?.close(); markdownWatchers.delete(id); }
+function watchFile(id, file, onChange) { unwatchMarkdown(id); markdownWatchers.set(id, markdownFiles.createWatcher(file, onChange)); }
 function watchMarkdown(record) {
   unwatchMarkdown(record.id);
-  if (record.kind === 'markdown' && record.path) markdownWatchers.set(record.id, markdownFiles.createWatcher(record.path, () => checkMarkdown(record, true).catch(() => {})));
+  if (record.kind === 'markdown' && record.path) watchFile(record.id, record.path, () => checkMarkdown(record, true).catch(() => {}));
 }
 async function checkMarkdown(record, notify) {
   if (!record || record.kind !== 'markdown' || !record.path || record.saving || !documents.has(record.id)) return 'same';
@@ -291,81 +243,16 @@ app.whenReady().then(async () => {
   // extracting its runtime before our code could show anything.
   const firstRun = await fs.readFile(preferencesPath()).then(() => false, error => error.code === 'ENOENT');
   try { const data = JSON.parse(await fs.readFile(preferencesPath(), 'utf8')); if (data.schemaVersion === 1 && Array.isArray(data.recent)){preferences.recent = data.recent.filter(r => typeof r.path === 'string').slice(0, 30);if(typeof data.language==='string')preferences.language=data.language;if(data.windowStyle)preferences.windowStyle=normalizeWindowStyle(data.windowStyle);preferences.stamps=Array.isArray(data.stamps)?data.stamps.slice(0,100):[];preferences.officeUsed=data.officeUsed===true;} } catch {}
-  const mime = { '.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.ftl': 'text/plain', '.svg': 'image/svg+xml', '.png': 'image/png', '.wasm': 'application/wasm', '.pdf': 'application/pdf', '.bcmap': 'application/octet-stream', '.ttf': 'font/ttf', '.woff': 'font/woff', '.woff2': 'font/woff2' };
-  protocol.handle('qingye', async request => {
-    const url = new URL(request.url);
-    const file = path.resolve(__dirname, '.' + decodeURIComponent(url.pathname));
-    if (url.hostname !== 'app' || !file.startsWith(__dirname + path.sep) || !['ui', 'vendor'].includes(path.relative(__dirname, file).split(path.sep)[0])) return new Response('Forbidden', { status: 403 });
-    try { return new Response(await fs.readFile(file), { headers: {
-      'Content-Type': mime[path.extname(file)] || 'application/octet-stream',
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' blob: data:; connect-src 'self' blob: data:; object-src 'none'; base-uri 'none'",
-    } }); } catch { return new Response('Not found', { status: 404 }); }
-  });
-  session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
-  session.defaultSession.setPermissionCheckHandler(() => false);
-  session.defaultSession.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (_details, callback) => callback({ cancel: true }));
-  // Custom title bar: the renderer draws brand and tabs; Windows keeps native caption
-  // buttons (snap layouts, accessibility) through the themed title bar overlay.
-  // In the MacOS style the renderer draws the traffic lights itself (no overlay), and with
-  // "window vibrancy" the page background is transparent over Windows 11 acrylic.
-  const titleBar = dark => ({ color: dark ? '#0e1512' : '#eef3f0', symbolColor: dark ? '#cfe0d6' : '#2a3a33', height: 40 });
-  window = new BrowserWindow({ width: 1360, height: 940, minWidth: 920, minHeight: 640, show: false, title: T('青页 PDF'), icon: path.join(__dirname, 'ui', 'icon.png'), backgroundColor: windowAcrylic ? '#00000000' : drawnCaption ? '#ececef' : '#eef3f0',
-    titleBarStyle: 'hidden', ...(process.platform === 'darwin' ? { trafficLightPosition: { x: 14, y: 12 } } : drawnCaption ? {} : { titleBarOverlay: titleBar(false) }), ...(windowAcrylic ? { backgroundMaterial: 'acrylic' } : {}), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, spellcheck: true, offscreen: (smoke || safety) && !process.argv.includes('--markdown-smoke') } });
-  window.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:\/\//i.test(url)) shell.openExternal(url); return { action: 'deny' }; });
-  window.webContents.on('will-navigate', event => event.preventDefault());
-  window.webContents.on('context-menu',async (_event,params)=>{
-    if(!params.isEditable||!params.frame)return;
-    // Markdown supplies its own menu (including spelling suggestions); do not cover it
-    // with the generic native text menu when Chromium emits the spelling event.
-    // The renderer opens #mdContextMenu synchronously in its own contextmenu handler, so by the time this
-    // event arrives the Markdown menu is visible (or focus is inside a Markdown panel).
-    if(params.frame===window.webContents.mainFrame && await params.frame.executeJavaScript(`(()=>{const hit=document.elementFromPoint(${Number(params.x) || 0},${Number(params.y) || 0});return !!hit?.closest?.('.mdPanel');})()`).catch(()=>false))return;
-    const flags=params.editFlags || {};
-    Menu.buildFromTemplate([
-      {id:'text-undo',label:T('撤销'),role:'undo',enabled:flags.canUndo},{id:'text-redo',label:T('重做'),role:'redo',enabled:flags.canRedo},{type:'separator'},
-      {id:'text-cut',label:T('剪切'),role:'cut',enabled:flags.canCut},{id:'text-copy',label:T('复制'),role:'copy',enabled:flags.canCopy},{id:'text-paste',label:T('粘贴'),role:'paste',enabled:flags.canPaste},{type:'separator'},
-      {id:'text-select-all',label:T('全选'),role:'selectAll',enabled:flags.canSelectAll}
-    ]).popup({window,frame:params.frame});
-  });
-  window.webContents.on('render-process-gone',(_event,details)=>fail('render-process-gone',new Error('Reader process exited: '+details.reason),details));
-  window.webContents.on('did-fail-load',(_event,code,description,url,isMainFrame)=>{if(isMainFrame&&code!==-3)fail('page-load',new Error(description),{code,url});});
-  window.on('close', event => { if (!allowClose) { event.preventDefault(); command('close-app'); } });
-  window.once('ready-to-show', () => { if (!smoke&&!safety&&!benchmark&&!firstRunTest) window.show(); });
-  const send = action => () => command(action);
-  const about = async () => dialog.showMessageBox(window, { type: 'info', icon: path.join(__dirname, 'ui', 'icon.png'), title: T('青页 PDF'), message: T('青页 PDF ') + app.getVersion(), detail: T('开源 · 本地阅读 · 无会员\n多标签、搜索、目录、高亮、文本、墨迹与签名。\n阅读引擎：Mozilla PDF.js 6.3.289。\n本版本按 AGPL-3.0 开源。') });
-  // Command on a Mac, Ctrl elsewhere. Tab switching keeps the Control key on every platform
-  // (Command+Tab is the system's application switcher).
-  const buildAppMenu = () => Menu.setApplicationMenu(Menu.buildFromTemplate([
-    ...(isMac ? [{ label: T('青页 PDF'), submenu: [
-      { label: T('关于青页 PDF'), click: about }, { type: 'separator' },
-      { role: 'services', label: T('服务') }, { type: 'separator' },
-      { role: 'hide', label: T('隐藏青页 PDF') }, { role: 'hideOthers', label: T('隐藏其他') }, { role: 'unhide', label: T('全部显示') }, { type: 'separator' },
-      { label: T('退出青页 PDF'), accelerator: 'Cmd+Q', click: () => window.close() },
-    ] }] : []),
-    { label: T('文件'), submenu: [
-      { label: T('打开…'), accelerator: 'CmdOrCtrl+O', click: send('open') },
-      { label: T('新建 Markdown'), accelerator: 'CmdOrCtrl+N', click: send('new-markdown') },
-      { label: T('保存'), accelerator: 'CmdOrCtrl+S', click: send('save') },
-      { label: T('另存为…'), accelerator: 'CmdOrCtrl+Shift+S', click: send('save-as') },
-      { type: 'separator' }, { label: T('关闭标签'), accelerator: 'CmdOrCtrl+W', click: send('close-tab') },
-      ...(isMac ? [] : [{ label: T('退出'), accelerator: 'Alt+F4', click: () => window.close() }]),
-    ] },
-    // Without these roles the standard editing shortcuts do nothing in text fields on a Mac.
-    ...(isMac ? [{ label: T('编辑'), submenu: [
-      { role: 'undo', label: T('撤销') }, { role: 'redo', label: T('重做') }, { type: 'separator' },
-      { role: 'cut', label: T('剪切') }, { role: 'copy', label: T('复制') }, { role: 'paste', label: T('粘贴') }, { role: 'selectAll', label: T('全选') },
-    ] }] : []),
-    { label: T('阅读'), submenu: [
-      { label: T('查找'), accelerator: 'CmdOrCtrl+F', click: send('find') },
-      { label: T('下一标签'), accelerator: 'Ctrl+Tab', click: send('next-tab') },
-      { label: T('上一标签'), accelerator: 'Ctrl+Shift+Tab', click: send('previous-tab') },
-      { label: T('打印…'), accelerator: 'CmdOrCtrl+P', click: send('print') },
-      { role: 'togglefullscreen', label: T('全屏'), accelerator: isMac ? 'Ctrl+Cmd+F' : 'F11' },
-    ] },
-    ...(isMac ? [{ role: 'windowMenu', label: T('窗口') }] : []),
-    { label: T('帮助'), submenu: [...(isMac ? [] : [{ label: T('关于青页 PDF'), click: about }]), { label: T('使用帮助'), click: send('help') }] },
-  ]));
-  buildAppMenu();
+  // The window process serves ui/ and vendor/ over qingye://, and is cut off from the network
+  // entirely (qingye-protocol.cjs).
+  qingyeProtocol.installSession({ protocol, session, root: __dirname });
+  // The window, its title bar, the application menu and the window controls (window-shell.cjs).
+  windowShell = createWindowShell({ T, command, fail, preferences, persist, normalizeWindowStyle, style: windowStyle, isMac, acrylicSupported,
+    offscreen: (smoke || safety) && !process.argv.includes('--markdown-smoke'),
+    showOnReady: !smoke && !safety && !benchmark && !firstRunTest, relaunched, canClose: () => allowClose });
+  window = windowShell.create();
+  windowShell.rebuildMenu();
+  windowShell.register(handle);
   handle('app-version',()=>app.getVersion());
   // Manual update check: one GitHub Releases request per click, nothing automatic (update-check.cjs).
   // Its own in-memory session: the default session keeps blocking all web requests.
@@ -373,7 +260,7 @@ app.whenReady().then(async () => {
   handle('open-release-page',url=>{if(!require('./update-check.cjs').isReleasePage(url))throw new Error('无效的发布页地址。');return shell.openExternal(url);});
   // ——— Settings (0.8.2): language, file associations, data ———
   const associations = createAssociations({ app, shell });
-  handle('set-language', async (code, explicit) => { const next = setLanguage(code); const stored = explicit ? next : undefined; if (preferences.language !== stored) { preferences.language = stored; await persist(); } buildAppMenu(); if (window) window.setTitle(T('青页 PDF')); return next; });
+  handle('set-language', async (code, explicit) => { const next = setLanguage(code); const stored = explicit ? next : undefined; if (preferences.language !== stored) { preferences.language = stored; await persist(); } windowShell.rebuildMenu(); if (window) window.setTitle(T('青页 PDF')); return next; });
   handle('assoc-status', () => associations.status());
   handle('assoc-register', kinds => associations.register(Array.isArray(kinds) ? kinds.filter(k => typeof k === 'string') : undefined));
   handle('assoc-unregister', () => associations.unregister());
@@ -386,19 +273,8 @@ app.whenReady().then(async () => {
     return result.canceled ? [] : openFiles(result.filePaths);
   });
   handle('drop', files => openFiles(Array.isArray(files) ? files : []));
-  handle('office-cancel', id => { const job = officeJobs.get(id); if (job) job.controller.abort(); return !!job; });
-  // Convert the original again after it changed; the renderer replaces the tab's document.
-  handle('office-reconvert', async id => {
-    const record = documentById(id); if (!record.source) throw new Error('这个标签不是由 Office 文件转换而来。');
-    const job = newOfficeJob(record.source);
-    try {
-      const result = await officeConvert.toPdf(record.source, { ...officeOptions(), signal: job.controller.signal, onProgress: p => officeProgress({ id: job.id, name: job.name, ...p }) });
-      record.sourceDigest = result.digest; record.notified = null;
-      officeProgress({ id: job.id, stage: 'done', text: T('已重新转换') });
-      return { bytes: result.bytes };
-    } catch (error) { officeProgress({ id: job.id, stage: error.code === 'OFFICE_CANCELED' ? 'canceled' : 'error', text: error.message }); if (error.code === 'OFFICE_CANCELED') return null; throw error; }
-    finally { officeJobs.delete(job.id); }
-  });
+  // Office conversion: cancel and re-convert after the original changed (office-task.cjs).
+  office.register(handle);
   handle('checkpoint',async (items,activeId) => {
     if(!Array.isArray(items)||items.length>64)throw new Error('恢复标签数量过多。');
     const entries=items.filter(item=>documents.has(item.id)).map(item=>{const r=documentById(item.id);remember(r,item.state);const markdown=r.kind==='markdown';return {id:r.id,name:r.name,path:r.path,hash:r.hash,state:r.state,dirty:!!item.dirty,...(markdown?{kind:'markdown'}:{}),...(markdown&&typeof item.text==='string'?{text:item.text,...(typeof item.history==='string'?{history:item.history}:{})}:!markdown&&item.bytes?{bytes:pdfBytes(item.bytes)}:{})};});
@@ -443,29 +319,6 @@ app.whenReady().then(async () => {
     const selected=await dialog.showSaveDialog(window,{title:T('导出批注摘录'),defaultPath:path.parse(r.name).name+'-批注'+ext,filters:[{name:ext.slice(1),extensions:[ext.slice(1)]}]});if(selected.canceled)return {canceled:true};
     const target=selected.filePath.toLowerCase().endsWith(ext)?selected.filePath:selected.filePath+ext;await atomicWrite(target,bytes,await fingerprint(target));return {path:target};
   });
-  handle('title-bar-theme', dark => { if (process.platform !== 'darwin' && !drawnCaption && typeof window.setTitleBarOverlay === 'function') { try { window.setTitleBarOverlay(titleBar(!!dark)); } catch {} } return true; });
-  handle('window-state', () => ({ maximized: window.isMaximized(), fullscreen: window.isFullScreen(), focused: window.isFocused() }));
-  // Window style (0.9.2): saved choice, drawn caption buttons, restart to apply.
-  handle('set-window-style', async value => {
-    if (!value || typeof value !== 'object') throw new Error('界面风格参数无效。');
-    preferences.windowStyle = normalizeWindowStyle(value); await persist();
-    return preferences.windowStyle;
-  });
-  handle('window-control', action => {
-    if (action === 'minimize') window.minimize();
-    else if (action === 'maximize') { if (window.isMaximized()) window.unmaximize(); else window.maximize(); }
-    else if (action === 'close') window.close();
-    else throw new Error('未知的窗口操作。');
-    return true;
-  });
-  handle('relaunch-on-close', value => { relaunchOnClose = !!value; return relaunchOnClose; });
-  for (const [name, value] of [['maximize', true], ['unmaximize', false]]) window.on(name, () => command('window-maximized', value));
-  for (const [name, value] of [['focus', true], ['blur', false]]) window.on(name, () => command('window-focus', value));
-  // On Windows the transition events fire before isFullScreen() flips, so the
-  // state must be taken from the event itself, not queried. (Found by the 0.8.0 build smoke test.)
-  for (const [name, fullscreen] of [['enter-full-screen', true], ['leave-full-screen', false]]) window.on(name, () => command('fullscreen-changed', fullscreen));
-  handle('fullscreen', () => { window.setFullScreen(!window.isFullScreen()); return window.isFullScreen(); });
-  handle('exit-fullscreen', () => { if (window.isFullScreen()) window.setFullScreen(false); });
   handle('pick-asset', async kind => {
     const filters = kind === 'import' ? [{name:T('可转换文件'),extensions:[...new Set([...[...officeConvert.OFFICE_EXTENSIONS].map(e=>e.slice(1)),'txt','html','htm','epub','xps','cbz','svg','png','jpg','jpeg','tif','tiff','bmp','webp'])]}] : [{name:T('图片'),extensions:['png','jpg','jpeg','bmp','webp']}];
     const result = await dialog.showOpenDialog(window,{title:kind==='import'?'导入并转换为 PDF':'选择图片印章',filters,properties:['openFile']});
@@ -526,8 +379,8 @@ app.whenReady().then(async () => {
     const jobId=typeof request.jobId==='string'?request.jobId.slice(0,80):randomUUID();if(runningJobs.has(jobId))throw new Error('任务编号重复。');const controller=new AbortController();runningJobs.set(jobId,controller);if(canceledJobs.delete(jobId))controller.abort();
     try {
     // Office imports keep their layout through the bundled LibreOffice; other formats use the backend.
-    const viaOffice=request.action==='import'&&officeConvert.isOffice(record.path)&&officeConvert.sofficePath(officeOptions());
-    const result=viaOffice?{files:[{name:'result.pdf',bytes:(await officeConvert.toPdf(record.path,{...officeOptions(),signal:controller.signal})).bytes}],note:'已用内置 LibreOffice 按原版式转换。'}
+    const viaOffice=request.action==='import'&&officeConvert.isOffice(record.path)&&officeConvert.sofficePath(office.options());
+    const result=viaOffice?{files:[{name:'result.pdf',bytes:(await officeConvert.toPdf(record.path,{...office.options(),signal:controller.signal})).bytes}],note:'已用内置 LibreOffice 按原版式转换。'}
       :await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});
     if(controller.signal.aborted) throw new Error('任务已取消。');
     if(request.action==='inspect'||request.action==='redact-find') return {data:result.data,note:result.note};
@@ -611,56 +464,8 @@ app.whenReady().then(async () => {
   };
   handle('markdown-new', () => { const taken = new Set([...documents.values()].map(r => r.name)); let n = 1, name = '未命名.md'; while (taken.has(name)) name = `未命名 ${++n}.md`; return newMarkdown(name); });
   // ——— 0.11.0: library search across the recent list, and reference details ———
-  const library = createLibraryIndex({ directory: path.join(app.getPath('userData'), 'library-index'), keyOf: key });
-  const recentFile = id => { const file = recentTokens.get(id); if (!file) throw new Error('最近文件不存在。'); return file; };
-  const recentEntries = () => preferences.recent.map(item => { let token = [...recentTokens].find(([, file]) => file === item.path)?.[0]; if (!token) { token = randomUUID(); recentTokens.set(token, item.path); } return { id: token, name: item.name, path: item.path, kind: markdownFiles.isMarkdown(item.path) ? 'markdown' : 'pdf' }; });
-  // Which documents are searchable. Markdown is indexed here; PDFs are read by the window (PDF.js).
-  handle('library-status', async () => {
-    const items = recentEntries(), out = [];
-    await library.prune(items.map(item => item.path));
-    for (const item of items) {
-      let state = await library.state(item.path);
-      if (state === 'stale' && item.kind === 'markdown') {
-        try { const raw = await fs.readFile(item.path); if (raw.length > 16 * 1024 * 1024) throw new Error('too large'); await library.put(item.path, { name: item.name, kind: 'markdown', pages: [markdownFiles.decodeMarkdown(raw).text.replace(/\r\n?/g, '\n')] }); state = 'ready'; }
-        catch { state = 'skipped'; }
-      }
-      const open = [...documents.values()].find(d => d.path && key(d.path) === key(item.path));
-      out.push({ ...item, state, openId: open?.id || null });
-    }
-    return out;
-  });
-  handle('library-read', async id => {
-    const file = recentFile(id); if (path.extname(file).toLowerCase() !== '.pdf') throw new Error('只能为 PDF 读取索引内容。');
-    const info = await fs.stat(file); if (info.size > 300 * 1024 * 1024) throw new Error('文件超过 300 MB，未加入全库搜索。');
-    return fs.readFile(file);
-  });
-  handle('library-put', async (id, pages, note) => { const file = recentFile(id); return library.put(file, { name: path.basename(file), kind: markdownFiles.isMarkdown(file) ? 'markdown' : 'pdf', pages, note }); });
-  handle('library-search', async query => {
-    const items = recentEntries(), found = await library.find(String(query || ''), items.map(item => item.path));
-    return { ...found, documents: found.documents.map(doc => ({ ...doc, id: items.find(item => key(item.path) === key(doc.path))?.id })) };
-  });
-  handle('library-clear', async () => { await library.clear(); return true; });
-  // Only the DOI goes to doi.org, and only when the user presses "look up online".
-  handle('citation-lookup', async doi => {
-    const value = String(doi || '').trim(); if (!/^10\.\d{4,9}\/[^\s"<>]{1,200}$/.test(value)) throw new Error('DOI 格式无效。');
-    let response;
-    try { response = await fetch('https://doi.org/' + encodeURI(value), { headers: { Accept: 'application/vnd.citationstyles.csl+json', 'User-Agent': 'QingyePDF/' + app.getVersion() }, redirect: 'follow', signal: AbortSignal.timeout(15000) }); }
-    catch { throw new Error('无法连接 doi.org，请检查网络后重试。'); }
-    if (response.status === 404) throw new Error('doi.org 没有这个 DOI 的记录。');
-    if (!response.ok) throw new Error('doi.org 返回了错误（' + response.status + '）。');
-    const text = await response.text(); if (text.length > 2 * 1024 * 1024) throw new Error('doi.org 返回的记录过大。');
-    try { return JSON.parse(text); } catch { throw new Error('doi.org 返回的记录无法识别。'); }
-  });
-  handle('save-text-file', async (name, text) => {
-    const base = path.basename(String(name || 'references.bib')), ext = path.extname(base).toLowerCase();
-    if (!['.bib', '.txt', '.md'].includes(ext)) throw new Error('不支持的导出格式。');
-    if (typeof text !== 'string' || Buffer.byteLength(text, 'utf8') > 32 * 1024 * 1024) throw new Error('导出内容无效或超过 32 MB。');
-    const selected = await dialog.showSaveDialog(window, { title: T('导出'), defaultPath: path.join(app.getPath('documents'), base), filters: [{ name: ext.slice(1).toUpperCase(), extensions: [ext.slice(1)] }] });
-    if (selected.canceled) return { canceled: true };
-    const target = selected.filePath.toLowerCase().endsWith(ext) ? selected.filePath : selected.filePath + ext;
-    if ([...documents.values()].some(d => d.path && key(d.path) === key(target))) throw new Error('输出不能覆盖正在打开的文档，请使用新的文件名。');
-    await atomicWrite(target, Buffer.from(text, 'utf8'), await fingerprint(target)); return { path: target };
-  });
+  // Full-library search, DOI lookup and .bib export live in reference-ipc.cjs.
+  referenceIpc.register({ handle, app, T, dialog, getWindow: () => window, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint });
   handle('notes-markdown', (id,notes) => {const record=documentById(id);if(record.kind==='markdown')throw new Error('请选择 PDF 批注。');return newMarkdown(path.parse(record.name).name+'-批注笔记.md',notesMarkdown(record,notes)).map(info=>({...info,unsaved:true}));});
   handle('markdown-example', async () => newMarkdown('Markdown 示例.md', await fs.readFile(path.join(__dirname, 'ui', 'markdown', 'sample.md'), 'utf8')));
   handle('save-markdown', async (id, text, saveAs) => {
@@ -746,8 +551,7 @@ app.whenReady().then(async () => {
   const mdIpc = require('./markdown-ipc.cjs'); const mdCtx = { handle, getWindow: () => window, dialog, shell, app, BrowserWindow, documents, documentById, openFiles, atomicWrite, fingerprint, digest, preferences, persist, watchMarkdown, key, command };
   mdIpc.register(mdCtx);
   converterLifecycle = require('./converter-ipc.cjs').register(mdCtx);
-  require('./ai-ipc.cjs').register({ ...mdCtx, session, safeStorage, ipcMain, testMode: smoke || safety || benchmark });
-  handle('edit-command', command => { if (!['cut', 'copy', 'paste', 'selectAll', 'pasteAndMatchStyle', 'undo', 'redo'].includes(command)) throw new Error('不支持的编辑命令。'); window.webContents[command](); return true; });
+  require('./ai-ipc.cjs').register({ ...mdCtx, session, safeStorage, testMode: smoke || safety || benchmark });
   window.on('focus', () => { for (const record of documents.values()) checkMarkdown(record, true).catch(() => {}); });
   handle('close-choice', async name => {
     const result = await dialog.showMessageBox(window, { type: 'question', title: T('保存修改'), message: TF('“{name}”有未保存的修改。', { name: String(name).slice(0, 200) }), buttons: [T('保存'), T('不保存'), T('取消')], defaultId: 0, cancelId: 2, noLink: true });
@@ -759,17 +563,12 @@ app.whenReady().then(async () => {
   ipcMain.on('finish-close', async event => { if (event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame || finishingClose) return; finishingClose = true; await converterLifecycle?.shutdown(); await preferenceQueue.catch(() => {}); allowClose = true;
     // "Restart now" in Settings → Interface style. The portable exe runs from a temporary folder, so
     // restart the portable launcher instead; --qingye-relaunch restores the tabs that were just closed.
-    if (relaunchOnClose && !smoke && !safety && !benchmark) { const portable = process.env.PORTABLE_EXECUTABLE_FILE; app.relaunch(portable ? { execPath: portable, args: ['--qingye-relaunch'] } : { args: [...(app.isPackaged ? [] : [app.getAppPath()]), '--qingye-relaunch'] }); }
+    if (windowShell.relaunchRequested() && !smoke && !safety && !benchmark) { const portable = process.env.PORTABLE_EXECUTABLE_FILE; app.relaunch(portable ? { execPath: portable, args: ['--qingye-relaunch'] } : { args: [...(app.isPackaged ? [] : [app.getAppPath()]), '--qingye-relaunch'] }); }
     window.close(); });
-  // Read synchronously by preload.cjs so the first frame already has the right style.
-  ipcMain.on('window-style-sync', event => {
-    if (event.sender !== window?.webContents) { event.returnValue = null; return; }
-    event.returnValue = { style: windowStyle.style, drawnCaption, vibrancy: windowAcrylic, acrylicSupported, relaunched, saved: preferences.windowStyle || windowStyle };
-  });
   ipcMain.on('ready', async event => {
     if (event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame || rendererReady) return;
     rendererReady = true;
-    scheduleOfficeWarmup();
+    office.scheduleWarmup();
     console.log('Startup ready (ms):',Math.round(performance.now()-bootStarted));
     if(benchmark){await loadComplete;await fs.mkdir(path.join(smokeRoot,'test-output'),{recursive:true});await fs.writeFile(path.join(smokeRoot,'test-output','startup-timing.json'),JSON.stringify({mainReadyMs:Math.round(performance.now()-bootStarted),version:app.getVersion(),cachedRuntime:process.execPath,runId:diagnostics.runId}));diagnostics.success();allowClose=true;app.quit();return;}
     if (smoke) {

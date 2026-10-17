@@ -22,6 +22,12 @@ import { createReadingHistory } from './reading-history.mjs';
 import { createNotesMode } from './notes-mode.mjs';
 import { createLibrary } from './library.mjs';
 import { createCitations } from './citation.mjs';
+import { createRecentList } from './recent-list.mjs';
+import { createTheme } from './theme.mjs';
+import { createDraftRecovery } from './draft-recovery.mjs';
+import { createShortcuts } from './shortcuts.mjs';
+import { createCommands } from './commands.mjs';
+import { createHistoryUi } from './history-ui.mjs';
 // Display language first, so the UI is translated before it is shown.
 await i18n.init().catch(console.warn);
 window.desktop.setLanguage?.(i18n.current(), i18n.choice() !== 'auto').catch(() => {});
@@ -32,8 +38,8 @@ let productVersion='';
 api.appVersion().then(version=>{productVersion=version;document.getElementById('versionFooter').textContent=`青页 PDF ${version} · 本地开源工具箱 · 无登录、无订阅、无广告`;}).catch(console.warn);
 const $ = id => document.getElementById(id);
 const sessions = new Map();
-let activeId = null, closingApp = false, closeInProgress = false, compareIds = null, comparingPage = false;
-let checkpointBusy=false, draftTimer;
+let activeId = null, closingApp = false, compareIds = null, comparingPage = false;
+const theme = createTheme({ api, sessions, $ });
 const contentDigest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes)))).map(n=>n.toString(16).padStart(2,'0')).join('');
 let statusHook = null, ai = null, notes = null, library = null, citations = null;
 const status = text => { $('statusText').textContent = text; statusHook?.(text); };
@@ -79,16 +85,16 @@ const views = createViews({ current: currentPdf, commit, guard, api });
 const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
 const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs });
 const converter = createConverter({ api, guard, status });
-const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigation,tools,historyStep,status,notesFor:s=>notes?.notesFor(s)||null,excerpt:(s,text,page)=>notes.excerpt(s,text,page,notes.selectionSource(s,page).rect),region:s=>notes.pickRegion(s),cite:s=>citations.open(s)});
+const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigation,tools,historyStep:(redo)=>history.step(redo),status,notesFor:s=>notes?.notesFor(s)||null,excerpt:(s,text,page)=>notes.excerpt(s,text,page,notes.selectionSource(s,page).rect),region:s=>notes.pickRegion(s),cite:s=>citations.open(s)});
 const textSelection=createTextSelection({current:currentPdf,api,applyEdit,guard,status,tools});
 const shapes=createShapes({current:currentPdf,applyEdit,guard,status});
 const officeProgress=createOfficeProgress({api,guard,status});
 const annotEdit=createAnnotEdit({current:currentPdf,applyEdit,guard,status,shapes});
 const markup=createMarkup({current:currentPdf,applyEdit,guard,status,shapes});
 const chrome=createChrome({api,current:currentPdf,guard,navigation,status,shapes});
-const markdown=createMarkdownHost({api,guard,status,message,addDocuments,workspace:$('viewers'),navigate:action=>readingTrail.record(action),onPdfLink:locatePdfSource,onChange:(s,{chrome:chromeOnly}={})=>{if(!chromeOnly){syncDirty(s);scheduleDraft();}if(s.id===activeId)tabs();}});
+const markdown=createMarkdownHost({api,guard,status,message,addDocuments,workspace:$('viewers'),navigate:action=>readingTrail.record(action),onPdfLink:locatePdfSource,onChange:(s,{chrome:chromeOnly}={})=>{if(!chromeOnly){syncDirty(s);draft.schedule();}if(s.id===activeId)tabs();}});
 statusHook = text => markdown.statusMessage(text);
-function bindStorage(s){const storage=s.app.pdfDocument.annotationStorage,modified=storage.onSetModified;storage.onSetModified=()=>{modified?.();queueMicrotask(()=>{syncDirty(s);scheduleDraft();});};}
+function bindStorage(s){const storage=s.app.pdfDocument.annotationStorage,modified=storage.onSetModified;storage.onSetModified=()=>{modified?.();queueMicrotask(()=>{syncDirty(s);draft.schedule();});};}
 async function replaceDocument(s,bytes){
   const state=viewState(s),previous=await tools.snapshot(s);s.loaded=false;s.app._annotationStorageModified=false;
   try{
@@ -101,32 +107,22 @@ async function replaceDocument(s,bytes){
     s.savedHash=editingHash(s);s.pendingInput=false;s.structuralDirty=(await contentDigest(bytes))!==s.savedContentDigest;s.recovered=false;
     s.searchText=new Map();s.pageDraft=null;s.draftHash=null;s.emptyOcrPages=new Set();bindStorage(s);
   }catch(error){await s.app.open({data:new Uint8Array(previous),filename:s.name,docBaseUrl:pdfBase(s)});throw error;}
-  finally{s.loaded=true;syncDirty(s);tabs();navigation.sync();scheduleDraft();}
+  finally{s.loaded=true;syncDirty(s);tabs();navigation.sync();draft.schedule();}
 }
 async function applyEdit(s,request,label,beforeReplace){
   if(!s?.loaded||s.editBusy||s.saving)throw new Error('文档尚未就绪或正在处理。');s.editBusy=true;tabs();
-  try{const before=await tools.snapshot(s);status('正在应用修改…');const result=await api.toolsJob(s.id,before,{...request,draft:true});if(result.unchanged){status(result.note);return result;}if(beforeReplace&&!beforeReplace())return {canceled:true};await replaceDocument(s,result.bytes);s.history.push(before,result.bytes,label);syncHistory();status(label+' · 可撤销，尚未保存');return result;}
-  finally{s.editBusy=false;tabs();scheduleDraft();}
+  try{const before=await tools.snapshot(s);status('正在应用修改…');const result=await api.toolsJob(s.id,before,{...request,draft:true});if(result.unchanged){status(result.note);return result;}if(beforeReplace&&!beforeReplace())return {canceled:true};await replaceDocument(s,result.bytes);s.history.push(before,result.bytes,label);history.sync();status(label+' · 可撤销，尚未保存');return result;}
+  finally{s.editBusy=false;tabs();draft.schedule();}
 }
-async function historyStep(redo=false){
-  const s=current();if(isMd(s)){if(s.loaded)redo?markdown.redo(s):markdown.undo(s);return;}if(!s?.loaded||s.editBusy||s.saving)return;
-  commit(s);const manager=s.app.pdfViewer._layerProperties.annotationEditorUIManager;
-  if(s.nativeHistory?.[redo?'hasSomethingToRedo':'hasSomethingToUndo']){manager[redo?'redo':'undo']();syncDirty(s);return;}
-  const bytes=s.history?.[redo?'redo':'undo']();if(!bytes)return;s.editBusy=true;
-  try{await replaceDocument(s,bytes);}catch(error){s.history[redo?'undo':'redo']();throw error;}finally{s.editBusy=false;syncHistory();}
-}
-function syncHistory(){const s=current();if(isMd(s)){$('undoButton').disabled=!s.loaded||!markdown.canUndo(s);$('redoButton').disabled=!s.loaded||!markdown.canRedo(s);return;}for(const [id,redo]of [['undoButton',false],['redoButton',true]]){const b=$(id);if(b)b.disabled=!s?.loaded||!(s.nativeHistory?.[redo?'hasSomethingToRedo':'hasSomethingToUndo']||s.history?.[redo?'canRedo':'canUndo']);}}
-const historyDialog=document.createElement('dialog');historyDialog.id='historyDialog';document.body.append(historyDialog);
-function showHistory(continuation){
-  historyDialog.replaceChildren();const h=document.createElement('h2');h.textContent=continuation?'保存前检查修改':'编辑历史';historyDialog.append(h);
-  const s=current();for(const row of s?.history?.rows||[]){const p=document.createElement('p');p.textContent=(row.applied?'✓ ':'↶ 已撤销 · ')+row.time+' · '+row.label;historyDialog.append(p);}
-  const note=document.createElement('p');note.textContent=s?.dirty?'当前文档有未保存修改（包括批注）。历史保留最近 20 次文档操作，上限 128 MB。':'当前文档没有未保存修改。';historyDialog.append(note);
-  const close=document.createElement('button');close.textContent=continuation?'取消':'关闭';close.onclick=()=>historyDialog.close();historyDialog.append(close);
-  if(s?.loaded){const entries=[...(s.app.pdfDocument.annotationStorage.serializable.map||[])];for(const [,entry]of entries.slice(0,40)){const p=document.createElement('p');const types={3:'自由文本',9:'高亮',13:'印章 / 图片',15:'墨迹'};p.textContent='批注 · 第 '+((entry.pageIndex??0)+1)+' 页 · '+(types[entry.annotationType]||'批注 / 表单')+(entry.value?' · '+String(entry.value).slice(0,80):'')+(entry.deleted?' · 已删除':'');historyDialog.append(p);}}
-  if(continuation){const save=document.createElement('button');save.textContent='继续保存';save.className='primary';save.onclick=()=>{historyDialog.close();guard(continuation);};historyDialog.append(save);}
-  historyDialog.showModal();
-}
-$('undoButton').onclick=()=>guard(()=>historyStep());$('redoButton').onclick=()=>guard(()=>historyStep(true));$('historyButton').onclick=()=>showHistory();
+// Undo / redo and the edit-history dialog (history-ui.mjs).
+const history = createHistoryUi({ $, guard, current, isMd, markdown, commit, replaceDocument, syncDirty });
+// Draft recovery: unsaved content is checkpointed every few seconds (draft-recovery.mjs).
+const draft = createDraftRecovery({ api, sessions, isMd, viewState, syncDirty, commit, editingHash, markdown, status, userError, activeId: () => activeId, isClosing: () => closingApp });
+// Home page: the recent list (recent-list.mjs).
+const recent = createRecentList({ api, guard, addDocuments, $ });
+// Keyboard shortcuts, and the commands the main process pushes into the window.
+const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai });
+const commands = createCommands({ $, sessions, current, activeId: () => activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle });
 const compareBar = document.createElement('div'); compareBar.id='compareBar';compareBar.hidden=true;
 compareBar.innerHTML='<strong>并排比较</strong><label><input id="syncComparePages" type="checkbox" checked>同步页码</label><label><input id="syncCompareZoom" type="checkbox" checked>同步缩放</label><label>右侧页差 <input id="compareOffset" type="number" value="0" min="-100000" max="100000" title="右侧页码 = 左侧页码 + 页差"></label><span id="compareNames"></span><div class="spacer"></div>'
   +'<button id="compareDiffRun" data-icon="compare" title="比较两份文档的文字，左侧标出删除（红），右侧标出新增（绿）">标出差异</button><button id="compareDiffPrev" data-icon="up" title="上一处差异" disabled>上一处</button><button id="compareDiffNext" data-icon="down" title="下一处差异" disabled>下一处</button><span id="compareDiffCount" class="compareDiffCount"></span>'
@@ -134,7 +130,7 @@ compareBar.innerHTML='<strong>并排比较</strong><label><input id="syncCompare
 $('workspace').append(compareBar);
 $('endCompare').onclick=endCompare;
 // 0.19: text differences drawn on both pages, stepped through from the bar (compare-diff.mjs).
-const compareDiff=createCompareDiff({sessions,status});
+const compareDiff=createCompareDiff({sessions});
 const diffButtons=on=>{$('compareDiffPrev').disabled=$('compareDiffNext').disabled=!on;};
 $('compareDiffRun').onclick=()=>guard(async()=>{if(!compareIds)return;$('compareDiffRun').disabled=true;try{const offset=Number($('compareOffset').value)||0;const r=await compareDiff.compute(compareIds[0],compareIds[1],offset,(p,n)=>{$('compareDiffCount').textContent=`正在比较 ${p} / ${n} 页…`;});$('compareDiffCount').textContent=r.hunks?`共 ${r.hunks} 处差异`+(r.truncated?'（只比较前 300 页）':''):'文字没有差异';diffButtons(r.hunks>0);status(r.hunks?`找到 ${r.hunks} 处文字差异：左侧红色为删除，右侧绿色为新增。`:'两份文档的文字相同（不比较图片和版式）。');}finally{$('compareDiffRun').disabled=false;}});
 for(const [id,dir] of [['compareDiffPrev',-1],['compareDiffNext',1]])$(id).onclick=()=>{comparingPage=true;try{const r=compareDiff.step(dir);if(r){$('compareDiffCount').textContent=`第 ${r.index} / ${r.total} 处`;status(`第 ${r.index} / ${r.total} 处差异`+(r.removed?` · 删除：${r.removed.slice(0,40)}`:'')+(r.added?` · 新增：${r.added.slice(0,40)}`:''));}}finally{comparingPage=false;}};
@@ -161,18 +157,6 @@ function viewState(s) {
   const v = s.app?.pdfViewer;
   return v ? { page: v.currentPageNumber, zoom: String(v.currentScaleValue), rotation: v.pagesRotation, scrollTop: s.app.appConfig.mainContainer.querySelector('#viewerContainer')?.scrollTop || 0, ...views.state(s), ...s.compareView, bookmarks:s.bookmarks||s.state?.bookmarks||[] } : s.state;
 }
-let themeTimer;
-function setTheme(dark, remember = true) {
-  if (document.body.classList.contains('dark') !== dark) { document.body.classList.add('themeSwitching'); clearTimeout(themeTimer); themeTimer = setTimeout(() => document.body.classList.remove('themeSwitching'), 320); }
-  document.body.classList.toggle('dark', dark);
-  $('themeButton').setAttribute('aria-label', dark ? '切换浅色界面' : '切换深色界面');
-  $('themeButton').title = dark ? '切换浅色界面' : '切换深色界面';
-  $('themeButton').dataset.icon = dark ? 'sun' : 'moon';
-  $('themeButton').setAttribute('aria-pressed', String(dark));
-  if (remember) localStorage.setItem('qingye-theme', dark ? 'dark' : 'light');
-  api.titleBarTheme?.(dark).catch(() => {});
-  for (const s of sessions.values()) if (s.frame?.contentDocument) s.frame.contentDocument.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-}
 function tabs() {
   $('tabs').replaceChildren();
   const home = document.createElement('button');
@@ -197,7 +181,7 @@ function tabs() {
   $('saveButton').title=$('saveAsButton').title=tools.isBusy()?'本地处理正在进行，完成后可保存。':'';
   views.sync();
   $('directButton').disabled=!currentPdf()?.loaded;
-  syncHistory();
+  history.sync();
   textSelection.sync();
   $('searchButton').disabled = $('outlineButton').disabled = !current()?.loaded;
   chrome.sync();
@@ -207,7 +191,9 @@ function tabs() {
 }
 function resizePdf(s) {
   const viewer=s.app?.pdfViewer;if(!s.loaded||!viewer)return;
-  const page=viewer.currentPageNumber;viewer.currentScaleValue=viewer.currentScaleValue;
+  const page=viewer.currentPageNumber;
+  // oxlint-disable-next-line no-self-assign -- 重新赋同一个值让 PDF.js 按新宽度重算缩放（惯用触发方式）。
+  viewer.currentScaleValue=viewer.currentScaleValue;
   // ResizeObserver and tab activation may run after a newer citation navigation. The cached
   // PDF.js scale location can still be on the old page until its scroll event has been handled.
   if(viewer.currentPageNumber!==page||(viewer._location&&viewer._location.pageNumber!==page))viewer.currentPageNumber=page;
@@ -239,7 +225,7 @@ function activate(id, { keepFocus = false } = {}) {
   navigation.sync();
   tabs();
   status(id === null ? '准备就绪' : isMd(current()) ? (current().dirty ? '有未保存的修改' : 'Markdown 文档') : current()?.loaded ? (current().dirty ? '有未保存的批注' : '文档已打开') : '正在打开文档…');
-  if (id === null) refreshRecent();
+  if (id === null) recent.refresh();
   ai?.sync();
 }
 function editingHash(s) { return JSON.stringify([...(s.app.pdfDocument.annotationStorage.serializable.map || [])].sort(([a], [b]) => a.localeCompare(b))); }
@@ -264,36 +250,6 @@ function syncDirty(s) {
   const dirty = !!s.recovered || !!s.structuralDirty || s.pendingInput || !sameEdits(editingHash(s), s.savedHash);
   if (dirty !== s.dirty) { s.dirty = dirty; tabs(); if (s.id === activeId) status(dirty ? '有未保存的批注' : '文档已保存'); }
 }
-async function checkpoint() {
-  if(checkpointBusy||closingApp||[...sessions.values()].some(s=>s.editBusy))return false;checkpointBusy=true;
-  try{
-    const items=[];
-    for(const s of sessions.values())if(s.loaded&&!s.saving){
-      if(isMd(s)){syncDirty(s);const version=s.editor.version,changed=s.dirty&&s.draftVersion!==version;items.push({id:s.id,state:viewState(s),dirty:s.dirty,...(changed?{text:markdown.text(s),history:s.editor.exportHistory()}:{})});if(changed)s.nextDraftVersion=version;continue;}
-      syncDirty(s);let hash=editingHash(s);const changed=s.dirty&&(s.draftHash!==hash||s.pendingInput);
-      let bytes;
-      if(changed){
-        // FreeText's live DOM isn't serialized until commit. Resume its focus and caret
-        // immediately after starting the snapshot, instead of interrupting the user's typing.
-        const doc=s.frame.contentDocument,active=doc.activeElement,selection=s.frame.contentWindow.getSelection();
-        const range=selection.rangeCount?selection.getRangeAt(0).cloneRange():null;
-        const manager=s.app.pdfViewer._layerProperties.annotationEditorUIManager;let editing;
-        if(s.pendingInput&&active?.closest('.freeTextEditor')){for(let p=0;p<s.app.pagesCount;p++)for(const editor of manager.getEditors(p))if(editor.contentDiv?.contains(active))editing=editor;}
-        if(s.pendingInput)commit(s);hash=editingHash(s);
-        const pending=s.app.pdfDocument.saveDocument();
-        if(editing&&!editing.deleted){editing.enableEditMode();manager.setActiveEditor(editing);active.focus();if(range?.startContainer.isConnected){selection.removeAllRanges();selection.addRange(range);}}
-        bytes=await pending;
-      }
-      items.push({id:s.id,state:viewState(s),dirty:s.dirty,...(bytes?{bytes}:{})});
-      if(bytes)s.nextDraftHash=hash;
-    }
-    await api.checkpoint(items,activeId);
-    for(const s of sessions.values()){if(s.nextDraftHash){s.draftHash=s.nextDraftHash;delete s.nextDraftHash;}if(s.nextDraftVersion!=null){s.draftVersion=s.nextDraftVersion;delete s.nextDraftVersion;}}
-    return true;
-  }catch(error){console.warn('Draft recovery:',error);status('草稿备份未完成：'+userError(error));return false;}
-  finally{checkpointBusy=false;}
-}
-function scheduleDraft(){clearTimeout(draftTimer);draftTimer=setTimeout(checkpoint,3000);}
 function commit(s) {
   if (isMd(s) || !s?.app) return;
   const manager = s.app.pdfViewer._layerProperties.annotationEditorUIManager;
@@ -363,12 +319,12 @@ async function addDocument(info) {
     childDoc.documentElement.style.colorScheme = document.body.classList.contains('dark') ? 'dark' : 'light';
     // Route every PDF.js save entry to the same native save path, with no fallback to original bytes.
     s.app.save = s.app.download = s.app.downloadOrSave = () => guard(() => saveSession(s, false));
-    childDoc.addEventListener('keydown', event => shortcuts(event, s), true);
+    childDoc.addEventListener('keydown', event => shortcuts.handle(event, s), true);
     childDoc.addEventListener('pointerdown',()=>{if(compareIds&&activeId!==s.id)activate(s.id);else if(notes?.has(s.id)&&activeId!==s.id)activate(s.id,{keepFocus:true});},true);
     childDoc.addEventListener('drop', event => { event.preventDefault(); event.stopImmediatePropagation(); guard(() => dropFiles(event.dataTransfer.files)); }, true);
     childDoc.addEventListener('dragover', event => event.preventDefault(), true);
     childDoc.addEventListener('input', event => {
-      if (event.target.closest('.annotationEditorLayer, .annotationLayer, #commentManagerDialog')) { s.pendingInput = true; syncDirty(s);scheduleDraft(); }
+      if (event.target.closest('.annotationEditorLayer, .annotationLayer, #commentManagerDialog')) { s.pendingInput = true; syncDirty(s);draft.schedule(); }
     }, true);
     childDoc.addEventListener('pointerup', () => setTimeout(() => syncDirty(s), 100), true);
     const initialized = new Promise(resolve => s.app.eventBus.on('documentinit', resolve, { once: true }));
@@ -403,7 +359,7 @@ async function addDocument(info) {
     s.history=createHistory();s.savedContentDigest=await contentDigest(info.bytes);
     bindStorage(s);direct.bind(s);textSelection.bind(s);markup.bind(s);shapes.bind(s);annotEdit.bind(s);compareDiff.bind(s);
     s.app.eventBus.on('scalechanging',e=>{if(compareIds?.includes(s.id)&&s.id===activeId&&!comparingPage&&$('syncCompareZoom').checked){const other=sessions.get(compareIds.find(id=>id!==s.id));if(other?.loaded){comparingPage=true;try{other.app.pdfViewer.currentScaleValue=String(e.presetValue||e.scale);}finally{comparingPage=false;}}}});chrome.attachPager(s);
-    s.app.eventBus.on('editingstateschanged', ({source,details}) => { if(!s.loaded||(source&&source!==s.app.pdfViewer._layerProperties.annotationEditorUIManager))return;s.nativeHistory={...details};if(details?.hasSomethingToUndo&&!details.hasSomethingToRedo)s.history?.discardRedo();s.pendingInput = false; syncDirty(s);syncHistory(); });
+    s.app.eventBus.on('editingstateschanged', ({source,details}) => { if(!s.loaded||(source&&source!==s.app.pdfViewer._layerProperties.annotationEditorUIManager))return;s.nativeHistory={...details};if(details?.hasSomethingToUndo&&!details.hasSomethingToRedo)s.history?.discardRedo();s.pendingInput = false; syncDirty(s);history.sync(); });
     s.app.eventBus.on('pagechanging', () => {
       if (s.id === activeId) status(`第 ${s.app.pdfViewer.currentPageNumber} / ${s.app.pagesCount} 页${s.dirty ? ' · 有未保存批注' : ''}`);
       notes?.pageChanged(s, s.app.pdfViewer.currentPageNumber);
@@ -416,7 +372,7 @@ async function addDocument(info) {
     sessions.delete(s.id); panel.remove(); await api.closeDocument(s.id, s.state).catch(() => {}); activate(null); throw error;
   }
 }
-async function addDocuments(items) { for (const info of items) { await addDocument(info); if (info.officeJob) officeProgress.opened(info.officeJob); }const selected=items.find(i=>i.wasActive);if(selected)activate(selected.id); await refreshRecent(); }
+async function addDocuments(items) { for (const info of items) { await addDocument(info); if (info.officeJob) officeProgress.opened(info.officeJob); }const selected=items.find(i=>i.wasActive);if(selected)activate(selected.id); await recent.refresh(); }
 async function open() { await addDocuments(await api.open()); }
 // The Word / Excel / PowerPoint original changed: convert again into the same tab (undoable).
 async function reconvertOffice(id) {
@@ -428,79 +384,19 @@ async function reconvertOffice(id) {
   try {
     const before = await tools.snapshot(s), result = await api.officeReconvert(id);
     if (!result?.bytes) { status('已取消重新转换'); return; }
-    await replaceDocument(s, result.bytes); s.history.push(before, result.bytes, '重新转换 ' + s.name); syncHistory();
+    await replaceDocument(s, result.bytes); s.history.push(before, result.bytes, '重新转换 ' + s.name); history.sync();
     status('已按更新后的原文件重新转换 · 可撤销');
-  } finally { s.editBusy = false; tabs(); scheduleDraft(); }
+  } finally { s.editBusy = false; tabs(); draft.schedule(); }
 }
 async function dropFiles(files) { await addDocuments(await api.dropped(Array.from(files))); }
-// ——— Home: recent files (filter by type, filter by name, remove from list) ———
-let recentItems = [], recentFilter = 'all', recentLimit = 12;
-const isMdPath = p => /\.(md|markdown|mdown|mkdn?|mdwn)$/i.test(p || '');
-// Recent entries carry their kind (pdf / markdown / office) and extension from the main process.
-const recentKind = i => i.kind || (isMdPath(i.path) ? 'markdown' : 'pdf');
-function recentBadge(i) {
-  const kind = recentKind(i), ext = (i.ext || '').toLowerCase();
-  if (kind === 'markdown') return ['MD', 'md'];
-  if (kind !== 'office') return ['PDF', ''];
-  if (/^(xls|xlsx|xlsm|xlsb|ods|csv|et)$/.test(ext)) return [ext === 'csv' ? 'CSV' : 'XLS', 'excel'];
-  if (/^(ppt|pptx|pptm|pps|ppsx|odp|dps)$/.test(ext)) return ['PPT', 'powerpoint'];
-  return [/^(odt|ott)$/.test(ext) ? 'ODT' : ext === 'rtf' ? 'RTF' : 'DOC', 'word'];
-}
-function when(ms) {
-  if (!ms) return '';
-  const d = new Date(ms), now = new Date(), day = 86400000, start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const hm = d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
-  if (ms >= start) return '今天 ' + hm;
-  if (ms >= start - day) return '昨天 ' + hm;
-  if (ms >= start - 6 * day) return Math.ceil((start - ms) / day) + ' 天前';
-  return d.getFullYear() === now.getFullYear() ? `${d.getMonth() + 1} 月 ${d.getDate()} 日` : `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-}
-function renderRecent() {
-  const term = $('recentSearch').value.trim().toLowerCase(), list = $('recent');
-  const shown = recentItems.filter(i => (recentFilter === 'all' || recentKind(i) === recentFilter) && (!term || i.name.toLowerCase().includes(term) || i.path.toLowerCase().includes(term)));
-  list.replaceChildren();
-  if (!shown.length) {
-    const empty = document.createElement('div'); empty.className = 'emptyRecent';
-    const title = document.createElement('strong'), hint = document.createElement('span');
-    title.textContent = recentItems.length ? '没有符合条件的文件' : '还没有打开过文件';
-    hint.textContent = recentItems.length ? '换个关键词或类型试试。' : '打开 PDF、Markdown 或 Word / Excel / PPT 文件（也可以直接拖进窗口），或者先看看右侧的示例。';
-    empty.append(title, hint); list.append(empty); return;
-  }
-  for (const item of shown.slice(0, recentLimit)) {
-    const [badge, badgeKind] = recentBadge(item);
-    const row = document.createElement('div'); row.className = 'recentRow'; row.setAttribute('role', 'listitem');
-    const open = document.createElement('button'); open.className = 'recentOpen'; open.title = item.path; open.setAttribute('aria-label', `打开 ${item.name}`);
-    open.style.cssText = 'position:absolute;inset:0;border-radius:10px;padding:0;background:none';
-    open.onclick = () => guard(async () => addDocuments(await api.openRecent(item.id)));
-    const icon = document.createElement('span'); icon.className = 'recentIcon' + (badgeKind ? ' ' + badgeKind : ''); icon.textContent = badge; icon.setAttribute('aria-hidden', 'true');
-    const text = document.createElement('span'); text.className = 'recentText';
-    const name = document.createElement('span'); name.className = 'recentName'; name.textContent = item.name;
-    const file = document.createElement('span'); file.className = 'recentPath'; file.textContent = item.path.replace(/[\\/][^\\/]*$/, '') || item.path;
-    text.append(name, file);
-    const meta = document.createElement('span'); meta.className = 'recentMeta';
-    if (item.page > 1) { const b = document.createElement('b'); b.textContent = `读到第 ${item.page} 页`; meta.append(b); }
-    if (recentKind(item) === 'office') { const b = document.createElement('b'); b.className = 'recentAsPdf'; b.textContent = '以 PDF 打开'; meta.append(b); }
-    meta.append(document.createTextNode(when(item.opened)));
-    const remove = document.createElement('button'); remove.className = 'recentRemove'; remove.dataset.icon = 'x'; remove.title = '从最近列表中移除（不删除文件）'; remove.setAttribute('aria-label', `从最近列表中移除 ${item.name}`);
-    remove.onclick = event => { event.stopPropagation(); guard(async () => { if (await api.recentRemove?.(item.id)) { recentItems = recentItems.filter(x => x !== item); renderRecent(); } }); };
-    for (const el of [icon, text, meta]) el.style.pointerEvents = 'none';
-    row.append(open, icon, text, meta, remove); list.append(row);
-  }
-  if (shown.length > recentLimit) {
-    const more = document.createElement('button'); more.className = 'recentMore'; more.textContent = `显示全部 ${shown.length} 个`;
-    more.onclick = () => { recentLimit = Infinity; renderRecent(); }; list.append(more);
-  }
-}
-async function refreshRecent() { recentItems = await api.recent(); renderRecent(); }
-for (const b of document.querySelectorAll('.recentFilter button')) b.onclick = () => { recentFilter = b.dataset.filter; for (const x of document.querySelectorAll('.recentFilter button')) x.setAttribute('aria-pressed', String(x === b)); renderRecent(); };
-$('recentSearch').oninput = () => renderRecent();
+// Home page: the recent list (recent-list.mjs).
 async function saveSession(s, saveAs) {
   if (isMd(s)) {
     if (!s.loaded || s.saving) return false;
     status('正在保存…');
     const saved = await markdown.save(s, saveAs);
     if (!saved) { status('已取消保存'); return false; }
-    syncDirty(s); tabs(); status('已保存到 ' + s.path); await refreshRecent(); await checkpoint(); return true;
+    syncDirty(s); tabs(); status('已保存到 ' + s.path); await recent.refresh(); await draft.checkpoint(); return true;
   }
   if(tools.isBusy()){status('本地处理正在进行，请等待完成后保存。');return false;}
   if (!s?.loaded || s.saving || s.editBusy) return false;
@@ -515,8 +411,8 @@ async function saveSession(s, saveAs) {
     if (!result) { status('已取消保存'); return false; }
     Object.assign(s, result); s.savedHash = editingHash(s); s.pendingInput = false; s.dirty = false;s.recovered=false;s.structuralDirty=false;s.savedContentDigest=await contentDigest(bytes);s.draftHash=null;
     s.app._annotationStorageModified = false;
-    status('已保存到 ' + s.path); await refreshRecent(); return true;
-  } finally { s.frame.inert = false; cover.remove(); s.saving = false; tabs();await checkpoint(); }
+    status('已保存到 ' + s.path); await recent.refresh(); return true;
+  } finally { s.frame.inert = false; cover.remove(); s.saving = false; tabs();await draft.checkpoint(); }
 }
 async function closeTab(id) {
   const target = sessions.get(id);
@@ -572,53 +468,7 @@ function nextTab(direction = 1) {
   const ids = [...sessions.keys()]; if (!ids.length) return;
   const index = ids.indexOf(activeId); activate(ids[(index + direction + ids.length) % ids.length]);
 }
-function shortcuts(event, s = current()) {
-  if (event.key === 'Escape') {
-    if ($('viewPanel').matches(':popover-open')) { $('viewPanel').hidePopover();event.preventDefault();event.stopImmediatePropagation();return; }
-    api.exitFullscreen().catch(console.warn);
-  }
-  const ctrl = event.ctrlKey || event.metaKey;
-  if(event.altKey&&!ctrl&&!event.shiftKey&&!event.isComposing&&['ArrowLeft','ArrowRight'].includes(event.key)&&!event.target.closest('input,textarea,[contenteditable]')){event.preventDefault();event.stopImmediatePropagation();guard(()=>event.key==='ArrowLeft'?readingTrail.back():readingTrail.forward());return;}
-  if(ctrl&&(event.code==='KeyZ'||event.code==='KeyY')&&!event.target.closest('input,textarea,[contenteditable=true]')){event.preventDefault();event.stopImmediatePropagation();guard(()=>historyStep(event.code==='KeyY'||event.shiftKey));return;}
-  let action;
-  if (ctrl && event.code === 'KeyO') action = () => open();
-  if (ctrl && !event.shiftKey && event.code === 'Backslash' && notes) action = () => notes.toggle();
-  if (ctrl && event.shiftKey && event.code === 'KeyE' && s?.loaded && !isMd(s) && notes?.notesFor(s)) action = () => notes.excerptSelection(s);
-  if (ctrl && event.shiftKey && event.code === 'KeyU' && notes?.pdfOfSplit()) action = () => notes.pickRegion();
-  if (ctrl && event.shiftKey && !event.altKey && event.code === 'KeyF' && library) action = () => library.open();
-  if (ctrl && !event.shiftKey && event.code === 'KeyF' && s?.loaded) action = isMd(s) ? () => markdown.openFind(s, false) : () => navigation.show('search');
-  if (ctrl && !event.shiftKey && event.code === 'KeyH' && isMd(s) && s.loaded) action = () => markdown.openFind(s, true);
-  if (ctrl && event.code === 'KeyG' && s?.pager) action = () => s.pager.focus();
-  if (ctrl && !event.shiftKey && event.code === 'KeyN') action = () => newMarkdown();
-  if (ctrl && !event.shiftKey && !event.altKey && event.code === 'KeyP' && isMd(s) && s.loaded) action = () => markdown.command(s, 'openQuickly');
-  if (ctrl && event.code === 'KeyS') action = () => reviewSave(s, event.shiftKey);
-  if (ctrl && event.code === 'KeyW') action = async () => { if (closeInProgress) return; closeInProgress = true; try { await closeTab(s?.id); } finally { closeInProgress = false; } };
-  if (ctrl && event.shiftKey && event.code === 'KeyA' && document.body.dataset.mode !== 'home') action = () => ai.toggle();
-  if (ctrl && event.code === 'Tab') action = () => nextTab(event.shiftKey ? -1 : 1);
-  if (ctrl && /^[1-9]$/.test(event.key) && !(isMd(s) && event.target?.closest?.('.mdEditor'))) action = () => activate([...sessions.keys()][Number(event.key) - 1] || activeId);
-  if (action) { event.preventDefault(); event.stopImmediatePropagation(); guard(action); }
-}
-async function onCommand(command, data) {
-  if (command === 'open') return open();
-  if (command === 'opened') return addDocuments(data);
-  if (command === 'first-run') { status('欢迎使用青页 PDF'); return message('首次启动说明', '青页可以直接打开 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 文件。Office 文件由内置的 LibreOffice 转换后以 PDF 形式打开，原文件不会被改动；第一次转换需要几秒钟。\n\n所有文档处理都在本机完成，不联网、不上传文件。'); }
-  if (command === 'status') return status(String(data || ''));
-  if (command === 'office-progress') return officeProgress.update(data);
-  if (command === 'office-source-changed') return officeProgress.sourceChanged(data, () => reconvertOffice(data.id));
-  if (command === 'save' || command === 'save-as') return reviewSave(current(), command === 'save-as');
-  if (command === 'close-tab') return closeTab(activeId);
-  if (command === 'close-app') return closeApp();
-  if (command === 'next-tab' || command === 'previous-tab') return nextTab(command === 'next-tab' ? 1 : -1);
-  if (command === 'find') return isMd(current()) ? markdown.openFind(current(), false) : navigation.show('search');
-  if (command === 'new-markdown') return newMarkdown();
-  if (command === 'spell') return markdown.onSpell(data);
-  if (command === 'file-changed') { const s = sessions.get(data?.id); if (isMd(s) && s.loaded) return markdown.external(s, data.state); return; }
-  if (command === 'fullscreen-changed') return chrome.fullscreen(data);
-  if (command === 'window-maximized') return windowStyle.maximized(data);
-  if (command === 'window-focus') return windowStyle.focused(data);
-  if (command === 'help') return $('helpButton').click();
-  if (command === 'print') return isMd(current()) ? markdown.print(current()) : current()?.app?.eventBus.dispatch('print', { source: current().app });
-}
+// Keyboard shortcuts (shortcuts.mjs) and main-process commands (commands.mjs) are wired above.
 $('openButton').onclick = $('welcomeOpen').onclick = () => guard(open);
 $('exampleButton').onclick = () => guard(async () => addDocuments(await api.example()));
 function newMarkdown() { return guard(async () => addDocuments(await api.newMarkdown())); }
@@ -626,7 +476,7 @@ $('newMarkdownButton').onclick = () => newMarkdown();
 $('convertButton').onclick = $('homeConvertButton').onclick = () => guard(() => converter.open());
 $('markdownExampleButton').onclick = () => guard(async () => addDocuments(await api.markdownExample()));
 window.addEventListener('focus', () => { if ([...sessions.values()].some(isMd)) api.checkMarkdown().catch(() => {}); });
-function reviewSave(s,saveAs){if(isMd(s))return guard(()=>saveSession(s,saveAs));if(tools.isBusy()){status('本地处理正在进行，请等待完成后保存。');return false;}return s?.dirty&&s.history?.rows.some(r=>r.applied)?showHistory(()=>saveSession(s,saveAs)):guard(()=>saveSession(s,saveAs));}
+function reviewSave(s,saveAs){if(isMd(s))return guard(()=>saveSession(s,saveAs));if(tools.isBusy()){status('本地处理正在进行，请等待完成后保存。');return false;}return s?.dirty&&s.history?.rows.some(r=>r.applied)?history.show(()=>saveSession(s,saveAs)):guard(()=>saveSession(s,saveAs));}
 $('saveButton').onclick = () => reviewSave(current(),false);
 $('saveAsButton').onclick = () => reviewSave(current(),true);
 $('homeButton').onclick = () => activate(null);
@@ -651,11 +501,9 @@ const restoreButton=document.createElement('button');restoreButton.id='restoreBu
 (api.lastSessionCount?.()??Promise.resolve(1)).then(n=>{restoreButton.hidden=!n;if(n){restoreButton.title=`重新打开上次关闭时的 ${n} 个标签`;restoreButton.querySelector('small').textContent=`上次关闭时的 ${n} 个标签`;}}).catch(()=>{restoreButton.hidden=false;restoreButton.querySelector('small').textContent='重新打开上次关闭时的标签';});
 const recoveryBox=document.createElement('section');recoveryBox.id='recoveryBox';document.getElementById('home').prepend(recoveryBox);
 api.recoveryList().then(items=>{for(const item of items){const row=document.createElement('div');row.className='recoveryRow';const label=document.createElement('span');label.textContent=`发现未正常关闭的会话：${item.names.join('、')}（${item.drafts} 份草稿）`;row.append(label);for(const [text,action] of [['恢复',async()=>{await addDocuments(await api.restoreSession(item.token));row.remove();}],['删除备份',async()=>{await api.discardRecovery(item.token);row.remove();}]]){const b=document.createElement('button');b.textContent=text;b.onclick=()=>guard(action);row.append(b);}recoveryBox.append(row);}}).catch(console.warn);
-$('themeButton').onclick = () => setTheme(!document.body.classList.contains('dark'));
-const settings = createSettings({ api, guard, status, message, markdown, refreshRecent, version: () => productVersion, windowStyle: windowStyle.info, restart: restartApp,
+const settings = createSettings({ api, guard, status, markdown, refreshRecent: recent.refresh, version: () => productVersion, windowStyle: windowStyle.info, restart: restartApp,
   theme: {
-    mode: () => { const v = localStorage.getItem('qingye-theme'); return v === 'dark' || v === 'light' ? v : 'system'; },
-    set: mode => { if (mode === 'system') { localStorage.removeItem('qingye-theme'); setTheme(matchMedia('(prefers-color-scheme: dark)').matches, false); } else setTheme(mode === 'dark'); },
+    mode: theme.mode, set: theme.setMode,
   } });
 $('settingsButton').onclick = () => settings.open();
 // AI collaboration (0.9.1): the panel on the right, and the bridge that serves the local AI interface.
@@ -693,20 +541,18 @@ api.onAiBridge?.((id, name, args, meta) => {
     .catch(console.warn);
 });
 $('helpButton').onclick = () => isMd(current()) ? markdown.command(current(), 'helpQuickStart') : message('欢迎使用青页 PDF', '打开：Ctrl+O；搜索：Ctrl+F；切换标签：Ctrl+Tab\n保存：Ctrl+S；另存为：Ctrl+Shift+S；全屏：F11\n\n打开 PDF 后顶部显示 PDF 工具栏：“搜索”“大纲”打开统一导航侧栏（搜索、目录、书签、页面、批注）；“批注”提供高亮、绘制、文本框、签名与评论；“视图”提供页面排列、颜色和阅读裁剪。左下角浮动面板用于翻页与缩放（Ctrl+G 跳转页码）。在页面上单击右键可快速使用批注、页面编辑与页面管理。\n\nMarkdown 文档使用独立的界面：顶部是菜单栏与“阅读 / 编辑 / 源码”切换，底部是字数与光标位置。Ctrl+N 新建，Ctrl+Shift+P 命令面板，Ctrl+P 快速打开。\n\n页面编辑的未应用内容在切到首页或其他标签时保留，回到原文档可继续编辑；关闭文档或切换编辑工具时可以选择继续编辑或明确放弃。工具箱任务期间保存入口暂时禁用，完成后可再保存。\n\n“工具箱”提供本地转换、页面管理、压缩、OCR、原文替换、涂黑、印章、水印、加密、并排比较等功能。应用到当前文档后可撤销，保存才写盘；处理并导出副本不直接覆盖源文件。\n\n文字替换和 Office 转换有版式限制；永久涂黑会删除内容，阅读裁剪与 CropBox 不会删除内容。可视签名和印章不是证书数字签名。完整范围请查看随附使用说明和功能对照。\n\n青页 PDF '+productVersion+' 按 AGPL-3.0 开源，无账号、无会员次数配额。');
-document.addEventListener('keydown', shortcuts, true);
+document.addEventListener('keydown', shortcuts.handle, true);
 document.addEventListener('dragover', event => event.preventDefault());
 document.addEventListener('drop', event => { event.preventDefault(); guard(() => dropFiles(event.dataTransfer.files)); });
-api.onCommand((command, data) => guard(() => onCommand(command, data)));
+api.onCommand((command, data) => guard(() => commands.run(command, data)));
 setInterval(() => { for (const s of sessions.values()) { try { syncDirty(s); } catch (error) { console.warn(error); } } }, 1000);
 setInterval(() => { const s = current(); if (s?.loaded) api.remember(s.id, viewState(s)).catch(console.warn); }, 10000);
-setInterval(checkpoint,15000);
-const storedTheme = localStorage.getItem('qingye-theme'), systemDark = matchMedia('(prefers-color-scheme: dark)');
-setTheme(storedTheme ? storedTheme === 'dark' : systemDark.matches, false);
-systemDark.addEventListener('change', event => { if (!localStorage.getItem('qingye-theme')) setTheme(event.matches, false); });
+setInterval(draft.checkpoint,15000);
+theme.apply();
 activate(null);
 // Settings → "restore last tabs on start": only when nothing was opened from the command line.
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint, direct, textSelection, applyEdit, historyStep, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
 api.ready();
