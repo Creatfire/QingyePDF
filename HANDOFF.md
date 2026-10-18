@@ -58,7 +58,10 @@ node scripts/ci-smoke.cjs --packaged              # 打包后的 7 个套件
 
 ## 验证记录
 
-（打包后补充）
+- `npm run verify`：oxlint 0 错误、文档链接检查通过、单元测试 141 项通过（1 项仅 POSIX 跳过）。
+- 后端 `backend/test_worker.py`：98 个任务通过（新增 OCR 混合页 / 区域、PPT 比例与 DPI、页面计划 / 拆分 / 提取图片、批注标签）。
+- 源码冒烟 9 个套件全部通过；打包后（`dist/win-unpacked`）7 个套件全部通过。
+- 产物：`QingyePDF-0.20.0-Setup-x64.exe`（约 345 MB）、`QingyePDF-0.20.0-win-x64.zip`（约 466 MB），校验值在 `dist/SHA256SUMS-0.20.0.txt`。未推送、未发布。
 
 ---
 
