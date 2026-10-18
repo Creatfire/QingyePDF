@@ -86,12 +86,16 @@ const convertArgs = (profileDir, stage, input) => ['--headless', '--invisible', 
 async function toPdf(file, { packaged = false, resources = '', profileDir, cacheDir, signal, timeout = 180000, onProgress = () => {} } = {}) {
   const exe = sofficePath({ packaged, resources }), name = path.basename(file);
   if (!exe) throw new Error('内置的 LibreOffice 转换引擎缺失，请重新安装青页。');
+  // Canceling means the same on every path: before reading, after reading and on a cache hit.
+  const stopIfCanceled = () => { if (signal?.aborted) throw abortError(); };
+  stopIfCanceled();
   onProgress({ stage: 'reading', text: `正在读取 ${name}…` });
   const source = await fs.readFile(file);
+  stopIfCanceled();
   if (source.length > 512 * 1024 * 1024) throw new Error('文件超过 512 MB，无法转换。');
   const digest = crypto.createHash('sha256').update(source).digest('hex');
   const cached = cacheDir && path.join(cacheDir, digest + '.pdf');
-  if (cached) { const hit = await fs.readFile(cached).catch(() => null); if (hit?.length) { onProgress({ stage: 'cached', text: `${name} 未改动，使用上次的转换结果` }); return { bytes: hit, cached: true, digest }; } }
+  if (cached) { const hit = await fs.readFile(cached).catch(() => null); if (hit?.length) { stopIfCanceled(); onProgress({ stage: 'cached', text: `${name} 未改动，使用上次的转换结果` }); return { bytes: hit, cached: true, digest }; } }
   if (pending) onProgress({ stage: 'queued', text: `${name} 正在排队，等待前一个文件转换完成…` });
   return queued(async () => {
     if (signal?.aborted) throw abortError();

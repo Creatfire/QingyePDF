@@ -399,6 +399,7 @@ def export(doc, request, output):
     elif fmt == 'pptx':
         from pptx import Presentation
         from pptx.util import Inches
+        dpi = number(request.get('dpi'), 36, 300, 144)
         deck = Presentation()
         first = doc[selected[0]].rect
         deck.slide_width = Inches(first.width / 72)
@@ -406,8 +407,15 @@ def export(doc, request, output):
         for i in selected:
             progress(selected.index(i),len(selected),'转换幻灯片')
             slide = deck.slides.add_slide(deck.slide_layouts[6])
-            pix = doc[i].get_pixmap(dpi=144, alpha=False)
-            slide.shapes.add_picture(io.BytesIO(pix.tobytes('png')), 0, 0, width=deck.slide_width, height=deck.slide_height)
+            page = doc[i]
+            if page.rect.width * page.rect.height * (dpi / 72) ** 2 > 40_000_000:
+                raise ValueError('单页图像超过 4000 万像素，请降低 DPI。')
+            pix = page.get_pixmap(dpi=int(dpi), alpha=False)
+            # The slide size follows the first page; other pages keep their own proportions and are
+            # centred (portrait pages in a landscape deck get side margins instead of being stretched).
+            scale = min(deck.slide_width / page.rect.width, deck.slide_height / page.rect.height)
+            width, height = int(page.rect.width * scale), int(page.rect.height * scale)
+            slide.shapes.add_picture(io.BytesIO(pix.tobytes('png')), (deck.slide_width - width) // 2, (deck.slide_height - height) // 2, width=width, height=height)
         deck.save(target)
         note = 'PowerPoint 每页转换为图像幻灯片，保持视觉版式，文字不能单独编辑。'
     else:

@@ -6,7 +6,11 @@ export function createDraftRecovery({ api, sessions, isMd, viewState, syncDirty,
     if (busy || isClosing() || [...sessions.values()].some(s => s.editBusy)) return false; busy = true;
     try {
       const items = [];
-      for (const s of sessions.values()) if (s.loaded && !s.saving) {
+      for (const s of sessions.values()) if (s.loaded) {
+        // While a save (or its file dialog) is in progress the document is not snapshotted, but it
+        // stays in the manifest as dirty so recovery.cjs keeps the previous draft: a canceled save
+        // must not leave the unsaved content without crash protection.
+        if (s.saving) { items.push({ id: s.id, state: viewState(s), dirty: true }); continue; }
         if (isMd(s)) { syncDirty(s); const version = s.editor.version, changed = s.dirty && s.draftVersion !== version; items.push({ id: s.id, state: viewState(s), dirty: s.dirty, ...(changed ? { text: markdown.text(s), history: s.editor.exportHistory() } : {}) }); if (changed) s.nextDraftVersion = version; continue; }
         syncDirty(s); let hash = editingHash(s); const changed = s.dirty && (s.draftHash !== hash || s.pendingInput);
         let bytes;

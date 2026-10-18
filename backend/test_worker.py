@@ -62,6 +62,23 @@ def check():
                 assert 'SECRET' in '\n'.join(p.text for p in Document(file).paragraphs)
                 imported,converted=run({'action':'import'},file)
                 with fitz.open(converted/'result.pdf') as d:assert 'SECRET' in ''.join(p.get_text() for p in d)
+        # PowerPoint (0.20): mixed portrait / landscape pages keep their proportions; DPI is honoured.
+        mixed=base/'mixed.pdf'
+        with fitz.open() as d:
+            d.new_page(width=300,height=400).insert_text((40,60),'Portrait')
+            d.new_page(width=400,height=300).insert_text((40,60),'Landscape')
+            d.save(mixed)
+        from pptx import Presentation
+        sizes={}
+        for dpi in (72,200):
+            result,out=run({'action':'export','format':'pptx','dpi':dpi},mixed)
+            deck=Presentation(out/result['files'][0])
+            pics=[[s for s in slide.shapes if s.shape_type==13][0] for slide in deck.slides]
+            for pic in pics: assert pic.left>=0 and pic.top>=0 and pic.left+pic.width<=deck.slide_width+1 and pic.top+pic.height<=deck.slide_height+1
+            assert abs(pics[1].width/pics[1].height-400/300)<0.01, 'landscape page is not stretched'
+            assert pics[1].top>0 and pics[1].left==0, 'centred with margins above and below'
+            sizes[dpi]=pics[0].image.size
+        assert sizes[200][0]>sizes[72][0]*2, 'DPI changes the rendered image size'
         _,out=run({'action':'redact','pages':'1','rect':[.1,.1,.95,.2]})
         with fitz.open(out/'result.pdf') as d:
             assert 'SECRET' not in d[0].get_text()

@@ -26,15 +26,18 @@ export function pageTokens(items) {
 }
 
 // Longest-common-subsequence diff of two token lists → ops: ['=', i, j] | ['-', i] | ['+', j].
+// Returns null when the part that differs is too large to compare within `limit` cells: the caller
+// reports the page as "not compared in detail" instead of marking all of it as changed.
 export function diffTokens(a, b, limit = 6e6) {
   const n = a.length, m = b.length;
   if (!n) return b.map((_, j) => ['+', j]);
   if (!m) return a.map((_, i) => ['-', i]);
-  if (n * m > limit) return null;
-  // Trim the common head and tail first; most pages differ in a few places.
+  // Trim the common head and tail first; most pages differ in a few places, and identical pages of
+  // any length need no table at all.
   let head = 0; while (head < n && head < m && a[head].text === b[head].text) head++;
   let tail = 0; while (tail < n - head && tail < m - head && a[n - 1 - tail].text === b[m - 1 - tail].text) tail++;
   const A = a.slice(head, n - tail), B = b.slice(head, m - tail), N = A.length, M = B.length;
+  if (N * M > limit) return null;
   const table = new Uint32Array((N + 1) * (M + 1));
   for (let i = N - 1; i >= 0; i--) for (let j = M - 1; j >= 0; j--) table[i * (M + 1) + j] = A[i].text === B[j].text ? table[(i + 1) * (M + 1) + j + 1] + 1 : Math.max(table[(i + 1) * (M + 1) + j], table[i * (M + 1) + j + 1]);
   const ops = [];
@@ -68,13 +71,14 @@ export function createCompareDiff({ sessions }) {
 
   async function compute(leftId, rightId, offset = 0, onProgress = () => {}) {
     const L = sessions.get(leftId), R = sessions.get(rightId), pages = Math.min(L.app.pagesCount, 300);
-    const hunks = [], marks = [new Map(), new Map()];
+    const hunks = [], marks = [new Map(), new Map()], incomplete = [];
     for (let p = 1; p <= pages; p++) {
       const q = p + offset;
       onProgress(p, pages);
       const left = pageTokens((await (await L.app.pdfDocument.getPage(p)).getTextContent()).items);
       const right = q >= 1 && q <= R.app.pagesCount ? pageTokens((await (await R.app.pdfDocument.getPage(q)).getTextContent()).items) : [];
-      const ops = diffTokens(left, right) || [...left.map((_, i) => ['-', i]), ...right.map((_, j) => ['+', j])];
+      const ops = diffTokens(left, right);
+      if (!ops) { incomplete.push(p); continue; }
       for (const h of hunksOf(ops, left, right, p, q)) {
         h.index = hunks.length; hunks.push(h);
         if (h.left.rects.length) (marks[0].get(p) || marks[0].set(p, []).get(p)).push(...h.left.rects.map(rect => ({ rect, hunk: h.index })));
@@ -91,7 +95,7 @@ export function createCompareDiff({ sessions }) {
     clear();
     state = { ids: [leftId, rightId], hunks, index: -1, marks };
     for (const s of [L, R]) paintAll(s);
-    return { hunks: hunks.length, truncated: L.app.pagesCount > 300 };
+    return { hunks: hunks.length, truncated: L.app.pagesCount > 300, incomplete };
   }
 
   function side(s) { return state ? state.ids.indexOf(s.id) : -1; }

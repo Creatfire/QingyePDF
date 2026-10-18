@@ -39,7 +39,8 @@ export function createLibrary({ api, guard, status, sessions, isMd, addDocuments
     const pages = [];
     for (let n = 1; n <= Math.min(doc.numPages, 5000); n++) {
       if (!alive()) return null;
-      const page = await doc.getPage(n); pages.push(joinTextItems((await page.getTextContent()).items).slice(0, 200000)); page.cleanup?.();
+      // One character past the per-page limit, so library-index.cjs can report the page as cut.
+      const page = await doc.getPage(n); pages.push(joinTextItems((await page.getTextContent()).items).slice(0, 200001)); page.cleanup?.();
     }
     return pages;
   }
@@ -84,7 +85,8 @@ export function createLibrary({ api, guard, status, sessions, isMd, addDocuments
   }
   run.sequence = 0;
   function render(result, query) {
-    $('librarySummary').textContent = summarize(result, pending);
+    $('librarySummary').textContent = summarize(result, pending) + (result.truncated?.length ? ` · ${result.truncated.length} 个文档过长，只索引了部分内容` : '');
+    $('librarySummary').title = result.truncated?.length ? '只索引了部分内容：' + result.truncated.map(d => d.name).join('、') : '';
     const list = $('libraryResults'); list.replaceChildren();
     for (const doc of result.documents) {
       const group = document.createElement('section'); group.className = 'libraryDoc'; group.setAttribute('role', 'listitem');
@@ -98,6 +100,7 @@ export function createLibrary({ api, guard, status, sessions, isMd, addDocuments
         const text = document.createElement('span'); text.className = 'librarySnippet'; const mark = document.createElement('mark'); mark.textContent = hit.match; text.append(hit.before, mark, hit.after);
         row.append(where, text); row.onclick = () => guard(() => openHit(doc, hit, query)); group.append(row);
       }
+      if (doc.truncated) { const cut = document.createElement('p'); cut.className = 'libraryMore'; cut.textContent = `文档过长，只索引了前 ${Math.round(doc.truncated.indexedChars / 10000)} 万字`; group.append(cut); }
       if (doc.total > doc.hits.length) { const more = document.createElement('p'); more.className = 'libraryMore'; more.textContent = `其余 ${doc.total - doc.hits.length} 处请打开文档后用 Ctrl+F 查看`; group.append(more); }
       list.append(group);
     }

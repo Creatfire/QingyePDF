@@ -14,7 +14,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     <div class="toolsColumns"><div id="toolFields">
       <label data-for="export organize compress ocr scan compare text redact stamp image page-stamp watermark number shape annotation form crop">页码范围 <input id="toolPages" placeholder="留空表示全部；例如 1-3,5"></label>
       <label data-for="export">导出格式 <select id="toolFormat"><option value="docx">Word DOCX · 可编辑文本与图片</option><option value="xlsx">Excel XLSX · 表格 / 逐行文本</option><option value="pptx">PowerPoint PPTX · 每页图像</option><option value="png">PNG 图像 ZIP</option><option value="jpg">JPEG 图像 ZIP</option><option value="svg">SVG 页面 ZIP</option><option value="html">HTML</option><option value="txt">纯文本 TXT</option><option value="csv">CSV 表格 / 文本</option></select></label>
-      <label data-for="export compress">图像 DPI <input id="toolDpi" type="number" min="36" max="300" value="144"></label>
+      <label data-for="export compress" data-formats="png jpg pptx">图像 DPI <input id="toolDpi" type="number" min="36" max="300" value="144"></label>
       <label data-for="organize">页面操作 <select id="toolPageMode"><option value="extract">提取指定页面</option><option value="reorder">按所填页码重排 / 复制页面</option><option value="delete">删除指定页面</option><option value="rotate">永久旋转指定页面</option><option value="blank">插入空白页</option><option value="split">每页拆成独立 PDF（ZIP）</option><option value="merge">合并其他已打开的 PDF</option></select></label>
       <label data-for="organize">旋转角度 <select id="toolAngle"><option value="90">顺时针 90°</option><option value="180">180°</option><option value="270">顺时针 270°</option></select></label>
       <label data-for="organize">空白页插入位置 <input id="toolPosition" type="number" min="0" value="0" title="0 表示文档开头；1 表示第 1 页之后"></label>
@@ -146,12 +146,17 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   dialog.querySelector('.stampVarButtons').onclick=e=>{const v=e.target.closest('button')?.dataset.var;if(!v)return;const t=$('toolText'),at=t.selectionStart??t.value.length;t.setRangeText(v,at,t.selectionEnd??at,'end');t.focus();updateSummary();};
   $('toolCompressProfile').onchange=()=>{const on=!!$('toolCompressProfile').value;for(const id of ['toolLossy','toolDpi','toolQuality'])$(id).disabled=on;};
   $('redactClear').onclick=()=>{redactHits=[];renderHits();};
+  // Fields that only some export formats use (data-formats) are hidden for the others, e.g. the image
+  // DPI does nothing for Word, Excel, SVG, text or HTML.
+  function syncFormatFields(){if(action()!=='export')return;for(const element of dialog.querySelectorAll('[data-formats]'))element.hidden=!element.dataset.formats.split(' ').includes($('toolFormat').value);}
+  $('toolFormat').addEventListener('change',()=>{syncFormatFields();updateSummary();});
   async function changed(){
     const a=action();$('toolHint').textContent=hints[a];$('applyToolDraft').hidden=!['organize','outline','text','stamp','image','watermark','shape','annotation','redact','number','crop','sharpen'].includes(a);
     const selectedCategory=Object.values(categoryMap).find(items=>items.includes(a));
     for(const b of categories.children)b.setAttribute('aria-pressed',String(categoryMap[b.dataset.category].includes(a)));
     for(const option of $('toolAction').options)option.hidden=!selectedCategory.includes(option.value);
     for(const element of dialog.querySelectorAll('[data-for]'))element.hidden=!element.dataset.for.split(' ').includes(a);
+    syncFormatFields();
     $('toolPreviewSection').hidden=!regions.has(a);$('executeTool').disabled=a!=='import'&&!toolSession;
     $('toolPages').value=regions.has(a)?String(toolSession?.app.pdfViewer.currentPageNumber||1):'';
     if(a==='number')$('toolText').value='{page} / {total}';else if(a==='stamp')$('toolText').value='已审核';else if(a==='watermark')$('toolText').value='水印';else if(a==='form')$('toolText').value='字段';else $('toolText').value='';
@@ -186,7 +191,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(a==='redact'){r.fill=$('redactFill').value;if(chosenHits().length)r.marks=chosenHits().map(h=>({page:h.page,rects:h.rects}));}
     return r;
   }
-  function updateSummary(){try{const r=request();$('toolChangeSummary').textContent='修改预览：'+$('toolAction').selectedOptions[0].textContent+' · 页码：'+(r.pages||'全部')+(r.text?' · 文字：'+r.text.slice(0,70):'')+(r.toc?' · '+r.toc.length+' 个章节':'')+'。处理并导出副本不会覆盖源文件。';}catch{}}
+  function updateSummary(){try{const r=request();$('toolChangeSummary').textContent='操作摘要：'+$('toolAction').selectedOptions[0].textContent+' · 页码：'+(r.pages||'全部')+(r.text?' · 文字：'+r.text.slice(0,70):'')+(r.toc?' · '+r.toc.length+' 个章节':'')+'。处理并导出副本不会覆盖源文件。';}catch{}}
   dialog.addEventListener('input',updateSummary);dialog.addEventListener('change',updateSummary);
   async function execute(retry=false){
     if(busy)return;

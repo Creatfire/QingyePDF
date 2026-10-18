@@ -7,6 +7,8 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 
 const LIMITS = { pages: 5000, pageChars: 200000, documentChars: 24 * 1024 * 1024, hitsPerDocument: 20, hits: 300, terms: 8, cachedChars: 24 * 1024 * 1024 };
+// 2 (0.20): Markdown notes are no longer cut at the PDF page limit; older index files are rebuilt.
+const INDEX_VERSION = 2;
 const fold = text => String(text).toLowerCase();
 // Lower-cased text is reused across keystrokes; without the cache every query folds the whole
 // index again. Entries are the keys, so re-indexing a document drops its cached copy by itself,
@@ -48,7 +50,7 @@ function searchDocument(entry, terms, limit = LIMITS.hitsPerDocument) {
   const hits = []; let total = 0;
   const scan = (text, low, base, place) => {
     if (!terms.every(term => low.includes(term))) return;
-    for (let at = low.indexOf(terms[0]); at >= 0; at = low.indexOf(terms[0], at + terms[0].length)) { total++; if (hits.length < limit) hits.push({ ...place, offset: base + at, ...snippet(text, at, terms[0].length) }); }
+    for (let at = low.indexOf(terms[0]); at >= 0; at = low.indexOf(terms[0], at + terms[0].length)) { total++; if (hits.length < limit) hits.push({ ...place, offset: base + at, ...snippet(text, base + at, terms[0].length) }); }
   };
   if (entry.kind === 'markdown') {
     const text = entry.pages[0] || '';
@@ -63,16 +65,26 @@ function searchDocument(entry, terms, limit = LIMITS.hitsPerDocument) {
 function search(entries, query, { limit = LIMITS.hits } = {}) {
   const terms = parseQuery(query); if (!terms.length) return { terms, documents: [], total: 0 };
   const documents = [];
-  for (const entry of entries) { const found = searchDocument(entry, terms); if (found.total) documents.push({ path: entry.path, name: entry.name, kind: entry.kind, total: found.total, hits: found.hits }); }
+  for (const entry of entries) { const found = searchDocument(entry, terms); if (found.total) documents.push({ path: entry.path, name: entry.name, kind: entry.kind, total: found.total, hits: found.hits, ...(entry.truncated ? { truncated: entry.truncated } : {}) }); }
   documents.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
   let left = limit; for (const doc of documents) { doc.hits = doc.hits.slice(0, Math.max(0, left)); left -= doc.hits.length; }
-  return { terms, documents: documents.filter(doc => doc.hits.length), total: documents.reduce((sum, doc) => sum + doc.total, 0) };
+  // Documents indexed only in part are reported even without hits: the term may be in the rest.
+  const truncated = entries.filter(entry => entry.truncated).map(entry => ({ name: entry.name, path: entry.path, indexedChars: entry.truncated.indexedChars }));
+  return { terms, documents: documents.filter(doc => doc.hits.length), total: documents.reduce((sum, doc) => sum + doc.total, 0), truncated };
 }
-function cleanPages(pages) {
+/** Index text of a document. A PDF page keeps at most `pageChars`; a Markdown note is one "page"
+ *  limited only by `documentChars`. Whatever is cut is reported in `truncated` (shown in search). */
+function indexPages(pages, kind) {
   if (!Array.isArray(pages) || pages.length > LIMITS.pages) throw new Error('文档页数超过全库搜索的上限。');
-  let total = 0;
-  return pages.map(page => { const text = String(page ?? '').slice(0, LIMITS.pageChars); total += text.length; if (total > LIMITS.documentChars) throw new Error('文档文字超过全库搜索的上限。'); return text; });
+  const pageLimit = kind === 'markdown' ? LIMITS.documentChars : LIMITS.pageChars;
+  let total = 0, cut = false;
+  const out = pages.map(page => {
+    const full = String(page ?? ''), text = full.slice(0, Math.max(0, Math.min(pageLimit, LIMITS.documentChars - total)));
+    if (text.length < full.length) cut = true; total += text.length; return text;
+  });
+  return { pages: out, truncated: cut ? { indexedChars: total } : null };
 }
+const cleanPages = (pages, kind) => indexPages(pages, kind).pages;
 
 function createLibraryIndex({ directory, keyOf = file => file }) {
   const entries = new Map(); let loaded = null;
@@ -85,10 +97,11 @@ function createLibraryIndex({ directory, keyOf = file => file }) {
   })();
   const stamp = async file => { const info = await fs.stat(file).catch(() => null); return info?.isFile() ? { size: info.size, mtime: Math.round(info.mtimeMs) } : null; };
   /** 'ready' | 'stale' (changed or never indexed) | 'missing' (file is gone) */
-  async function state(file) { await load(); const now = await stamp(file); if (!now) return 'missing'; const entry = entries.get(keyOf(file)); return entry && entry.size === now.size && entry.mtime === now.mtime ? 'ready' : 'stale'; }
+  async function state(file) { await load(); const now = await stamp(file); if (!now) return 'missing'; const entry = entries.get(keyOf(file)); return entry && entry.version === INDEX_VERSION && entry.size === now.size && entry.mtime === now.mtime ? 'ready' : 'stale'; }
   async function put(file, { name, kind, pages, note }) {
     await load(); const now = await stamp(file); if (!now) throw new Error('文件不存在：' + file);
-    const entry = { version: 1, path: file, name: name || path.basename(file), kind, ...now, pages: cleanPages(pages), ...(note ? { note: String(note).slice(0, 200) } : {}) };
+    const indexed = indexPages(pages, kind);
+    const entry = { version: INDEX_VERSION, path: file, name: name || path.basename(file), kind, ...now, pages: indexed.pages, ...(indexed.truncated ? { truncated: indexed.truncated } : {}), ...(note ? { note: String(note).slice(0, 200) } : {}) };
     await fs.mkdir(directory, { recursive: true });
     const target = fileOf(file), temp = target + '.' + process.pid + '.tmp';
     await fs.writeFile(temp, JSON.stringify(entry)); await fs.rename(temp, target);
@@ -103,4 +116,4 @@ function createLibraryIndex({ directory, keyOf = file => file }) {
   async function clear() { await load(); entries.clear(); await fs.rm(directory, { recursive: true, force: true }).catch(() => {}); }
   return { state, put, prune, find, clear, size: async () => { await load(); return entries.size; } };
 }
-module.exports = { createLibraryIndex, search, searchDocument, parseQuery, snippet, cleanPages, LIMITS };
+module.exports = { createLibraryIndex, search, searchDocument, parseQuery, snippet, cleanPages, indexPages, LIMITS, INDEX_VERSION };

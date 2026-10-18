@@ -54,7 +54,8 @@ function run(suite, timeoutMs = 10 * 60 * 1000) {
       try { const r = JSON.parse(fs.readFileSync(path.join(smokeRoot, 'test-output', 'test-run.json'), 'utf8')); status = r.status; detail = r.error || r.phase; } catch {}
       let report = null;
       for (const f of ['report.json', 'features-report.json']) { try { report = JSON.parse(fs.readFileSync(path.join(smokeRoot, 'test-output', f), 'utf8')); break; } catch {} }
-      const passed = code === 0 && (status === null || status === 'passed') && (!report || Object.values(report).every(v => v !== false));
+      // A run passes only with an explicit success marker: a missing or unreadable test-run.json fails.
+      const passed = code === 0 && status === 'passed' && (!report || Object.values(report).every(v => v !== false));
       resolve({ suite: suite.name, exitCode: code, status, detail, report, passed, seconds: Math.round((Date.now() - started) / 1000) });
     });
   });
@@ -62,7 +63,8 @@ function run(suite, timeoutMs = 10 * 60 * 1000) {
 
 (async () => {
   let suites = SUITES.filter(s => !packaged || PACKAGED_SUITES.includes(s.name));
-  if (only) suites = suites.filter(s => only.includes(s.name));
+  if (only) { const unknown = only.filter(name => !SUITES.some(s => s.name === name)); if (unknown.length) { console.error('Unknown suite: ' + unknown.join(', ')); process.exitCode = 1; return; } suites = suites.filter(s => only.includes(s.name)); }
+  if (!suites.length) { console.error('No smoke suites selected.'); process.exitCode = 1; return; }
   const results = [];
   for (const suite of suites) {
     const r = await run(suite);
