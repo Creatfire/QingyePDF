@@ -17,6 +17,7 @@ const qingyeProtocol = require('./qingye-protocol.cjs');
 const { createOfficeTasks } = require('./office-task.cjs');
 const { createWindowShell } = require('./window-shell.cjs');
 const referenceIpc = require('./reference-ipc.cjs');
+const workspaceIpc = require('./workspace-ipc.cjs');
 const bootStarted=performance.now();
 let recovery;
 const recoveryTokens=new Map();
@@ -242,7 +243,7 @@ app.whenReady().then(async () => {
   // First-ever launch on this machine: the portable exe has just spent time
   // extracting its runtime before our code could show anything.
   const firstRun = await fs.readFile(preferencesPath()).then(() => false, error => error.code === 'ENOENT');
-  try { const data = JSON.parse(await fs.readFile(preferencesPath(), 'utf8')); if (data.schemaVersion === 1 && Array.isArray(data.recent)){preferences.recent = data.recent.filter(r => typeof r.path === 'string').slice(0, 30);if(typeof data.language==='string')preferences.language=data.language;if(data.windowStyle)preferences.windowStyle=normalizeWindowStyle(data.windowStyle);preferences.stamps=Array.isArray(data.stamps)?data.stamps.slice(0,100):[];preferences.officeUsed=data.officeUsed===true;} } catch {}
+  try { const data = JSON.parse(await fs.readFile(preferencesPath(), 'utf8')); if (data.schemaVersion === 1 && Array.isArray(data.recent)){preferences.recent = data.recent.filter(r => typeof r.path === 'string').slice(0, 30);if(typeof data.language==='string')preferences.language=data.language;if(data.windowStyle)preferences.windowStyle=normalizeWindowStyle(data.windowStyle);preferences.stamps=Array.isArray(data.stamps)?data.stamps.slice(0,100):[];preferences.officeUsed=data.officeUsed===true;Object.assign(preferences,workspaceIpc.normalizePreferences(data));if(Array.isArray(data.converterPresets))preferences.converterPresets=data.converterPresets.filter(p=>p&&typeof p==='object').slice(0,50);} } catch {}
   // The window process serves ui/ and vendor/ over qingye://, and is cut off from the network
   // entirely (qingye-protocol.cjs).
   qingyeProtocol.installSession({ protocol, session, root: __dirname });
@@ -471,7 +472,9 @@ app.whenReady().then(async () => {
   handle('markdown-new', () => { const taken = new Set([...documents.values()].map(r => r.name)); let n = 1, name = '未命名.md'; while (taken.has(name)) name = `未命名 ${++n}.md`; return newMarkdown(name); });
   // ——— 0.11.0: library search across the recent list, and reference details ———
   // Full-library search, DOI lookup and .bib export live in reference-ipc.cjs.
-  referenceIpc.register({ handle, app, T, dialog, getWindow: () => window, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint });
+  // Workspaces and pinned documents (0.20) live in workspace-ipc.cjs; their files are searchable too.
+  const workspaces = workspaceIpc.register({ handle, preferences, persist, documents, documentById, openFiles, dialog, getWindow: () => window, key });
+  referenceIpc.register({ handle, app, T, dialog, getWindow: () => window, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint, libraryFiles: workspaces.libraryFiles });
   handle('notes-markdown', (id,notes) => {const record=documentById(id);if(record.kind==='markdown')throw new Error('请选择 PDF 批注。');return newMarkdown(path.parse(record.name).name+'-批注笔记.md',notesMarkdown(record,notes)).map(info=>({...info,unsaved:true}));});
   handle('markdown-example', async () => newMarkdown('Markdown 示例.md', await fs.readFile(path.join(__dirname, 'ui', 'markdown', 'sample.md'), 'utf8')));
   handle('save-markdown', async (id, text, saveAs) => {

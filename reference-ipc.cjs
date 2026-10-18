@@ -9,10 +9,12 @@ const { createLibraryIndex } = require('./library-index.cjs');
 
 /** @param ctx handle, app, T, dialog, getWindow, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint */
 function register(ctx) {
-  const { handle, app, T, dialog, getWindow, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint } = ctx;
+  const { handle, app, T, dialog, getWindow, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint, libraryFiles = () => [] } = ctx;
   const library = createLibraryIndex({ directory: path.join(app.getPath('userData'), 'library-index'), keyOf: key });
   const recentFile = id => { const file = recentTokens.get(id); if (!file) throw new Error('最近文件不存在。'); return file; };
-  const recentEntries = () => preferences.recent.map(item => { let token = [...recentTokens].find(([, file]) => file === item.path)?.[0]; if (!token) { token = randomUUID(); recentTokens.set(token, item.path); } return { id: token, name: item.name, path: item.path, kind: markdownFiles.isMarkdown(item.path) ? 'markdown' : 'pdf' }; });
+  // The searchable library: the recent list plus pinned documents and workspace files (0.20), PDF and Markdown only.
+  const libraryItems = () => { const seen = new Set(), out = []; for (const item of [...preferences.recent, ...libraryFiles().map(p => ({ path: p, name: path.basename(p) }))]) { const k = key(item.path); if (seen.has(k) || !(markdownFiles.isMarkdown(item.path) || path.extname(item.path).toLowerCase() === '.pdf')) continue; seen.add(k); out.push(item); } return out; };
+  const recentEntries = () => libraryItems().map(item => { let token = [...recentTokens].find(([, file]) => file === item.path)?.[0]; if (!token) { token = randomUUID(); recentTokens.set(token, item.path); } return { id: token, name: item.name, path: item.path, kind: markdownFiles.isMarkdown(item.path) ? 'markdown' : 'pdf' }; });
   // Which documents are searchable. Markdown is indexed here; PDFs are read by the window (PDF.js).
   handle('library-status', async () => {
     const items = recentEntries(), out = [];

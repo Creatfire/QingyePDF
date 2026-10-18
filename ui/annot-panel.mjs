@@ -4,6 +4,7 @@
 // one in the page highlights its card. Tags are stored in the PDF (backend 'annot-batch').
 import { ANNOT_LABEL } from './annot-labels.mjs';
 import { linksInto } from './notes-mode.mjs';
+import { promptText } from './markdown/typora-dialogs.mjs';
 
 export const DEFAULT_TAGS = ['待核实', '重要结论', '引用'];
 const PALETTE = ['#ffd400', '#ff6b6b', '#5fbf6f', '#4c8dff', '#b36bff', '#ff9f40'];
@@ -81,7 +82,7 @@ export function createAnnotPanel({ api, snapshot, applyEdit, guard, status, navi
     for (const [v, t] of [['', '标签…'], ...tags.map(t => ['+' + t, '加标签：' + t]), ['+?', '加新标签…'], ...tags.map(t => ['-' + t, '去掉：' + t])]) { const o = el('option', '', t); o.value = v; tagMenu.append(o); }
     tagMenu.onchange = () => guard(async () => {
       const v = tagMenu.value; tagMenu.value = ''; if (!v) return;
-      let tag = v.slice(1); if (tag === '?') { tag = (prompt('新标签名称（最多 40 字）') || '').trim(); if (!tag) return; }
+      let tag = v.slice(1); if (tag === '?') { tag = ((await promptText({ title: '新标签', label: '标签名称（最多 40 字）：', okLabel: '添加' })) || '').trim(); if (!tag) return; }
       await batchEdit(v[0] === '+' ? { addTags: [tag] } : { removeTags: [tag] }, (v[0] === '+' ? '加标签：' : '去掉标签：') + tag);
     });
     batch.append(tagMenu);

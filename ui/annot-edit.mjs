@@ -2,6 +2,7 @@
 // to move, drag a handle to resize (boxes) or move an end (lines), and change colour, fill, width,
 // opacity and the note from the bar. Changes are written by the backend ('annot-update' action) and
 // are undoable; text markup keeps its position because it follows the text.
+import { promptText } from './markdown/typora-dialogs.mjs';
 import { readSettings } from './settings.mjs';
 import { writePreset } from './annot-presets.mjs';
 
@@ -158,7 +159,7 @@ export function createAnnotEdit({ current, applyEdit, guard, status, shapes, onS
     if (e.target.closest('[data-done]')) return clear();
     if (!sel || !name) return;
     if (name === 'delete') { const { session: s, page, item } = sel; clear(); guard(async () => { const r = await applyEdit(s, { action: 'annot-delete', items: [{ page, xref: item.xref }] }, `删除${LABEL[item.kind] || '批注'} · 第 ${page} 页`); if (!r?.canceled) status('已删除批注 · 可撤销'); }); }
-    if (name === 'note') { const text = prompt('批注备注', sel.item.annotation.contentsObj?.str || ''); if (text != null) guard(() => update({ text }, '修改备注')); }
+    if (name === 'note') { const current = sel.item.annotation.contentsObj?.str || ''; guard(async () => { const text = await promptText({ title: '批注备注', label: '备注内容（其他阅读器也能看到）：', value: current }); if (text != null) await update({ text }, '修改备注'); }); }
     if (name === 'preset') { const a = sel.item.annotation; writePreset(sel.item.kind, { color: bar.querySelector('[data-edit="color"]').value, width: Number(bar.querySelector('[data-edit="width"]').value), fill: FILLABLE.has(sel.item.kind) && bar.querySelector('[data-edit="fillOn"]').checked ? bar.querySelector('[data-edit="fill"]').value : '', opacity: (a.opacity ?? 1) }); status('已把当前样式存为预设，可在图形工具栏中选用。'); }
   });
 

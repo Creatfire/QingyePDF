@@ -54,3 +54,5 @@ body.notesRows.notesResizing { cursor: row-resize; }
 .notePaneChip[hidden] { display: none; }
 .notePaneChip.isDirty { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .notePaneChip.isDirty::before { content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 6px 1px 0; border-radius: 50%; background: var(--accent); vertical-align: middle; }
+/* The note pane's menu bar runs the full width: its chip sits on the status-bar row instead. */
+.viewerPanel.mdPanel > .notePaneChip { top: auto; bottom: 30px; right: 12px; }

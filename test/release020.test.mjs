@@ -162,3 +162,41 @@ test('task center: result summary lists only the counts a job reported', async (
   assert.equal(resultSummary({ processed: 3, failed: 1 }), '已处理 3 项 · 失败 1 项');
   assert.equal(resultSummary({}), '');
 });
+
+test('workspaces: save open documents with the notes pair, reopen, relocate a moved file, pin', async () => {
+  const ws = require('../workspace-ipc.cjs');
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'qingye-020-ws-'));
+  try {
+    const a = path.join(dir, 'paper.pdf'), b = path.join(dir, 'notes.md'), c = path.join(dir, 'report.docx');
+    for (const f of [a, b, c]) await fs.writeFile(f, 'x');
+    const handlers = new Map(), preferences = { recent: [] };
+    const documents = new Map([['d1', { id: 'd1', name: 'paper.pdf', path: a }], ['d2', { id: 'd2', name: 'notes.md', path: b }], ['d3', { id: 'd3', name: 'report.pdf', path: null, source: c }], ['d4', { id: 'd4', name: '未命名.md', path: null }]]);
+    let picked = null, openedFiles = [];
+    const api = ws.register({
+      handle: (name, fn) => handlers.set(name, fn), preferences, persist: async () => {}, documents, documentById: id => documents.get(id),
+      openFiles: async files => { openedFiles.push(...files); return files.map(f => ({ id: 'new-' + path.basename(f), path: f.endsWith('.docx') ? null : f, name: path.basename(f) })); },
+      dialog: { showOpenDialog: async () => (picked ? { canceled: false, filePaths: [picked] } : { canceled: true }) }, getWindow: () => null, key: p => path.resolve(p).toLowerCase(),
+    });
+    const call = (name, ...args) => handlers.get(name)(...args);
+    const saved = await call('workspace-save', { name: '论文阅读', ids: ['d1', 'd2', 'd3', 'd4'], activeId: 'd2', split: { leftId: 'd1', rightId: 'd2', ratio: 60 } });
+    assert.deepEqual([saved.count, saved.skipped], [3, 1], 'unsaved new document left out; Office kept by its source');
+    assert.deepEqual(preferences.workspaces[0].items.map(i => path.basename(i.path)), ['paper.pdf', 'notes.md', 'report.docx']);
+    assert.deepEqual(preferences.workspaces[0].split, { left: 0, right: 1, ratio: 60 });
+    const list = await call('workspace-list'); assert.deepEqual([list[0].name, list[0].count, list[0].notes, list[0].missing], ['论文阅读', 3, true, 0]);
+    // paper.pdf is moved: the rest opens, the move is reported, relocating keeps it in the workspace.
+    const moved = path.join(dir, 'archive-paper.pdf'); await fs.rename(a, moved);
+    const opened = await call('workspace-open', saved.id);
+    assert.deepEqual(opened.missing.map(m => m.name), ['paper.pdf']);
+    assert.equal(opened.split.leftId, null); assert.equal(opened.split.rightId, 'new-notes.md'); assert.equal(opened.activeId, 'new-notes.md');
+    picked = moved; const relocated = await call('workspace-relocate', saved.id, 0);
+    assert.equal(relocated.opened[0].path, await fs.realpath(moved));
+    assert.equal((await call('workspace-list'))[0].missing, 0);
+    // Pinned documents: separate list, searchable, no duplicates.
+    assert.equal(await call('pin-document', 'd2'), true); assert.equal(await call('pin-document', 'd2'), false);
+    const pins = await call('pinned-list'); assert.deepEqual(pins.map(p => p.name), ['notes.md']);
+    assert.ok(api.libraryFiles().some(f => f.endsWith('notes.md')));
+    await call('unpin', pins[0].id); assert.equal((await call('pinned-list')).length, 0);
+    // Preferences from disk are validated.
+    assert.deepEqual(ws.normalizePreferences({ workspaces: [{ id: 'x', items: [{ path: 'relative.pdf' }] }, { id: 'y', name: 'ok', items: [{ path: moved }], split: { left: 0, right: 0 } }] }).workspaces.map(w => [w.id, w.split]), [['y', null]]);
+  } finally { await fs.rm(dir, { recursive: true, force: true }); }
+});

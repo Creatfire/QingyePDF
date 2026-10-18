@@ -84,5 +84,18 @@ exports.run=async({window,app,openFiles,samplePdf,output})=>{
   await run(`document.dispatchEvent(new KeyboardEvent('keydown',{code:'Backslash',key:'\\\\',ctrlKey:true,bubbles:true,cancelable:true}))`);await until('!qingye.notes.active()');
   await run(`qingye.notes.start(${JSON.stringify(otherId)},${JSON.stringify(mdId)})`);await run(`qingye.closeTab(${JSON.stringify(otherId)})`);
   await until(`!qingye.sessions.has(${JSON.stringify(otherId)})`);assert.equal(await run('qingye.notes.active()'),false);assert.deepEqual(await visible(),[mdId]);report.closeLeaves=true;
+  // Workspaces (0.20): the PDF + note pair is saved, notes mode left, and opening the workspace
+  // restores the pair, its divider and the active tab; a pinned document shows on the home page.
+  report.workspace=await run(`(async()=>{
+    qingye.notes.start(${JSON.stringify(pdfId)},${JSON.stringify(mdId)});qingye.notes.setRatio(62);qingye.activate(${JSON.stringify(mdId)});
+    const saved=await qingye.workspaces.save(undefined,'阅读笔记测试');
+    qingye.notes.end();qingye.activate(${JSON.stringify(pdfId)});
+    const result=await qingye.workspaces.open(saved.id);
+    await qingye.workspaces.pin(${JSON.stringify(mdId)});qingye.activate(null);
+    const {list,pinned}=await qingye.workspaces.refresh();
+    return {count:saved.count,ids:qingye.notes.ids(),ratio:Math.round(qingye.notes.ratio()),missing:result.missing.length,card:!!document.querySelector('.workspaceCard strong')?.textContent.includes('阅读笔记测试'),listed:list.length,pinned:pinned.map(p=>p.name)};
+  })()`);
+  assert.deepEqual(report.workspace,{count:2,ids:[pdfId,mdId],ratio:62,missing:0,card:true,listed:1,pinned:['notes.md']});
+  await shot('workspace-home.png');
   await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2));return report;
 };

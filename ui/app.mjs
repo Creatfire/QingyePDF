@@ -5,6 +5,7 @@ import { createHistory } from './history.mjs';
 import { createDirectEditing } from './direct.mjs';
 import { createPageManager } from './page-manager.mjs';
 import { createTaskCenter, resultSummary } from './task-center.mjs';
+import { createWorkspaces } from './workspaces.mjs';
 import { userError } from './errors.mjs';
 import { createTextSelection } from './selection.mjs';
 import { createMarkup } from './markup.mjs';
@@ -43,7 +44,7 @@ const sessions = new Map();
 let activeId = null, closingApp = false, compareIds = null, comparingPage = false;
 const theme = createTheme({ api, sessions, $ });
 const contentDigest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes)))).map(n=>n.toString(16).padStart(2,'0')).join('');
-let statusHook = null, ai = null, notes = null, library = null, citations = null;
+let statusHook = null, ai = null, notes = null, library = null, citations = null, workspaces = null;
 const status = text => { $('statusText').textContent = text; statusHook?.(text); };
 function message(title, detail) {
   $('messageTitle').textContent = title;
@@ -244,7 +245,7 @@ function activate(id, { keepFocus = false } = {}) {
   navigation.sync();
   tabs();
   status(id === null ? '准备就绪' : isMd(current()) ? (current().dirty ? '有未保存的修改' : 'Markdown 文档') : current()?.loaded ? (current().dirty ? '有未保存的批注' : '文档已打开') : '正在打开文档…');
-  if (id === null) recent.refresh();
+  if (id === null) { recent.refresh(); workspaces?.refresh().catch(() => {}); }
   ai?.sync();
 }
 function editingHash(s) { return JSON.stringify([...(s.app.pdfDocument.annotationStorage.serializable.map || [])].sort(([a], [b]) => a.localeCompare(b))); }
@@ -532,8 +533,12 @@ citations = createCitations({ api, guard, status, notesFor: s => notes?.notesFor
 notes = createNotesMode({ sessions, isMd, activeId: () => activeId, activate, endCompare: () => { if (compareIds) endCompare(); }, api, guard, status, markdown, addDocuments,
   inspect: async s => (await api.toolsJob(s.id, await tools.snapshot(s), { action: 'inspect', annotations: true })).data.notes || [],
   orientation: () => document.documentElement.classList.contains('qyMobile') && innerWidth <= 760 && innerHeight > innerWidth ? 'rows' : 'columns',
+  tabExtras: id => [['固定到首页', 'bookmark', () => guard(() => workspaces.pin(id))], ['将所有标签保存为工作区…', 'save', () => guard(() => workspaces.save())]],
   save: note => saveSession(note, false), imageOptions: () => markdown.typora?.imageOptions?.() || {}, cite: s => citations.open(s),
   onChange: (_what, ids) => requestAnimationFrame(() => { for (const key of ids || []) { const s = sessions.get(key); if (s && !isMd(s)) resizePdf(s); } }) });
+// Workspaces and pinned documents on the home page (0.20, workspaces.mjs).
+workspaces = createWorkspaces({ api, guard, status, sessions, activeId: () => activeId, activate, addDocuments, notes, $ });
+workspaces.refresh().catch(() => {});
 {
   const button = document.createElement('button'); button.id = 'notesButton'; button.className = 'iconOnly'; button.dataset.icon = 'double'; button.setAttribute('aria-pressed', 'false');
   button.title = '笔记模式：左右双开 · Ctrl+\\'; button.setAttribute('aria-label', '笔记模式'); button.onclick = () => notes.toggle(button, true);
@@ -582,5 +587,5 @@ activate(null);
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { taskCenter, pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { workspaces, taskCenter, pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
 api.ready();

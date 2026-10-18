@@ -63,6 +63,7 @@
       "installer-hooks.cjs",
       "office-task.cjs",
       "reference-ipc.cjs",
+      "workspace-ipc.cjs",
       "ui/**/*",
       "vendor/pdfjs/**/*",
       "vendor/markdown/**/*",

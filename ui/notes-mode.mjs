@@ -105,7 +105,7 @@ export function regionBox(box) {
   return x1 - x0 < .01 || y1 - y0 < .01 ? null : [x0, y0, x1, y1];
 }
 
-export function createNotesMode({ sessions, isMd, activeId, activate, endCompare, api, guard, status, markdown, addDocuments, onChange, inspect, save, imageOptions, cite, orientation = () => 'columns' }) {
+export function createNotesMode({ sessions, isMd, activeId, activate, endCompare, api, guard, status, markdown, addDocuments, onChange, inspect, save, imageOptions, cite, orientation = () => 'columns', tabExtras = () => [] }) {
   const $ = id => document.getElementById(id);
   let split = null; // { ids: [left, right], ratio }
   const kind = id => isMd(sessions.get(id)) ? 'markdown' : 'pdf';
@@ -268,6 +268,8 @@ export function createNotesMode({ sessions, isMd, activeId, activate, endCompare
     if (has(id)) menu.append(entry('交换左右窗格', 'compare', swap), entry('退出笔记模式', 'x', end));
     else if (base?.loaded && base.id !== id) menu.append(entry('在右侧打开（笔记模式）', 'double', () => start(base.id, id)), entry('在左侧打开（笔记模式）', 'double', () => start(id, base.id)));
     else menu.append(entry('在右侧新建一份笔记', 'newdoc', async () => { activate(id); const note = await newNote(target); start(id, note.id); }));
+    // Entries of other features (0.20: pin to home, save tabs as a workspace).
+    for (const [label, icon, run] of tabExtras(id)) menu.append(entry(label, icon, run));
     menu.style.top = Math.round(y) + 'px'; menu.style.left = Math.round(Math.min(x, innerWidth - 260)) + 'px'; menu.style.right = 'auto';
     menu.showPopover();
   }
