@@ -506,8 +506,10 @@ export function createMarkdownHost({ api, guard, status, message, onChange, addD
     const b = s.ui?.saveButton; if (!b) return;
     const dirty = isDirty(s);
     b.classList.toggle('isDirty', dirty); b.disabled = !!s.saving;
-    b.querySelector('.label').textContent = s.saving ? '保存中…' : dirty ? '保存' : '已保存';
-    b.title = dirty ? '保存 · Ctrl+S' : '所有修改都已保存';
+    // Next to a PDF in notes mode the button names its object (0.20).
+    const paired = document.body.classList.contains('notesMode') && !!s.panel?.matches?.('.noteLeft, .noteRight');
+    b.querySelector('.label').textContent = s.saving ? '保存中…' : dirty ? (paired ? '保存笔记' : '保存') : (paired ? '笔记已保存' : '已保存');
+    b.title = dirty ? (paired ? '保存笔记：' + s.name + ' · Ctrl+S' : '保存 · Ctrl+S') : '所有修改都已保存';
     s.ui.findButton.setAttribute('aria-pressed', String(!s.ui.find.hidden));
   }
   let messageTimer = 0;

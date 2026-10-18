@@ -168,10 +168,23 @@ export function createNotesMode({ sessions, isMd, activeId, activate, endCompare
       panel.style.left = stacked ? '' : start; panel.style.width = stacked ? '' : size; panel.style.top = stacked ? start : ''; panel.style.height = stacked ? size : '';
     }
     if (ids) { divider.style.left = stacked ? '' : split.ratio + '%'; divider.style.top = stacked ? split.ratio + '%' : ''; divider.setAttribute('aria-valuenow', String(Math.round(split.ratio))); }
-    const button = $('notesButton'); if (button) { button.setAttribute('aria-pressed', String(!!split)); }
+    for (const b of [$('notesButton'), $('pdfNotesButton')]) if (b) b.setAttribute('aria-pressed', String(!!split));
+    refresh();
     const pdf = ids && pdfOfSplit(); regionButton.hidden = annotationsButton.hidden = syncButton.hidden = !pdf; syncButton.setAttribute('aria-pressed', String(syncOn));
   }
 
+  // Name and save state of each pane (0.20), so it is always clear which document a save affects.
+  function refresh() {
+    const ids = valid() ? split.ids : [];
+    for (const s of sessions.values()) {
+      const panel = s.panel; if (!panel) continue;
+      let chip = panel.querySelector(':scope > .notePaneChip');
+      if (!ids.includes(s.id)) { if (chip) chip.hidden = true; continue; }
+      if (!chip) { chip = document.createElement('div'); chip.className = 'notePaneChip'; chip.setAttribute('aria-hidden', 'true'); panel.append(chip); }
+      chip.hidden = false; chip.classList.toggle('isDirty', !!s.dirty);
+      chip.textContent = (isMd(s) ? '笔记 · ' : 'PDF · ') + s.name + (s.dirty ? ' · 未保存' : '');
+    }
+  }
   function start(leftId, rightId) {
     if (leftId === rightId) throw new Error('同一个文档不能同时放在左右两侧。');
     if (!sessions.get(leftId)?.loaded || !sessions.get(rightId)?.loaded) throw new Error('文档尚未加载完成，请稍后再试。');
@@ -387,5 +400,5 @@ export function createNotesMode({ sessions, isMd, activeId, activate, endCompare
     clearTimeout(syncTimer); if (immediate) run(); else syncTimer = setTimeout(run, 200);
     return true;
   }
-  return { rows, has, shown, place, layout, start, end, swap, closed, toggle, tabMenu, partner, notesFor, insertBlock, excerpt, excerptSelection, selectionSource, excerptRegion, pickRegion, stopPicking, picking: () => !!picking, syncAnnotations, pageChanged, setSync, syncing: () => syncOn, pdfOfSplit, active: () => !!split, ids: () => split ? [...split.ids] : null, ratio: () => split?.ratio ?? null, setRatio, menu };
+  return { rows, has, shown, place, layout, refresh, start, end, swap, closed, toggle, tabMenu, partner, notesFor, insertBlock, excerpt, excerptSelection, selectionSource, excerptRegion, pickRegion, stopPicking, picking: () => !!picking, syncAnnotations, pageChanged, setSync, syncing: () => syncOn, pdfOfSplit, active: () => !!split, ids: () => split ? [...split.ids] : null, ratio: () => split?.ratio ?? null, setRatio, menu };
 }

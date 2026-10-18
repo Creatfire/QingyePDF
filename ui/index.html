@@ -50,6 +50,7 @@
     </div>
     <div class="spacer"></div>
     <div class="barGroup" aria-label="阅读与编辑">
+      <button id="pdfNotesButton" data-icon="double" disabled aria-pressed="false" title="边读边记：PDF 与 Markdown 笔记左右并排 · Ctrl+\" aria-label="笔记模式"><span class="label">笔记</span></button>
       <button id="selectTextButton" data-icon="textcursor" disabled title="选择文字；扫描页自动识别中英文" aria-label="文本选择"><span class="label">文本选择</span></button>
       <button id="annotateButton" data-icon="pen" disabled popovertarget="annotateMenu" aria-haspopup="menu" aria-controls="annotateMenu" aria-expanded="false" title="批注工具"><span class="label">批注</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
       <button id="directButton" data-icon="pageedit" disabled title="页面编辑：添加文字、印章、图形" aria-label="页面编辑"><span class="label">页面编辑</span></button>
@@ -79,7 +80,8 @@
             <div class="homeActions">
               <button id="welcomeOpen" class="actionTile isPrimary" title="打开 PDF、Markdown、Word、Excel 或 PowerPoint 文档 · Ctrl+O"><span class="tileGlyph" data-icon="open" aria-hidden="true"></span><span class="tileText"><strong>打开文档</strong><small>PDF · Markdown · Word · Excel · PPT · Ctrl+O</small></span></button>
               <button id="newMarkdownButton" class="actionTile" title="新建 Markdown 文档 · Ctrl+N"><span class="tileGlyph" data-icon="newdoc" aria-hidden="true"></span><span class="tileText"><strong>新建 Markdown</strong><small>空白文档 · Ctrl+N</small></span></button>
-              <button id="homeConvertButton" class="actionTile" style="grid-column:1 / -1" title="文档转换中心"><span class="tileGlyph" data-icon="tools" aria-hidden="true"></span><span class="tileText"><strong>文档转换</strong><small>Word / EPUB / Markdown / PDF · 内置转换引擎</small></span></button>
+              <button id="homeNotesButton" class="actionTile" title="打开 PDF，在右侧记 Markdown 笔记"><span class="tileGlyph" data-icon="double" aria-hidden="true"></span><span class="tileText"><strong>打开文档并记笔记</strong><small>左右并排 · 摘录带原文链接</small></span></button>
+              <button id="homeConvertButton" class="actionTile" title="文档转换中心"><span class="tileGlyph" data-icon="tools" aria-hidden="true"></span><span class="tileText"><strong>文档转换</strong><small>Word / EPUB / Markdown / PDF · 内置转换引擎</small></span></button>
             </div>
             <section class="recentPanel" aria-labelledby="recentTitle">
               <div class="recentHeading" id="recentHeading">

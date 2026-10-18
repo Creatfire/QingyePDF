@@ -179,6 +179,8 @@ function tabs() {
   $('tabs').querySelector('.tab.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   $('saveButton').disabled = $('saveAsButton').disabled = !current()?.loaded || !!current()?.saving || !!current()?.editBusy || tools.isBusy();
   $('saveButton').title=$('saveAsButton').title=tools.isBusy()?'本地处理正在进行，完成后可保存。':'';
+  // In notes mode the PDF toolbar saves the PDF pane; say so, so it is never mistaken for the note.
+  { const split=notes?.ids?.(),pdf=split&&notes.pdfOfSplit?.(); $('saveButton').querySelector('.label').textContent=pdf?'保存 PDF':'保存'; if(pdf&&!tools.isBusy())$('saveButton').title='保存 PDF：'+pdf.name+' · Ctrl+S（笔记用笔记窗格里的“保存笔记”）'; $('pdfNotesButton').disabled=!currentPdf()?.loaded; notes?.refresh?.(); }
   views.sync();
   $('directButton').disabled=!currentPdf()?.loaded;
   history.sync();
@@ -519,6 +521,15 @@ notes = createNotesMode({ sessions, isMd, activeId: () => activeId, activate, en
   const button = document.createElement('button'); button.id = 'notesButton'; button.className = 'iconOnly'; button.dataset.icon = 'double'; button.setAttribute('aria-pressed', 'false');
   button.title = '笔记模式：左右双开 · Ctrl+\\'; button.setAttribute('aria-label', '笔记模式'); button.onclick = () => notes.toggle(button, true);
   document.querySelector('.titlebarTools').prepend(button);
+  // 0.20: the same action as a labelled button in the PDF toolbar, and "open and take notes" on the home page.
+  $('pdfNotesButton').onclick = () => notes.toggle($('pdfNotesButton'), true);
+  $('homeNotesButton').onclick = () => guard(async () => {
+    const opened = await api.open(); if (!opened.length) return;
+    await addDocuments(opened);
+    const s = sessions.get(opened[0].id); if (!s) return;
+    for (let n = 0; n < 100 && !s.loaded; n++) await new Promise(r => setTimeout(r, 50));
+    if (s.loaded) notes.toggle($('pdfNotesButton').offsetParent ? $('pdfNotesButton') : button, true);
+  });
 }
 // Library search (0.11.0): every PDF and Markdown document in the recent list. Desktop only.
 if (api.libraryStatus) {
