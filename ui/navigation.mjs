@@ -1,9 +1,9 @@
 import { createHistory } from './history.mjs';
 import { createSearchOcr } from './search-ocr.mjs';
-// Annotation types as shown in the list (PDF subtype names are English).
-const ANNOT_LABEL={Highlight:'高亮',Underline:'下划线',StrikeOut:'删除线',Squiggly:'波浪线',Text:'便签',FreeText:'文本框',Square:'矩形',Circle:'椭圆',Line:'直线',Polygon:'多边形',PolyLine:'折线',Ink:'自由绘制',Stamp:'印章 / 图片',Caret:'插入符',FileAttachment:'附件',Sound:'声音',Redact:'待涂黑'};
-export function createNavigation({ current, guard, views, openTools, openPages, api, snapshot, addDocuments, applyEdit,navigate=action=>action(),readingTrail,status=()=>{},isProcessing,notesFor=()=>null,insertNotes }) {
+import { createAnnotPanel } from './annot-panel.mjs';
+export function createNavigation({ current, guard, views, openTools, openPages, noteText=()=>'', selectAnnotation, api, snapshot, addDocuments, applyEdit,navigate=action=>action(),readingTrail,status=()=>{},isProcessing,notesFor=()=>null,insertNotes }) {
   const $ = id => document.getElementById(id);
+  const annotPanel=createAnnotPanel({api,snapshot,applyEdit,guard,status,navigate,notesFor,insertNotes,noteText,addDocuments,selectAnnotation,refresh:()=>show('comments')});
   const pane=document.createElement('aside');pane.id='navigationPanel';pane.hidden=true;
   pane.setAttribute('aria-labelledby','navigationTitle');
   pane.innerHTML='<header><strong id="navigationTitle">搜索</strong><button id="closeNavigation" data-icon="x" title="关闭侧栏" aria-label="关闭导航"></button></header><nav aria-label="侧栏视图"><button data-nav="search" data-icon="search">搜索</button><button data-nav="outline" data-icon="outline">目录</button><button data-nav="bookmarks" data-icon="bookmark">书签</button><button data-nav="thumbnails" data-icon="grid">页面</button><button data-nav="comments" data-icon="comment">批注</button></nav><div id="navigationControls"></div><div id="navigationContent"></div>';
@@ -134,28 +134,8 @@ export function createNavigation({ current, guard, views, openTools, openPages, 
       content.append(b);observer.observe(b);}
     s.pageOrganizer={get order(){return [...order];},move:(from,to)=>{const before=[...order];order=order.filter(n=>n!==from);order.splice(order.indexOf(to),0,from);remember(before,"页面重排");draw();},select:n=>{selected.add(n);draw();},undo:()=>{const v=history.undo();if(v){order=JSON.parse(v);s.pageDraft.order=order;draw();}},redo:()=>{const v=history.redo();if(v){order=JSON.parse(v);s.pageDraft.order=order;draw();}},apply};
   }
-  async function comments(s,myTicket){
-    const progress=document.createElement('p');progress.textContent='正在读取批注与摘录…';controls.append(progress);
-    const result=await api.toolsJob(s.id,await snapshot(s),{action:'inspect',annotations:true});if(myTicket!==ticket)return;
-    const notes=result.data.notes||[];s.notes=notes;const selected=new Set();
-    const term=input('筛选批注或摘录');const type=document.createElement('select'),color=document.createElement('select');
-    for(const [select,label,values]of [[type,'全部类型',[...new Set(notes.map(n=>n.type))]],[color,'全部颜色',[...new Set(notes.map(n=>n.color).filter(Boolean))]]]){select.setAttribute('aria-label',label);const all=document.createElement('option');all.value='';all.textContent=label;select.append(all);for(const v of values){const o=document.createElement('option');o.value=v;o.textContent=select===type?(ANNOT_LABEL[v]||v):v;select.append(o);}controls.append(select);}
-    const filtered=()=>notes.filter(n=>(!type.value||n.type===type.value)&&(!color.value||n.color===color.value)&&(!term.value||(n.text+' '+n.excerpt).toLocaleLowerCase().includes(term.value.toLocaleLowerCase())));
-    const draw=()=>{content.replaceChildren();const found=filtered();progress.textContent=`${found.length} / ${notes.length} 条批注 · 包含未保存修改`;
-      for(const n of found){const holder=document.createElement('div');holder.className='annotationSelectRow';const check=document.createElement('input');check.type='checkbox';check.checked=selected.has(n);check.setAttribute('aria-label','选择第 '+n.page+' 页批注');check.onchange=()=>{if(check.checked)selected.add(n);else selected.delete(n);};holder.append(check);
-        const row=button(`第 ${n.page} 页 · ${ANNOT_LABEL[n.type]||n.type}\n${n.excerpt||''}${n.excerpt&&n.text?'\n':''}${n.text||''}`,()=>navigate(()=>{s.app.pdfViewer.currentPageNumber=n.page;}),holder);row.className='navigationRow';if(n.color)row.style.borderLeft='4px solid '+n.color;content.append(holder);}
-      if(!found.length)content.textContent='没有符合条件的批注。';};term.oninput=type.onchange=color.onchange=draw;draw();
-    const actions=document.createElement('div');actions.className='navigationOptions';controls.append(actions);
-    button('刷新',()=>show('comments'),actions);
-    button('全选筛选结果',()=>{filtered().forEach(n=>selected.add(n));draw();},actions);button('清除批注选择',()=>{selected.clear();draw();},actions);
-    // 0.14: annotations written into the file (markup, shapes, older comments) can be removed here.
-    button('删除选中批注',async()=>{const items=[...selected].filter(n=>n.xref).map(n=>({page:n.page,xref:n.xref}));if(!items.length)throw new Error('请先勾选要删除的批注。');const result=await applyEdit(s,{action:'annot-delete',items},`删除 ${items.length} 条批注`);if(!result?.canceled)status(result?.note||'已删除批注，可撤销。');await show('comments');},actions).id='deleteAnnotations';
-    button('将选中批注整理为笔记',async()=>{if(!selected.size)throw new Error('请先勾选要整理的批注。');const made=await api.notesMarkdown(s.id,[...selected]);
-      // Notes mode: the notes go into the Markdown document beside this PDF instead of a new tab.
-      const note=notesFor(s);if(note&&made[0]){insertNotes(note,made[0].text.replace(/^# .*\n+/,''));await api.closeDocument(made[0].id,{}).catch(()=>{});status('已整理到 '+note.name+' · 可撤销，尚未保存');return;}
-      await addDocuments(made);},actions).id='notesToMarkdown';
-    for(const [label,format]of [['导出 Markdown','md'],['导出 Word','docx']])button(label,async()=>{const result=await api.exportNotes(s.id,filtered(),format,await snapshot(s));if(result?.path)progress.textContent='已导出：'+result.path;},actions);
-  }
+  // 0.20: cards, filters, tags and batch actions live in annot-panel.mjs.
+  async function comments(s,myTicket){await annotPanel.render(s,{controls,content,alive:()=>myTicket===ticket});}
   async function show(next=mode){
     const s=current();if(!s?.loaded)return;
     if($('viewPanel').matches(':popover-open'))$('viewPanel').hidePopover();
@@ -175,5 +155,5 @@ export function createNavigation({ current, guard, views, openTools, openPages, 
   $('searchButton').onclick=()=>guard(()=>toggle('search'));$('outlineButton').onclick=()=>guard(()=>toggle('outline'));
   $('closeNavigation').onclick=close;for(const b of pane.querySelectorAll('[data-nav]'))b.onclick=()=>guard(()=>show(b.dataset.nav));
   function addBookmark(s,page){s.bookmarks ||= s.state?.bookmarks || [];if(!s.bookmarks.some(b=>b.page===page))s.bookmarks.push({page,title:`第 ${page} 页`});if(!pane.hidden&&mode==='bookmarks'&&s===current())show('bookmarks');}
-  return {show,toggle,close,bind,sync,search,addBookmark,searchOcr};
+  return { annotHighlight: annotPanel.highlight,show,toggle,close,bind,sync,search,addBookmark,searchOcr};
 }

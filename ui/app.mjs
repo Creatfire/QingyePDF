@@ -83,7 +83,7 @@ $('readingBack').onclick=()=>guard(()=>readingTrail.back());$('readingForward').
 function currentPdf() { const s = current(); if (!isMd(s)) return s; const other = notes?.partner(activeId); return other && !isMd(other) ? other : undefined; }
 const pdfSessions = { values: () => [...sessions.values()].filter(s => !isMd(s))[Symbol.iterator](), get: id => { const s = sessions.get(id); return isMd(s) ? undefined : s; }, has: id => !!pdfSessions.get(id) };
 const views = createViews({ current: currentPdf, commit, guard, api });
-const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), openPages: s => pageManager.open(s), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
+const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), openPages: s => pageManager.open(s), noteText: note => markdown.text(note), selectAnnotation: (s, page, xref) => annotEdit.selectXref(s, page, xref), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
 const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs, openPages: s => pageManager.open(s) });
 // Visual page manager (0.20): thumbnail grid, one undoable 'pages-plan' edit (page-manager.mjs).
 const pageManager = createPageManager({ current: currentPdf, isPdf: s => !!s && !isMd(s), applyEdit, api, snapshot: s => tools.snapshot(s), guard, status, addDocuments });
@@ -92,7 +92,7 @@ const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigat
 const textSelection=createTextSelection({current:currentPdf,api,applyEdit,guard,status,tools});
 const shapes=createShapes({current:currentPdf,applyEdit,guard,status});
 const officeProgress=createOfficeProgress({api,guard,status});
-const annotEdit=createAnnotEdit({current:currentPdf,applyEdit,guard,status,shapes});
+const annotEdit=createAnnotEdit({current:currentPdf,applyEdit,guard,status,shapes,onSelect:(s,page,xref)=>navigation.annotHighlight(s,page,xref)});
 const markup=createMarkup({current:currentPdf,applyEdit,guard,status,shapes});
 const chrome=createChrome({api,current:currentPdf,guard,navigation,status,shapes});
 const markdown=createMarkdownHost({api,guard,status,message,addDocuments,workspace:$('viewers'),navigate:action=>readingTrail.record(action),onPdfLink:locatePdfSource,onChange:(s,{chrome:chromeOnly}={})=>{if(!chromeOnly){syncDirty(s);draft.schedule();}if(s.id===activeId)tabs();}});

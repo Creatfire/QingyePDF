@@ -271,6 +271,32 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     await until(`(async () => { try { if (${O}.editBusy || !${O}.loaded) return false; const text = (await (await ${O}.app.pdfDocument.getPage(1)).getTextContent()).items.map(i => i.str).join(''); return [...'新增的结论'].every(ch => text.includes(ch)); } catch { return false; } })()`, 'reconverted text');
     report.checks.officeReconvert = true;
   } else report.checks.officeAsPdf = 'skipped: LibreOffice not prepared';
+  // Annotation panel (0.20): tag in the PDF, filter by tag, card ↔ page selection.
+  await run(`qingye.activate(${JSON.stringify(opened[0].id)})`); await until(`!${P}.editBusy && ${P}.loaded`, 'markup document idle');
+  await run(`qingye.navigation.show('comments')`);
+  await until(`document.querySelectorAll('.annotCard').length > 0`, 'annotation cards');
+  report.checks.annotPanel = await run(`(async () => {
+    const wait = ms => new Promise(r => setTimeout(r, ms)), cards = () => [...document.querySelectorAll('.annotCard')];
+    const total = cards().length, first = cards()[0], key = first.dataset.key;
+    const box = first.querySelector('input'); box.checked = true; box.dispatchEvent(new Event('change'));
+    const menu = document.querySelector('.annotTagMenu'); menu.value = '+重要结论'; menu.dispatchEvent(new Event('change'));
+    for (let i = 0; i < 100 && !cards().some(c => c.querySelector('.annotTags')?.textContent.includes('重要结论')); i++) await wait(100);
+    const tagged = cards().filter(c => c.querySelector('.annotTags')?.textContent.includes('重要结论')).length;
+    const tagFilter = [...document.querySelectorAll('.annotFilters select')].find(s => s.getAttribute('aria-label') === '全部标签');
+    tagFilter.value = '重要结论'; tagFilter.dispatchEvent(new Event('change')); const filtered = cards().length;
+    tagFilter.value = ''; tagFilter.dispatchEvent(new Event('change'));
+    const card = cards().find(c => c.querySelector('.annotCardHead').textContent.includes('直线')) || cards()[0];
+    card.querySelector('.annotCardBody').click();
+    for (let i = 0; i < 60 && !qingye.annotEdit.selected(); i++) await wait(50);
+    const picked = qingye.annotEdit.selected(), current = document.querySelector('.annotCard.isCurrent')?.dataset.key;
+    qingye.annotEdit.clear();
+    return { total, tagged, filtered, selectedInPage: !!picked, cardHighlighted: current === (picked && picked.page + ':' + picked.xref) };
+  })()`);
+  assert.equal(report.checks.annotPanel.tagged, 1, 'one annotation tagged');
+  assert.equal(report.checks.annotPanel.filtered, 1, 'tag filter shows it alone');
+  assert.ok(report.checks.annotPanel.selectedInPage && report.checks.annotPanel.cardHighlighted, 'card and page selection follow each other');
+  await fs.writeFile(path.join(output, 'annot-panel.png'), (await window.webContents.capturePage()).toPNG());
+  await run(`qingye.navigation.close()`);
   // Visual page manager (0.20): rotate, copy, blank page, insert another PDF, drag to the end, apply
   // as one undoable edit.
   {

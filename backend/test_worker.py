@@ -81,6 +81,16 @@ def check():
         result,out=run({'action':'ocr-layer','pages':'1','region':[0,0.2,1,0.6],'tessdata':tess},scanpdf)
         assert result['data']['recognized']==[1]
         with fitz.open(out/'result.pdf') as d:assert 'SCANNED' in d[0].get_text()
+        # Annotation panel (0.20): tags live in the annotation, survive saving; batch colour + tags.
+        notes_info,_=run({'action':'inspect','annotations':True})
+        target=notes_info['data']['notes'][0]
+        assert target['tags']==[]
+        _,tagged=run({'action':'annot-batch','items':[{'page':target['page'],'xref':target['xref']}],'addTags':['待核实','引用'],'color':'#2255aa'})
+        info2,_=run({'action':'inspect','annotations':True},tagged/'result.pdf')
+        again=info2['data']['notes'][0]
+        assert again['tags']==['待核实','引用'] and again['color']=='#2255aa', again
+        _,untagged=run({'action':'annot-batch','items':[{'page':again['page'],'xref':again['xref']}],'removeTags':['待核实']},tagged/'result.pdf')
+        assert run({'action':'inspect','annotations':True},untagged/'result.pdf')[0]['data']['notes'][0]['tags']==['引用']
         # Page manager (0.20): one plan reorders, rotates, copies, drops, adds blank pages and pages of
         # another PDF; bookmarks follow their pages; split by groups; extract images.
         extra=base/'extra.pdf'

@@ -136,3 +136,22 @@ test('page plan: move, rotate, copy, delete, insert, summary and split groups', 
   assert.throws(() => P.groupsFromRanges('4-9', 5), /超出/);
   assert.deepEqual(P.groupsFromBookmarks([[1, '甲', 2], [2, 'x', 3], [1, '乙', 4]], 5), [{ name: '前置页', pages: [0] }, { name: '甲', pages: [1, 2] }, { name: '乙', pages: [3, 4] }]);
 });
+
+test('annotation panel: page filter, excerpt status and combined filters', async () => {
+  const A = await import('../ui/annot-panel.mjs');
+  assert.deepEqual([...A.pageFilter('1-3, 7', 5)], [1, 2, 3]);
+  assert.equal(A.pageFilter('  '), null);
+  assert.throws(() => A.pageFilter('a-b'), /页码/);
+  const notes = [
+    { page: 1, xref: 10, type: 'Highlight', excerpt: '深度学习改变了图像识别', text: '', color: '#ffd400', rect: [10, 10, 100, 30], tags: ['引用'] },
+    { page: 2, xref: 11, type: 'Square', excerpt: '', text: '需要核对数据', color: '#ff0000', rect: [0, 0, 50, 50], tags: [] },
+    { page: 3, xref: 12, type: 'Highlight', excerpt: '另一段原文内容很长', text: '', color: '#ffd400', rect: [0, 0, 10, 10], tags: ['待核实'] },
+  ];
+  const note = '> 深度学习改变了图像识别\n\n[a.pdf · 第 1 页](<file:///C:/d/a.pdf#page=1&rect=12,12,90,28>)\n\n[a.pdf · 第 2 页](<file:///C:/d/a.pdf#page=2&rect=5,5,45,45>)\n';
+  const done = A.excerptedKeys(notes, note, { id: 'x', path: 'C:\d\a.pdf' });
+  assert.deepEqual([...done].sort(), ['1:10', '2:11']);
+  assert.deepEqual(A.filterNotes(notes, { status: 'todo' }, done).map(n => n.xref), [12]);
+  assert.deepEqual(A.filterNotes(notes, { tag: '-' }).map(n => n.xref), [11]);
+  assert.deepEqual(A.filterNotes(notes, { color: '#ffd400', term: '待核实' }).map(n => n.xref), [12]);
+  assert.deepEqual(A.filterNotes(notes, { pages: new Set([1, 2]), type: 'Square' }).map(n => n.xref), [11]);
+});

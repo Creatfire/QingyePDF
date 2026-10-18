@@ -33,7 +33,7 @@ export function pickAnnotation(items, point) {
   return best;
 }
 
-export function createAnnotEdit({ current, applyEdit, guard, status, shapes }) {
+export function createAnnotEdit({ current, applyEdit, guard, status, shapes, onSelect }) {
   const bar = document.createElement('div');
   bar.className = 'shapeBar annotEditBar'; bar.setAttribute('role', 'toolbar'); bar.setAttribute('aria-label', '编辑批注'); bar.hidden = true;
   bar.innerHTML = '<span class="shapeName"></span>'
@@ -95,7 +95,7 @@ export function createAnnotEdit({ current, applyEdit, guard, status, shapes }) {
     if (item.line) for (const k of [0, 1]) { const d = doc.createElement('i'); d.className = 'qyHandle qyEnd'; d.dataset.end = String(k); overlay.append(d); }
     pageDiv.append(overlay);
     sel = { session: s, page: pageNumber, item, overlay, pageDiv, box: [...item.box], line: item.line ? item.line.map(p => ({ ...p })) : null };
-    placeOverlay(); syncBar();
+    placeOverlay(); syncBar(); onSelect?.(s, pageNumber, item.xref);
     overlay.addEventListener('pointerdown', e => startDrag(e), true);
     status(`已选中${LABEL[item.kind] || '批注'}：拖动可移动${MOVABLE.has(item.kind) ? '，拖动角点可缩放' : item.line ? '，拖动端点可改方向' : ''}；Delete 删除，Esc 取消选择。`);
   }
@@ -188,5 +188,11 @@ export function createAnnotEdit({ current, applyEdit, guard, status, shapes }) {
     doc.getElementById('viewerContainer')?.addEventListener('scroll', () => { if (sel?.session === s) syncBar(); }, { passive: true });
     s.app.eventBus?.on('scalechanging', () => { if (sel?.session === s) clear(); });
   }
-  return { bind, clear, select, selected: () => sel && { kind: sel.item.kind, xref: sel.item.xref, page: sel.page } };
+  // From the annotation panel (0.20): select the annotation with this xref once its page is rendered.
+  async function selectXref(s, pageNumber, xref) {
+    for (let n = 0; n < 40 && !s.frame.contentDocument.querySelector(`.page[data-page-number="${pageNumber}"] .canvasWrapper canvas`); n++) await new Promise(r => setTimeout(r, 50));
+    const item = (await pageItems(s, pageNumber)).find(i => i.xref === xref); if (item) select(s, pageNumber, item);
+    return !!item;
+  }
+  return { bind, clear, select, selectXref, selected: () => sel && { kind: sel.item.kind, xref: sel.item.xref, page: sel.page } };
 }

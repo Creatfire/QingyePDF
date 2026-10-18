@@ -376,6 +376,19 @@ def split_groups(doc, request):
     return clean
 
 
+# Annotation tags (0.20) live in the annotation dictionary under a private key, so they travel with
+# the PDF and other readers simply ignore them.
+TAG_KEY = 'QingyeTags'
+def annot_tags(doc, xref):
+    kind, value = doc.xref_get_key(xref, TAG_KEY)
+    return [t for t in (value or '').split('\x1f') if t] if kind == 'string' else []
+
+
+def set_annot_tags(doc, xref, tags):
+    clean = list(dict.fromkeys(str(t).strip()[:40] for t in tags if str(t).strip()))[:20]
+    doc.xref_set_key(xref, TAG_KEY, fitz.get_pdf_str('\x1f'.join(clean)) if clean else 'null')
+
+
 def ocr_note(stats):
     parts = [f"已为 {len(stats['recognized'])} 页添加可选择的中英文文字层（原页面保留）"]
     if stats.get('skipped'):
@@ -648,7 +661,7 @@ def process(request, input_file, output):
                         stroke=a.colors.get('stroke') or a.colors.get('fill') or []
                         tint='#'+''.join(f'{max(0,min(255,round(c*255))):02x}' for c in stroke[:3]) if len(stroke)>=3 else ''
                         excerpt=p.get_textbox(a.rect).strip() if a.type[1] in ('Highlight','Underline','StrikeOut','Squiggly') else ''
-                        notes.append({'page':n+1,'type':a.type[1],'text':a.info.get('content',''),'excerpt':excerpt,'color':tint,'rect':list(a.rect*~p.transformation_matrix),'xref':a.xref})
+                        notes.append({'page':n+1,'type':a.type[1],'text':a.info.get('content',''),'excerpt':excerpt,'color':tint,'rect':list(a.rect*~p.transformation_matrix),'xref':a.xref,'tags':annot_tags(doc,a.xref),'author':a.info.get('title',''),'modified':a.info.get('modDate','')})
                 data['notes']=notes
             if request.get('headings') and readable:
                 lines=[];sizes={}
@@ -995,6 +1008,30 @@ def process(request, input_file, output):
                 annot.set_info(content=str(request.get('text'))[:10000], modDate=fitz.get_pdf_now())
             annot.update()
             note = '已修改批注。'
+        elif action == 'annot-batch':
+            # Several annotations at once (0.20 annotation panel): colour, tags to add / remove.
+            items = request.get('items') or []
+            if not isinstance(items, list) or not 0 < len(items) <= 5000:
+                raise ValueError('请先选择批注。')
+            add, drop = request.get('addTags') or [], set(request.get('removeTags') or [])
+            stroke = color(request.get('color')) if request.get('color') else None
+            changed = 0
+            for item in items:
+                page = doc[int(number(item.get('page'), 1, len(doc), 1)) - 1]
+                xref = int(number(item.get('xref'), 1, 10**9, 0))
+                annot = next((a for a in page.annots() or [] if a.xref == xref), None)
+                if annot is None:
+                    continue
+                if stroke:
+                    annot.set_colors(stroke=stroke)
+                    annot.set_info(modDate=fitz.get_pdf_now())
+                    annot.update()
+                if add or drop:
+                    set_annot_tags(doc, xref, [t for t in annot_tags(doc, xref) if t not in drop] + list(add))
+                changed += 1
+            if not changed:
+                raise ValueError('找不到所选批注，可能已被删除。')
+            note = f'已修改 {changed} 条批注。'
         elif action == 'annot-delete':
             items = request.get('items') or []
             if not isinstance(items, list) or not 0 < len(items) <= 5000:
