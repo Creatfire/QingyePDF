@@ -1,6 +1,6 @@
 {
   "app": "QingyePDF",
-  "version": "0.19.1",
+  "version": "0.20.0",
   "renumberedFrom": "0.15.0",
   "supersedes": "v0.17.0 (abandoned broken line; archived on archive/0.17-broken-line)",
   "platform": [
@@ -13,7 +13,7 @@
     "nsis",
     "zip"
   ],
-  "artifactName": "QingyePDF-0.19.1-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.20.0-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -29,7 +29,11 @@
     "Windows source: oxlint clean (163 files); 131 unit tests passed, 1 POSIX-only test skipped; 9 Electron smoke suites passed (smoke, markdown, conversion, safety, basic, features, notes, links, pdf014)",
     "No installer was built for 0.19.1; the packaging paths keep their 0.19.0 acceptance"
   ],
-  "newFeatures": [],
+  "newFeatures": [
+    "Fixes from the 0.19.1 review: draft kept during a canceled save, library snippets and long-note indexing, Office cache cancellation, compare of dense identical pages, PPT aspect ratio and DPI",
+    "One Office-to-PDF path (LibreOffice) in every entry; OCR adds a text layer only, recognises mixed pages and regions",
+    "Visual page manager, annotation & excerpt panel with tags, unified task center with queue and version binding, document workspaces and pinned documents"
+  ],
   "engineeringChanges": [
     "Static analysis: oxlint with correctness rules only (npm run lint, npm run verify); CI runs lint before the unit tests",
     "Tests are discovered by glob (test/*.test.*) instead of a hand-maintained list; npm run test:coverage added",
@@ -38,17 +42,18 @@
     "ui/app.mjs split 713 -> 558 lines into ui/recent-list.mjs, ui/theme.mjs, ui/draft-recovery.mjs, ui/shortcuts.mjs, ui/commands.mjs, ui/history-ui.mjs",
     "Library search: Markdown paragraph line numbers counted incrementally (was O(n^2) per query) and folded text cached (24 MB cap)"
   ],
-  "buildRevision": "0.19.1",
+  "buildRevision": "0.20.0",
   "fixes": [
     "Library search: a long Markdown note recomputed every paragraph's line number from the start of the document on every keystroke; the folded index text was rebuilt for each query"
   ],
   "crossBuilt": false,
-  "otherArtifacts": [],
+  "otherArtifacts": [
+    "QingyePDF-0.20.0-win-x64.zip"
+  ],
   "testSideCorrections": [],
   "pdfjsModified": true,
   "notBuilt": [
-    "Android and macOS were not rebuilt for 0.19.1 (Windows-only development line; no mobile changes)",
-    "No Windows installer or ZIP was built for 0.19.1 either - dist/ still holds the 0.19.0 artifacts"
+    "Android and macOS were not rebuilt for 0.20.0 (no mobile changes; macOS needs the GitHub Actions runners)"
   ],
   "libreOffice": {
     "version": "26.2.6",
