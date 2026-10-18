@@ -148,7 +148,7 @@ test('annotation panel: page filter, excerpt status and combined filters', async
     { page: 3, xref: 12, type: 'Highlight', excerpt: '另一段原文内容很长', text: '', color: '#ffd400', rect: [0, 0, 10, 10], tags: ['待核实'] },
   ];
   const note = '> 深度学习改变了图像识别\n\n[a.pdf · 第 1 页](<file:///C:/d/a.pdf#page=1&rect=12,12,90,28>)\n\n[a.pdf · 第 2 页](<file:///C:/d/a.pdf#page=2&rect=5,5,45,45>)\n';
-  const done = A.excerptedKeys(notes, note, { id: 'x', path: 'C:\d\a.pdf' });
+  const done = A.excerptedKeys(notes, note, { id: 'x', path: 'C:/d/a.pdf' });
   assert.deepEqual([...done].sort(), ['1:10', '2:11']);
   assert.deepEqual(A.filterNotes(notes, { status: 'todo' }, done).map(n => n.xref), [12]);
   assert.deepEqual(A.filterNotes(notes, { tag: '-' }).map(n => n.xref), [11]);
