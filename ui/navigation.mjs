@@ -2,7 +2,7 @@ import { createHistory } from './history.mjs';
 import { createSearchOcr } from './search-ocr.mjs';
 // Annotation types as shown in the list (PDF subtype names are English).
 const ANNOT_LABEL={Highlight:'高亮',Underline:'下划线',StrikeOut:'删除线',Squiggly:'波浪线',Text:'便签',FreeText:'文本框',Square:'矩形',Circle:'椭圆',Line:'直线',Polygon:'多边形',PolyLine:'折线',Ink:'自由绘制',Stamp:'印章 / 图片',Caret:'插入符',FileAttachment:'附件',Sound:'声音',Redact:'待涂黑'};
-export function createNavigation({ current, guard, views, openTools, api, snapshot, addDocuments, applyEdit,navigate=action=>action(),readingTrail,status=()=>{},isProcessing,notesFor=()=>null,insertNotes }) {
+export function createNavigation({ current, guard, views, openTools, openPages, api, snapshot, addDocuments, applyEdit,navigate=action=>action(),readingTrail,status=()=>{},isProcessing,notesFor=()=>null,insertNotes }) {
   const $ = id => document.getElementById(id);
   const pane=document.createElement('aside');pane.id='navigationPanel';pane.hidden=true;
   pane.setAttribute('aria-labelledby','navigationTitle');
@@ -112,6 +112,8 @@ export function createNavigation({ current, guard, views, openTools, api, snapsh
     const remember=(before,label)=>{history.push(JSON.stringify(before),JSON.stringify(order),label);s.pageDraft.order=order;};
     const actions=document.createElement('div');actions.className='pageActions';controls.append(actions);
     const note=document.createElement('p');note.textContent='点击页码多选；拖动卡片排序，处理后导出副本。';controls.append(note);
+    // 0.20: the full-window page manager (rotate, copy, insert other PDFs, split…).
+    if(openPages){const full=button('打开页面管理（全屏）',()=>openPages(s),controls);full.id='openPageManager';full.dataset.icon='pages';}
     const draw=()=>{for(const n of order){const card=content.querySelector(`[data-page="${n}"]`);if(card){content.append(card);card.classList.toggle('selected',selected.has(n));card.querySelector('input').checked=selected.has(n);}}};
     async function apply(pageMode){let spec=pageMode==='reorder'?order:[...selected];if(!spec.length)throw new Error('请先勾选页面。');if(pageMode==='delete'&&spec.length===order.length)throw new Error('至少保留一页。');const result=await api.toolsJob(s.id,await snapshot(s),{action:'organize',mode:pageMode,pages:spec.join(','),angle:90});if(result.opened?.length)await addDocuments(result.opened);return result;}
     button('↶ 撤销排序',()=>{const v=history.undo();if(v){order=JSON.parse(v);s.pageDraft.order=order;draw();}},actions);button('↷ 重做排序',()=>{const v=history.redo();if(v){order=JSON.parse(v);s.pageDraft.order=order;draw();}},actions);

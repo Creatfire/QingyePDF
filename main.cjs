@@ -375,7 +375,9 @@ app.whenReady().then(async () => {
       assets.push({name:path.basename(asset.path),bytes:await fs.readFile(asset.path)});
     }
     for(const item of request?.mergeInputs || []) { documentById(item.id); inputs.push(pdfBytes(item.bytes)); }
-    const safe={...request}; delete safe.mergeInputs;
+    // Page manager (0.20): PDFs dropped or picked in the page grid, after the open documents above.
+    if(Array.isArray(request?.extraPdfs)){if(request.extraPdfs.length>20)throw new Error('一次最多插入 20 个 PDF。');for(const bytes of request.extraPdfs){if(bytes?.byteLength>512*1024*1024)throw new Error('单文件处理目前支持最大 512 MB。');inputs.push(pdfBytes(bytes));}}
+    const safe={...request}; delete safe.mergeInputs; delete safe.extraPdfs;
     const jobId=typeof request.jobId==='string'?request.jobId.slice(0,80):randomUUID();if(runningJobs.has(jobId))throw new Error('任务编号重复。');const controller=new AbortController();runningJobs.set(jobId,controller);if(canceledJobs.delete(jobId))controller.abort();
     try {
     // Office imports keep their layout through the bundled LibreOffice; other formats use the backend.
@@ -388,7 +390,7 @@ app.whenReady().then(async () => {
     if(result.unchanged)return {unchanged:true,note:result.note};
     const output=result.files[0]; if(!output) throw new Error('处理未生成文件。');
     if(request.draft){
-      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','draw','annot-delete','annot-update','redact','number','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
+      if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','draw','annot-delete','annot-update','pages-plan','redact','number','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
       return {bytes:output.bytes,note:result.note};
     }
     // Integration tests exercise IPC and actual engine output without native picker interaction.

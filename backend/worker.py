@@ -312,6 +312,70 @@ def ocr_region(doc, index, request):
     return True
 
 
+# ——— Visual page manager (0.20) ———
+# A plan is the final page list: {'src': 0, 'page': i, 'rotate': deg} takes page i of this document
+# (src 1… = the extra PDFs in request['inputs']), {'blank': True, 'like': i} inserts an empty page the
+# size of page i of this document. Pages may repeat (copies) or be left out (deleted).
+def build_plan(doc, plan, request):
+    if not isinstance(plan, list) or not 0 < len(plan) <= 20000:
+        raise ValueError('页面计划为空或过长。')
+    sources = [doc]
+    with contextlib.ExitStack() as stack:
+        for path in request.get('inputs', []):
+            sources.append(stack.enter_context(open_pdf(Path(path), request.get('mergePassword', ''))))
+        result = fitz.open()
+        first_of = {}
+        for step, entry in enumerate(plan):
+            if step % 20 == 0:
+                progress(step, len(plan), '整理页面')
+            if not isinstance(entry, dict):
+                raise ValueError('页面计划无效。')
+            if entry.get('blank'):
+                like = doc[int(number(entry.get('like'), 0, len(doc) - 1, 0))].rect
+                result.new_page(width=like.width, height=like.height)
+                continue
+            src = int(number(entry.get('src'), 0, len(sources) - 1, 0))
+            source = sources[src]
+            page = int(number(entry.get('page'), 0, len(source) - 1, 0))
+            result.insert_pdf(source, from_page=page, to_page=page)
+            rotate = int(number(entry.get('rotate'), -270, 270, 0))
+            if rotate % 90:
+                raise ValueError('旋转角度应为 90 的倍数。')
+            if rotate:
+                added = result[len(result) - 1]
+                added.set_rotation((added.rotation + rotate) % 360)
+            if src == 0:
+                first_of.setdefault(page, len(result) - 1)
+        if not len(result):
+            raise ValueError('至少保留一页。')
+        result.set_metadata({k: v for k, v in doc.metadata.items() if isinstance(v, str) and v and k not in ('format', 'encryption')})
+        # Bookmarks follow their page to its first new position; bookmarks of removed pages are dropped.
+        toc, previous = [], 0
+        for level, title, page in doc.get_toc():
+            if page - 1 not in first_of:
+                continue
+            level = min(level, previous + 1)
+            toc.append([level, title, first_of[page - 1] + 1])
+            previous = level
+        result.set_toc(toc)
+        return result
+
+
+def split_groups(doc, request):
+    groups = request.get('groups')
+    if not isinstance(groups, list) or not 0 < len(groups) <= 2000:
+        raise ValueError('拆分分组无效。')
+    names = request.get('names') if isinstance(request.get('names'), list) else []
+    clean = []
+    for n, group in enumerate(groups):
+        pages_ = [int(number(p, 0, len(doc) - 1, 0)) for p in group] if isinstance(group, list) else []
+        if not pages_:
+            raise ValueError('拆分分组不能为空。')
+        name = re.sub(r'[\\/:*?"<>|\x00-\x1f]', '_', str(names[n]) if n < len(names) else '').strip()[:80] or f'part-{n + 1:03d}'
+        clean.append((name, pages_))
+    return clean
+
+
 def ocr_note(stats):
     parts = [f"已为 {len(stats['recognized'])} 页添加可选择的中英文文字层（原页面保留）"]
     if stats.get('skipped'):
@@ -718,6 +782,47 @@ def process(request, input_file, output):
                         doc.insert_pdf(other)
             else:
                 raise ValueError('不支持的页面操作。')
+        elif action == 'pages-plan':
+            result = build_plan(doc, request.get('plan'), request)
+            save(result, target)
+            count = len(result)
+            result.close()
+            return {'files': ['result.pdf'], 'note': f'页面已整理，共 {count} 页。'}
+        elif action == 'pages-split':
+            used = set()
+            with zipfile.ZipFile(output / 'result.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+                groups = split_groups(doc, request)
+                for n, (name, group) in enumerate(groups):
+                    progress(n, len(groups), '拆分文档')
+                    piece = build_plan(doc, [{'src': 0, 'page': p} for p in group], {})
+                    unique, k = name, 2
+                    while unique.lower() in used:
+                        unique, k = f'{name}-{k}', k + 1
+                    used.add(unique.lower())
+                    z.writestr(unique + '.pdf', piece.tobytes(garbage=4, deflate=True))
+                    piece.close()
+            return {'files': ['result.zip'], 'note': f'已拆分为 {len(groups)} 个 PDF。'}
+        elif action == 'pages-images':
+            count, seen = 0, set()
+            with zipfile.ZipFile(output / 'result.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+                for step, index in enumerate(selected):
+                    progress(step, len(selected), '提取图片')
+                    for image in doc[index].get_images(full=True):
+                        if image[0] in seen:
+                            continue
+                        seen.add(image[0])
+                        try:
+                            extracted = doc.extract_image(image[0])
+                        except Exception:
+                            continue
+                        if not extracted or not extracted.get('image') or extracted.get('width', 0) < 8:
+                            continue
+                        count += 1
+                        z.writestr(f"page-{index + 1:04d}-image-{count:04d}.{extracted.get('ext', 'png')}", extracted['image'])
+            if not count:
+                (output / 'result.zip').unlink(missing_ok=True)
+                return {'files': [], 'unchanged': True, 'note': '所选页面没有可提取的图片。'}
+            return {'files': ['result.zip'], 'note': f'已提取 {count} 张图片。'}
         elif action == 'outline':
             toc = request.get('toc', [])
             if not isinstance(toc, list) or len(toc) > 10000:

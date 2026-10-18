@@ -81,6 +81,28 @@ def check():
         result,out=run({'action':'ocr-layer','pages':'1','region':[0,0.2,1,0.6],'tessdata':tess},scanpdf)
         assert result['data']['recognized']==[1]
         with fitz.open(out/'result.pdf') as d:assert 'SCANNED' in d[0].get_text()
+        # Page manager (0.20): one plan reorders, rotates, copies, drops, adds blank pages and pages of
+        # another PDF; bookmarks follow their pages; split by groups; extract images.
+        extra=base/'extra.pdf'
+        with fitz.open() as d:d.new_page(width=200,height=200).insert_text((20,40),'Extra page');d.save(extra)
+        plan=[{'src':0,'page':1,'rotate':90},{'blank':True,'like':0},{'src':1,'page':0},{'src':0,'page':0},{'src':0,'page':0}]
+        result,out=run({'action':'pages-plan','plan':plan,'inputs':[str(extra)]})
+        with fitz.open(out/'result.pdf') as d:
+            assert len(d)==5 and 'Second page' in d[0].get_text() and d[0].rotation==90
+            assert not d[1].get_text().strip() and abs(d[1].rect.width-400)<1
+            assert 'Extra page' in d[2].get_text() and 'SECRET' in d[3].get_text() and 'SECRET' in d[4].get_text()
+            assert [t[2] for t in d.get_toc()]==[4,1], d.get_toc()
+            assert any(a.info['content']=='Saved comment' for a in d[3].annots()), 'annotations travel with their page'
+        try:run({'action':'pages-plan','plan':[]});assert False
+        except ValueError:pass
+        result,out=run({'action':'pages-split','groups':[[0],[1,0]],'names':['封面','rest']})
+        with zipfile.ZipFile(out/result['files'][0]) as z:
+            assert sorted(z.namelist())==['rest.pdf','封面.pdf']
+            with fitz.open(stream=z.read('rest.pdf'),filetype='pdf') as d:assert len(d)==2 and 'Second page' in d[0].get_text()
+        result,out=run({'action':'pages-images'},scanpdf)
+        with zipfile.ZipFile(out/result['files'][0]) as z:assert len(z.namelist())==1 and z.namelist()[0].startswith('page-0001-image-')
+        result,_=run({'action':'pages-images'},extra)
+        assert result.get('unchanged')
         # PowerPoint (0.20): mixed portrait / landscape pages keep their proportions; DPI is honoured.
         mixed=base/'mixed.pdf'
         with fitz.open() as d:

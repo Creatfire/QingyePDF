@@ -113,3 +113,26 @@ test('conversion center: Office → PDF uses the layout engine unless reflow or 
     assert.notEqual(html.engine, 'libreoffice'); assert.deepEqual(seen, ['a.docx']);
   } finally { await fs.rm(dir, { recursive: true, force: true }); }
 });
+
+test('page plan: move, rotate, copy, delete, insert, summary and split groups', async () => {
+  const P = await import('../ui/page-plan.mjs');
+  let plan = P.initialPlan(5); const k = i => plan[i].key, set = (...i) => new Set(i.map(k));
+  assert.ok(P.unchanged(plan, 5));
+  plan = P.move(plan, set(3, 4), 0);                       // 4,5,1,2,3
+  assert.deepEqual(plan.map(e => e.page + 1), [4, 5, 1, 2, 3]);
+  plan = P.move(plan, set(0), plan.length);                 // 5,1,2,3,4
+  assert.deepEqual(plan.map(e => e.page + 1), [5, 1, 2, 3, 4]);
+  plan = P.rotate(plan, set(1), -90); assert.equal(plan[1].rotate, 270);
+  ({ plan } = P.duplicate(plan, set(2)));                   // 5,1r,2,2,3,4
+  plan = P.remove(plan, set(5));                            // drop page 4
+  ({ plan } = P.insertBlank(plan, 1, 0));
+  ({ plan } = P.insertPages(plan, plan.length, 1, 2));
+  assert.equal(P.summary(plan, ['b.pdf']), '5, 空白页, 1（旋转 270°）, 2, 2–3, b.pdf 1–2');
+  assert.deepEqual(P.serialize(plan).slice(0, 3), [{ src: 0, page: 4 }, { blank: true, like: 0 }, { src: 0, page: 0, rotate: 270 }]);
+  assert.ok(!P.unchanged(plan, 5));
+  assert.throws(() => P.remove(plan, new Set(plan.map(e => e.key))), /至少保留一页/);
+  assert.deepEqual(P.groupsEvery(5, 2), [[0, 1], [2, 3], [4]]);
+  assert.deepEqual(P.groupsFromRanges('1-2；3\n4-5', 5), [[0, 1], [2], [3, 4]]);
+  assert.throws(() => P.groupsFromRanges('4-9', 5), /超出/);
+  assert.deepEqual(P.groupsFromBookmarks([[1, '甲', 2], [2, 'x', 3], [1, '乙', 4]], 5), [{ name: '前置页', pages: [0] }, { name: '甲', pages: [1, 2] }, { name: '乙', pages: [3, 4] }]);
+});

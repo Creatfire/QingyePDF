@@ -1,6 +1,6 @@
 import { userError } from './errors.mjs';
 import { ANNOTATION_TOOLS, menuItem, menuLabel, menuSep, menuKeys } from './chrome.mjs';
-export function createDirectEditing({current,guard,api,applyEdit,navigation,tools,historyStep,status,notesFor,excerpt,region,cite}){
+export function createDirectEditing({current,guard,api,applyEdit,navigation,tools,openPages,historyStep,status,notesFor,excerpt,region,cite}){
   const $=id=>document.getElementById(id);
   const bar=document.createElement('section');bar.id='directEditor';bar.hidden=true;
   bar.setAttribute('aria-label','页面编辑');bar.innerHTML=`<strong>页面编辑</strong><select id="directKind" aria-label="编辑类型"><option value="watermark">添加文字</option><option value="text">替换区域原文</option><option value="stamp">文字印章</option><option value="image">图片印章</option><option value="watermark-all">文字水印（全部页）</option><option value="shape">图形</option></select><textarea id="directText" aria-label="文字内容" rows="2">新文字</textarea><label>字号 <input id="directSize" type="number" min="6" max="100" value="18"></label><input id="directColor" type="color" value="#b91c1c" aria-label="文字颜色"><label>透明度 <input id="directOpacity" type="range" min="5" max="100" value="100"></label><select id="directShape" aria-label="图形"><option value="rect">矩形</option><option value="ellipse">椭圆</option><option value="line">直线</option></select><button id="directAsset" data-icon="image">选择图片</button><button id="directApply" class="primary" data-icon="check">应用 · 可撤销</button><button id="directClose" data-icon="x">取消编辑</button><span id="directStatus" role="status">拖动框移动，拖动右下角缩放；自动生成实际 PDF 预览。</span>`;
@@ -97,7 +97,7 @@ export function createDirectEditing({current,guard,api,applyEdit,navigation,tool
     for(const [label,kind,icon]of [['添加文字','watermark','text'],['文字印章','stamp','stamp'],['图片印章','image','image'],['全页水印','watermark-all','watermark'],['图形','shape','shape'],['替换原文','text','replace']])content.append(item(label,icon,()=>open(kind,point)));
     menu.append(menuLabel('批注'),annotate,menuLabel('页面内容 · 第 '+point.page+' 页'),content,menuSep());
     const hand=s.app.pdfCursorTools?.activeTool===1;
-    menu.append(item('页面排序 / 提取','pages',()=>navigation.show('thumbnails')),item('编辑目录','outline',()=>tools.open('outline')),
+    menu.append(item('页面管理（排序、旋转、插入、拆分）','pages',()=>openPages(s)),item('编辑目录','outline',()=>tools.open('outline')),
       item('将本页加入书签','bookmark',()=>{navigation.addBookmark(s,point.page);status?.('已将第 '+point.page+' 页加入阅读书签');},{discard:false}),
       item('抓手工具','hand',()=>s.app.pdfCursorTools?.switchTool(hand?0:1),{discard:false,role:'menuitemcheckbox',checked:hand}),menuSep(),
       item('打印…','print',()=>s.app.eventBus.dispatch('print',{source:menu}),{discard:false,shortcut:'Ctrl+P'}),

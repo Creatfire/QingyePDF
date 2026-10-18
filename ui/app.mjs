@@ -3,6 +3,7 @@ import { createNavigation } from './navigation.mjs';
 import { createTools } from './tools.mjs';
 import { createHistory } from './history.mjs';
 import { createDirectEditing } from './direct.mjs';
+import { createPageManager } from './page-manager.mjs';
 import { userError } from './errors.mjs';
 import { createTextSelection } from './selection.mjs';
 import { createMarkup } from './markup.mjs';
@@ -82,10 +83,12 @@ $('readingBack').onclick=()=>guard(()=>readingTrail.back());$('readingForward').
 function currentPdf() { const s = current(); if (!isMd(s)) return s; const other = notes?.partner(activeId); return other && !isMd(other) ? other : undefined; }
 const pdfSessions = { values: () => [...sessions.values()].filter(s => !isMd(s))[Symbol.iterator](), get: id => { const s = sessions.get(id); return isMd(s) ? undefined : s; }, has: id => !!pdfSessions.get(id) };
 const views = createViews({ current: currentPdf, commit, guard, api });
-const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
-const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs });
+const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), openPages: s => pageManager.open(s), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
+const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs, openPages: s => pageManager.open(s) });
+// Visual page manager (0.20): thumbnail grid, one undoable 'pages-plan' edit (page-manager.mjs).
+const pageManager = createPageManager({ current: currentPdf, isPdf: s => !!s && !isMd(s), applyEdit, api, snapshot: s => tools.snapshot(s), guard, status, addDocuments });
 const converter = createConverter({ api, guard, status });
-const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigation,tools,historyStep:(redo)=>history.step(redo),status,notesFor:s=>notes?.notesFor(s)||null,excerpt:(s,text,page)=>notes.excerpt(s,text,page,notes.selectionSource(s,page).rect),region:s=>notes.pickRegion(s),cite:s=>citations.open(s)});
+const direct=createDirectEditing({current:currentPdf,guard,api,applyEdit,navigation,tools,openPages:s=>pageManager.open(s),historyStep:(redo)=>history.step(redo),status,notesFor:s=>notes?.notesFor(s)||null,excerpt:(s,text,page)=>notes.excerpt(s,text,page,notes.selectionSource(s,page).rect),region:s=>notes.pickRegion(s),cite:s=>citations.open(s)});
 const textSelection=createTextSelection({current:currentPdf,api,applyEdit,guard,status,tools});
 const shapes=createShapes({current:currentPdf,applyEdit,guard,status});
 const officeProgress=createOfficeProgress({api,guard,status});
@@ -565,5 +568,5 @@ activate(null);
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
 api.ready();

@@ -271,6 +271,47 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     await until(`(async () => { try { if (${O}.editBusy || !${O}.loaded) return false; const text = (await (await ${O}.app.pdfDocument.getPage(1)).getTextContent()).items.map(i => i.str).join(''); return [...'新增的结论'].every(ch => text.includes(ch)); } catch { return false; } })()`, 'reconverted text');
     report.checks.officeReconvert = true;
   } else report.checks.officeAsPdf = 'skipped: LibreOffice not prepared';
+  // Visual page manager (0.20): rotate, copy, blank page, insert another PDF, drag to the end, apply
+  // as one undoable edit.
+  {
+    const file = path.join(output, 'pages.pdf'); await fs.writeFile(file, samplePdf('Pages check'));
+    const docs = await openFiles([file]);
+    await run(`qingye.addDocuments(${JSON.stringify(docs.map(d => ({ ...d, ...(d.bytes ? { bytes: Array.from(d.bytes) } : {}) })))})`);
+    const G = `qingye.sessions.get(${JSON.stringify(docs[0].id)})`;
+    await until(`${G}?.loaded`, 'pages document'); await run(`qingye.activate(${JSON.stringify(docs[0].id)})`);
+    const inserted = Array.from(samplePdf('Inserted page'));
+    report.checks.pageManager = await run(`(async () => {
+      const pm = qingye.pageManager, d = document.getElementById('pageManager'), q = s => d.querySelector(s), wait = ms => new Promise(r => setTimeout(r, ms));
+      pm.open(${G}); await wait(300);
+      const cards = () => [...d.querySelectorAll('.pmCard')];
+      const first = cards().length;
+      cards()[1].click(); q('#pmRotateRight').click(); q('#pmDuplicate').click(); q('#pmBlank').click();
+      await pm.insertFiles([new File([new Uint8Array(${JSON.stringify(inserted)})], 'ins.pdf', { type: 'application/pdf' })], pm.plan.length);
+      // Drag page 1 behind the last card.
+      const dt = new DataTransfer(), source = cards()[0], target = cards().at(-1), box = target.getBoundingClientRect();
+      source.click();
+      source.dispatchEvent(new DragEvent('dragstart', { bubbles: true, dataTransfer: dt }));
+      target.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt, clientX: box.right - 4, clientY: box.top + 10 }));
+      target.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt, clientX: box.right - 4, clientY: box.top + 10 }));
+      await wait(400);
+      const order = q('#pmOrder').textContent, labels = cards().map(c => c.querySelector('.pmLabel').textContent);
+      return { first, labels, order, apply: !q('#pmApply').disabled };
+    })()`);
+    await pause(300); await fs.writeFile(path.join(output, 'page-manager.png'), (await window.webContents.capturePage()).toPNG());
+    assert.equal(report.checks.pageManager.first, 2);
+    assert.deepEqual(report.checks.pageManager.labels, ['第 2 页 · 90°', '第 2 页 · 90°', '空白页', 'ins.pdf · 第 1 页', 'ins.pdf · 第 2 页', '第 1 页']);
+    assert.equal(report.checks.pageManager.order, '最终页序：2（旋转 90°）, 2（旋转 90°）, 空白页, ins.pdf 1–2, 1');
+    await run(`document.getElementById('pmApply').click()`);
+    await until(`!${G}.editBusy && ${G}.app.pagesCount === 6`, 'page plan applied', 400);
+    report.checks.pageManagerApplied = await run(`(async () => {
+      const doc = ${G}.app.pdfDocument, text = async n => (await (await doc.getPage(n)).getTextContent()).items.map(i => i.str).join(' ');
+      return { p1: (await text(1)).includes('Chapter 2'), rotate: (await doc.getPage(1)).rotate, blank: !(await text(3)).trim(), p4: (await text(4)).includes('Inserted page'), p6: (await text(6)).includes('Pages check'), dirty: ${G}.dirty };
+    })()`);
+    assert.deepEqual(report.checks.pageManagerApplied, { p1: true, rotate: 90, blank: true, p4: true, p6: true, dirty: true });
+    await run(`qingye.historyStep()`);
+    await until(`!${G}.editBusy && ${G}.app.pagesCount === 2`, 'page plan undone', 400);
+    report.checks.pageManagerUndo = true;
+  }
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;
 };

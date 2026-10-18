@@ -1,6 +1,6 @@
 import { createOutlineEditor } from './outline.mjs';
 import { userError } from './errors.mjs';
-export function createTools({ current, sessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange=()=>{} }) {
+export function createTools({ current, sessions, guard, commit, api, addDocuments, status, compare, applyEdit, openPages, onBusyChange=()=>{} }) {
   const $=id=>document.getElementById(id);
   const dialog=document.createElement('dialog');dialog.id='toolsDialog';dialog.setAttribute('closedby','any');
   dialog.setAttribute('aria-labelledby','toolsTitle');
@@ -16,6 +16,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
       <label data-for="import">Office 文件的版式 <select id="toolOfficeLayout"><option value="layout">保留原版式（与直接打开一致）</option><option value="reflow">内容重排（只取文字和图片，分页会变化）</option></select></label>
       <label data-for="export">导出格式 <select id="toolFormat"><option value="docx">Word DOCX · 可编辑文本与图片</option><option value="xlsx">Excel XLSX · 表格 / 逐行文本</option><option value="pptx">PowerPoint PPTX · 每页图像</option><option value="png">PNG 图像 ZIP</option><option value="jpg">JPEG 图像 ZIP</option><option value="svg">SVG 页面 ZIP</option><option value="html">HTML</option><option value="txt">纯文本 TXT</option><option value="csv">CSV 表格 / 文本</option></select></label>
       <label data-for="export compress" data-formats="png jpg pptx">图像 DPI <input id="toolDpi" type="number" min="36" max="300" value="144"></label>
+      <div data-for="organize" class="toolOpenPages"><button id="toolOpenPages" type="button" data-icon="pages">打开可视化页面管理</button><span>缩略图网格中拖动排序、旋转、复制、删除、插入其他 PDF、拆分</span></div>
       <label data-for="organize">页面操作 <select id="toolPageMode"><option value="extract">提取指定页面</option><option value="reorder">按所填页码重排 / 复制页面</option><option value="delete">删除指定页面</option><option value="rotate">永久旋转指定页面</option><option value="blank">插入空白页</option><option value="split">每页拆成独立 PDF（ZIP）</option><option value="merge">合并其他已打开的 PDF</option></select></label>
       <label data-for="organize">旋转角度 <select id="toolAngle"><option value="90">顺时针 90°</option><option value="180">180°</option><option value="270">顺时针 270°</option></select></label>
       <label data-for="organize">空白页插入位置 <input id="toolPosition" type="number" min="0" value="0" title="0 表示文档开头；1 表示第 1 页之后"></label>
@@ -150,6 +151,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   dialog.querySelector('.stampVarButtons').onclick=e=>{const v=e.target.closest('button')?.dataset.var;if(!v)return;const t=$('toolText'),at=t.selectionStart??t.value.length;t.setRangeText(v,at,t.selectionEnd??at,'end');t.focus();updateSummary();};
   $('toolCompressProfile').onchange=()=>{const on=!!$('toolCompressProfile').value;for(const id of ['toolLossy','toolDpi','toolQuality'])$(id).disabled=on;};
   $('redactClear').onclick=()=>{redactHits=[];renderHits();};
+  $('toolOpenPages').onclick=()=>guard(async()=>{const s=toolSession;if(!s)throw new Error('请先打开 PDF。');dialog.close();openPages(s);});
   // Fields that only some export formats use (data-formats) are hidden for the others, e.g. the image
   // DPI does nothing for Word, Excel, SVG, text or HTML.
   function syncFormatFields(){if(action()!=='export')return;for(const element of dialog.querySelectorAll('[data-formats]'))element.hidden=!element.dataset.formats.split(' ').includes($('toolFormat').value);}
