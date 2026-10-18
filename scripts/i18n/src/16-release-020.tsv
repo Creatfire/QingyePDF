@@ -1,0 +1,150 @@
+1762	Only files created by these tools can be shown.	只能顯示本次處理產生的檔案。	この処理で作成したファイルのみ表示できます。	이번 처리로 만든 파일만 표시할 수 있습니다.
+1763	You can insert up to 20 PDFs at a time.	一次最多插入 20 個 PDF。	一度に挿入できる PDF は 20 個までです。	한 번에 최대 20개의 PDF를 삽입할 수 있습니다.
+1764	Single files up to 512 MB are supported.	單一檔案處理目前支援最大 512 MB。	処理できるファイルは 1 つあたり 512 MB までです。	파일 하나당 최대 512MB까지 처리할 수 있습니다.
+1765	The bundled LibreOffice converter is missing. Reinstall Qingye PDF, or choose content reflow under “Layout”.	內建的 LibreOffice 轉換引擎遺失，請重新安裝青頁；或在「版面」中選擇內容重排。	内蔵の LibreOffice 変換エンジンが見つかりません。再インストールするか、「レイアウト」でリフローを選んでください。	내장 LibreOffice 변환 엔진이 없습니다. 다시 설치하거나 “레이아웃”에서 내용 재배치를 선택하세요.
+1766	Result is out of date	處理結果已過期	処理結果が古くなっています	처리 결과가 오래되었습니다
+1767	“{name}” was changed while it was being processed.	「{name}」在處理期間有新的修改。	処理中に「{name}」が変更されました。	처리하는 동안 “{name}”이(가) 변경되었습니다.
+1768	Applying the result of “{label}” discards the changes made meanwhile (can be undone).	套用「{label}」的結果會捨棄處理期間的修改（可復原）。	「{label}」の結果を適用すると、処理中の変更は破棄されます（元に戻せます）。	“{label}” 결과를 적용하면 처리 중 변경 내용이 사라집니다(실행 취소 가능).
+1769	Discard this result	捨棄這次結果	この結果を破棄	이번 결과 버리기
+1770	Apply anyway	仍然套用	それでも適用	그래도 적용
+1771	The recent file no longer exists.	最近檔案不存在。	最近使ったファイルが見つかりません。	최근 파일이 없습니다.
+1772	Index content can only be read for PDFs.	只能為 PDF 讀取索引內容。	インデックス内容を読み取れるのは PDF のみです。	색인 내용은 PDF에서만 읽을 수 있습니다.
+1773	The file is larger than 300 MB and was not added to library search.	檔案超過 300 MB，未加入全庫搜尋。	ファイルが 300 MB を超えるため、ライブラリ検索に追加しませんでした。	파일이 300MB를 넘어 라이브러리 검색에 추가하지 않았습니다.
+1774	The record from doi.org is too large.	doi.org 傳回的記錄過大。	doi.org から返されたレコードが大きすぎます。	doi.org가 반환한 레코드가 너무 큽니다.
+1775	The record from doi.org could not be read.	doi.org 傳回的記錄無法辨識。	doi.org から返されたレコードを認識できません。	doi.org가 반환한 레코드를 인식할 수 없습니다.
+1776	Unsupported export format.	不支援的匯出格式。	サポートされていない書き出し形式です。	지원하지 않는 내보내기 형식입니다.
+1777	The export is invalid or larger than 32 MB.	匯出內容無效或超過 32 MB。	書き出す内容が無効か 32 MB を超えています。	내보낼 내용이 올바르지 않거나 32MB를 넘습니다.
+1778	The output cannot replace an open document. Use a new file name.	輸出不能覆寫正在開啟的文件，請使用新的檔案名稱。	開いている文書は上書きできません。別のファイル名にしてください。	열려 있는 문서를 덮어쓸 수 없습니다. 새 파일 이름을 사용하세요.
+1779	Note (visible in other readers too):	備註內容（其他閱讀器也能看到）：	メモ（他のリーダーでも表示されます）：	메모(다른 뷰어에서도 보입니다):
+1780	To verify	待核實	要確認	확인 필요
+1781	Key finding	重要結論	重要な結論	주요 결론
+1782	Filter by text, note or tag	篩選原文、備註或標籤	原文・メモ・タグで絞り込み	원문, 메모, 태그로 필터
+1783	Filter annotations	篩選註解	注釈を絞り込み	주석 필터
+1784	All tags	全部標籤	すべてのタグ	모든 태그
+1785	No tag	無標籤	タグなし	태그 없음
+1786	Excerpt status	摘錄狀態	抜粋の状態	발췌 상태
+1787	In the note	已摘錄到筆記	ノートに抜粋済み	노트에 발췌됨
+1788	Not yet in the note	尚未摘錄	未抜粋	아직 발췌 안 됨
+1789	Pages, e.g. 1-3,7	頁碼，如 1-3,7	ページ（例：1-3,7）	페이지, 예: 1-3,7
+1790	Filter by page	依頁碼篩選	ページで絞り込み	페이지로 필터
+1791	Change the selected annotations to this colour	把選取的註解改成這個顏色	選択した注釈をこの色に変更	선택한 주석을 이 색으로 변경
+1792	Recolour annotations	註解改色	注釈の色を変更	주석 색 변경
+1793	Tags	標籤	タグ	태그
+1794	Tags…	標籤…	タグ…	태그…
+1795	New tag…	加新標籤…	新しいタグ…	새 태그…
+1796	New tag	新標籤	新しいタグ	새 태그
+1797	Tag name (up to 40 characters):	標籤名稱（最多 40 字）：	タグ名（40 文字まで）：	태그 이름(최대 40자):
+1798	Add	新增	追加	추가
+1799	Export the ticked annotations, or the current filter if none is ticked	匯出勾選的註解；沒有勾選時匯出目前篩選結果	チェックした注釈を書き出します（未選択なら現在の絞り込み結果）	선택한 주석을 내보냅니다. 선택하지 않으면 현재 필터 결과를 내보냅니다
+1800	Tick annotations first.	請先勾選註解。	先に注釈にチェックを入れてください。	먼저 주석을 선택하세요.
+1801	Annotations changed · can be undone	已修改註解 · 可復原	注釈を変更しました · 元に戻せます	주석을 변경했습니다 · 실행 취소 가능
+1802	In note	已摘錄	抜粋済み	발췌됨
+1803	Not in note	未摘錄	未抜粋	미발췌
+1804	This document has no annotations yet.	這份文件還沒有註解。	この文書にはまだ注釈がありません。	이 문서에는 아직 주석이 없습니다.
+1805	The document changed during processing; this result was discarded.	處理期間文件有新的修改，已捨棄這次結果。	処理中に文書が変更されたため、この結果は破棄しました。	처리하는 동안 문서가 변경되어 이번 결과를 버렸습니다.
+1806	No differences marked	未標出差異	差分は表示されていません	표시된 차이 없음
+1807	Save PDF	儲存 PDF	PDF を保存	PDF 저장
+1808	Pin to home	釘選到首頁	ホームにピン留め	홈에 고정
+1809	Save all tabs as a workspace…	將所有分頁儲存為工作區…	すべてのタブをワークスペースとして保存…	모든 탭을 작업 공간으로 저장…
+1810	Office files to PDF	Office 檔案轉 PDF	Office ファイルを PDF に	Office 파일을 PDF로
+1811	Keep the layout (bundled LibreOffice, same as opening the file)	保留原版面（內建 LibreOffice，與直接開啟一致）	元のレイアウトを保持（内蔵 LibreOffice、直接開いた場合と同じ）	원래 레이아웃 유지(내장 LibreOffice, 직접 열 때와 같음)
+1812	Reflow content (Pandoc; pages and layout change)	內容重排（Pandoc，分頁和版面會變化）	内容をリフロー（Pandoc、ページとレイアウトが変わります）	내용 재배치(Pandoc, 페이지와 레이아웃이 바뀜)
+1813	Page manager (reorder, rotate, insert, split)	頁面管理（排序、旋轉、插入、拆分）	ページ管理（並べ替え・回転・挿入・分割）	페이지 관리(정렬, 회전, 삽입, 분할)
+1814	Read and take notes: PDF and Markdown note side by side · Ctrl+\	邊讀邊記：PDF 與 Markdown 筆記左右並排 · Ctrl+\	読みながらメモ：PDF と Markdown ノートを左右に並べる · Ctrl+\	읽으며 메모: PDF와 Markdown 노트를 나란히 · Ctrl+\
+1815	Notes	筆記	ノート	노트
+1816	Open a PDF and take Markdown notes beside it	開啟 PDF，在右側記 Markdown 筆記	PDF を開いて右側に Markdown でメモ	PDF를 열고 오른쪽에 Markdown 노트 작성
+1817	Open and take notes	開啟文件並記筆記	開いてメモを取る	열고 노트 작성
+1818	Side by side · excerpts link to the source	左右並排 · 摘錄帶原文連結	左右に並べる · 抜粋に原文リンク付き	나란히 · 발췌에 원문 링크
+1819	Only partly indexed: 	只索引了部分內容：	一部のみインデックス：	일부만 색인됨: 
+1820	Save note	儲存筆記	ノートを保存	노트 저장
+1821	Note saved	筆記已儲存	ノートを保存済み	노트 저장됨
+1822	Open the page manager (full window)	開啟頁面管理（全螢幕）	ページ管理を開く（全画面）	페이지 관리 열기(전체 화면)
+1823	Page manager	頁面管理	ページ管理	페이지 관리
+1824	Rotate 90° counter-clockwise · Shift+R	逆時針旋轉 90° · Shift+R	反時計回りに 90° 回転 · Shift+R	시계 반대 방향으로 90° 회전 · Shift+R
+1825	Rotate left	左轉	左に回転	왼쪽 회전
+1826	Rotate 90° clockwise · R	順時針旋轉 90° · R	時計回りに 90° 回転 · R	시계 방향으로 90° 회전 · R
+1827	Rotate right	右轉	右に回転	오른쪽 회전
+1828	Copy after the selected pages · Ctrl+D	在選取頁面後面複製一份 · Ctrl+D	選択したページの後ろに複製 · Ctrl+D	선택한 페이지 뒤에 복사 · Ctrl+D
+1829	Delete the selected pages · Delete	刪除選取頁面 · Delete	選択したページを削除 · Delete	선택한 페이지 삭제 · Delete
+1830	Insert a blank page after the selection (or at the end)	在選取頁面後（或結尾）插入空白頁	選択の後（または末尾）に白紙ページを挿入	선택 뒤(또는 끝)에 빈 페이지 삽입
+1831	Blank page	空白頁	白紙ページ	빈 페이지
+1832	Insert all pages of another PDF; you can also drop a PDF onto the grid	插入其他 PDF 的全部頁面；也可以把 PDF 檔案拖進網格	別の PDF の全ページを挿入（PDF をグリッドにドロップしても可）	다른 PDF의 모든 페이지 삽입(PDF를 격자에 끌어 놓아도 됨)
+1833	Insert PDF…	插入 PDF…	PDF を挿入…	PDF 삽입…
+1834	Close the page manager	關閉頁面管理	ページ管理を閉じる	페이지 관리 닫기
+1835	Split by	拆分方式	分割方法	분할 방식
+1836	Every N pages	每 N 頁一份	N ページごと	N 페이지마다
+1837	Ranges	依範圍	範囲で	범위로
+1838	Top-level bookmarks	依一級書籤	第 1 階層のしおりで	최상위 책갈피로
+1839	One file per selected page	每個選取頁面一份	選択したページごとに 1 ファイル	선택한 페이지마다 파일 하나
+1840	Pages per file	每份頁數	1 ファイルのページ数	파일당 페이지 수
+1841	e.g. 1-3; 4-10; 11	例如 1-3; 4-10; 11	例：1-3; 4-10; 11	예: 1-3; 4-10; 11
+1842	Ranges	範圍	範囲	범위
+1843	Split and save ZIP…	拆分並儲存 ZIP…	分割して ZIP を保存…	분할하여 ZIP 저장…
+1844	Splitting works on the document as it is; apply the grid changes first.	拆分作用於目前文件；網格中未套用的修改請先套用。	分割は現在の文書に対して行います。グリッドの変更は先に適用してください。	분할은 현재 문서에 적용됩니다. 격자의 변경 내용은 먼저 적용하세요.
+1845	Split…	拆分…	分割…	분할…
+1846	Save the selected pages (all if none) in the current order as a new PDF	把選取的頁面（未選擇時為全部）依目前順序另存為新 PDF	選択したページ（未選択なら全部）を現在の順で新しい PDF に保存	선택한 페이지(없으면 전체)를 현재 순서로 새 PDF로 저장
+1847	Export selected pages…	匯出選取頁…	選択ページを書き出し…	선택 페이지 내보내기…
+1848	Save the images on the selected pages (all if none) as a ZIP	把選取頁面（未選擇時為全部）裡的圖片儲存為 ZIP	選択ページ（未選択なら全部）の画像を ZIP に保存	선택한 페이지(없으면 전체)의 이미지를 ZIP으로 저장
+1849	Extract images…	擷取圖片…	画像を抽出…	이미지 추출…
+1850	Apply to document · can be undone	套用到文件 · 可復原	文書に適用 · 元に戻せます	문서에 적용 · 실행 취소 가능
+1851	Thumbnail could not be loaded	縮圖未能載入	サムネイルを読み込めませんでした	미리보기를 불러오지 못했습니다
+1852	Final order: 	最終頁序：	最終的な順序：	최종 순서: 
+1853	Not changed yet	尚未修改	まだ変更されていません	아직 변경 없음
+1854	Apply or undo the grid changes first	請先套用或復原網格中的修改	先にグリッドの変更を適用するか元に戻してください	먼저 격자의 변경 내용을 적용하거나 취소하세요
+1855	Split this document into several PDFs	把目前文件拆分為多個 PDF	この文書を複数の PDF に分割	이 문서를 여러 PDF로 분할
+1856	Choose PDF files.	請選擇 PDF 檔案。	PDF ファイルを選択してください。	PDF 파일을 선택하세요.
+1857	Pages arranged · can be undone	頁面已整理 · 可復原	ページを整理しました · 元に戻せます	페이지를 정리했습니다 · 실행 취소 가능
+1858	The selection contains no pages of this document.	所選頁面裡沒有本文件的頁面。	選択にこの文書のページがありません。	선택 항목에 이 문서의 페이지가 없습니다.
+1859	The document is busy. Try again shortly.	文件正在處理，請稍後再試。	文書を処理中です。しばらくしてからお試しください。	문서를 처리하는 중입니다. 잠시 후 다시 시도하세요.
+1860	The page changes are not applied. Close and discard them?	頁面修改尚未套用，確定關閉並捨棄這些修改嗎？	ページの変更は適用されていません。閉じて破棄しますか？	페이지 변경 내용이 적용되지 않았습니다. 닫고 버릴까요?
+1861	Inserted PDF	插入的 PDF	挿入した PDF	삽입한 PDF
+1862	Each file needs at least 1 page.	每份頁數至少為 1。	1 ファイルあたり 1 ページ以上にしてください。	파일당 최소 1페이지여야 합니다.
+1863	Enter the ranges, e.g. 1-3; 4-10.	請填寫拆分範圍，例如 1-3; 4-10。	範囲を入力してください（例：1-3; 4-10）。	범위를 입력하세요. 예: 1-3; 4-10.
+1864	This document has no top-level bookmarks to split by.	這份文件沒有一級書籤，無法依書籤拆分。	この文書には第 1 階層のしおりがないため分割できません。	이 문서에는 최상위 책갈피가 없어 책갈피로 분할할 수 없습니다.
+1865	Front pages	前置頁	前付け	앞부분
+1866	Running	進行中	実行中	진행 중
+1867	Partly failed	部分失敗	一部失敗	일부 실패
+1868	Tasks	工作中心	タスク	작업 센터
+1869	Clear finished	清除已完成	完了したものを消去	완료 항목 지우기
+1870	No tasks yet. Longer jobs such as OCR, conversion, compression and batch exports appear here.	還沒有工作。OCR、轉換、壓縮、批次匯出等較長的處理會顯示在這裡。	まだタスクはありません。OCR・変換・圧縮・一括書き出しなどの長い処理がここに表示されます。	아직 작업이 없습니다. OCR, 변환, 압축, 일괄 내보내기 같은 긴 작업이 여기에 표시됩니다.
+1871	Earlier	上次記錄	前回の記録	이전 기록
+1872	Working…	處理中…	処理中…	처리 중…
+1873	Open result	開啟結果	結果を開く	결과 열기
+1874	Layout of Office files	Office 檔案的版面	Office ファイルのレイアウト	Office 파일 레이아웃
+1875	Keep the layout (same as opening the file)	保留原版面（與直接開啟一致）	元のレイアウトを保持（直接開いた場合と同じ）	원래 레이아웃 유지(직접 열 때와 같음)
+1876	Reflow content (text and images only; pages change)	內容重排（只取文字和圖片，分頁會變化）	内容をリフロー（文字と画像のみ、ページが変わります）	내용 재배치(텍스트와 이미지만, 페이지가 바뀜)
+1877	Open the visual page manager	開啟視覺化頁面管理	ビジュアルページ管理を開く	시각적 페이지 관리 열기
+1878	Drag to reorder, rotate, copy, delete, insert other PDFs and split in a thumbnail grid	在縮圖網格中拖動排序、旋轉、複製、刪除、插入其他 PDF、拆分	サムネイルで並べ替え・回転・複製・削除・他の PDF の挿入・分割	미리보기 격자에서 끌어서 정렬, 회전, 복사, 삭제, 다른 PDF 삽입, 분할
+1879	Also recognise pages with body text (text may appear twice)	已有正文的頁面也辨識（可能出現重複文字）	本文のあるページも認識（文字が重複する場合があります）	본문이 있는 페이지도 인식(텍스트가 중복될 수 있음)
+1880	Recognise only the selected area (current page)	只辨識框選區域（目前頁）	選択範囲のみ認識（現在のページ）	선택 영역만 인식(현재 페이지)
+1881	Office, images, text, HTML, EPUB, XPS, CBZ and SVG to PDF. Office files keep their layout through the bundled LibreOffice, the same as opening them; content reflow is also available.	Office、圖片、文字、HTML、EPUB、XPS、CBZ、SVG 轉 PDF。Office 檔案預設用內建 LibreOffice 保留原版面，與直接開啟的結果一致；也可以選擇內容重排。	Office・画像・テキスト・HTML・EPUB・XPS・CBZ・SVG を PDF に変換。Office ファイルは内蔵 LibreOffice で元のレイアウトを保持し、直接開いた場合と同じ結果になります。リフローも選べます。	Office, 이미지, 텍스트, HTML, EPUB, XPS, CBZ, SVG를 PDF로 변환합니다. Office 파일은 내장 LibreOffice로 원래 레이아웃을 유지해 직접 열 때와 같은 결과를 얻습니다. 내용 재배치도 선택할 수 있습니다.
+1882	Local Chinese/English OCR: the original pages, vectors and annotations stay; only an invisible searchable text layer is added. Scans that only have a page number or similar little text are recognised too. To re-render clearer page images, use “Deskew and clean scans” with text recognition.	本機中英文 OCR：保留原頁面、向量與註解，只補充透明的可搜尋文字層。只有頁碼等少量文字的掃描頁也會辨識。需要重新產生更清晰的頁面圖像，請用「掃描件糾偏與背景清理」並勾選辨識文字。	ローカルの中英 OCR：元のページ・ベクター・注釈はそのままで、透明な検索用テキスト層だけを追加します。ページ番号程度の文字しかないスキャンも認識します。より鮮明な画像に作り直すには「スキャンの傾き補正と背景除去」で文字認識を選んでください。	로컬 중영 OCR: 원래 페이지, 벡터, 주석은 그대로 두고 투명한 검색용 텍스트 층만 추가합니다. 페이지 번호 정도만 있는 스캔도 인식합니다. 더 선명한 페이지 이미지로 다시 만들려면 “스캔 기울기 보정 및 배경 정리”에서 텍스트 인식을 선택하세요.
+1883	Summary: 	操作摘要：	操作の概要：	작업 요약: 
+1884	Added to the task queue; see “Tasks” in the status bar.	已加入工作佇列，可在狀態列的「工作」中查看。	タスクキューに追加しました。ステータスバーの「タスク」で確認できます。	작업 대기열에 추가했습니다. 상태 표시줄의 “작업”에서 볼 수 있습니다.
+1885	Continue	繼續工作	作業を続ける	작업 계속
+1886	Save tabs as a workspace…	儲存目前分頁為工作區…	現在のタブをワークスペースとして保存…	현재 탭을 작업 공간으로 저장…
+1887	Workspaces	工作區	ワークスペース	작업 공간
+1888	Pinned documents	釘選文件	ピン留めした文書	고정한 문서
+1889	Right-click a tab to pin it	在分頁上按右鍵可以釘選	タブを右クリックしてピン留め	탭을 마우스 오른쪽 단추로 클릭해 고정
+1890	Save a set of documents — papers, contracts, meeting files, including a notes-mode pair — as a workspace and return to it in one click.	把論文、合約、會議資料等一組文件（包括筆記模式的左右搭配）儲存為工作區，下次一鍵回到原樣。	論文・契約書・会議資料などの文書のまとまり（ノートモードの組み合わせを含む）をワークスペースとして保存し、次回ワンクリックで元に戻せます。	논문, 계약서, 회의 자료 같은 문서 묶음(노트 모드 짝 포함)을 작업 공간으로 저장하고 다음에 한 번에 되돌아오세요.
+1891	More	更多	その他	더 보기
+1892	The file was moved or deleted: 	檔案已被移動或刪除：	ファイルは移動または削除されました：	파일이 이동되었거나 삭제되었습니다: 
+1893	Unpin	取消釘選	ピン留めを解除	고정 해제
+1894	Update with current tabs	用目前分頁更新	現在のタブで更新	현재 탭으로 업데이트
+1895	Rename workspace	重新命名工作區	ワークスペース名を変更	작업 공간 이름 바꾸기
+1896	Workspace name:	工作區名稱：	ワークスペース名：	작업 공간 이름:
+1897	Delete workspace (files are kept)	刪除工作區（不刪除檔案）	ワークスペースを削除（ファイルは残ります）	작업 공간 삭제(파일은 유지)
+1898	Save as workspace	儲存為工作區	ワークスペースとして保存	작업 공간으로 저장
+1899	Workspace name (remembers the open documents, the notes-mode pair and the active tab):	工作區名稱（會記住開啟的文件、筆記模式的搭配和目前分頁）：	ワークスペース名（開いている文書・ノートモードの組み合わせ・現在のタブを記憶します）：	작업 공간 이름(열린 문서, 노트 모드 짝, 현재 탭을 기억합니다):
+1900	My workspace	我的工作區	マイワークスペース	내 작업 공간
+1901	Locate…	重新定位…	場所を指定…	위치 지정…
+1902	Later	稍後	後で	나중에
+1903	Pinned to home	已釘選到首頁	ホームにピン留めしました	홈에 고정했습니다
+1904	This document is already pinned	這份文件已經釘選在首頁	この文書はすでにピン留めされています	이 문서는 이미 홈에 고정되어 있습니다
+1905	Unsupported edit command.	不支援的編輯命令。	サポートされていない編集コマンドです。	지원하지 않는 편집 명령입니다.
+1906	The workspace does not exist or was deleted.	工作區不存在或已被刪除。	ワークスペースが存在しないか削除されています。	작업 공간이 없거나 삭제되었습니다.
+1907	There are no documents to save.	沒有可以儲存的文件。	保存できる文書がありません。	저장할 문서가 없습니다.
+1908	Save the documents first: new unsaved documents cannot be part of a workspace.	請先儲存文件：未儲存的新文件不能放進工作區。	先に文書を保存してください。未保存の新規文書はワークスペースに入れられません。	먼저 문서를 저장하세요. 저장하지 않은 새 문서는 작업 공간에 넣을 수 없습니다.
+1909	The workspace item does not exist.	工作區項目不存在。	ワークスペースの項目が存在しません。	작업 공간 항목이 없습니다.
+1910	Save the document before pinning it.	請先儲存文件再釘選。	ピン留めする前に文書を保存してください。	고정하기 전에 문서를 저장하세요.
+1911	The pinned document does not exist.	釘選的文件不存在。	ピン留めした文書が存在しません。	고정한 문서가 없습니다.

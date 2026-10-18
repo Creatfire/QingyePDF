@@ -1748,7 +1748,157 @@
     "副本": "Copy",
     "待审核": "Pending review",
     "请签字": "Please sign",
-    "日期章": "Date stamp"
+    "日期章": "Date stamp",
+    "只能显示本次处理生成的文件。": "Only files created by these tools can be shown.",
+    "一次最多插入 20 个 PDF。": "You can insert up to 20 PDFs at a time.",
+    "单文件处理目前支持最大 512 MB。": "Single files up to 512 MB are supported.",
+    "内置的 LibreOffice 转换引擎缺失，请重新安装青页；或在“版式”中选择内容重排。": "The bundled LibreOffice converter is missing. Reinstall Qingye PDF, or choose content reflow under “Layout”.",
+    "处理结果已过期": "Result is out of date",
+    "“{name}”在处理期间有新的修改。": "“{name}” was changed while it was being processed.",
+    "应用“{label}”的结果会丢弃处理期间的修改（可撤销）。": "Applying the result of “{label}” discards the changes made meanwhile (can be undone).",
+    "放弃这次结果": "Discard this result",
+    "仍然应用": "Apply anyway",
+    "最近文件不存在。": "The recent file no longer exists.",
+    "只能为 PDF 读取索引内容。": "Index content can only be read for PDFs.",
+    "文件超过 300 MB，未加入全库搜索。": "The file is larger than 300 MB and was not added to library search.",
+    "doi.org 返回的记录过大。": "The record from doi.org is too large.",
+    "doi.org 返回的记录无法识别。": "The record from doi.org could not be read.",
+    "不支持的导出格式。": "Unsupported export format.",
+    "导出内容无效或超过 32 MB。": "The export is invalid or larger than 32 MB.",
+    "输出不能覆盖正在打开的文档，请使用新的文件名。": "The output cannot replace an open document. Use a new file name.",
+    "备注内容（其他阅读器也能看到）：": "Note (visible in other readers too):",
+    "待核实": "To verify",
+    "重要结论": "Key finding",
+    "筛选原文、备注或标签": "Filter by text, note or tag",
+    "筛选批注": "Filter annotations",
+    "全部标签": "All tags",
+    "无标签": "No tag",
+    "摘录状态": "Excerpt status",
+    "已摘录到笔记": "In the note",
+    "尚未摘录": "Not yet in the note",
+    "页码，如 1-3,7": "Pages, e.g. 1-3,7",
+    "按页码筛选": "Filter by page",
+    "把选中批注改成这个颜色": "Change the selected annotations to this colour",
+    "批注改色": "Recolour annotations",
+    "标签": "Tags",
+    "标签…": "Tags…",
+    "加新标签…": "New tag…",
+    "新标签": "New tag",
+    "标签名称（最多 40 字）：": "Tag name (up to 40 characters):",
+    "添加": "Add",
+    "导出勾选的批注；没有勾选时导出当前筛选结果": "Export the ticked annotations, or the current filter if none is ticked",
+    "请先勾选批注。": "Tick annotations first.",
+    "已修改批注 · 可撤销": "Annotations changed · can be undone",
+    "已摘录": "In note",
+    "未摘录": "Not in note",
+    "这份文档还没有批注。": "This document has no annotations yet.",
+    "处理期间文档有新的修改，已放弃这次结果。": "The document changed during processing; this result was discarded.",
+    "未标出差异": "No differences marked",
+    "保存 PDF": "Save PDF",
+    "固定到首页": "Pin to home",
+    "将所有标签保存为工作区…": "Save all tabs as a workspace…",
+    "Office 文件转 PDF": "Office files to PDF",
+    "保留原版式（内置 LibreOffice，与直接打开一致）": "Keep the layout (bundled LibreOffice, same as opening the file)",
+    "内容重排（Pandoc，分页和版式会变化）": "Reflow content (Pandoc; pages and layout change)",
+    "页面管理（排序、旋转、插入、拆分）": "Page manager (reorder, rotate, insert, split)",
+    "边读边记：PDF 与 Markdown 笔记左右并排 · Ctrl+\\": "Read and take notes: PDF and Markdown note side by side · Ctrl+\\",
+    "笔记": "Notes",
+    "打开 PDF，在右侧记 Markdown 笔记": "Open a PDF and take Markdown notes beside it",
+    "打开文档并记笔记": "Open and take notes",
+    "左右并排 · 摘录带原文链接": "Side by side · excerpts link to the source",
+    "只索引了部分内容：": "Only partly indexed: ",
+    "保存笔记": "Save note",
+    "笔记已保存": "Note saved",
+    "打开页面管理（全屏）": "Open the page manager (full window)",
+    "页面管理": "Page manager",
+    "逆时针旋转 90° · Shift+R": "Rotate 90° counter-clockwise · Shift+R",
+    "左转": "Rotate left",
+    "顺时针旋转 90° · R": "Rotate 90° clockwise · R",
+    "右转": "Rotate right",
+    "在选中页面后面复制一份 · Ctrl+D": "Copy after the selected pages · Ctrl+D",
+    "删除选中页面 · Delete": "Delete the selected pages · Delete",
+    "在选中页面后（或末尾）插入空白页": "Insert a blank page after the selection (or at the end)",
+    "空白页": "Blank page",
+    "插入其他 PDF 的全部页面；也可以把 PDF 文件拖进网格": "Insert all pages of another PDF; you can also drop a PDF onto the grid",
+    "插入 PDF…": "Insert PDF…",
+    "关闭页面管理": "Close the page manager",
+    "拆分方式": "Split by",
+    "每 N 页一份": "Every N pages",
+    "按范围": "Ranges",
+    "按一级书签": "Top-level bookmarks",
+    "每个选中页面一份": "One file per selected page",
+    "每份页数": "Pages per file",
+    "例如 1-3; 4-10; 11": "e.g. 1-3; 4-10; 11",
+    "范围": "Ranges",
+    "拆分并保存 ZIP…": "Split and save ZIP…",
+    "拆分作用于当前文档；网格中未应用的修改请先应用。": "Splitting works on the document as it is; apply the grid changes first.",
+    "拆分…": "Split…",
+    "把选中的页面（未选择时为全部）按当前顺序另存为新 PDF": "Save the selected pages (all if none) in the current order as a new PDF",
+    "导出选中页…": "Export selected pages…",
+    "把选中页面（未选择时为全部）里的图片保存为 ZIP": "Save the images on the selected pages (all if none) as a ZIP",
+    "提取图片…": "Extract images…",
+    "应用到文档 · 可撤销": "Apply to document · can be undone",
+    "缩略图未能加载": "Thumbnail could not be loaded",
+    "最终页序：": "Final order: ",
+    "尚未修改": "Not changed yet",
+    "请先应用或撤销网格中的修改": "Apply or undo the grid changes first",
+    "把当前文档拆分为多个 PDF": "Split this document into several PDFs",
+    "请选择 PDF 文件。": "Choose PDF files.",
+    "页面已整理 · 可撤销": "Pages arranged · can be undone",
+    "所选页面里没有本文档的页面。": "The selection contains no pages of this document.",
+    "文档正在处理，请稍后再试。": "The document is busy. Try again shortly.",
+    "页面修改尚未应用，确定关闭并放弃这些修改吗？": "The page changes are not applied. Close and discard them?",
+    "插入的 PDF": "Inserted PDF",
+    "每份页数至少为 1。": "Each file needs at least 1 page.",
+    "请填写拆分范围，例如 1-3; 4-10。": "Enter the ranges, e.g. 1-3; 4-10.",
+    "这份文档没有一级书签，无法按书签拆分。": "This document has no top-level bookmarks to split by.",
+    "前置页": "Front pages",
+    "进行中": "Running",
+    "部分失败": "Partly failed",
+    "任务中心": "Tasks",
+    "清除已完成": "Clear finished",
+    "还没有任务。OCR、转换、压缩、批量导出等较长的处理会显示在这里。": "No tasks yet. Longer jobs such as OCR, conversion, compression and batch exports appear here.",
+    "上次记录": "Earlier",
+    "处理中…": "Working…",
+    "打开结果": "Open result",
+    "Office 文件的版式": "Layout of Office files",
+    "保留原版式（与直接打开一致）": "Keep the layout (same as opening the file)",
+    "内容重排（只取文字和图片，分页会变化）": "Reflow content (text and images only; pages change)",
+    "打开可视化页面管理": "Open the visual page manager",
+    "缩略图网格中拖动排序、旋转、复制、删除、插入其他 PDF、拆分": "Drag to reorder, rotate, copy, delete, insert other PDFs and split in a thumbnail grid",
+    "已有正文的页面也识别（可能出现重复文字）": "Also recognise pages with body text (text may appear twice)",
+    "只识别框选区域（当前页）": "Recognise only the selected area (current page)",
+    "Office、图片、文本、HTML、EPUB、XPS、CBZ、SVG 转 PDF。Office 文件默认用内置 LibreOffice 保留原版式，与直接打开的结果一致；也可以选择内容重排。": "Office, images, text, HTML, EPUB, XPS, CBZ and SVG to PDF. Office files keep their layout through the bundled LibreOffice, the same as opening them; content reflow is also available.",
+    "本地中英文 OCR：保留原页面、矢量与批注，只补充透明的可搜索文字层。只有页码等少量文字的扫描页也会识别。需要重新生成更清晰的页面图像，请用“扫描件纠偏与背景清理”并勾选识别文字。": "Local Chinese/English OCR: the original pages, vectors and annotations stay; only an invisible searchable text layer is added. Scans that only have a page number or similar little text are recognised too. To re-render clearer page images, use “Deskew and clean scans” with text recognition.",
+    "操作摘要：": "Summary: ",
+    "已加入任务队列，可在状态栏的“任务”中查看。": "Added to the task queue; see “Tasks” in the status bar.",
+    "继续工作": "Continue",
+    "保存当前标签为工作区…": "Save tabs as a workspace…",
+    "工作区": "Workspaces",
+    "固定文档": "Pinned documents",
+    "在标签上单击右键可以固定": "Right-click a tab to pin it",
+    "把论文、合同、会议材料等一组文档（包括笔记模式的左右搭配）保存为工作区，下次一键回到原样。": "Save a set of documents — papers, contracts, meeting files, including a notes-mode pair — as a workspace and return to it in one click.",
+    "更多": "More",
+    "文件已被移动或删除：": "The file was moved or deleted: ",
+    "取消固定": "Unpin",
+    "用当前标签更新": "Update with current tabs",
+    "重命名工作区": "Rename workspace",
+    "工作区名称：": "Workspace name:",
+    "删除工作区（不删除文件）": "Delete workspace (files are kept)",
+    "保存为工作区": "Save as workspace",
+    "工作区名称（会记住打开的文档、笔记模式的搭配和当前标签）：": "Workspace name (remembers the open documents, the notes-mode pair and the active tab):",
+    "我的工作区": "My workspace",
+    "重新定位…": "Locate…",
+    "稍后": "Later",
+    "已固定到首页": "Pinned to home",
+    "这个文档已经固定在首页": "This document is already pinned",
+    "不支持的编辑命令。": "Unsupported edit command.",
+    "工作区不存在或已被删除。": "The workspace does not exist or was deleted.",
+    "没有可以保存的文档。": "There are no documents to save.",
+    "请先保存文档：未保存的新文档不能放进工作区。": "Save the documents first: new unsaved documents cannot be part of a workspace.",
+    "工作区条目不存在。": "The workspace item does not exist.",
+    "请先保存文档再固定。": "Save the document before pinning it.",
+    "固定的文档不存在。": "The pinned document does not exist."
   },
   "patterns": [
     [
@@ -1988,6 +2138,54 @@
       "Removed: $1 · Added: $2"
     ],
     [
+      "^共 (\\d+) 页 · 已选 (\\d+) 页$",
+      "$1 pages · $2 selected"
+    ],
+    [
+      "^(\\d+) / (\\d+) 条批注 · 已选 (\\d+) 条 · 包含未保存修改$",
+      "$1 / $2 annotations · $3 selected · includes unsaved changes"
+    ],
+    [
+      "^(\\d+) / (\\d+) 条批注 · 包含未保存修改$",
+      "$1 / $2 annotations · includes unsaved changes"
+    ],
+    [
+      "^任务 · (\\d+) 个进行中$",
+      "Tasks · $1 running"
+    ],
+    [
+      "^任务 · (\\d+)$",
+      "Tasks · $1"
+    ],
+    [
+      "^最终页序：(.+)$",
+      "Final order: $1"
+    ],
+    [
+      "^已打开工作区“(.+)”$",
+      "Opened workspace “$1”"
+    ],
+    [
+      "^(\\d+) 个文件找不到了（可能已被移动或改名）：$",
+      "$1 files cannot be found (moved or renamed?):"
+    ],
+    [
+      "^已加入任务队列：(.+)$",
+      "Queued: $1"
+    ],
+    [
+      "^· 疑似扫描页（只有少量文字）(\\d+) 页$",
+      "· likely scans (little text) $1"
+    ],
+    [
+      "^(\\d+) 个文档 · 笔记模式 · (.+)$",
+      "$1 documents · notes mode · $2"
+    ],
+    [
+      "^(\\d+) 个文档 · (.+)$",
+      "$1 documents · $2"
+    ],
+    [
       "^·\\ 文字：\\s*(.+)$",
       " · text: $1"
     ],
@@ -2106,6 +2304,38 @@
     [
       "^文字中可以使用：\\s*(.+)$",
       "You can use in the text: $1"
+    ],
+    [
+      "^备注内容（其他阅读器也能看到）：\\s*(.+)$",
+      "Note (visible in other readers too): $1"
+    ],
+    [
+      "^标签名称（最多\\ 40\\ 字）：\\s*(.+)$",
+      "Tag name (up to 40 characters): $1"
+    ],
+    [
+      "^只索引了部分内容：\\s*(.+)$",
+      "Only partly indexed: $1"
+    ],
+    [
+      "^最终页序：\\s*(.+)$",
+      "Final order: $1"
+    ],
+    [
+      "^操作摘要：\\s*(.+)$",
+      "Summary: $1"
+    ],
+    [
+      "^文件已被移动或删除：\\s*(.+)$",
+      "The file was moved or deleted: $1"
+    ],
+    [
+      "^工作区名称：\\s*(.+)$",
+      "Workspace name: $1"
+    ],
+    [
+      "^工作区名称（会记住打开的文档、笔记模式的搭配和当前标签）：\\s*(.+)$",
+      "Workspace name (remembers the open documents, the notes-mode pair and the active tab): $1"
     ]
   ]
 }
