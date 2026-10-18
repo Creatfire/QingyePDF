@@ -94,3 +94,22 @@ test('compare: identical dense pages are equal; oversized differences are report
   const other = Array.from({ length: 2500 }, (_, i) => ({ text: 'u' + i, rect: [0, 0, 1, 1] }));
   assert.equal(diffTokens(tokens(2500), other), null, 'too large to compare → null (caller marks the page incomplete)');
 });
+
+test('conversion center: Office → PDF uses the layout engine unless reflow or Pandoc arguments are chosen', async t => {
+  const engine = require('../pandoc-engine.cjs');
+  if (!(await fs.stat(engine.bundledPath()).then(() => true, () => false))) return t.skip('bundled Pandoc not prepared');
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'qingye-020-convert-'));
+  try {
+    const input = path.join(dir, 'a.docx'); await fs.writeFile(input, 'x');
+    const seen = [];
+    const layoutPdf = async file => { seen.push(path.basename(file)); return Buffer.from('%PDF-1.7 laid out'); };
+    const result = await engine.convertFile({ inputs: [input], target: path.join(dir, 'a.pdf'), to: 'pdf-chromium', layoutPdf });
+    assert.equal(result.engine, 'libreoffice');
+    assert.equal(await fs.readFile(path.join(dir, 'a.pdf'), 'utf8'), '%PDF-1.7 laid out');
+    assert.deepEqual(seen, ['a.docx']);
+    // Not an Office target (or layoutPdf declines) → the normal Pandoc path runs.
+    const md = path.join(dir, 'b.md'); await fs.writeFile(md, '# Title');
+    const html = await engine.convertFile({ inputs: [md], target: path.join(dir, 'b.html'), to: 'html', layoutPdf });
+    assert.notEqual(html.engine, 'libreoffice'); assert.deepEqual(seen, ['a.docx']);
+  } finally { await fs.rm(dir, { recursive: true, force: true }); }
+});

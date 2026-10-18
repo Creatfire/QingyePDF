@@ -13,6 +13,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     <p id="toolHint" class="toolHint"></p>
     <div class="toolsColumns"><div id="toolFields">
       <label data-for="export organize compress ocr scan compare text redact stamp image page-stamp watermark number shape annotation form crop">页码范围 <input id="toolPages" placeholder="留空表示全部；例如 1-3,5"></label>
+      <label data-for="import">Office 文件的版式 <select id="toolOfficeLayout"><option value="layout">保留原版式（与直接打开一致）</option><option value="reflow">内容重排（只取文字和图片，分页会变化）</option></select></label>
       <label data-for="export">导出格式 <select id="toolFormat"><option value="docx">Word DOCX · 可编辑文本与图片</option><option value="xlsx">Excel XLSX · 表格 / 逐行文本</option><option value="pptx">PowerPoint PPTX · 每页图像</option><option value="png">PNG 图像 ZIP</option><option value="jpg">JPEG 图像 ZIP</option><option value="svg">SVG 页面 ZIP</option><option value="html">HTML</option><option value="txt">纯文本 TXT</option><option value="csv">CSV 表格 / 文本</option></select></label>
       <label data-for="export compress" data-formats="png jpg pptx">图像 DPI <input id="toolDpi" type="number" min="36" max="300" value="144"></label>
       <label data-for="organize">页面操作 <select id="toolPageMode"><option value="extract">提取指定页面</option><option value="reorder">按所填页码重排 / 复制页面</option><option value="delete">删除指定页面</option><option value="rotate">永久旋转指定页面</option><option value="blank">插入空白页</option><option value="split">每页拆成独立 PDF（ZIP）</option><option value="merge">合并其他已打开的 PDF</option></select></label>
@@ -24,7 +25,8 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
       <label data-for="compress">压缩方案 <select id="toolCompressProfile"><option value="">只做无损清理（或下方自定义）</option><option value="quality">高质量 · 超过 300 DPI 才降采样</option><option value="balanced">平衡 · 超过 225 DPI 降到 150 DPI</option><option value="small">最小文件 · 降到约 96 DPI</option></select></label>
       <label data-for="compress" class="toolCheck"><input id="toolLossy" type="checkbox">降低图像分辨率与质量（有损压缩）</label>
       <label data-for="compress">JPEG 质量 10–100 <input id="toolQuality" type="number" min="10" max="100" value="65"></label>
-      <label data-for="ocr" class="toolCheck"><input id="toolForceOcr" type="checkbox">对已有文字的页面也重新 OCR</label>
+      <label data-for="ocr" class="toolCheck"><input id="toolForceOcr" type="checkbox">已有正文的页面也识别（可能出现重复文字）</label>
+      <label data-for="ocr" class="toolCheck"><input id="toolOcrRegion" type="checkbox">只识别框选区域（当前页）</label>
       <label data-for="sharpen">锐化程度 <select id="toolSharpen"><option value="mild">轻度</option><option value="standard" selected>标准</option><option value="strong">较强</option></select></label>
       <div data-for="scan"><label>顺时针旋转 <select id="scanAngle"><option value="0">不旋转</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label><label><input id="scanDeskew" type="checkbox" checked>自动纠正轻微倾斜（±5°）</label><label><input id="scanClean" type="checkbox" checked>清理浅色背景</label><label><input id="scanGray" type="checkbox">转换为灰度</label><label><input id="scanRecognize" type="checkbox" checked>重新识别中英文文字</label></div>
       <label data-for="text stamp watermark number annotation form">文字 <textarea id="toolText" rows="3" placeholder="印章文字、替换文本、批注内容或字段名称"></textarea></label>
@@ -55,12 +57,14 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   document.body.append(dialog);
   function setBusy(value){busy=value;dialog.closedBy=value?'none':'any';onBusyChange();if(value)status('本地处理正在进行，完成后可保存。');}
   const regions=new Set(['text','redact','stamp','image','page-stamp','watermark','number','shape','annotation','form','crop']);
+  // OCR uses the region picker only when "只识别框选区域" is ticked.
+  const usesRegion=a=>regions.has(a)||(a==='ocr'&&$('toolOcrRegion')?.checked);
   const hints={
     export:'完全本地转换。DOCX 导出可编辑文字与图片；XLSX 识别表格；PPTX 为页面图像。复杂版式和公式不保证保真。',
-    import:'现代 Office、图片、文本、HTML、EPUB、XPS、CBZ、SVG 转 PDF。Office 使用内容重排，原分页与复杂版式可能变化。',
+    import:'Office、图片、文本、HTML、EPUB、XPS、CBZ、SVG 转 PDF。Office 文件默认用内置 LibreOffice 保留原版式，与直接打开的结果一致；也可以选择内容重排。',
     organize:'页码可重复或倒序，例如 3,1-2,2。合并按列表中选中的文档顺序追加；原文件保留。',
     compress:'清理未使用对象并压缩流、字体。可选图像降采样；无法变小时保留原始数据。',
-    ocr:'本地中英文 OCR，识别页生成 200 DPI 图像与可搜索文字层。扫描质量影响准确率，请复核识别结果。',
+    ocr:'本地中英文 OCR：保留原页面、矢量与批注，只补充透明的可搜索文字层。只有页码等少量文字的扫描页也会识别。需要重新生成更清晰的页面图像，请用“扫描件纠偏与背景清理”并勾选识别文字。',
     scan:'按 200 DPI 重新生成所选页面，可纠正 ±5° 文本页倾斜、清理浅色背景、手动旋转，并重新 OCR。原页面对象和批注将变为图像外观；照片、彩色图表请关闭背景清理。',
     sharpen:'增强整份 PDF 内嵌图像的边缘，保留文字、页面和批注；不恢复已丢失的细节。较强锐化可能带来光晕或噪点，建议先用标准档检查输出。',
     text:'删除框选区域内的原文字，再写入替换文本。不是 Word 式段落编辑；字体和布局可能变化。',
@@ -105,7 +109,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     selection();updateSummary();
   }
   async function preview(){
-    if(!regions.has(action())||!toolSession)return;
+    if(!usesRegion(action())||!toolSession)return;
     const myTicket=++previewTicket;previewTask?.cancel();
     const pageNumber=Math.max(1,Math.min(toolSession.app.pagesCount,Number($('toolPreviewPage').value)||1));$('toolPreviewPage').value=pageNumber;
     const page=await toolSession.app.pdfDocument.getPage(pageNumber);if(myTicket!==previewTicket)return;
@@ -149,6 +153,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   // Fields that only some export formats use (data-formats) are hidden for the others, e.g. the image
   // DPI does nothing for Word, Excel, SVG, text or HTML.
   function syncFormatFields(){if(action()!=='export')return;for(const element of dialog.querySelectorAll('[data-formats]'))element.hidden=!element.dataset.formats.split(' ').includes($('toolFormat').value);}
+  $('toolOcrRegion').addEventListener('change',()=>guard(async()=>{const on=usesRegion(action());$('toolPreviewSection').hidden=!on;if(on){$('toolPreviewPage').value=String(toolSession?.app.pdfViewer.currentPageNumber||1);await preview();}updateSummary();}));
   $('toolFormat').addEventListener('change',()=>{syncFormatFields();updateSummary();});
   async function changed(){
     const a=action();$('toolHint').textContent=hints[a];$('applyToolDraft').hidden=!['organize','outline','text','stamp','image','watermark','shape','annotation','redact','number','crop','sharpen'].includes(a);
@@ -157,15 +162,15 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     for(const option of $('toolAction').options)option.hidden=!selectedCategory.includes(option.value);
     for(const element of dialog.querySelectorAll('[data-for]'))element.hidden=!element.dataset.for.split(' ').includes(a);
     syncFormatFields();
-    $('toolPreviewSection').hidden=!regions.has(a);$('executeTool').disabled=a!=='import'&&!toolSession;
-    $('toolPages').value=regions.has(a)?String(toolSession?.app.pdfViewer.currentPageNumber||1):'';
+    $('toolPreviewSection').hidden=!usesRegion(a);$('executeTool').disabled=a!=='import'&&!toolSession;
+    $('toolPages').value=usesRegion(a)?String(toolSession?.app.pdfViewer.currentPageNumber||1):'';
     if(a==='number')$('toolText').value='{page} / {total}';else if(a==='stamp')$('toolText').value='已审核';else if(a==='watermark')$('toolText').value='水印';else if(a==='form')$('toolText').value='字段';else $('toolText').value='';
     if(a==='number')rect=[.4,.92,.65,.98];else if(a==='watermark')rect=[.2,.4,.8,.55];else rect=[.15,.15,.75,.3];
     $('toolOther').replaceChildren();for(const s of sessions.values())if(s!==toolSession&&s.loaded){const o=document.createElement('option');o.value=s.id;o.textContent=s.name;$('toolOther').append(o);}
     if(a==='outline'&&toolSession)await populateOutline();
     if(['stamp','image'].includes(a))await refreshStamps();
     if(a==='image')await fitRectToAsset();
-    if(regions.has(a))await preview();updateSummary();
+    if(usesRegion(a))await preview();updateSummary();
   }
   async function open(next='export'){
     if(busy)return;toolSession=current()?.loaded?current():null;
@@ -178,7 +183,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   }
   function request(){
     const a=action();
-    const r={action:a,pages:$('toolPages').value,password:$('toolPassword').value,rect:[...rect],format:$('toolFormat').value,dpi:Number($('toolDpi').value),mode:$('toolPageMode').value,angle:Number($('toolAngle').value),position:Number($('toolPosition').value),lossy:$('toolLossy').checked,quality:Number($('toolQuality').value),force:$('toolForceOcr').checked,text:$('toolText').value,size:Number($('toolSize').value),color:$('toolColor').value,opacity:Number($('toolOpacity').value),shape:$('toolShape').value,fill:$('toolFill').checked,annotation:$('toolAnnotation').value,fieldType:$('toolFieldType').value,userPassword:$('toolUserPassword').value,ownerPassword:$('toolOwnerPassword').value,print:$('toolAllowPrint').checked,copy:$('toolAllowCopy').checked,edit:$('toolAllowEdit').checked,assetToken:asset?.token,keepRatio:$('toolKeepRatio').checked};
+    const r={action:a,pages:$('toolPages').value,password:$('toolPassword').value,rect:[...rect],format:$('toolFormat').value,officeLayout:$('toolOfficeLayout').value,dpi:Number($('toolDpi').value),mode:$('toolPageMode').value,angle:Number($('toolAngle').value),position:Number($('toolPosition').value),lossy:$('toolLossy').checked,quality:Number($('toolQuality').value),force:$('toolForceOcr').checked,...(a==='ocr'&&$('toolOcrRegion').checked?{region:[...rect],pages:String(Math.max(1,Number($('toolPreviewPage').value)||1))}:{}),text:$('toolText').value,size:Number($('toolSize').value),color:$('toolColor').value,opacity:Number($('toolOpacity').value),shape:$('toolShape').value,fill:$('toolFill').checked,annotation:$('toolAnnotation').value,fieldType:$('toolFieldType').value,userPassword:$('toolUserPassword').value,ownerPassword:$('toolOwnerPassword').value,print:$('toolAllowPrint').checked,copy:$('toolAllowCopy').checked,edit:$('toolAllowEdit').checked,assetToken:asset?.token,keepRatio:$('toolKeepRatio').checked};
     if(a==='page-stamp')r.stampPage=Number($('toolStampPage').value);
     if(a==='scan')Object.assign(r,{angle:Number($('scanAngle').value),deskew:$('scanDeskew').checked,clean:$('scanClean').checked,gray:$('scanGray').checked,recognize:$('scanRecognize').checked});
     if(a==='sharpen')Object.assign(r,{pages:'',strength:$('toolSharpen').value});

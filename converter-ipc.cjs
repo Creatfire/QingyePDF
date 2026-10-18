@@ -63,6 +63,9 @@ function register(ctx) {
     try {
       const pdf=validatePdfOptions(config.pdfOptions);const margin=pdf.marginMm/25.4;
       const options = { inputs, target, directory: target, validateTarget, from: config.from || 'auto', to: config.to, standalone: config.standalone !== false, toc: config.toc === true, numberSections: config.numberSections === true, citeproc: config.citeproc === true, extraArgs: config.extraArgs || [], signal: controller.signal,
+        // Office files become PDF through the bundled LibreOffice (same result as opening them), unless
+        // the user picked content reflow.
+        layoutPdf: config.officeLayout === 'reflow' || !ctx.officePdf ? undefined : (file, signal, progress) => ctx.officePdf(file, signal, progress),
         renderPdf: html => ctx.renderHtml(html, { signal: controller.signal }, view => view.webContents.printToPDF({ pageSize:pdf.pageSize,landscape:pdf.landscape, printBackground: true, margins: { top:margin,bottom:margin,left:margin,right:margin } })),
         onProgress: text => command('converter-progress', { jobId: config.jobId, text }),
         onItem: item => command('converter-item', { jobId: config.jobId, item }) };

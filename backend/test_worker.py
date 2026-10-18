@@ -5,7 +5,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 import pymupdf as fitz
-from worker import process, pages
+from worker import process, pages, page_text_state
 
 
 def check():
@@ -62,6 +62,25 @@ def check():
                 assert 'SECRET' in '\n'.join(p.text for p in Document(file).paragraphs)
                 imported,converted=run({'action':'import'},file)
                 with fitz.open(converted/'result.pdf') as d:assert 'SECRET' in ''.join(p.get_text() for p in d)
+        # OCR (0.20): text layer only, original pages kept; 'mixed' pages (a scan with just a page number)
+        # are recognised; pages with body text are skipped; one region can be recognised alone.
+        tess=str(root/'vendor'/'ocr')
+        scanpdf=base/'scan-mixed.pdf'
+        with fitz.open() as src:
+            p=src.new_page(width=400,height=300);p.insert_text((40,120),'SCANNED WORDS HERE',fontsize=28)
+            png=p.get_pixmap(dpi=150).tobytes('png')
+        with fitz.open() as d:
+            a=d.new_page(width=400,height=300);a.insert_image(a.rect,stream=png);a.insert_text((380,290),'1',fontsize=8)
+            b=d.new_page(width=400,height=300);b.insert_text((40,120),'Real body text on this page is long enough to count as searchable text.',fontsize=9)
+            d.save(scanpdf)
+        with fitz.open(scanpdf) as d:assert page_text_state(d[0])[0]=='mixed' and page_text_state(d[1])[0]=='text'
+        result,out=run({'action':'ocr','tessdata':tess},scanpdf)
+        assert result['data']['recognized']==[1] and result['data']['skipped']==[2], result
+        with fitz.open(out/'result.pdf') as d:
+            assert 'SCANNED' in d[0].get_text() and any(img[2]>500 for img in d[0].get_images()), 'original image kept, text added'
+        result,out=run({'action':'ocr-layer','pages':'1','region':[0,0.2,1,0.6],'tessdata':tess},scanpdf)
+        assert result['data']['recognized']==[1]
+        with fitz.open(out/'result.pdf') as d:assert 'SCANNED' in d[0].get_text()
         # PowerPoint (0.20): mixed portrait / landscape pages keep their proportions; DPI is honoured.
         mixed=base/'mixed.pdf'
         with fitz.open() as d:

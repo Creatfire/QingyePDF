@@ -379,7 +379,8 @@ app.whenReady().then(async () => {
     const jobId=typeof request.jobId==='string'?request.jobId.slice(0,80):randomUUID();if(runningJobs.has(jobId))throw new Error('任务编号重复。');const controller=new AbortController();runningJobs.set(jobId,controller);if(canceledJobs.delete(jobId))controller.abort();
     try {
     // Office imports keep their layout through the bundled LibreOffice; other formats use the backend.
-    const viaOffice=request.action==='import'&&officeConvert.isOffice(record.path)&&officeConvert.sofficePath(office.options());
+    const officeInput=request.action==='import'&&officeConvert.isOffice(record.path),viaOffice=officeInput&&request.officeLayout!=='reflow'&&officeConvert.sofficePath(office.options());
+    if(officeInput&&!viaOffice&&request.officeLayout!=='reflow')throw new Error(T('内置的 LibreOffice 转换引擎缺失，请重新安装青页；或在“版式”中选择内容重排。'));
     const result=viaOffice?{files:[{name:'result.pdf',bytes:(await officeConvert.toPdf(record.path,{...office.options(),signal:controller.signal})).bytes}],note:'已用内置 LibreOffice 按原版式转换。'}
       :await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});
     if(controller.signal.aborted) throw new Error('任务已取消。');
@@ -548,7 +549,8 @@ app.whenReady().then(async () => {
     for (const file of files) if (typeof file === 'string' && markdownFiles.IMAGE_TYPES[path.extname(file).toLowerCase()] && (await fs.stat(file).catch(() => null))?.isFile()) paths.push(markdownFiles.markdownPath(record.path, file));
     return paths;
   });
-  const mdIpc = require('./markdown-ipc.cjs'); const mdCtx = { handle, getWindow: () => window, dialog, shell, app, BrowserWindow, documents, documentById, openFiles, atomicWrite, fingerprint, digest, preferences, persist, watchMarkdown, key, command };
+  const mdIpc = require('./markdown-ipc.cjs'); const mdCtx = { handle, getWindow: () => window, dialog, shell, app, BrowserWindow, documents, documentById, openFiles, atomicWrite, fingerprint, digest, preferences, persist, watchMarkdown, key, command,
+    officePdf: async (file, signal, progress) => { if (!officeConvert.isOffice(file) || !officeConvert.sofficePath(office.options())) return null; progress?.('正在用内置 LibreOffice 按原版式转换…'); return (await officeConvert.toPdf(file, { ...office.options(), signal })).bytes; } };
   mdIpc.register(mdCtx);
   converterLifecycle = require('./converter-ipc.cjs').register(mdCtx);
   require('./ai-ipc.cjs').register({ ...mdCtx, session, safeStorage, testMode: smoke || safety || benchmark });

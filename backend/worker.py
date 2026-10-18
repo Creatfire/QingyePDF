@@ -285,15 +285,59 @@ def sharpen_images(doc, request):
     return len(images)
 
 
-def add_ocr_layer(doc, selected, request):
+# A page counts as searchable only when it has real body text. A scan whose only text is a page
+# number or a stamp (little text, mostly image) is 'mixed' and still gets recognised.
+MIXED_TEXT_CHARS = 40
+def page_text_state(page):
+    chars = len(re.sub(r'\s+', '', page.get_text()))
+    if not chars:
+        return 'scan', 0, 0.0
+    area = abs(page.rect) or 1
+    cover = min(1.0, sum(abs(fitz.Rect(info['bbox']) & page.rect) for info in page.get_image_info()) / area)
+    return ('mixed' if chars < MIXED_TEXT_CHARS and cover >= 0.5 else 'text'), chars, round(cover, 3)
+
+
+def ocr_region(doc, index, request):
+    """Recognises only the given region (display fractions) of one page; returns True if text was added."""
+    tessdata = request.get('tessdata')
+    page = doc[index]
+    clip = region(page, request.get('region'))
+    pix = page.get_pixmap(dpi=300, alpha=False, annots=False, clip=clip)
+    with fitz.open(stream=pix.pdfocr_tobytes(language='chi_sim+eng', tessdata=tessdata), filetype='pdf') as layer:
+        if not layer[0].get_text().strip():
+            return False
+        for image in layer[0].get_images():
+            layer[0].delete_image(image[0])
+        page.show_pdf_page(clip, layer, 0)
+    return True
+
+
+def ocr_note(stats):
+    parts = [f"已为 {len(stats['recognized'])} 页添加可选择的中英文文字层（原页面保留）"]
+    if stats.get('skipped'):
+        parts.append(f"跳过 {len(stats['skipped'])} 页已有正文的页面")
+    if stats.get('empty'):
+        parts.append(f"{len(stats['empty'])} 页未识别到文字（第 {'、'.join(map(str, stats['empty'][:8]))}{' 等' if len(stats['empty']) > 8 else ''} 页）")
+    return '；'.join(parts) + '。识别内容请复核。'
+
+
+def add_ocr_layer(doc, selected, request, stats=None):
     tessdata = request.get('tessdata')
     if not tessdata or not (Path(tessdata) / 'chi_sim.traineddata').is_file():
         raise ValueError('本地 OCR 语言资源缺失。')
+    stats = stats if stats is not None else {}
+    stats.update(recognized=[], skipped=[], empty=[])
+    if request.get('region') is not None:
+        if len(selected) != 1:
+            raise ValueError('区域识别一次只处理一页。')
+        (stats['recognized'] if ocr_region(doc, selected[0], request) else stats['empty']).append(selected[0] + 1)
+        return len(stats['recognized'])
     recognized = 0
     for step, index in enumerate(selected):
         progress(step, len(selected), '识别扫描文字')
         page = doc[index]
-        if page.get_text().strip():
+        if page_text_state(page)[0] == 'text' and not request.get('force'):
+            stats['skipped'].append(index + 1)
             continue
         if page.rect.width * page.rect.height * (200 / 72) ** 2 > 40_000_000:
             raise ValueError('扫描页超过 4000 万像素，请先降低页面尺寸。')
@@ -314,6 +358,7 @@ def add_ocr_layer(doc, selected, request):
                 candidates.append((score, layer, display_rotation, text))
             _, layer, text_rotation, text = max(candidates, key=lambda item: item[0])
             if not text:
+                stats['empty'].append(index + 1)
                 continue
             # Transfer only invisible OCR text. The original scan, vectors,
             # annotations, widgets and intrinsic rotation remain in the PDF.
@@ -321,6 +366,7 @@ def add_ocr_layer(doc, selected, request):
                 layer[0].delete_image(image[0])
             page.show_pdf_page(page.rect * page.derotation_matrix, layer, 0, rotate=text_rotation)
             recognized += 1
+            stats['recognized'].append(index + 1)
     progress(len(selected), len(selected), '文字识别完成')
     return recognized
 
@@ -614,6 +660,7 @@ def process(request, input_file, output):
         stamp_vars = template_values(doc, request)
         target = output / 'result.pdf'
         note = ''
+        data = None
         if action == 'encrypt':
             user = str(request.get('userPassword', ''))
             owner = str(request.get('ownerPassword', ''))
@@ -707,10 +754,12 @@ def process(request, input_file, output):
                 return {'files': [], 'unchanged': True, 'note': '没有可锐化的嵌入图像；矢量文字和图形保持原样。'}
             note = f'已锐化 {count} 个嵌入图像；保留文字、页面和批注。'
         elif action == 'ocr-layer':
-            count = add_ocr_layer(doc, selected, request)
+            stats = {}
+            count = add_ocr_layer(doc, selected, request, stats)
             if not count:
-                return {'files': [], 'unchanged': True, 'note': '本页已有文字层，或没有识别到可用文字。'}
-            note = f'已为 {count} 页添加可选择的中英文文字层；原页面外观保留，识别内容请复核。'
+                return {'files': [], 'unchanged': True, 'data': stats, 'note': '所选区域没有识别到文字。' if request.get('region') is not None else '这些页面已有正文文字层，或没有识别到可用文字。'}
+            data = stats
+            note = ocr_note(stats)
         elif action == 'flatten':
             doc.bake(annots=True, widgets=True)
         elif action == 'scan':
@@ -737,23 +786,15 @@ def process(request, input_file, output):
                     page=result.new_page(width=image.width*72/200,height=image.height*72/200);page.insert_image(page.rect,stream=buffer.getvalue())
             result.set_toc(doc.get_toc());save(result,target);result.close();return {'files':['result.pdf'],'note':'已按 200 DPI 重新生成扫描页；原页面编辑对象与批注外观已栅格化，请检查纠偏及 OCR 结果。'}
         elif action == 'ocr':
-            tessdata = request.get('tessdata')
-            if not tessdata or not (Path(tessdata) / 'chi_sim.traineddata').is_file():
-                raise ValueError('本地 OCR 语言资源缺失。')
-            result = fitz.open()
-            for index in range(len(doc)):
-                progress(index,len(doc),'中英文 OCR')
-                page = doc[index]
-                if index not in selected or (page.get_text().strip() and not request.get('force')):
-                    result.insert_pdf(doc, from_page=index, to_page=index)
-                else:
-                    pix = page.get_pixmap(dpi=200, alpha=False)
-                    with fitz.open(stream=pix.pdfocr_tobytes(language='chi_sim+eng', tessdata=tessdata), filetype='pdf') as scanned:
-                        result.insert_pdf(scanned)
-            result.set_toc(doc.get_toc())
-            save(result, target)
-            result.close()
-            return {'files': ['result.pdf'], 'note': '已生成带中英文文字层的 PDF；识别页按 200 DPI 图像输出，识别内容请复核。'}
+            # 0.20: same behaviour as recognising in the viewer — the original pages, vectors and
+            # annotations stay; only an invisible text layer is added. Re-rendering pages as images
+            # is the separate 扫描修复 (scan) action.
+            stats = {}
+            add_ocr_layer(doc, selected, request, stats)
+            if not stats['recognized']:
+                return {'files': [], 'unchanged': True, 'data': stats, 'note': ocr_note(stats)}
+            data = stats
+            note = ocr_note(stats)
         elif action == 'redact-find':
             # Read-only: where the given terms / patterns occur, as display-fraction rects per line.
             matchers = redact_matchers(request)
@@ -986,7 +1027,7 @@ def process(request, input_file, output):
         if action == 'compress' and target.stat().st_size >= input_file.stat().st_size:
             target.write_bytes(input_file.read_bytes())
             note = '未获得更小文件，已保留原始数据与质量。'
-        return {'files': ['result.pdf'], 'note': note}
+        return {'files': ['result.pdf'], 'note': note, **({'data': data} if data is not None else {})}
 
 
 if __name__ == '__main__':

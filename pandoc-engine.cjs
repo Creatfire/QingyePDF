@@ -54,7 +54,7 @@ async function zipDirectory(dir) {
   const walk = async folder => { for (const entry of await fs.readdir(folder, { withFileTypes: true })) { const file = path.join(folder, entry.name); if (entry.isSymbolicLink()) throw new Error('转换输出包含不支持的符号链接。'); if (entry.isDirectory()) await walk(file); else entries.push({ name: path.relative(dir, file).split(path.sep).join('/'), data: await fs.readFile(file) }); } };
   await walk(dir); const { makeZip } = await import(pathToFileURL(path.join(__dirname, 'ui/markdown/zip.mjs')).href); return Buffer.from(await makeZip(entries));
 }
-async function convertFile({ executable = bundledPath(), inputs, target, from = 'auto', to, standalone = true, toc = false, numberSections = false, citeproc = false, extraArgs = [], signal, renderPdf, exclusive = false, validateTarget = async () => {}, onProgress = () => {} }) {
+async function convertFile({ executable = bundledPath(), inputs, target, from = 'auto', to, standalone = true, toc = false, numberSections = false, citeproc = false, extraArgs = [], signal, renderPdf, layoutPdf, exclusive = false, validateTarget = async () => {}, onProgress = () => {} }) {
   if (!Array.isArray(inputs) || inputs.length < 1 || inputs.length > 100 || inputs.some(file => typeof file !== 'string' || !path.isAbsolute(file))) throw new Error('请选择 1–100 个本地输入文件。');
   if (typeof target !== 'string' || !path.isAbsolute(target)) throw new Error('请选择输出文件。');
   const info = await describe(executable), extra = validateExtra(extraArgs), base = value => value.split(/[+-]/)[0];
@@ -66,6 +66,19 @@ async function convertFile({ executable = bundledPath(), inputs, target, from = 
   const targetReal = await fs.realpath(target).catch(error => { if (error.code !== 'ENOENT') throw error; return target; });
   if (originals.some(file => normalized(file) === normalized(targetReal))) throw new Error('输出不能覆盖输入文件。');
   const expected = await fingerprint(target);
+  // Office → PDF keeps the original layout (0.20): `layoutPdf` (the bundled LibreOffice) answers with
+  // PDF bytes for files it handles and null otherwise; extra Pandoc arguments mean the user wants Pandoc.
+  if (typeof layoutPdf === 'function' && (to === 'pdf-chromium' || to === 'pdf') && originals.length === 1 && from === 'auto' && !extra.length) {
+    if (signal?.aborted) throw abortError();
+    const laid = await layoutPdf(originals[0], signal, onProgress);
+    if (laid) {
+      if (signal?.aborted) throw abortError(); onProgress('正在保存输出…');
+      await validateTarget(target);
+      if (signal?.aborted) throw abortError();
+      await atomicWrite(target, laid, exclusive ? null : expected, { exclusive });
+      return { path: target, bytes: laid.length, warnings: '', version: info.version, engine: 'libreoffice' };
+    }
+  }
   // Keep cwd and mkdtemp short; the final transaction still takes place beside the output file.
   const stage = await fs.mkdtemp(path.join(os.tmpdir(), 'qy-convert-'));
   const out = path.join(stage, 'result.' + (to === 'pdf-chromium' ? 'html' : to === 'chunkedhtml' ? 'html' : extension(to)));

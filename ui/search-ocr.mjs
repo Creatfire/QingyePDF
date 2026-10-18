@@ -5,7 +5,7 @@ export function createSearchOcr({api,applyEdit,guard,status,onUpdated,isProcessi
   function sync(){if(!view)return;const s=view.session;
     view.rangeButton.disabled=view.allButton.disabled=!!task||s.saving||s.editBusy||isProcessing();view.cancel.hidden=!task;view.cancel.disabled=!!task?.applying;
     const state=s.ocrCoverage;
-    view.coverage.textContent=state?tf('已检查 {checked}/{total} 页 · 可搜索 {text} 页 · 缺少文字层 {missing} 页',{checked:state.checked,total:state.total,text:state.textPages.length,missing:state.missingPages.length}):t('正在检查文字层…');
+    view.coverage.textContent=state?tf('已检查 {checked}/{total} 页 · 可搜索 {text} 页 · 缺少文字层 {missing} 页',{checked:state.checked,total:state.total,text:state.textPages.length,missing:state.missingPages.length})+(state.mixedPages?.length?tf(' · 疑似扫描页（只有少量文字）{mixed} 页',{mixed:state.mixedPages.length}):''):t('正在检查文字层…');
     if(task)view.progress.textContent=tf('识别 {name} · {progress}',{name:task.session.name,progress:task.progress||t('处理中')});
   }
   async function analyze(s){const ticket=++analysis,doc=s.app.pdfDocument;s.ocrCoverage=coverageFor(doc,s.app.pagesCount);sync();

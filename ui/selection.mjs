@@ -1,3 +1,4 @@
+import { classifyPage } from './ocr-coverage.mjs';
 export function createTextSelection({current,api,applyEdit,guard,status,tools}){
   const button=document.getElementById('selectTextButton');let task;
   function sync(){button.disabled=!!task?.applying||!task&&(!current()?.loaded||current()?.saving||current()?.editBusy||tools.isBusy()||current()?.view.reflow);const text=task?.applying?'正在更新文字层':task?'取消识别':'文本选择';(button.querySelector('.label')||button).textContent=text;button.setAttribute('aria-label',text);}
@@ -7,15 +8,19 @@ export function createTextSelection({current,api,applyEdit,guard,status,tools}){
     if(s.app.pdfCursorTools?.activeTool!==0||s.app.pdfViewer.annotationEditorMode>0)return false;
     if(task)return false;
     if(!retry&&s.emptyOcrPages?.has(pageNumber))return false;
-    const pdfDocument=s.app.pdfDocument,page=await pdfDocument.getPage(pageNumber),text=await page.getTextContent();
-    if(text.items.some(item=>item.str?.trim()))return true;
+    const pdfDocument=s.app.pdfDocument,page=await pdfDocument.getPage(pageNumber);
+    // A page with body text is selectable as is; a scan with only a page number (mixed) is recognised
+    // once per page, so a small result does not trigger it again on every click.
+    // Recognised pages are remembered per loaded document, so undo (a new document) forgets them.
+    if(s.ocrDone?.doc!==pdfDocument)s.ocrDone={doc:pdfDocument,pages:new Set()};
+    if((!retry&&s.ocrDone.pages.has(pageNumber))||await classifyPage(page)==='text')return true;
     if(task||!s.loaded||s.editBusy||s.saving||tools.isBusy()||current()!==s||pdfDocument!==s.app.pdfDocument||!document.getElementById('directEditor').hidden)return false;
     const pending=task={id:crypto.randomUUID(),session:s,page:pageNumber,canceled:false};sync();
     try{
       status(`正在识别 ${s.name} 第 ${pageNumber} 页，完成后可拖选文字…`);
       const result=await applyEdit(s,{action:'ocr-layer',pages:String(pageNumber),jobId:pending.id},`识别扫描文字 · 第 ${pageNumber} 页`,()=>{if(pending.canceled)return false;pending.applying=true;sync();return true;});
       if(pending.canceled||result.canceled){status('已取消文字识别。');return false;}
-      if(!result.unchanged){select(s);status(`第 ${pageNumber} 页文字已识别，可拖选复制；保存可保留识别结果。`);return true;}
+      if(!result.unchanged){s.ocrDone={doc:s.app.pdfDocument,pages:new Set([...(s.ocrDone?.pages||[]),pageNumber])};select(s);status(`第 ${pageNumber} 页文字已识别，可拖选复制；保存可保留识别结果。`);return true;}
       (s.emptyOcrPages??=new Set()).add(pageNumber);status(result.note||'未识别到文字，请尝试锐化或扫描优化。');return false;
     }catch(error){if(pending.canceled){status('已取消文字识别。');return false;}throw error;}
     finally{if(task===pending)task=null;sync();const next=s.app.pdfViewer.currentPageNumber;if(!pending.canceled&&current()===s&&next!==pageNumber&&s.textSelection)queueMicrotask(()=>guard(()=>ensure(s,next)));}
