@@ -128,7 +128,7 @@ function imageDimensions(header) {
   }
   return null;
 }
-const documents = new Map(), closedDocuments=new Map(), recentTokens = new Map(), assetTokens = new Map(), batchTokens = new Map();
+const producedOutputs = new Set(), documents = new Map(), closedDocuments=new Map(), recentTokens = new Map(), assetTokens = new Map(), batchTokens = new Map();
 let preferences = { schemaVersion: 1, recent: [] };
 let preferenceQueue = Promise.resolve();
 const key = file => path.resolve(file).toLowerCase();
@@ -359,6 +359,8 @@ app.whenReady().then(async () => {
     await new Promise((resolve,reject) => { const child=spawn(executable,args,{detached:true,windowsHide:true,stdio:'ignore'});child.once('error',reject);child.once('spawn',()=>{child.unref();resolve();}); });
     return true;
   });
+  // Task center (0.20): reveal a file this window's tools wrote (nothing else).
+  handle('reveal-output',file=>{if(typeof file!=='string'||!producedOutputs.has(key(file)))throw new Error('只能显示本次处理生成的文件。');shell.showItemInFolder(file);return true;});
   handle('cancel-job',id=>{if(typeof id!=='string'||!/^[\da-f-]{36}$/i.test(id))throw new Error('任务编号无效。');if(runningJobs.has(id))runningJobs.get(id).abort();else{canceledJobs.add(id);setTimeout(()=>canceledJobs.delete(id),30000);}return true;});
   handle('tools-job',async (id,value,request) => {
     let record;
@@ -391,7 +393,7 @@ app.whenReady().then(async () => {
     const output=result.files[0]; if(!output) throw new Error('处理未生成文件。');
     if(request.draft){
       if(!['organize','outline','text','stamp','image','watermark','shape','annotation','markup','draw','annot-delete','annot-update','annot-batch','pages-plan','redact','number','crop','sharpen','ocr-layer'].includes(request.action)||path.extname(output.name)!=='.pdf')throw new Error('此操作不支持文档草稿。');
-      return {bytes:output.bytes,note:result.note};
+      return {bytes:output.bytes,note:result.note,...(result.data?{data:result.data}:{})};
     }
     // Integration tests exercise IPC and actual engine output without native picker interaction.
     if(smoke&&!request.batchToken&&!process.argv.includes('--fix013-smoke')) return {bytes:output.bytes,extension:path.extname(output.name),note:result.note};
@@ -411,7 +413,8 @@ app.whenReady().then(async () => {
     const hash=request.batchToken?null:await fingerprint(target);
     if(controller.signal.aborted) throw new Error('任务已取消。');
     await atomicWrite(target,output.bytes,hash);
-    return {path:target,note:result.note,opened:extension==='.pdf' && request.action!=='encrypt' && !request.batchToken ? await openFiles([target]):[]};
+    producedOutputs.add(key(target));
+    return {path:target,note:result.note,...(result.data?{data:result.data}:{}),opened:extension==='.pdf' && request.action!=='encrypt' && !request.batchToken ? await openFiles([target]):[]};
     } finally { runningJobs.delete(jobId); }
   });
   handle('recent', () => preferences.recent.map(item => {
@@ -561,6 +564,8 @@ app.whenReady().then(async () => {
     const result = await dialog.showMessageBox(window, { type: 'question', title: T('保存修改'), message: TF('“{name}”有未保存的修改。', { name: String(name).slice(0, 200) }), buttons: [T('保存'), T('不保存'), T('取消')], defaultId: 0, cancelId: 2, noLink: true });
     return ['save', 'discard', 'cancel'][result.response];
   });
+  // Task center (0.20): a job finished after the document was edited again.
+  handle('confirm-stale-result',async (name,label)=>{if(smoke||safety)return false;const result=await dialog.showMessageBox(window,{type:'warning',title:T('处理结果已过期'),message:TF('“{name}”在处理期间有新的修改。',{name:String(name||'').slice(0,200)}),detail:TF('应用“{label}”的结果会丢弃处理期间的修改（可撤销）。',{label:String(label||'').slice(0,120)}),buttons:[T('放弃这次结果'),T('仍然应用')],defaultId:0,cancelId:0,noLink:true});return result.response===1;});
   handle('confirm-discard-edit',async name=>{const result=await dialog.showMessageBox(window,{type:'question',title:T('未应用的页面编辑'),message:name?TF('“{name}”的页面编辑尚未应用。是否放弃并继续？',{name:String(name).slice(0,200)}):T('当前页面编辑尚未应用。是否放弃并继续？'),buttons:[T('继续编辑'),T('放弃未应用内容')],defaultId:0,cancelId:0,noLink:true});return result.response===1;});
   handle('remember', async (id, state) => {const record=documents.get(id);if(record){remember(record, state); await persist();} });
   handle('close-document', async (id, state) => { const record = documentById(id); if (record.saving) throw new Error('正在保存，请稍后关闭。'); remember(record, state); unwatchMarkdown(id);closedDocuments.set(id,record); documents.delete(id);await recovery.checkpoint(recovery.entries.filter(e=>e.id!==id),null); await persist().catch(error => console.warn('Reading state:', error.message)); });

@@ -155,3 +155,10 @@ test('annotation panel: page filter, excerpt status and combined filters', async
   assert.deepEqual(A.filterNotes(notes, { color: '#ffd400', term: '待核实' }).map(n => n.xref), [12]);
   assert.deepEqual(A.filterNotes(notes, { pages: new Set([1, 2]), type: 'Square' }).map(n => n.xref), [11]);
 });
+
+test('task center: result summary lists only the counts a job reported', async () => {
+  const { resultSummary } = await import('../ui/task-center.mjs');
+  assert.equal(resultSummary({ processed: 28, skipped: 2, unit: '页', extra: '文件缩小 36%' }), '已处理 28 页 · 跳过 2 页 · 文件缩小 36%');
+  assert.equal(resultSummary({ processed: 3, failed: 1 }), '已处理 3 项 · 失败 1 项');
+  assert.equal(resultSummary({}), '');
+});

@@ -4,6 +4,7 @@ import { createTools } from './tools.mjs';
 import { createHistory } from './history.mjs';
 import { createDirectEditing } from './direct.mjs';
 import { createPageManager } from './page-manager.mjs';
+import { createTaskCenter, resultSummary } from './task-center.mjs';
 import { userError } from './errors.mjs';
 import { createTextSelection } from './selection.mjs';
 import { createMarkup } from './markup.mjs';
@@ -84,7 +85,9 @@ function currentPdf() { const s = current(); if (!isMd(s)) return s; const other
 const pdfSessions = { values: () => [...sessions.values()].filter(s => !isMd(s))[Symbol.iterator](), get: id => { const s = sessions.get(id); return isMd(s) ? undefined : s; }, has: id => !!pdfSessions.get(id) };
 const views = createViews({ current: currentPdf, commit, guard, api });
 const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), openPages: s => pageManager.open(s), noteText: note => markdown.text(note), selectAnnotation: (s, page, xref) => annotEdit.selectXref(s, page, xref), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
-const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs, openPages: s => pageManager.open(s) });
+// Task center (0.20): running and recent long jobs, queue, cancel, retry (task-center.mjs).
+const taskCenter = createTaskCenter({ api, guard, status, activate: id => activate(id) });
+const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs, openPages: s => pageManager.open(s), taskCenter, taskSummary: result => taskSummary(result) });
 // Visual page manager (0.20): thumbnail grid, one undoable 'pages-plan' edit (page-manager.mjs).
 const pageManager = createPageManager({ current: currentPdf, isPdf: s => !!s && !isMd(s), applyEdit, api, snapshot: s => tools.snapshot(s), guard, status, addDocuments });
 const converter = createConverter({ api, guard, status });
@@ -112,9 +115,20 @@ async function replaceDocument(s,bytes){
   }catch(error){await s.app.open({data:new Uint8Array(previous),filename:s.name,docBaseUrl:pdfBase(s)});throw error;}
   finally{s.loaded=true;syncDirty(s);tabs();navigation.sync();draft.schedule();}
 }
+const TRACKED_ACTIONS=new Set(['ocr-layer','ocr','pages-plan','compress','sharpen','redact','scan','number','watermark']);
+// "已处理 3 页 · 跳过 1 页" from backend statistics when a job reports them (OCR).
+const taskSummary=result=>result?.data?.recognized?resultSummary({processed:result.data.recognized.length,skipped:result.data.skipped?.length,failed:result.data.empty?.length,unit:'页'}):'';
 async function applyEdit(s,request,label,beforeReplace){
   if(!s?.loaded||s.editBusy||s.saving)throw new Error('文档尚未就绪或正在处理。');s.editBusy=true;tabs();
-  try{const before=await tools.snapshot(s);status('正在应用修改…');const result=await api.toolsJob(s.id,before,{...request,draft:true});if(result.unchanged){status(result.note);return result;}if(beforeReplace&&!beforeReplace())return {canceled:true};await replaceDocument(s,result.bytes);s.history.push(before,result.bytes,label);history.sync();status(label+' · 可撤销，尚未保存');return result;}
+  // Long jobs appear in the task center (0.20).
+  const task=TRACKED_ACTIONS.has(request.action)?taskCenter.begin({label,doc:s.name,jobId:request.jobId,cancel:request.jobId?()=>api.cancelJob(request.jobId):null}):null;
+  try{const before=await tools.snapshot(s),version={doc:s.app.pdfDocument,hash:editingHash(s)};status('正在应用修改…');const result=await api.toolsJob(s.id,before,{...request,draft:true});
+    if(result.unchanged){status(result.note);task?.finish({note:result.note,summary:taskSummary(result)});return result;}
+    if(beforeReplace&&!beforeReplace()){task?.cancelled();return {canceled:true};}
+    // The result belongs to the version the job started from: never overwrite edits made meanwhile without asking.
+    if(task&&(s.app.pdfDocument!==version.doc||editingHash(s)!==version.hash)){if(!await api.confirmStaleResult(s.name,label)){task?.finish({canceled:true,note:'处理期间文档有新的修改，已放弃这次结果。'});status('处理期间文档有新的修改，已放弃这次结果。');return {canceled:true};}}
+    await replaceDocument(s,result.bytes);s.history.push(before,result.bytes,label);history.sync();status(label+' · 可撤销，尚未保存');task?.finish({note:result.note,summary:taskSummary(result)});return result;}
+  catch(error){task?.fail(error);throw error;}
   finally{s.editBusy=false;tabs();draft.schedule();}
 }
 // Undo / redo and the edit-history dialog (history-ui.mjs).
@@ -568,5 +582,5 @@ activate(null);
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { taskCenter, pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
 api.ready();

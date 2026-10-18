@@ -337,6 +337,33 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     await run(`qingye.historyStep()`);
     await until(`!${G}.editBusy && ${G}.app.pagesCount === 2`, 'page plan undone', 400);
     report.checks.pageManagerUndo = true;
+
+    // Task center (0.20): a second toolbox job waits in the queue; both end up in the task list.
+    report.checks.taskQueue = await run(`(async () => {
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      await qingye.tools.open('export'); document.getElementById('toolFormat').value = 'txt';
+      const before = qingye.taskCenter.tasks().length;
+      const first = qingye.tools.execute(); await wait(20); await qingye.tools.execute();
+      await first;
+      for (let i = 0; i < 200 && qingye.taskCenter.tasks().some(t => t.status === 'running' || t.status === 'queued'); i++) await wait(100);
+      document.getElementById('closeTools').click();
+      const list = qingye.taskCenter.tasks().slice(0, qingye.taskCenter.tasks().length - before);
+      return { added: list.length, done: list.filter(t => t.status === 'done').length, pill: document.getElementById('taskPill').textContent };
+    })()`);
+    assert.deepEqual({ added: report.checks.taskQueue.added, done: report.checks.taskQueue.done }, { added: 2, done: 2 }, 'queued toolbox job ran after the first');
+    // A result that arrives after the document was edited again is not applied silently.
+    report.checks.staleResult = await run(`(async () => {
+      const s = ${G}, storage = s.app.pdfDocument.annotationStorage;
+      const job = qingye.applyEdit(s, { action: 'pages-plan', plan: [{ src: 0, page: 1 }, { src: 0, page: 0 }] }, '测试：处理期间被修改');
+      await new Promise(r => setTimeout(r, 120)); storage.setValue('qy-stale-test', { value: 'edited meanwhile' });
+      const result = await job; storage.remove('qy-stale-test');
+      const task = qingye.taskCenter.tasks().find(t => t.label === '测试：处理期间被修改');
+      return { canceled: !!result.canceled, pages: s.app.pagesCount, task: task?.status, note: task?.note };
+    })()`);
+    assert.deepEqual(report.checks.staleResult, { canceled: true, pages: 2, task: 'canceled', note: '处理期间文档有新的修改，已放弃这次结果。' });
+    await run(`qingye.taskCenter.open()`); await pause(200);
+    await fs.writeFile(path.join(output, 'task-center.png'), (await window.webContents.capturePage()).toPNG());
+    await run(`document.getElementById('taskPanel').hidePopover()`);
   }
   await fs.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
   return report;

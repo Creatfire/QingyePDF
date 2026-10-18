@@ -1,6 +1,6 @@
 import { createOutlineEditor } from './outline.mjs';
 import { userError } from './errors.mjs';
-export function createTools({ current, sessions, guard, commit, api, addDocuments, status, compare, applyEdit, openPages, onBusyChange=()=>{} }) {
+export function createTools({ current, sessions, guard, commit, api, addDocuments, status, compare, applyEdit, openPages, taskCenter, taskSummary = () => '', onBusyChange=()=>{} }) {
   const $=id=>document.getElementById(id);
   const dialog=document.createElement('dialog');dialog.id='toolsDialog';dialog.setAttribute('closedby','any');
   dialog.setAttribute('aria-labelledby','toolsTitle');
@@ -200,32 +200,50 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   }
   function updateSummary(){try{const r=request();$('toolChangeSummary').textContent='操作摘要：'+$('toolAction').selectedOptions[0].textContent+' · 页码：'+(r.pages||'全部')+(r.text?' · 文字：'+r.text.slice(0,70):'')+(r.toc?' · '+r.toc.length+' 个章节':'')+'。处理并导出副本不会覆盖源文件。';}catch{}}
   dialog.addEventListener('input',updateSummary);dialog.addEventListener('change',updateSummary);
-  async function execute(retry=false){
-    if(busy)return;
+  // A job captures everything it needs from the dialog when it is started, so it can wait in the
+  // task center queue (0.20) while another job runs and the dialog shows something else.
+  let lastOutput='',lastOpened=[],lastResult=null;
+  // Synchronous unless a batch folder must be picked, so a single job marks the toolbox busy at once.
+  function prepare(retry=false){
     const r=retry?retryState.request:request();if(r.action!=='import'&&!toolSession)throw new Error('请先打开 PDF。');
     if(['image','import'].includes(r.action)&&!asset)throw new Error('请先选择文件。');
     const selected=Array.from($('toolOther').selectedOptions).map(o=>sessions.get(o.value)).filter(Boolean);
     if(['compare','page-stamp'].includes(r.action)&&selected.length!==1)throw new Error('此操作需要选择一个其他文档。');
     if(r.action==='organize'&&r.mode==='merge'&&!selected.length)throw new Error('请选择至少一个待合并文档。');
     const batch=$('toolBatch').checked&&!$('toolBatch').closest('[data-for]').hidden;
-    const token=retry?retryState.token:batch?await api.batchFolder():null;if(batch&&!token)return;
+    const targets=retry?failed.map(id=>sessions.get(id)).filter(s=>s?.loaded):batch?[...sessions.values()].filter(s=>s.loaded):[toolSession];
+    const job={r,selected,batch,token:retry?retryState.token:null,targets,retry,asset,label:$('toolAction').selectedOptions[0]?.textContent||r.action};
+    if(!batch||retry)return job;
+    return api.batchFolder().then(token=>token?{...job,token}:null);
+  }
+  async function execute(retry=false){
+    let job=prepare(retry);if(job instanceof Promise)job=await job;if(!job)return;
+    if(busy&&taskCenter){const doc=job.targets.map(s=>s?.name||job.asset?.name).filter(Boolean).join('、');taskCenter.enqueue({label:job.label,doc,run:async()=>{while(busy)await new Promise(r=>setTimeout(r,150));await run(job);}});$('toolProgress').textContent='已加入任务队列，可在状态栏的“任务”中查看。';return;}
+    if(busy)return;
+    await run(job);
+  }
+  async function run({r,selected,batch,token,targets,retry,asset:jobAsset,label}){
     setBusy(true);dialog.classList.add('toolBusy');$('executeTool').disabled=true;$('closeTools').disabled=true;
     canceled=false;$('cancelTools').hidden=false;$('jobProgress').hidden=false;$('retryTools').hidden=true;
-    const targets=retry?failed.map(id=>sessions.get(id)).filter(s=>s?.loaded):batch?[...sessions.values()].filter(s=>s.loaded):[toolSession];failed=[];retryState={request:r,token};
+    failed=[];retryState={request:r,token};
+    const task=taskCenter?.begin({label,doc:targets.map(s=>s?.name||jobAsset?.name).filter(Boolean).join('、'),cancel:()=>{canceled=true;if(activeJob)return api.cancelJob(activeJob);}});
     try{
       const reports=[];
       for(let n=0;n<targets.length;n++){
         if(canceled)break;
-        const s=targets[n];$('toolProgress').textContent=`正在处理 ${n+1} / ${targets.length}：${s?.name||asset.name}`;
-        activeJob=crypto.randomUUID();const job={...r,batchToken:token,jobId:activeJob};
+        const s=targets[n];$('toolProgress').textContent=`正在处理 ${n+1} / ${targets.length}：${s?.name||jobAsset.name}`;
+        activeJob=crypto.randomUUID();const job={...r,batchToken:token,jobId:activeJob};if(task){task.jobId=activeJob;task.progress(n,targets.length,`正在处理 ${n+1} / ${targets.length}：${s?.name||jobAsset.name}`);}
         if((r.action==='organize'&&r.mode==='merge')||['compare','page-stamp'].includes(r.action)){job.mergeInputs=[];for(const other of selected)job.mergeInputs.push({id:other.id,bytes:await snapshot(other)});}
-        let result;try{result=await api.toolsJob(s?.id,s?await snapshot(s):null,job);}catch(error){if(canceled)break;if(!batch&&!retry)throw error;failed.push(s.id);reports.push(`${s.name}：失败 · ${userError(error)}`);continue;}
-        if(result.canceled){$('toolProgress').textContent='已取消导出';return;}
-        if(result.unchanged){reports.push(result.note);continue;}
+        let result;try{result=await api.toolsJob(s?.id,s?await snapshot(s):null,job);}catch(error){if(canceled)break;if(!batch&&!retry){task?.fail(error);throw error;}failed.push(s.id);reports.push(`${s.name}：失败 · ${userError(error)}`);task?.item(`${s.name}：失败 · ${userError(error)}`,false);continue;}
+        if(result.canceled){$('toolProgress').textContent='已取消导出';task?.cancelled();return;}
+        if(result.unchanged){reports.push(result.note);task?.item(`${s?.name||jobAsset?.name}：未改变 · ${result.note||''}`);continue;}
         if(result.opened?.length)await addDocuments(result.opened);
         reports.push(result.path||'已生成结果');if(result.note)reports.push(result.note);
+        task?.item(`${s?.name||jobAsset?.name}：${result.path||'已生成结果'}${result.note?' · '+result.note:''}`);if(task&&result.path)lastOutput=result.path;if(task)lastResult=result;if(task&&result.opened?.length)lastOpened=result.opened;
       }
       $('toolProgress').textContent=(canceled?'已取消任务；已输出的副本保留。\n':'')+reports.join('\n');status(canceled?'任务已取消':failed.length?'部分任务失败，可重试':'本地处理完成');
+      const done=targets.length-failed.length,again=failed.slice(),state={request:r,token};
+      task?.finish({canceled,failed:failed.length,path:lastOutput,opened:lastOpened,note:reports.at(-1)||'',summary:targets.length>1?`已处理 ${done} 个文件`+(failed.length?` · 失败 ${failed.length} 个`:''):taskSummary(lastResult),retry:failed.length?()=>{failed=again;retryState=state;return execute(true);}:null});lastOutput='';lastOpened=[];lastResult=null;
       $('toolPassword').value='';$('toolUserPassword').value='';$('toolOwnerPassword').value='';
     }finally{setBusy(false);activeJob=null;dialog.classList.remove('toolBusy');$('executeTool').disabled=false;$('closeTools').disabled=false;$('cancelTools').hidden=true;$('jobProgress').hidden=true;$('retryTools').hidden=!failed.length;}
   }

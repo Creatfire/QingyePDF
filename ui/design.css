@@ -169,3 +169,26 @@
 
 /* 0.19 compare differences */
 .compareDiffCount { min-width: 7em; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+/* Task center (0.20, task-center.mjs). */
+#taskPill { margin-left: 12px; height: 20px; padding: 0 10px 0 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 11.5px; color: var(--muted); }
+#taskPill[hidden] { display: none; }
+#taskPill.isBusy { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+#taskPanel { position: fixed; inset: auto; margin: 0; width: min(420px, calc(100vw - 16px)); max-height: min(560px, calc(100vh - 80px)); overflow: auto; padding: 0; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-lg, 0 12px 32px rgb(0 0 0 / .18)); }
+#taskPanel header { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--line); }
+#taskPanel header button { height: 24px; font-size: 12px; }
+#taskList { list-style: none; margin: 0; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+#taskEmpty { margin: 14px; color: var(--muted); font-size: 12px; }
+.taskRow { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
+.taskHead { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.taskHead strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.taskStatus { flex: none; font-size: 11px; padding: 0 7px; border-radius: 999px; line-height: 18px; background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--muted); }
+.is-running .taskStatus, .is-queued .taskStatus { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.is-done .taskStatus { background: color-mix(in srgb, #2e7d32 14%, transparent); color: #2e7d32; }
+.is-failed .taskStatus, .is-partial .taskStatus { background: color-mix(in srgb, #c62828 14%, transparent); color: #c62828; }
+.taskRow small { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.taskRow progress { width: 100%; height: 6px; accent-color: var(--accent); }
+.taskNote { margin: 0; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+.taskItem { margin: 2px 0 0; font-size: 11.5px; color: var(--muted); word-break: break-all; }
+.taskItem.isFailed { color: #c62828; }
+.taskActions { display: flex; flex-wrap: wrap; gap: 4px; }
+.taskActions button { height: 24px; padding: 0 8px; font-size: 12px; }
