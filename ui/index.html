@@ -32,6 +32,7 @@
     <nav id="tabs" class="tabs" aria-label="文档标签"></nav>
     <div class="titlebarDrag" aria-hidden="true"></div>
     <div class="titlebarTools">
+      <button id="commandButton" class="commandPill" data-icon="search" title="命令面板：搜索任何工具和命令 · Ctrl+Shift+P" aria-label="命令面板"><span class="label">搜索命令</span><kbd>Ctrl+Shift+P</kbd></button>
       <button id="convertButton" title="文档转换中心" aria-label="文档转换中心">转换</button>
       <button id="themeButton" class="iconOnly" data-icon="moon" title="切换深色界面" aria-label="切换深色界面"></button>
       <button id="settingsButton" class="iconOnly" data-icon="settings" title="设置" aria-label="设置"></button>
@@ -39,33 +40,46 @@
     </div>
   </header>
   <header class="appbar" id="pdfToolbar" role="toolbar" aria-label="PDF 工具栏">
-    <div class="barGroup">
+    <div class="barGroup" data-overflow="keep">
       <button id="openButton" class="primary" data-icon="open" title="打开文档：PDF、Markdown、Word、Excel、PowerPoint · Ctrl+O"><span class="label">打开</span></button>
-      <button id="saveButton" data-icon="save" disabled title="保存 · Ctrl+S" aria-label="保存"><span class="label">保存</span></button>
-      <button id="saveAsButton" data-icon="saveas" disabled title="另存为 · Ctrl+Shift+S" aria-label="另存为"><span class="label">另存为</span></button>
+      <div class="splitButton" role="group" aria-label="保存">
+        <button id="saveButton" data-icon="save" disabled title="保存 · Ctrl+S" aria-label="保存"><span class="label">保存</span></button>
+        <button id="saveMenuButton" class="caretButton" data-icon="down" disabled popovertarget="saveMenu" aria-haspopup="menu" aria-controls="saveMenu" aria-expanded="false" title="另存为与文档属性" aria-label="更多保存选项"></button>
+      </div>
+      <button id="printButton" data-icon="print" disabled title="打印 · Ctrl+P" aria-label="打印"><span class="label">打印</span></button>
     </div>
     <span class="barSep" aria-hidden="true"></span>
-    <div class="barGroup">
+    <div class="barGroup" data-overflow="keep">
       <button id="undoButton" class="iconOnly" data-icon="undo" disabled title="撤销 · Ctrl+Z" aria-label="撤销"></button>
-      <button id="redoButton" class="iconOnly" data-icon="redo" disabled title="重做 · Ctrl+Y" aria-label="重做"></button>
-      <button id="historyButton" data-icon="history" title="编辑历史" aria-label="编辑历史"><span class="label">历史</span></button>
+      <div class="splitButton" role="group" aria-label="重做与编辑历史">
+        <button id="redoButton" class="iconOnly" data-icon="redo" disabled title="重做 · Ctrl+Y" aria-label="重做"></button>
+        <button id="redoMenuButton" class="caretButton" data-icon="down" popovertarget="redoMenu" aria-haspopup="menu" aria-controls="redoMenu" aria-expanded="false" title="最近的修改与编辑历史" aria-label="编辑历史"></button>
+      </div>
     </div>
     <div class="spacer"></div>
     <div class="barGroup" aria-label="阅读与编辑">
-      <button id="pdfNotesButton" data-icon="double" disabled aria-pressed="false" title="边读边记：PDF 与 Markdown 笔记左右并排 · Ctrl+\" aria-label="笔记模式"><span class="label">笔记</span></button>
-      <button id="selectTextButton" data-icon="textcursor" disabled title="选择文字；扫描页自动识别中英文" aria-label="文本选择"><span class="label">文本选择</span></button>
-      <button id="annotateButton" data-icon="pen" disabled popovertarget="annotateMenu" aria-haspopup="menu" aria-controls="annotateMenu" aria-expanded="false" title="批注工具"><span class="label">批注</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
-      <button id="directButton" data-icon="pageedit" disabled title="页面编辑：添加文字、印章、图形" aria-label="页面编辑"><span class="label">页面编辑</span></button>
+      <div class="pointerTools segmented" role="group" aria-label="指针工具" data-overflow="6" data-overflow-label="选择 / 抓手">
+        <button id="selectTextButton" data-icon="textcursor" disabled aria-pressed="true" title="选择文字；扫描页自动识别中英文" aria-label="文本选择"><span class="label">选择</span></button>
+        <button id="handToolButton" data-icon="hand" disabled aria-pressed="false" title="抓手：拖动页面" aria-label="抓手"><span class="label">抓手</span></button>
+      </div>
+      <button id="annotateButton" data-icon="pen" disabled popovertarget="annotateMenu" aria-haspopup="menu" aria-controls="annotateMenu" aria-expanded="false" title="批注：标记与评论，不改动原文" data-overflow="3"><span class="label">批注</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
+      <button id="directButton" data-icon="pageedit" disabled popovertarget="editMenu" aria-haspopup="menu" aria-controls="editMenu" aria-expanded="false" title="编辑：修改页面内容" aria-label="编辑" data-overflow="4"><span class="label">编辑</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
+      <button id="pdfNotesButton" data-icon="double" disabled aria-pressed="false" title="边读边记：PDF 与 Markdown 笔记左右并排 · Ctrl+\" aria-label="笔记模式" data-overflow="7"><span class="label">笔记</span></button>
     </div>
     <span class="barSep" aria-hidden="true"></span>
-    <div class="barGroup" aria-label="导航与工具">
-      <button id="searchButton" data-icon="search" disabled title="全文搜索 · Ctrl+F" aria-label="搜索" aria-expanded="false"><span class="label">搜索</span></button>
-      <button id="outlineButton" data-icon="outline" disabled title="大纲、书签、页面与批注" aria-label="大纲" aria-expanded="false"><span class="label">大纲</span></button>
-      <button id="viewButton" data-icon="view" disabled popovertarget="viewPanel" aria-controls="viewPanel" aria-expanded="false" title="视图模式" aria-label="视图模式"><span class="label">视图</span></button>
-      <button id="toolsButton" class="accentButton" data-icon="tools" title="本地 PDF 工具箱" aria-label="工具箱"><span class="label">工具箱</span></button>
+    <div class="barGroup" aria-label="导航与视图">
+      <button id="searchButton" data-icon="search" disabled title="全文搜索 · Ctrl+F" aria-label="搜索" aria-expanded="false" data-overflow="5"><span class="label">搜索</span></button>
+      <button id="outlineButton" data-icon="outline" disabled title="侧栏：大纲、书签、页面与批注" aria-label="侧栏" aria-expanded="false" data-overflow="8"><span class="label">侧栏</span></button>
+      <button id="viewButton" data-icon="view" disabled popovertarget="viewPanel" aria-controls="viewPanel" aria-expanded="false" title="视图模式、并排比较与新窗口" aria-label="视图" data-overflow="9"><span class="label">视图</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
     </div>
     <span class="barSep" aria-hidden="true"></span>
-    <button id="aiButton" class="aiToggle" data-icon="sparkle" aria-pressed="false" title="AI 协作 · Ctrl+Shift+A" aria-label="AI 协作"><span class="label">AI</span></button>
+    <div id="pinnedTools" class="barGroup" aria-label="固定的工具" hidden></div>
+    <div class="barGroup" data-overflow="keep">
+      <button id="toolsButton" class="accentButton" data-icon="tools" popovertarget="toolsMenu" aria-haspopup="menu" aria-controls="toolsMenu" aria-expanded="false" title="工具：常用工具与全部工具 · Ctrl+Shift+T" aria-label="工具"><span class="label">工具</span><span class="caret" data-icon="down" aria-hidden="true"></span></button>
+      <button id="moreButton" data-icon="more" popovertarget="moreMenu" aria-haspopup="menu" aria-controls="moreMenu" aria-expanded="false" title="放不下的按钮" aria-label="更多" hidden><span class="label">更多</span></button>
+    </div>
+    <span class="barSep" aria-hidden="true"></span>
+    <button id="aiButton" class="aiToggle" data-icon="sparkle" aria-pressed="false" title="AI 协作 · Ctrl+Shift+A" aria-label="AI 协作" data-overflow="10"><span class="label">AI</span></button>
   </header>
   <main id="workspace" tabindex="-1">
     <section id="home" class="home" aria-label="首页">
@@ -122,6 +136,17 @@
   <dialog id="messageDialog" aria-labelledby="messageTitle"><h2 id="messageTitle"></h2><p id="messageBody"></p><form method="dialog"><button class="primary">知道了</button></form></dialog>
 
   <section id="annotateMenu" class="menuPopover" popover="auto" role="menu" aria-label="批注工具"></section>
+  <section id="saveMenu" class="menuPopover" popover="auto" role="menu" aria-label="保存选项">
+    <button id="saveAsButton" class="menuItem" role="menuitem" data-icon="saveas" disabled>另存为…<span class="shortcut">Ctrl+Shift+S</span></button>
+    <button id="propertiesButton" class="menuItem" role="menuitem" data-icon="info" disabled>文档属性</button>
+  </section>
+  <section id="redoMenu" class="menuPopover" popover="auto" role="menu" aria-label="编辑历史">
+    <div id="redoRecent"></div>
+    <button id="historyButton" class="menuItem" role="menuitem" data-icon="history">编辑历史…</button>
+  </section>
+  <section id="editMenu" class="menuPopover" popover="auto" role="menu" aria-label="编辑"></section>
+  <section id="toolsMenu" class="menuPopover" popover="auto" role="menu" aria-label="工具"></section>
+  <section id="moreMenu" class="menuPopover" popover="auto" role="menu" aria-label="更多"></section>
 
   <section id="viewPanel" popover="auto" aria-labelledby="viewPanelTitle">
     <header class="popHeader"><h2 id="viewPanelTitle">视图模式</h2><span>按文档记忆，不改动原文</span></header>
@@ -143,6 +168,10 @@
       <button id="thumbnailView" class="viewAction" data-icon="grid">页面缩略图</button>
       <button id="cropView" class="viewAction" data-icon="crop">裁剪页面…</button>
       <button id="fullscreenView" class="viewAction" data-icon="fullscreen">全屏 / 退出全屏</button>
+    </div>
+    <div class="popSection actions">
+      <button id="compareView" class="viewAction" data-icon="compare" title="与另一个已打开的 PDF 并排阅读">与另一文档并排比较…</button>
+      <button id="newWindowView" class="viewAction" data-icon="window" title="在新窗口中打开当前文档">在新窗口中打开</button>
     </div>
     <p class="viewHint">阅读设置按文档记忆，不改动 PDF 原文。</p>
   </section>

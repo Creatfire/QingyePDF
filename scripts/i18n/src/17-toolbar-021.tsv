@@ -1,0 +1,107 @@
+1912	Convert between Markdown, EPUB and Word	Markdown、EPUB、Word 互相轉換	Markdown・EPUB・Word を相互に変換	Markdown, EPUB, Word 상호 변환
+1913	Underline / strikeout (region)	底線 / 刪除線（區域）	下線 / 取り消し線（範囲）	밑줄 / 취소선(영역)
+1914	Underline / strikeout (region)…	底線 / 刪除線（區域）…	下線 / 取り消し線（範囲）…	밑줄 / 취소선(영역)…
+1915	Read side by side with another open PDF	與另一個已開啟的 PDF 並排閱讀	開いている別の PDF と並べて読む	열려 있는 다른 PDF와 나란히 읽기
+1916	Compare side by side with another document…	與另一文件並排比較…	別の文書と並べて比較…	다른 문서와 나란히 비교…
+1917	Optimize	最佳化	最適化	최적화
+1918	Sidebar	側欄	サイドバー	사이드바
+1919	Sidebar: outline, bookmarks, pages and annotations	側欄：大綱、書籤、頁面與批註	サイドバー：アウトライン・しおり・ページ・注釈	사이드바: 개요, 책갈피, 페이지, 주석
+1920	Save options	儲存選項	保存オプション	저장 옵션
+1921	Protect	保護	保護	보호
+1922	Keeps the original layout, same as opening the file	保留原版式，與直接開啟一致	元のレイアウトを保持（直接開いた場合と同じ）	원래 레이아웃 유지(직접 열 때와 동일)
+1923	Change the PDF crop box, or crop to the content automatically	修改 PDF 裁切區域，或自動裁到內容	PDF のトリミング範囲を変更、または内容に合わせて自動トリミング	PDF 자르기 영역 변경 또는 내용에 맞게 자동 자르기
+1924	Change bookmarks and chapter levels	修改書籤與章節層級	しおりと章の階層を変更	책갈피와 장 수준 변경
+1925	Changes the page content; written to the PDF when you save	修改頁面內容，儲存後寫入 PDF	ページの内容を変更し、保存時に PDF へ書き込みます	페이지 내용을 변경하며 저장할 때 PDF에 기록됩니다
+1926	Dock on the right of the window	停靠在視窗右側	ウィンドウの右側にドッキング	창 오른쪽에 고정
+1927	All tools	全部工具	すべてのツール	모든 도구
+1928	All tools…	全部工具…	すべてのツール…	모든 도구…
+1929	Close tools	關閉工具	ツールを閉じる	도구 닫기
+1930	Shapes written into the page content	寫入頁面內容的圖形	ページ内容に書き込む図形	페이지 내용에 기록되는 도형
+1931	Switch dark / light interface	切換深色 / 淺色介面	ダーク / ライト表示を切り替え	다크 / 라이트 화면 전환
+1932	Cancel the current page edit	取消目前頁面編輯	現在のページ編集をキャンセル	현재 페이지 편집 취소
+1933	Save as and document properties	另存新檔與文件屬性	名前を付けて保存と文書のプロパティ	다른 이름으로 저장 및 문서 속성
+1934	Merge and split	合併與分割	結合と分割	병합 및 분할
+1935	Merge PDFs, extract or split pages	合併多個 PDF，擷取或分割頁面	複数の PDF を結合、ページを抽出・分割	여러 PDF 병합, 페이지 추출 또는 분할
+1936	Synchronized pages, text differences marked	同步翻頁，標出文字差異	ページを同期し、文字の差分を表示	페이지 동기화, 텍스트 차이 표시
+1937	Command palette: search any tool or command · Ctrl+Shift+P	命令面板：搜尋任何工具和命令 · Ctrl+Shift+P	コマンドパレット：ツールやコマンドを検索 · Ctrl+Shift+P	명령 팔레트: 모든 도구와 명령 검색 · Ctrl+Shift+P
+1938	Pin to toolbar	釘選到工具列	ツールバーにピン留め	도구 모음에 고정
+1939	Pinned tools	釘選的工具	ピン留めしたツール	고정한 도구
+1940	Sharpen images	影像銳利化	画像のシャープ化	이미지 선명하게
+1941	Writes an image at the same place on many pages	圖片寫入多頁同一位置	画像を複数ページの同じ位置に書き込む	여러 페이지의 같은 위치에 이미지 기록
+1942	Open in a new window	在新視窗中開啟	新しいウィンドウで開く	새 창에서 열기
+1943	Select a region on the page, then replace	在頁面上框選後取代	ページ上で範囲を選んで置換	페이지에서 영역을 선택한 뒤 바꾸기
+1944	Same place on many pages, with standard and date stamps	多頁同一位置，含標準印章與日期章	複数ページの同じ位置。標準スタンプと日付印つき	여러 페이지의 같은 위치, 표준 도장과 날짜 도장 포함
+1945	Passwords and permissions	密碼與權限	パスワードと権限	암호 및 권한
+1946	Export to Word / Excel / PPT	匯出為 Word / Excel / PPT	Word / Excel / PPT に書き出し	Word / Excel / PPT로 내보내기
+1947	Export to images or text	匯出為圖片或文字	画像またはテキストに書き出し	이미지 또는 텍스트로 내보내기
+1948	Export text or image differences as HTML	匯出文字或影像差異 HTML	文字または画像の差分を HTML で書き出し	텍스트 또는 이미지 차이를 HTML로 내보내기
+1949	Navigation and view	導覽與檢視	ナビゲーションと表示	탐색 및 보기
+1950	Tools	工具	ツール	도구
+1951	Tools: common tools and all tools · Ctrl+Shift+T	工具：常用工具與全部工具 · Ctrl+Shift+T	ツール：よく使うツールとすべてのツール · Ctrl+Shift+T	도구: 자주 쓰는 도구와 모든 도구 · Ctrl+Shift+T
+1952	Difference report	差異報告	差分レポート	차이 보고서
+1953	Pinned	已釘選	ピン留め済み	고정됨
+1954	Pinned to toolbar	已釘選到工具列	ツールバーにピン留め済み	도구 모음에 고정됨
+1955	Common	常用	よく使う	자주 사용
+1956	Flatten	平面化	フラット化	평면화
+1957	Print	列印	印刷	인쇄
+1958	Print · Ctrl+P	列印 · Ctrl+P	印刷 · Ctrl+P	인쇄 · Ctrl+P
+1959	Open password, print and copy restrictions	開啟密碼、列印與複製限制	開くパスワード、印刷とコピーの制限	열기 암호, 인쇄 및 복사 제한
+1960	Straighten and clean scans	掃描件校正與清理	スキャンの傾き補正とクリーンアップ	스캔 기울기 보정 및 정리
+1961	Annotate: marks and comments, the original text is not changed	批註：標記與評論，不改動原文	注釈：マークとコメント（原文は変更しません）	주석: 표시와 댓글, 원문은 바뀌지 않음
+1962	Batch image stamp	批次圖片印章	一括画像スタンプ	일괄 이미지 도장
+1963	Batch text stamp	批次文字印章	一括テキストスタンプ	일괄 텍스트 도장
+1964	Use a page of another PDF as a stamp	把另一個 PDF 的頁面作為印章	別の PDF のページをスタンプとして使う	다른 PDF의 페이지를 도장으로 사용
+1965	Fix annotations and forms into the page	把批註和表單固定到頁面	注釈とフォームをページに固定	주석과 양식을 페이지에 고정
+1966	Hand	手形工具	手のひら	손 도구
+1967	Hand: drag the page	手形工具：拖曳頁面	手のひら：ページをドラッグ	손 도구: 페이지 끌기
+1968	Pointer tools	指標工具	ポインターツール	포인터 도구
+1969	Remove sensitive content by region, text or common formats	按區域、文字或常用格式刪除敏感內容	範囲・文字・よくある形式で機密内容を削除	영역, 텍스트 또는 일반 형식으로 민감한 내용 삭제
+1970	Add standard annotations by region	按區域新增標準批註	範囲を指定して標準の注釈を追加	영역별로 표준 주석 추가
+1971	Reorder, rotate, delete, insert; drag thumbnails	排序、旋轉、刪除、插入，縮圖拖曳	並べ替え・回転・削除・挿入、サムネイルをドラッグ	정렬, 회전, 삭제, 삽입, 미리보기 끌기
+1972	Search commands	搜尋命令	コマンドを検索	명령 검색
+1973	Search tools	搜尋工具	ツールを検索	도구 검색
+1974	Search tools, e.g. "watermark", "password", "split"	搜尋工具，例如「浮水印」「密碼」「分割」	ツールを検索（例：「透かし」「パスワード」「分割」）	도구 검색(예: "워터마크", "암호", "분할")
+1975	Search the document	搜尋文件	文書を検索	문서 검색
+1976	Search results	搜尋結果	検索結果	검색 결과
+1977	Use a centered window	改為置中的視窗	中央のウィンドウにする	가운데 창으로 바꾸기
+1978	Buttons that do not fit	放不下的按鈕	収まらないボタン	들어가지 않는 버튼
+1979	Text watermark on all or chosen pages	文字浮水印，全部或指定頁	すべてまたは指定ページに文字の透かし	모든 페이지 또는 지정 페이지에 텍스트 워터마크
+1980	Text recognition (OCR)	文字辨識 OCR	文字認識 OCR	문자 인식 OCR
+1981	Text boxes and check boxes	文字方塊與核取方塊	テキストボックスとチェックボックス	텍스트 상자와 확인란
+1982	More save options	更多儲存選項	その他の保存オプション	저장 옵션 더 보기
+1983	Replacing text, single stamps, shapes and highlights are done directly on the page: use "Edit" and "Annotate" in the toolbar. The outline is edited in the sidebar.	取代原文、單個印章、圖形和醒目提示在頁面上直接完成：使用工具列的「編輯」和「批註」。編輯目錄在側欄大綱裡。	原文の置換、単一のスタンプ、図形、ハイライトはページ上で直接行います。ツールバーの「編集」と「注釈」を使ってください。目次はサイドバーのアウトラインで編集します。	원문 바꾸기, 단일 도장, 도형, 강조 표시는 페이지에서 직접 합니다. 도구 모음의 "편집"과 "주석"을 사용하세요. 목차는 사이드바 개요에서 편집합니다.
+1984	Recently used	最近使用	最近使ったツール	최근 사용
+1985	Recent changes	最近的修改	最近の変更	최근 변경
+1986	Recent changes and edit history	最近的修改與編輯歷史	最近の変更と編集履歴	최근 변경 및 편집 기록
+1987	Local processing is running; please wait for it to finish.	本機處理正在進行，請等待完成。	ローカル処理を実行中です。完了までお待ちください。	로컬 처리가 진행 중입니다. 완료될 때까지 기다리세요.
+1988	Marks and comments, the original text is not changed	標記與評論，不改動原文	マークとコメント（原文は変更しません）	표시와 댓글, 원문은 바뀌지 않음
+1989	Compare	比較	比較	비교
+1990	Permanent redaction	永久塗黑	完全な墨消し	영구 가리기
+1991	Permanent redaction…	永久塗黑…	完全な墨消し…	영구 가리기…
+1992	No matching command.	沒有找到相符的命令。	一致するコマンドがありません。	일치하는 명령이 없습니다.
+1993	No matching tool.	沒有找到相符的工具。	一致するツールがありません。	일치하는 도구가 없습니다.
+1994	Clean up objects, downsample images	清理物件、影像降低取樣	オブジェクトの整理、画像のダウンサンプリング	개체 정리, 이미지 다운샘플링
+1995	Remove password	移除密碼	パスワードを解除	암호 제거
+1996	Deskew, background cleanup, grayscale	校正、背景清理、灰階	傾き補正・背景のクリーンアップ・グレースケール	기울기 보정, 배경 정리, 회색조
+1997	Edit history…	編輯歷史…	編集履歴…	편집 기록…
+1998	Edit outline…	編輯目錄…	目次を編集…	목차 편집…
+1999	Edit: change the page content	編輯：修改頁面內容	編集：ページの内容を変更	편집: 페이지 내용 변경
+2000	Adds a text layer so scans can be searched	補文字層，讓掃描件可以搜尋	テキストレイヤーを追加してスキャンを検索可能に	텍스트 레이어를 추가해 스캔을 검색 가능하게
+2001	Form fields	表單欄位	フォームフィールド	양식 필드
+2002	Crop pages	裁切頁面	ページをトリミング	페이지 자르기
+2003	View mode…	檢視模式…	表示モード…	보기 모드…
+2004	View mode, side-by-side compare and new window	檢視模式、並排比較與新視窗	表示モード・並べて比較・新しいウィンドウ	보기 모드, 나란히 비교, 새 창
+2005	Makes blurry scanned pages clearer	讓模糊的掃描頁更清楚	ぼやけたスキャンページをくっきりさせる	흐릿한 스캔 페이지를 선명하게
+2006	Apply or cancel the current page edit before switching to the hand tool.	請先套用或取消目前頁面編輯，再切換到手形工具。	手のひらに切り替える前に、現在のページ編集を適用またはキャンセルしてください。	손 도구로 바꾸기 전에 현재 페이지 편집을 적용하거나 취소하세요.
+2007	Open a PDF first	請先開啟 PDF	先に PDF を開いてください	먼저 PDF를 여세요
+2008	Back to all tools	返回全部工具	すべてのツールに戻る	모든 도구로 돌아가기
+2009	Select / hand	選取 / 手形工具	選択 / 手のひら	선택 / 손 도구
+2010	Select text	選取文字	文字を選択	텍스트 선택
+2011	Redo and edit history	重做與編輯歷史	やり直しと編集履歴	다시 실행 및 편집 기록
+2012	Needs the permissions password	需要管理密碼	権限パスワードが必要です	관리 암호가 필요합니다
+2013	Page numbers, headers, footers and Bates numbers	頁碼、頁首頁尾與貝茲編號	ページ番号・ヘッダー/フッター・ベイツ番号	페이지 번호, 머리글/바닥글, 베이츠 번호
+2014	Page numbers, headers and footers	頁碼與頁首頁尾	ページ番号とヘッダー/フッター	페이지 번호 및 머리글/바닥글
+2015	Page manager…	頁面管理…	ページ管理…	페이지 관리…
+2016	↑↓ select	↑↓ 選取	↑↓ 選択	↑↓ 선택
+2017	Enter run	Enter 執行	Enter 実行	Enter 실행
+2018	Esc close	Esc 關閉	Esc 閉じる	Esc 닫기

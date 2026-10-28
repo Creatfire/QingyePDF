@@ -31,6 +31,10 @@ import { createDraftRecovery } from './draft-recovery.mjs';
 import { createShortcuts } from './shortcuts.mjs';
 import { createCommands } from './commands.mjs';
 import { createHistoryUi } from './history-ui.mjs';
+import { createToolbar, EDIT_KINDS } from './toolbar.mjs';
+import { createCommandPalette } from './command-palette.mjs';
+import { TOOLS, groupLabel, needsPdf } from './tool-registry.mjs';
+import { ANNOTATION_TOOLS } from './chrome.mjs';
 // Display language first, so the UI is translated before it is shown.
 await i18n.init().catch(console.warn);
 window.desktop.setLanguage?.(i18n.current(), i18n.choice() !== 'auto').catch(() => {});
@@ -44,7 +48,7 @@ const sessions = new Map();
 let activeId = null, closingApp = false, compareIds = null, comparingPage = false;
 const theme = createTheme({ api, sessions, $ });
 const contentDigest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes)))).map(n=>n.toString(16).padStart(2,'0')).join('');
-let statusHook = null, ai = null, notes = null, library = null, citations = null, workspaces = null;
+let statusHook = null, ai = null, notes = null, library = null, citations = null, workspaces = null, toolbar = null, palette = null;
 const status = text => { $('statusText').textContent = text; statusHook?.(text); };
 function message(title, detail) {
   $('messageTitle').textContent = title;
@@ -88,7 +92,7 @@ const views = createViews({ current: currentPdf, commit, guard, api });
 const navigation = createNavigation({ current: currentPdf, guard, views, api, snapshot:s=>tools.snapshot(s), openTools: action => tools.open(action), openPages: s => pageManager.open(s), noteText: note => markdown.text(note), selectAnnotation: (s, page, xref) => annotEdit.selectXref(s, page, xref), addDocuments, applyEdit,navigate:action=>readingTrail.record(action),readingTrail,status,isProcessing:()=>tools.isBusy(),notesFor:s=>notes?.notesFor(s)||null,insertNotes:(note,text)=>notes.insertBlock(note,text) });
 // Task center (0.20): running and recent long jobs, queue, cancel, retry (task-center.mjs).
 const taskCenter = createTaskCenter({ api, guard, status, activate: id => activate(id) });
-const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs, openPages: s => pageManager.open(s), taskCenter, taskSummary: result => taskSummary(result) });
+const tools = createTools({ current: currentPdf, sessions: pdfSessions, guard, commit, api, addDocuments, status, compare, applyEdit, onBusyChange:tabs, openPages: s => pageManager.open(s), openConverter: () => converter.open(), onPinsChange: pins => toolbar?.renderPins(pins), taskCenter, taskSummary: result => taskSummary(result) });
 // Visual page manager (0.20): thumbnail grid, one undoable 'pages-plan' edit (page-manager.mjs).
 const pageManager = createPageManager({ current: currentPdf, isPdf: s => !!s && !isMd(s), applyEdit, api, snapshot: s => tools.snapshot(s), guard, status, addDocuments });
 const converter = createConverter({ api, guard, status });
@@ -98,7 +102,7 @@ const shapes=createShapes({current:currentPdf,applyEdit,guard,status});
 const officeProgress=createOfficeProgress({api,guard,status});
 const annotEdit=createAnnotEdit({current:currentPdf,applyEdit,guard,status,shapes,onSelect:(s,page,xref)=>navigation.annotHighlight(s,page,xref)});
 const markup=createMarkup({current:currentPdf,applyEdit,guard,status,shapes});
-const chrome=createChrome({api,current:currentPdf,guard,navigation,status,shapes});
+const chrome=createChrome({api,current:currentPdf,guard,navigation,status,shapes,openTool:action=>tools.open(action)});
 const markdown=createMarkdownHost({api,guard,status,message,addDocuments,workspace:$('viewers'),navigate:action=>readingTrail.record(action),onPdfLink:locatePdfSource,onChange:(s,{chrome:chromeOnly}={})=>{if(!chromeOnly){syncDirty(s);draft.schedule();}if(s.id===activeId)tabs();}});
 statusHook = text => markdown.statusMessage(text);
 function bindStorage(s){const storage=s.app.pdfDocument.annotationStorage,modified=storage.onSetModified;storage.onSetModified=()=>{modified?.();queueMicrotask(()=>{syncDirty(s);draft.schedule();});};}
@@ -139,8 +143,12 @@ const draft = createDraftRecovery({ api, sessions, isMd, viewState, syncDirty, c
 // Home page: the recent list (recent-list.mjs).
 const recent = createRecentList({ api, guard, addDocuments, $ });
 // Keyboard shortcuts, and the commands the main process pushes into the window.
-const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai });
+const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai , palette: () => palette, tools });
 const commands = createCommands({ $, sessions, current, activeId: () => activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle });
+// The PDF toolbar's menus, pinned tools and overflow (toolbar.mjs), and the command palette (0.21).
+toolbar = createToolbar({ $, guard, status, current: currentPdf, sessions: pdfSessions, tools, pageManager, direct, history, print: () => commands.run('print') });
+palette = createCommandPalette({ guard, commands: paletteCommands });
+$('commandButton').onclick = () => isMd(current()) && current().loaded ? markdown.command(current(), 'palette') : palette.open();
 const compareBar = document.createElement('div'); compareBar.id='compareBar';compareBar.hidden=true;
 compareBar.innerHTML='<strong>并排比较</strong><label><input id="syncComparePages" type="checkbox" checked>同步页码</label><label><input id="syncCompareZoom" type="checkbox" checked>同步缩放</label><label>右侧页差 <input id="compareOffset" type="number" value="0" min="-100000" max="100000" title="右侧页码 = 左侧页码 + 页差"></label><span id="compareNames"></span><div class="spacer"></div>'
   +'<button id="compareDiffRun" data-icon="compare" title="比较两份文档的文字，左侧标出删除（红），右侧标出新增（绿）">标出差异</button><button id="compareDiffPrev" data-icon="up" title="上一处差异" disabled>上一处</button><button id="compareDiffNext" data-icon="down" title="下一处差异" disabled>下一处</button><span id="compareDiffCount" class="compareDiffCount"></span>'
@@ -201,6 +209,8 @@ function tabs() {
   { const split=notes?.ids?.(),pdf=split&&notes.pdfOfSplit?.(); $('saveButton').querySelector('.label').textContent=pdf?'保存 PDF':'保存'; if(pdf&&!tools.isBusy())$('saveButton').title='保存 PDF：'+pdf.name+' · Ctrl+S（笔记用笔记窗格里的“保存笔记”）'; $('pdfNotesButton').disabled=!currentPdf()?.loaded; notes?.refresh?.(); }
   views.sync();
   $('directButton').disabled=!currentPdf()?.loaded;
+  toolbar?.sync();
+  tools.sync();
   history.sync();
   textSelection.sync();
   $('searchButton').disabled = $('outlineButton').disabled = !current()?.loaded;
@@ -377,7 +387,7 @@ async function addDocument(info) {
     s.resizeObserver.observe(childDoc.getElementById('viewerContainer'));
     s.savedHash = editingHash(s);
     s.history=createHistory();s.savedContentDigest=await contentDigest(info.bytes);
-    bindStorage(s);direct.bind(s);textSelection.bind(s);markup.bind(s);shapes.bind(s);annotEdit.bind(s);compareDiff.bind(s);
+    bindStorage(s);direct.bind(s);toolbar.bind(s);textSelection.bind(s);markup.bind(s);shapes.bind(s);annotEdit.bind(s);compareDiff.bind(s);
     s.app.eventBus.on('scalechanging',e=>{if(compareIds?.includes(s.id)&&s.id===activeId&&!comparingPage&&$('syncCompareZoom').checked){const other=sessions.get(compareIds.find(id=>id!==s.id));if(other?.loaded){comparingPage=true;try{other.app.pdfViewer.currentScaleValue=String(e.presetValue||e.scale);}finally{comparingPage=false;}}}});chrome.attachPager(s);
     s.app.eventBus.on('editingstateschanged', ({source,details}) => { if(!s.loaded||(source&&source!==s.app.pdfViewer._layerProperties.annotationEditorUIManager))return;s.nativeHistory={...details};if(details?.hasSomethingToUndo&&!details.hasSomethingToRedo)s.history?.discardRedo();s.pendingInput = false; syncDirty(s);history.sync(); });
     s.app.eventBus.on('pagechanging', () => {
@@ -502,7 +512,7 @@ $('saveAsButton').onclick = () => reviewSave(current(),true);
 $('homeButton').onclick = () => activate(null);
 for (const button of document.querySelectorAll('[data-home-action]')) button.onclick = () => {
   const action = button.dataset.homeAction;
-  if (action === 'tools') $('toolsButton').click();
+  if (action === 'tools') guard(() => tools.open());
   else if (action === 'help') $('helpButton').click();
   else if (action === 'recent') $('recentHeading').scrollIntoView({block:'start', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
   else $('home').scrollTo({top:0, behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
@@ -573,7 +583,7 @@ api.onAiBridge?.((id, name, args, meta) => {
     .then(value => api.aiBridgeReply(id, true, value), error => api.aiBridgeReply(id, false, { message: userError(error), declined: !!error.declined, status: error.status }))
     .catch(console.warn);
 });
-$('helpButton').onclick = () => isMd(current()) ? markdown.command(current(), 'helpQuickStart') : message('欢迎使用青页 PDF', '打开：Ctrl+O；搜索：Ctrl+F；切换标签：Ctrl+Tab\n保存：Ctrl+S；另存为：Ctrl+Shift+S；全屏：F11\n\n打开 PDF 后顶部显示 PDF 工具栏：“搜索”“大纲”打开统一导航侧栏（搜索、目录、书签、页面、批注）；“批注”提供高亮、绘制、文本框、签名与评论；“视图”提供页面排列、颜色和阅读裁剪。左下角浮动面板用于翻页与缩放（Ctrl+G 跳转页码）。在页面上单击右键可快速使用批注、页面编辑与页面管理。\n\nMarkdown 文档使用独立的界面：顶部是菜单栏与“阅读 / 编辑 / 源码”切换，底部是字数与光标位置。Ctrl+N 新建，Ctrl+Shift+P 命令面板，Ctrl+P 快速打开。\n\n页面编辑的未应用内容在切到首页或其他标签时保留，回到原文档可继续编辑；关闭文档或切换编辑工具时可以选择继续编辑或明确放弃。工具箱任务期间保存入口暂时禁用，完成后可再保存。\n\n“工具箱”提供本地转换、页面管理、压缩、OCR、原文替换、涂黑、印章、水印、加密、并排比较等功能。应用到当前文档后可撤销，保存才写盘；处理并导出副本不直接覆盖源文件。\n\n文字替换和 Office 转换有版式限制；永久涂黑会删除内容，阅读裁剪与 CropBox 不会删除内容。可视签名和印章不是证书数字签名。完整范围请查看随附使用说明和功能对照。\n\n青页 PDF '+productVersion+' 按 AGPL-3.0 开源，无账号、无会员次数配额。');
+$('helpButton').onclick = () => isMd(current()) ? markdown.command(current(), 'helpQuickStart') : message('欢迎使用青页 PDF', '打开：Ctrl+O；搜索：Ctrl+F；切换标签：Ctrl+Tab\n保存：Ctrl+S；另存为：Ctrl+Shift+S；全屏：F11\n\n打开 PDF 后顶部显示 PDF 工具栏：“搜索”“侧栏”打开统一导航侧栏（搜索、目录、书签、页面、批注）；“批注”提供高亮、绘制、文本框、签名与评论，不改动原文；“编辑”添加文字、印章、图形、替换原文和管理页面；“视图”提供页面排列、颜色、阅读裁剪、并排比较和新窗口。Ctrl+Shift+P 打开命令面板，可以搜索任何命令和工具。左下角浮动面板用于翻页与缩放（Ctrl+G 跳转页码）。在页面上单击右键可快速使用批注、页面编辑与页面管理。\n\nMarkdown 文档使用独立的界面：顶部是菜单栏与“阅读 / 编辑 / 源码”切换，底部是字数与光标位置。Ctrl+N 新建，Ctrl+Shift+P 命令面板，Ctrl+P 快速打开。\n\n页面编辑的未应用内容在切到首页或其他标签时保留，回到原文档可继续编辑；关闭文档或切换编辑工具时可以选择继续编辑或明确放弃。工具任务期间保存入口暂时禁用，完成后可再保存。\n\n“工具”菜单列出常用工具，“全部工具…”（Ctrl+Shift+T）打开工具中心：本地转换、页面管理、压缩、OCR、涂黑、批量印章、水印、加密、比较等。工具卡片可以固定到工具栏。应用到当前文档后可撤销，保存才写盘；处理并导出副本不直接覆盖源文件。\n\n文字替换和 Office 转换有版式限制；永久涂黑会删除内容，阅读裁剪与 CropBox 不会删除内容。可视签名和印章不是证书数字签名。完整范围请查看随附使用说明和功能对照。\n\n青页 PDF '+productVersion+' 按 AGPL-3.0 开源，无账号、无会员次数配额。');
 document.addEventListener('keydown', shortcuts.handle, true);
 document.addEventListener('dragover', event => event.preventDefault());
 document.addEventListener('drop', event => { event.preventDefault(); guard(() => dropFiles(event.dataTransfer.files)); });
@@ -587,5 +597,42 @@ activate(null);
 // A restart from Settings → Interface style reopens the tabs it closed.
 if (settings.values.restoreOnStart || windowStyle.info.relaunched) setTimeout(() => guard(async () => { if (sessions.size) return; if (await api.lastSessionCount?.()) { await addDocuments(await api.restoreSession()); restoreButton.hidden = true; } }), 700);
 // Used by the bundled integration runner; no filesystem access is exposed here.
-window.qingye = { workspaces, taskCenter, pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
+// Commands for the palette (command-palette.mjs): toolbar buttons, menu entries and every tool.
+function paletteCommands() {
+  const pdf = () => !!currentPdf()?.loaded, any = () => !!current()?.loaded, enabledButton = id => () => !!$(id) && !$(id).disabled;
+  const press = id => () => { const b = $(id), target = b.getAttribute('popovertarget'); if (target && !b.offsetParent) $(target).showPopover(); else b.click(); };
+  return [
+    { label: '打开…', group: '文件', icon: 'open', shortcut: 'Ctrl+O', run: () => open() },
+    { label: '新建 Markdown', group: '文件', icon: 'newdoc', shortcut: 'Ctrl+N', run: () => newMarkdown() },
+    { label: '保存', group: '文件', icon: 'save', shortcut: 'Ctrl+S', enabled: any, run: () => reviewSave(current(), false) },
+    { label: '另存为…', group: '文件', icon: 'saveas', shortcut: 'Ctrl+Shift+S', enabled: any, run: () => reviewSave(current(), true) },
+    { label: '打印', group: '文件', icon: 'print', shortcut: 'Ctrl+P', keys: 'print', enabled: any, run: () => commands.run('print') },
+    { label: '文档属性', group: '文件', icon: 'info', enabled: pdf, run: () => $('propertiesButton').click() },
+    { label: '关闭标签', group: '文件', icon: 'x', shortcut: 'Ctrl+W', enabled: () => !!current(), run: () => closeTab(activeId) },
+    { label: '撤销', group: '编辑', icon: 'undo', shortcut: 'Ctrl+Z', enabled: enabledButton('undoButton'), run: () => history.step() },
+    { label: '重做', group: '编辑', icon: 'redo', shortcut: 'Ctrl+Y', enabled: enabledButton('redoButton'), run: () => history.step(true) },
+    { label: '编辑历史…', group: '编辑', icon: 'history', enabled: pdf, run: () => history.show() },
+    ...EDIT_KINDS.map(([label, kind, icon]) => ({ label, group: '编辑', icon, keys: '页面编辑', enabled: pdf, run: () => direct.open(kind) })),
+    { label: '页面管理…', group: '编辑', icon: 'pages', enabled: pdf, run: () => pageManager.open(currentPdf()) },
+    ...ANNOTATION_TOOLS.map(([label, id, icon]) => ({ label, group: '批注', icon, keys: '批注', enabled: () => chrome.available(currentPdf(), id), run: () => chrome.useTool(currentPdf(), id) })),
+    { label: '批注列表与导出', group: '批注', icon: 'outline', enabled: pdf, run: () => navigation.show('comments') },
+    { label: '搜索文档', group: '阅读', icon: 'search', shortcut: 'Ctrl+F', enabled: pdf, run: () => navigation.show('search') },
+    { label: '侧栏：大纲、书签、页面与批注', group: '阅读', icon: 'outline', enabled: pdf, run: () => navigation.toggle('outline') },
+    { label: '视图模式…', group: '阅读', icon: 'view', enabled: enabledButton('viewButton'), run: press('viewButton') },
+    { label: '选择文字', group: '阅读', icon: 'textcursor', enabled: enabledButton('selectTextButton'), run: press('selectTextButton') },
+    { label: '抓手', group: '阅读', icon: 'hand', enabled: enabledButton('handToolButton'), run: press('handToolButton') },
+    { label: '笔记模式', group: '阅读', icon: 'double', shortcut: 'Ctrl+\\', enabled: () => !!notes && any(), run: () => notes.toggle() },
+    ...(library ? [{ label: '全库搜索', group: '阅读', icon: 'search', shortcut: 'Ctrl+Shift+F', run: () => library.open() }] : []),
+    { label: '与另一文档并排比较…', group: '阅读', icon: 'compare', enabled: enabledButton('compareView'), run: () => tools.compareSideBySide() },
+    { label: '在新窗口中打开', group: '阅读', icon: 'window', enabled: pdf, run: () => tools.newWindow() },
+    { label: '全屏 / 退出全屏', group: '阅读', icon: 'fullscreen', enabled: pdf, run: () => $('fullscreenView').click() },
+    { label: '全部工具…', group: '工具', icon: 'tools', shortcut: 'Ctrl+Shift+T', enabled: () => !tools.isBusy(), run: () => tools.open() },
+    ...TOOLS.map(t => ({ label: t.label, group: groupLabel(t.group), icon: t.icon, keys: t.keys + ' ' + t.desc, enabled: () => !tools.isBusy() && (!needsPdf(t) || pdf()), run: () => tools.launch(t.id) })),
+    { label: 'AI 协作', group: '应用', icon: 'sparkle', shortcut: 'Ctrl+Shift+A', enabled: () => document.body.dataset.mode !== 'home', run: () => ai.toggle() },
+    { label: '切换深色 / 浅色界面', group: '应用', icon: 'moon', run: () => $('themeButton').click() },
+    { label: '设置', group: '应用', icon: 'settings', run: () => $('settingsButton').click() },
+    { label: '使用帮助', group: '应用', icon: 'help', run: () => $('helpButton').click() },
+  ];
+}
+window.qingye = { toolbar, palette, workspaces, taskCenter, pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
 api.ready();

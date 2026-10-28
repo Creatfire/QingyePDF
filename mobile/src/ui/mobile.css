@@ -97,6 +97,9 @@ html.qyMobile #pageContextMenu button, html.qyMobile .mdMenu button, html.qyMobi
   html.qyMobile .appbar .spacer { flex: 0 0 4px; }
   html.qyMobile .appbar button, html.qyMobile .appbar button:not(.primary):not(#annotateButton):not(#selectTextButton) { flex: none; width: 42px; height: 42px; min-width: 42px; padding: 0; --icon-size: 20px; }
   html.qyMobile .appbar #annotateButton { width: 56px; }
+  html.qyMobile .appbar .splitButton .caretButton { width: 24px; min-width: 24px; }
+  html.qyMobile .appbar :is(#directButton, #toolsButton, #viewButton) { width: 56px; }
+  html.qyMobile .titlebarTools .commandPill { display: none; }
   html.qyMobile .appbar #aiButton .label { display: none; }
   html.qyMobile .appbar .barSep { flex: none; margin: 0 3px; }
 

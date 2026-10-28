@@ -1,7 +1,7 @@
 import { classifyPage } from './ocr-coverage.mjs';
 export function createTextSelection({current,api,applyEdit,guard,status,tools}){
   const button=document.getElementById('selectTextButton');let task;
-  function sync(){button.disabled=!!task?.applying||!task&&(!current()?.loaded||current()?.saving||current()?.editBusy||tools.isBusy()||current()?.view.reflow);const text=task?.applying?'正在更新文字层':task?'取消识别':'文本选择';(button.querySelector('.label')||button).textContent=text;button.setAttribute('aria-label',text);}
+  function sync(){button.disabled=!!task?.applying||!task&&(!current()?.loaded||current()?.saving||current()?.editBusy||tools.isBusy()||current()?.view.reflow);const text=task?.applying?'正在更新文字层':task?'取消识别':'选择';(button.querySelector('.label')||button).textContent=text;button.setAttribute('aria-label',task?text:'文本选择');}
   function select(s){s.app.eventBus.dispatch('switchannotationeditormode',{source:button,mode:0});s.app.pdfCursorTools?.switchTool(0);s.textSelection=true;}
   async function ensure(s=current(),pageNumber=s?.app.pdfViewer.currentPageNumber,retry=false){
     if(!s?.loaded||s.saving||s.editBusy||tools.isBusy()||!document.getElementById('directEditor').hidden||s.view.reflow)return false;

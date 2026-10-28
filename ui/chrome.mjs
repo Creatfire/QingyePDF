@@ -41,7 +41,22 @@ export function menuKeys(container, close) {
   });
 }
 
-export function createChrome({ api, current, guard, navigation, status, shapes }) {
+// Anchor a popover to the control that opened it. A control that the toolbar moved into "更多"
+// (0.21) has no box, so the popover opens under the "更多" button instead.
+export function anchorPopover(popover, invoker, align) {
+  const $ = id => document.getElementById(id);
+  const target = () => { const own = $(invoker), more = $('moreButton'); return own?.offsetParent || !more?.offsetParent ? own : more; };
+  popover.addEventListener('beforetoggle', event => {
+    if (event.newState !== 'open') return;
+    const r = target().getBoundingClientRect();
+    popover.style.top = Math.round(r.bottom + 6) + 'px';
+    if (align === 'right') { popover.style.right = Math.max(12, Math.round(innerWidth - r.right)) + 'px'; popover.style.left = 'auto'; }
+    else { popover.style.left = Math.max(8, Math.min(Math.round(r.left), innerWidth - 260)) + 'px'; popover.style.right = 'auto'; }
+  });
+  popover.addEventListener('toggle', event => $(invoker).setAttribute('aria-expanded', String(event.newState === 'open')));
+}
+
+export function createChrome({ api, current, guard, navigation, status, shapes, openTool }) {
   const $ = id => document.getElementById(id);
   document.body.classList.add('platform-' + (api.platform || 'win32'));
 
@@ -53,17 +68,7 @@ export function createChrome({ api, current, guard, navigation, status, shapes }
   const hour = new Date().getHours();
   $('greeting').textContent = hour < 6 ? '夜深了，慢慢读' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好';
 
-  // Anchor popovers to the control that opened them.
-  function anchor(popover, invoker, align) {
-    popover.addEventListener('beforetoggle', event => {
-      if (event.newState !== 'open') return;
-      const r = $(invoker).getBoundingClientRect();
-      popover.style.top = Math.round(r.bottom + 6) + 'px';
-      if (align === 'right') { popover.style.right = Math.max(12, Math.round(innerWidth - r.right)) + 'px'; popover.style.left = 'auto'; }
-      else { popover.style.left = Math.max(8, Math.min(Math.round(r.left), innerWidth - 260)) + 'px'; popover.style.right = 'auto'; }
-    });
-    popover.addEventListener('toggle', event => $(invoker).setAttribute('aria-expanded', String(event.newState === 'open')));
-  }
+  const anchor = anchorPopover;
   anchor($('viewPanel'), 'viewButton', 'right');
   anchor($('annotateMenu'), 'annotateButton', 'left');
 
@@ -80,7 +85,7 @@ export function createChrome({ api, current, guard, navigation, status, shapes }
   function exitAnnotation(s = current()) { if (s?.loaded) s.app.eventBus.dispatch('switchannotationeditormode', { source: annotateMenu, mode: 0 }); }
   function buildAnnotateMenu() {
     const s = current(), mode = editorMode(s);
-    annotateMenu.replaceChildren(menuLabel('批注工具'));
+    annotateMenu.replaceChildren(menuLabel('标记与评论，不改动原文'));
     for (const [label, id, icon, toolMode] of ANNOTATION_TOOLS) {
       const item = menuItem(label, { icon, role: 'menuitemradio', checked: mode === toolMode, onSelect: () => { annotateMenu.hidePopover(); useTool(current(), id); } });
       item.disabled = !available(s, id);
@@ -93,6 +98,10 @@ export function createChrome({ api, current, guard, navigation, status, shapes }
         item.disabled = !s?.loaded;
         annotateMenu.append(item);
       }
+    }
+    if (openTool) {
+      const region = menuItem('下划线 / 删除线（区域）…', { icon: 'strike', onSelect: () => { annotateMenu.hidePopover(); guard(() => openTool('annotation')); } });
+      region.disabled = !s?.loaded; annotateMenu.append(region);
     }
     annotateMenu.append(menuSep(),
       menuItem('批注列表与导出', { icon: 'outline', onSelect: () => { annotateMenu.hidePopover(); guard(() => navigation.show('comments')); } }),

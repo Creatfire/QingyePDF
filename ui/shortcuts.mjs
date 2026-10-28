@@ -26,6 +26,9 @@ export function createShortcuts(ctx) {
     if (ctrl && !event.shiftKey && event.code === 'KeyN') action = () => newMarkdown();
     if (ctrl && !event.shiftKey && !event.altKey && event.code === 'KeyP' && isMd(s) && s.loaded) action = () => markdown.command(s, 'openQuickly');
     if (ctrl && event.code === 'KeyS') action = () => reviewSave(s, event.shiftKey);
+    // 0.21: the command palette (a Markdown tab keeps its own on the same keys) and the tool center.
+    if (ctrl && event.shiftKey && !event.altKey && event.code === 'KeyP' && !isMd(s) && ctx.palette()) action = () => ctx.palette().open();
+    if (ctrl && event.shiftKey && !event.altKey && event.code === 'KeyT' && ctx.tools) action = () => ctx.tools.open();
     if (ctrl && event.code === 'KeyW') action = async () => { if (closeInProgress) return; closeInProgress = true; try { await closeTab(s?.id); } finally { closeInProgress = false; } };
     if (ctrl && event.shiftKey && event.code === 'KeyA' && document.body.dataset.mode !== 'home') action = () => ai.toggle();
     if (ctrl && event.code === 'Tab') action = () => nextTab(event.shiftKey ? -1 : 1);

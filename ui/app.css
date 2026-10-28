@@ -135,6 +135,17 @@ button.tab { flex: none; min-width: 0; padding: 0 12px; gap: 7px; }
 .appbar button.accentButton { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 .appbar button.accentButton:hover:not(:disabled) { background: var(--accent-soft-2); }
 .appbar .caret { --icon-size: 13px; margin-left: -3px; opacity: .7; display: inline-flex; }
+/* 0.21: split buttons (保存 ▾, 重做 ▾), the select / hand switch, overflow into "更多" */
+.splitButton { display: inline-flex; align-items: center; }
+.splitButton > button:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.appbar .splitButton .caretButton { width: 18px; min-width: 18px; padding: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; --icon-size: 12px; color: var(--muted); }
+.appbar .pointerTools { padding: 2px; gap: 1px; border-radius: 9px; }
+.appbar .pointerTools button { height: 30px; padding: 0 9px; border-radius: 7px; flex: none; }
+.appbar .pointerTools button[aria-pressed="true"] { background: var(--surface); color: var(--accent); }
+.appbar .overflowed { display: none !important; }
+#pinnedTools[hidden] { display: none; }
+.titlebarTools .commandPill { display: inline-flex; align-items: center; gap: 8px; width: auto; height: 28px; padding: 0 8px 0 9px; margin-right: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--muted); font-size: 12px; --icon-size: 14px; }
+.titlebarTools .commandPill:hover { color: var(--ink); border-color: var(--accent-soft-2); }
 #annotateButton.modeActive { background: var(--accent); color: var(--on-accent); }
 #annotateButton.modeActive .label { font-weight: 600; }
 
@@ -342,12 +353,15 @@ body.navigationOpen #compareBar { left: var(--nav-w); }
 
 /* Responsive command bar: labels give way to icons as the window narrows */
 @media (max-width: 1260px) {
-  #saveButton .label, #saveAsButton .label, #historyButton .label, #directButton .label { display: none; }
-  #saveButton, #saveAsButton, #historyButton, #directButton { width: 34px; padding: 0 !important; }
+  #saveButton .label, #printButton .label, #pinnedTools .label { display: none; }
+  #saveButton, #printButton, #pinnedTools button { width: 34px; padding: 0 !important; }
+  .commandPill .label, .commandPill kbd { display: none; }
 }
 @media (max-width: 1060px) {
   .appbar .barGroup .label { display: none; }
-  .appbar button:not(.primary):not(#annotateButton):not(#selectTextButton) { width: 34px; padding: 0; }
+  .appbar button:not(.primary):not(#annotateButton):not(#directButton):not(#toolsButton):not(#viewButton):not(.caretButton):not(.pointerTools button) { width: 34px; padding: 0; }
+  #directButton, #toolsButton, #viewButton { padding: 0 6px 0 8px; }
+  .appbar .pointerTools button { width: 32px; padding: 0; }
   #openButton .label { display: inline; }
   #selectTextButton { padding: 0 8px; }
   #selectTextButton:not(:has(.label)) { max-width: 110px; overflow: hidden; }

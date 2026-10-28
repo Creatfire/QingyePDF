@@ -10,16 +10,16 @@
 /* ——— Toolbox dialog ——— */
 #toolsDialog { width: min(1000px, calc(100vw - 48px)); max-width: 1000px; max-height: calc(100vh - 80px); inset-block-start: 56px; inset-block-end: auto; margin-block: 0; overflow: auto; padding: 0; }
 .toolsHeading { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 18px 20px 14px 24px; background: var(--surface); border-bottom: 1px solid var(--line); }
-.toolsHeading > div:first-child { flex: 1; min-width: 0; }
+.toolsTitleBox { flex: 1; min-width: 0; }
+#toolBack { flex: none; height: 32px; padding: 0 10px 0 6px; font-size: 12.5px; color: var(--accent); --icon-size: 16px; }
+#toolPin[aria-pressed="true"], #toolDock[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+#toolDock { width: 34px; padding: 0; }
 .toolsHeading h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 3px; font-size: 17px; --icon-size: 20px; }
 .toolsHeading h2::before { color: var(--accent); }
 .toolsHeading span#toolDocument { display: block; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toolsQuick { display: flex; gap: 6px; }
 .toolsQuick button { font-size: 12.5px; border: 1px solid var(--line); padding: 6px 11px; --icon-size: 16px; }
 #closeTools { width: 34px; height: 34px; padding: 0; --icon-size: 18px; color: var(--muted); }
-.toolCategories { margin: 16px 24px 0; padding: 3px; gap: 2px; background: var(--surface-3); border-radius: 11px; flex-wrap: nowrap; }
-.toolCategories button { flex: 1; font-size: 12.5px; padding: 7px 8px; border-radius: 9px; color: var(--muted); --icon-size: 16px; }
-.toolCategories button[aria-pressed=true] { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-sm); font-weight: 600; }
 .toolActionLabel { display: flex; align-items: center; gap: 12px; margin: 16px 24px 0; font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
 .toolActionLabel select { flex: 1; font-weight: 600; background-color: var(--accent-soft); border-color: transparent; color: var(--accent); }
 .toolHint { font-size: 12px !important; line-height: 1.7 !important; color: var(--ink-2) !important; margin: 12px 24px 0 !important; padding: 10px 14px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--line); }
@@ -192,3 +192,58 @@
 .taskItem.isFailed { color: #c62828; }
 .taskActions { display: flex; flex-wrap: wrap; gap: 4px; }
 .taskActions button { height: 24px; padding: 0 8px; font-size: 12px; }
+
+/* ——— Tool center (0.21): search, recent tools and task groups ——— */
+#toolHome { padding: 16px 24px 22px; display: flex; flex-direction: column; gap: 16px; }
+#toolHome[hidden], #toolDetail[hidden] { display: none; }
+#toolHome .toolHint { margin: 0 !important; }
+.toolSearch { display: flex; }
+.toolSearch input { flex: 1; height: 40px; padding: 0 14px; font-size: 14px; border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--surface); }
+.toolSearch input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+#toolRecentBox h3, .toolGroup h3 { margin: 0 0 6px; font-size: 12px; font-weight: 650; color: var(--muted); }
+.toolRecent { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.toolGroups { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; align-items: start; }
+.toolGroup { display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-2); }
+.toolCard { position: relative; display: flex; align-items: stretch; border-radius: var(--radius); }
+.toolRecent .toolCard { border: 1px solid var(--line); background: var(--surface); }
+.toolCardMain { flex: 1; min-width: 0; display: grid; grid-template-columns: 22px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center; justify-items: start; height: auto; padding: 8px 34px 8px 10px; text-align: left; border-radius: var(--radius); color: var(--ink); --icon-size: 18px; }
+.toolCardMain::before { grid-row: 1 / span 2; color: var(--accent); }
+.toolCardMain strong { font-size: 13px; font-weight: 600; }
+.toolCardMain small { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+.toolCardMain:hover:not(:disabled) { background: var(--accent-soft); }
+.toolCardMain:disabled { opacity: .5; }
+.toolCardPin { position: absolute; right: 4px; top: 50%; translate: 0 -50%; width: 28px; height: 28px; padding: 0; color: var(--faint); opacity: 0; --icon-size: 15px; }
+.toolCard:hover .toolCardPin, .toolCardPin:focus-visible, .toolCardPin[aria-pressed="true"] { opacity: 1; }
+.toolCardPin[aria-pressed="true"] { color: var(--accent); }
+
+/* Docked tool panel: non-modal, on the right, the document stays visible beside it. */
+body { --tools-w: 400px; }
+#toolsDialog.docked { position: fixed; inset: calc(var(--titlebar-h) + var(--appbar-h)) 0 var(--status-h) auto; width: var(--tools-w); max-width: var(--tools-w); max-height: none; height: auto; margin: 0; border: 0; border-left: 1px solid var(--line); border-radius: 0; box-shadow: -6px 0 24px rgb(0 0 0 / .05); z-index: 30; animation: none; }
+body.aiOpen:not([data-mode="home"]) #toolsDialog.docked { right: var(--ai-w); }
+body.toolsDocked:not([data-mode="home"]) #viewers { right: var(--tools-w); }
+body.toolsDocked.aiOpen:not([data-mode="home"]) #viewers { right: calc(var(--tools-w) + var(--ai-w)); }
+#toolsDialog.docked .toolsHeading { padding: 12px 12px 10px 14px; gap: 8px; }
+#toolsDialog.docked .toolsHeading h2 { font-size: 15px; }
+#toolsDialog.docked #toolHome { padding: 14px; }
+#toolsDialog.docked .toolGroups, #toolsDialog.docked .toolRecent { grid-template-columns: 1fr; }
+#toolsDialog.docked .toolsColumns { flex-direction: column; gap: 8px; padding: 4px 14px 0; }
+#toolsDialog.docked .toolsColumns > #toolFields { min-width: 0; grid-template-columns: 1fr; }
+#toolsDialog.docked .toolHint { margin: 10px 14px 0 !important; }
+#toolsDialog.docked .toolsFooter { flex-wrap: wrap; }
+#toolsDialog.docked #toolPin { font-size: 0; width: 34px; padding: 0; border: 0; }
+
+/* ——— Command palette (0.21) ——— */
+#commandPalette { width: min(640px, calc(100vw - 32px)); max-width: 640px; padding: 0; inset-block-start: 72px; inset-block-end: auto; margin-block: 0; overflow: hidden; }
+.commandSearch { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); --icon-size: 18px; }
+.commandSearch::before { color: var(--muted); }
+.commandSearch input { flex: 1; border: 0; outline: none; background: transparent; font-size: 15px; padding: 4px 0; }
+.commandList { max-height: min(420px, calc(100vh - 220px)); overflow: auto; padding: 6px; }
+.commandRow { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 12px; border-radius: var(--radius); font-size: 13px; color: var(--ink-2); cursor: default; --icon-size: 16px; }
+.commandRow::before { color: var(--muted); }
+.commandRow[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
+.commandRow[aria-disabled="true"] { opacity: .45; }
+.commandName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.commandGroup { font-size: 11px; padding: 1px 8px; border-radius: 9px; background: var(--surface-3); color: var(--muted); }
+.commandRow kbd, .commandPill kbd { font: inherit; font-size: 11px; color: var(--faint); border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; background: var(--surface-2); }
+.commandEmpty { padding: 18px 12px; margin: 0; color: var(--muted); font-size: 13px; }
+.commandFoot { display: flex; gap: 16px; padding: 8px 16px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--muted); }

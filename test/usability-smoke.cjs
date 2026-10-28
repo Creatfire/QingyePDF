@@ -40,11 +40,14 @@ exports.run=async(window,output)=>{
       fixes.draftSwitchCycles++;
     }
   }finally{dialog.showMessageBox=originalMessage;}
+  // 0.21: the 工具 button opens its menu; "全部工具…" opens the tool center (docked beside a PDF).
   const toolboxPoint=await point('toolsButton');
   for(let i=0;i<3;i++){
-    await click(toolboxPoint);assert.equal(await run("document.getElementById('toolsDialog').open"),true,'native toolbox open');
-    assert.equal(await run("document.getElementById('toolsDialog').closedBy==='any'"),true,'dialog light dismiss supported');
-    await click(toolboxPoint);assert.equal(await run("document.getElementById('toolsDialog').open"),false,'native toolbox second click closes');fixes.toolboxCycles++;
+    await click(toolboxPoint);assert.equal(await run("document.getElementById('toolsMenu').matches(':popover-open')"),true,'tools menu opens');
+    const allPoint=await run(`(()=>{const b=[...document.querySelectorAll('#toolsMenu .menuItem')].at(-1),r=b.getBoundingClientRect();return {x:Math.round(r.left+r.width/2),y:Math.round(r.top+r.height/2)};})()`);
+    await click(allPoint);assert.equal(await run("document.getElementById('toolsDialog').open&&!document.getElementById('toolHome').hidden"),true,'tool center open');
+    assert.equal(await run("['any','closerequest'].includes(document.getElementById('toolsDialog').closedBy)"),true,'tool center can be dismissed');
+    await click(await point('closeTools'));assert.equal(await run("document.getElementById('toolsDialog').open"),false,'tool center closes');fixes.toolboxCycles++;
   }
   await run("(async()=>{await qingye.tools.open('ocr');document.getElementById('toolForceOcr').checked=true;})()");
   const busyStarted=await run("(()=>{window.q05BusyTask=qingye.tools.execute();return qingye.tools.isBusy();})()");assert.equal(busyStarted,true);

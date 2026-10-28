@@ -22,6 +22,8 @@ function moreMenu() {
     // Notes mode and library search live in the title bar on a tablet and here on a phone.
     { label: () => window.qingye?.notes?.active() ? '笔记模式命令' : '笔记模式', icon: 'double', disabled: () => !window.qingye?.notes, run: () => window.qingye.notes.toggle(button, true) },
     { label: '全库搜索', icon: 'search', disabled: () => !window.qingye?.library, run: () => window.qingye.library.open() },
+    // 0.21: the command palette has no keyboard shortcut on a phone.
+    { label: '搜索命令', icon: 'search', disabled: () => !window.qingye?.palette, run: () => $('commandButton')?.click() },
     proxy('文档转换中心', 'convert', 'convertButton'), null,
     { label: () => document.body.classList.contains('dark') ? '切换浅色界面' : '切换深色界面', icon: () => document.body.classList.contains('dark') ? 'sun' : 'moon', run: () => $('themeButton')?.click() },
     proxy('设置', 'settings', 'settingsButton'), proxy('使用帮助', 'help', 'helpButton'),
