@@ -26,8 +26,8 @@
     "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
   ],
   "acceptance": [
-    "Windows source: oxlint clean (163 files); 131 unit tests passed, 1 POSIX-only test skipped; 9 Electron smoke suites passed (smoke, markdown, conversion, safety, basic, features, notes, links, pdf014)",
-    "No installer was built for 0.19.1; the packaging paths keep their 0.19.0 acceptance"
+    "0.20.0: verify passed, 141 unit tests with one POSIX-only skip; backend 98 tasks; 9 source and 7 packaged smoke suites passed, as recorded in HANDOFF.md.",
+    "Installer was not installed on a clean system; Android and macOS were not rebuilt for 0.20.0."
   ],
   "newFeatures": [
     "Fixes from the 0.19.1 review: draft kept during a canceled save, library snippets and long-note indexing, Office cache cancellation, compare of dense identical pages, PPT aspect ratio and DPI",

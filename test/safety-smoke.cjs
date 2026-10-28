@@ -362,7 +362,7 @@ exports.run = async ({ window, openFiles, documents: _documents, samplePdf, app,
     const appArgs = app.isPackaged ? ['--safety-smoke'] : [app.getAppPath(), '--safety-smoke'];
     const launch = role => new Promise((resolve, reject) => {
       const child = spawn(electronBin, appArgs, {
-        windowsHide: true, env: { ...process.env, QINGYE_SAFETY_ROLE: role, QINGYE_DRILL_DOC: drillDoc, QINGYE_SMOKE_ROOT: smokeRoot() },
+        windowsHide: true, detached: process.platform !== 'win32', env: { ...process.env, QINGYE_SAFETY_ROLE: role, QINGYE_DRILL_DOC: drillDoc, QINGYE_SMOKE_ROOT: smokeRoot() },
       });
       child.stdout.on('data', chunk => { for (const line of String(chunk).split('\n')) if (line.includes('SAFETY-DRILL-ARMED')) child.armed = true; });
       child.once('error', reject);
@@ -375,9 +375,15 @@ exports.run = async ({ window, openFiles, documents: _documents, samplePdf, app,
     assert.equal(crashChild.armed, true, 'crash drill child must reach the armed state');
     await new Promise(resolve => setTimeout(resolve, 200)); // let stdout/JSON flush
     const crashReport = JSON.parse(await fs.readFile(path.join(safetyDir, 'drill-crash.json'), 'utf8'));
-    const killedBy = spawn('taskkill', ['/PID', String(crashReport.pid), '/F', '/T'], { windowsHide: true });
-    await new Promise(resolve => killedBy.on('close', resolve));
-    const exitCode = await new Promise(resolve => crashChild.once('close', resolve));
+    const closed = new Promise(resolve => crashChild.once('close', resolve));
+    if (process.platform === 'win32') {
+      const killedBy = spawn('taskkill', ['/PID', String(crashReport.pid), '/F', '/T'], { windowsHide: true });
+      const code = await new Promise((resolve, reject) => { killedBy.once('error', reject); killedBy.once('close', resolve); });
+      assert.equal(code, 0, 'taskkill must terminate the crash drill');
+    } else {
+      process.kill(-crashChild.pid, 'SIGKILL');
+    }
+    const exitCode = await closed;
     const manifests = [];
     for (const name of await fs.readdir(path.join(profile, 'recovery'))) {
       if (/^[\da-f-]{36}\.json$/i.test(name)) manifests.push(JSON.parse(await fs.readFile(path.join(profile, 'recovery', name), 'utf8')));
@@ -500,15 +506,14 @@ exports.run = async ({ window, openFiles, documents: _documents, samplePdf, app,
     assert.ok(plain && /GUI OUTPUT CHECK [AB]/.test(plain.text), 'GUI batch export must write the real document text');
     assert.ok(collision && /GUI OUTPUT CHECK [AB]/.test(collision.text), 'same-name batch output must get a (2) suffix, not overwrite');
     assert.equal(plain.dir, collision.dir, 'collision must happen inside one batch run');
-    // Refuse to export over a document that is currently open. Compress emits
-    // a .pdf, so the stubbed path can collide with the open document itself;
-    // text exports cannot (the extension is forced to .txt).
+    // A page reorder always emits a PDF, unlike compression which can return
+    // unchanged on tiny files and never reach the save dialog.
     let overwriteRejected = '';
     try {
       dialog.showSaveDialog = async () => ({ canceled: false, filePath: path.join(folderA, 'gui-output.pdf') });
       await timeout(run(`(async () => {
         const s = [...qingye.sessions.values()].at(-1);
-        await desktop.toolsJob(s.id, await qingye.tools.snapshot(s), { action: 'compress' });
+        await desktop.toolsJob(s.id, await qingye.tools.snapshot(s), { action: 'pages-plan', plan: [{ src: 0, page: 1 }, { src: 0, page: 0 }] });
       })()`), 60000);
     } catch (error) { overwriteRejected = error.message; }
     finally { restoreDialogs(); }

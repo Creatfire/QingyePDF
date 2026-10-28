@@ -21,8 +21,13 @@ if (needsVendor && !await fs.stat(archive).catch(() => null)) {
 const archiveHash = await fs.stat(archive).catch(() => null) ? createHash('sha256').update(await fs.readFile(archive)).digest('hex') : expectedHash;
 if (archiveHash !== expectedHash) throw new Error('PDF.js archive checksum mismatch.');
 if (needsVendor) {
-  const literal = value => `'${value.replaceAll("'", "''")}'`;
-  execFileSync('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -LiteralPath ${literal(archive)} -DestinationPath ${literal(vendor)} -Force`], { windowsHide: true });
+  if (process.platform === 'win32') {
+    const literal = value => `'${value.replaceAll("'", "''")}'`;
+    execFileSync('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -LiteralPath ${literal(archive)} -DestinationPath ${literal(vendor)} -Force`], { windowsHide: true });
+  } else {
+    await fs.mkdir(vendor, { recursive: true });
+    execFileSync('unzip', ['-q', '-o', archive, '-d', vendor]);
+  }
 }
 const htmlPath = path.join(vendor, 'web', 'viewer.html');
 let html = await fs.readFile(htmlPath, 'utf8');
@@ -31,5 +36,5 @@ if (!html.includes('../../../ui/viewer.css')) html = html.replace('</head>', '  
 await fs.writeFile(htmlPath, html);
 const enginePath=path.join(vendor,'build','pdf.mjs');
 await fs.writeFile(enginePath,patchPdfjs(await fs.readFile(enginePath,'utf8')));
-await fs.writeFile(path.join(vendor, 'QINGYE-MODIFICATIONS.md'), `PDF.js ${version}\nSource: ${url}\nArchive SHA-256: ${archiveHash}\n\nQingye modifications: web/viewer.html title and reference to ui/viewer.css; build/pdf.mjs skips serialization of image editors before their bitmap is ready and releases the picker on image-load errors. Reproducible patch: scripts/pdfjs-patches.cjs. Original copyright and license are retained.\n`);
+await fs.writeFile(path.join(root, 'docs', 'development', 'PDFJS-MODIFICATIONS.md'), `PDF.js ${version}\nSource: ${url}\nArchive SHA-256: ${archiveHash}\n\nQingye modifications: web/viewer.html title and reference to ui/viewer.css; build/pdf.mjs skips serialization of image editors before their bitmap is ready and releases the picker on image-load errors. Reproducible patch: scripts/pdfjs-patches.cjs. Original copyright and license are retained.\n`);
 console.log(`Prepared PDF.js ${version}, archive SHA-256 ${archiveHash}`);

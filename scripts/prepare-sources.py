@@ -41,4 +41,10 @@ target=folder/'js-sequence-diagrams-2.0.1.tar.gz'
 if not target.exists():urllib.request.urlretrieve(url,target)
 index.append({'name':'js-sequence-diagrams','version':'2.0.1','commit':'a6c252b2ed0d1e6b1d16be066f582afd2895e6c9','file':target.name,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'url':url})
 print('js-sequence-diagrams',target.stat().st_size,flush=True)
+pandoc_commit='381230ee36d8fa871c28f8982e22579f1a8f723b'
+url=f'https://codeload.github.com/jgm/pandoc/tar.gz/{pandoc_commit}'
+target=folder/'pandoc-3.12-source.tar.gz'
+if not target.exists(): urllib.request.urlretrieve(url,target)
+index.append({'name':'pandoc','version':'3.12','commit':pandoc_commit,'file':target.name,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'url':url})
+print('pandoc',target.stat().st_size,flush=True)
 (folder/'sources.json').write_text(json.dumps(index,indent=2),encoding='utf-8')

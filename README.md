@@ -1,107 +1,42 @@
-<p align="center"><img src="build/logo.png" width="112" alt="青页 PDF"></p>
-<h1 align="center">青页 PDF · Qingye PDF</h1>
-<p align="center">本地优先的开源 PDF 阅读器与 Markdown 笔记工具 · 无账号、无订阅、无广告</p>
-<p align="center"><i>A local-first, open-source PDF reader and Markdown note-taking app for Windows, macOS and Android. AGPL-3.0.</i></p>
+# 青页 PDF · Qingye PDF
 
-![笔记模式：左侧 PDF，右侧 Markdown 笔记](docs/images/notes-split.png)
+青页 PDF 是一款本地优先的 PDF 阅读与 Markdown 笔记工具。可以在同一窗口阅读、批注和整理笔记，也可以进行 OCR、页面管理和文档转换。
 
-## 这是什么
+当前交付目标为 **Windows 0.20.0，Windows 10 / 11 x64**。仓库中保留 macOS 与 Android 的代码和历史说明，0.20.0 未对这两个平台重新构建或验收。
 
-青页把读 PDF 和记笔记放在同一个窗口里：左边是论文或书，右边是 Markdown 笔记，两边互相知道对方在哪。所有文档处理都在本机完成，不上传文件。
+![PDF 与 Markdown 笔记并排](docs/images/notes-split.png)
 
-| | |
-|---|---|
-| **PDF 阅读** | 多标签、全文搜索、目录 / 书签 / 缩略图、高亮 / 墨迹 / 文本框 / 图形 / 签名批注（已有批注可拖动、缩放、改样式）、批注面板（筛选、标签、批量改色与导出）、并排比较与差异高亮、文字重排 |
-| **Office 文件** | Word、Excel、PowerPoint、WPS 文件直接打开，随包 LibreOffice 在本机转换成 PDF（保留版式，原文件不改动），有进度和取消 |
-| **笔记模式** | PDF 与 Markdown 左右并排；摘录选中文字或框选区域（公式、图表），链接可回到原文并高亮；批注一键同步到笔记；翻页时笔记跟随；整组文档可保存为工作区，一键恢复 |
-| **Markdown** | 所见即所得编辑（Typora 风格）、代码块编辑器（语法着色、自动缩进）、源码模式、数学公式、Mermaid 图表、表格、图片缩放与重命名、从 Word 干净粘贴、导出 PDF / Word / HTML / EPUB |
-| **全库搜索** | 在所有打开过的 PDF 和笔记的内容里搜索，索引只保存在本机 |
-| **引用信息** | 识别 DOI / arXiv / 标题 / 作者，生成 BibTeX、GB/T 7714、APA，导出 `.bib` 文献库 |
-| **PDF 工具箱** | 可视化页面管理（拖动排序、旋转、插入、拆分）、合并、压缩、OCR（中英文，只补文字层）、原文替换、永久涂黑、水印、印章、加密；长任务在任务中心排队、取消、重试 |
-| **文档转换** | 内置官方 Pandoc，51 种输入 / 76 种输出格式，批量转换 |
-| **AI 协作（可选）** | 连接你自己的模型服务（OpenAI 兼容、Anthropic、Ollama 等），AI 可读取两侧文档、写笔记、给 PDF 加批注；默认关闭 |
-| **界面** | 浅色 / 深色，Windows 或 macOS 风格窗口，简体中文 / 繁體中文 / English / 日本語 / 한국어 |
-| **平台** | Windows、macOS、Android（手机竖屏时笔记模式上下分屏，轻点页面收起工具栏） |
+## 功能
 
-完整说明见 [docs/USER-GUIDE.md](docs/USER-GUIDE.md)，功能范围与限制见 [FEATURES.md](FEATURES.md)，各版本改动见 [CHANGELOG.md](CHANGELOG.md)。所有文档的入口是 [docs/README.md](docs/README.md)（文档地图：哪份文档讲什么、给谁看）。
+- PDF 多标签阅读、搜索、书签、批注、页面管理和文字差异比较。
+- PDF 与 Markdown 并排，摘录内容可链接回原文；工作区可保存文档组合。
+- Markdown 编辑、公式、图表和导出；支持 Word、Excel、PowerPoint 等 Office 文件以 PDF 打开。
+- 本地 OCR、压缩、涂黑、加密和批量转换；可选连接用户配置的 AI 服务。
 
-<table><tr>
-<td><img src="docs/images/library.png" alt="全库搜索"></td>
-<td><img src="docs/images/citation.png" alt="引用信息与 BibTeX"></td>
-</tr></table>
+功能细节和已知限制见 [功能范围](docs/features/FEATURES.md)，具体操作见 [使用手册](docs/guide/USER-GUIDE.md)。
 
-## 下载
+## 下载与使用
 
-在仓库的 **Releases** 页面下载：
+Windows 发布物为安装程序 `QingyePDF-<版本>-Setup-x64.exe` 和安装目录压缩包 `QingyePDF-<版本>-win-x64.zip`。从项目的 Releases 页面取得实际发布的文件；本地构建产物和验证状态见 [当前交接](docs/releases/HANDOFF.md)。
 
-| 系统 | 文件 | 说明 |
-|---|---|---|
-| Windows 10 / 11（x64） | `QingyePDF-<版本>-Setup-x64.exe` | 安装版（可选安装位置，无需管理员权限） |
-| Windows 10 / 11（x64） | `QingyePDF-<版本>-win-x64.zip` | 安装目录的压缩包，解压后运行 `QingyePDF.exe` |
-| macOS 12+（Apple 芯片） | `QingyePDF-<版本>-mac-arm64.dmg` | 见 [docs/MACOS.md](docs/MACOS.md) |
-| macOS 12+（Intel） | `QingyePDF-<版本>-mac-x64.dmg` | 同上 |
-| Android 7+ | `QingyePDF-<版本>-android.apk`（仓库未配置签名密钥时是 `-android-debug.apk`） | 见 [mobile/README.md](mobile/README.md) |
-
-三个平台是同一套代码和同一套功能；界面里的快捷键提示在 Mac 上显示为 ⌘ / ⌥ 写法，在安卓上换成触屏手势。
-
-发布的 Windows 和 macOS 版本目前没有付费的代码签名：Windows SmartScreen 会提示“未知发布者”（“更多信息 → 仍要运行”），macOS 第一次打开需要手动放行（步骤在 docs/MACOS.md）。可以用同目录的 `SHA256SUMS` 文件核对下载。配置签名的方法见 [docs/SIGNING.md](docs/SIGNING.md)。
+打开软件后可以拖入文档，或通过首页选择文件。未签名的 Windows 安装程序可能显示发布者提示；用户可核对发布时提供的 SHA-256 校验值。
 
 ## 从源码运行
 
-需要 Node.js 22、Python 3.12（仅构建 PDF 工具箱后端时）。以下命令在 Windows PowerShell 中执行：
+Windows 开发环境需要 Node.js 22.12+、npm 11.21.1 和 Python 3.12。安装依赖、准备 PDF.js、Pandoc、LibreOffice 与后端，之后运行 `npm start`。完整命令、测试和打包方法见 [构建与发布](docs/development/BUILDING.md)。
 
 ```powershell
-git clone https://github.com/<你的用户名>/QingyePDF.git
-cd QingyePDF
+npm install -g npm@11.21.1
 npm ci
-node node_modules/electron/install.js   # npm 11 默认不运行 Electron 的安装脚本，需要手动下载二进制
-node scripts/prepare-pdfjs.mjs      # 重新下载并校验 PDF.js（仓库已带一份，可跳过）
-./scripts/prepare-pandoc.ps1        # 下载并校验 Pandoc 3.12（约 235 MB，不入库）
-./scripts/prepare-libreoffice.ps1   # 下载并校验 LibreOffice 26.2.6，用于打开 Office 文件（约 640 MB，不入库）
-./scripts/build-backend.ps1         # 用 PyInstaller 冻结 PDF 工具箱后端（不入库）
 npm start
 ```
 
-只想改界面而不用工具箱、转换和 Office 打开时，后三步可以跳过。在 Mac 上把两个 `.ps1` 换成 `bash scripts/prepare-pandoc.sh` 和 `bash scripts/build-backend.sh`。打包与发布见 [docs/BUILDING.md](docs/BUILDING.md)。
+未准备相应引擎时，PDF 工具、文档转换和 Office 打开可能无法使用。
 
-```powershell
-npm run verify                      # 静态检查（oxlint）+ 单元测试
-node scripts/ci-smoke.cjs           # Electron 冒烟测试（真实窗口）
-npm run dist                        # 生成 dist/QingyePDF-<版本>-Setup-x64.exe 和 -win-x64.zip
-```
+## 文档与参与
 
-## 仓库结构
+[文档目录](docs/README.md)按功能、使用、开发、历史版本、缺陷和许可组织全部项目说明。[贡献指南](docs/development/CONTRIBUTING.md)介绍提交和测试流程；安全问题请按[安全策略](docs/security/SECURITY.md)私下报告。
 
-```
-main.cjs, preload.cjs      Electron 主进程与预加载脚本
-*-ipc.cjs, *.cjs           主进程模块（Markdown、转换、AI、恢复、全库搜索索引…）
-ui/                        界面（原生 ES 模块，无打包步骤）
-  notes-mode.mjs           笔记模式
-  library.mjs              全库搜索
-  citation.mjs             引用信息
-  markdown/                Markdown 编辑器
-  ai/                      AI 面板与文档工具
-backend/worker.py          PDF 工具箱（PyMuPDF），发布时冻结为 QingyeWorker.exe
-vendor/                    PDF.js、Markdown / 图表库、OCR 模型（Pandoc 在构建时下载）
-ui/platform-text.mjs       按平台改写界面文字（Mac 快捷键写法、安卓去掉键盘提示）
-mobile/                    安卓版（Capacitor，复用 ui/）
-test/                      单元测试与冒烟测试
-scripts/                   构建、图标、翻译词典等脚本
-docs/                      使用说明、构建说明、架构说明、历史文档
-```
+文档处理在本机进行。AI、引用信息联网补全和手动检查更新会在用户触发时发出相应请求；转换时使用外部资源或高级参数的行为见[转换说明](docs/features/CONVERSION.md)。
 
-更多细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
-
-## 隐私
-
-- 不联网也能使用全部阅读、编辑、搜索和转换功能；应用的窗口进程禁止访问任何网络地址。
-- 只有三处会在你明确操作时联网：**AI 协作**（把问题和模型读取的文档片段发送到你自己配置的服务）、**引用信息的“联网补全”**（只把 DOI 发送到 doi.org）和**设置 → 关于 →“检查更新”**（向 GitHub Releases 查询一次最新版本号，不发送任何文档信息，不自动下载）。
-- 最近文件、阅读位置、全库搜索索引、引用信息都保存在本机用户数据目录。
-
-## 参与
-
-欢迎提 Issue 和 Pull Request，请先看 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-## 许可
-
-[AGPL-3.0-only](LICENSE)。随附的第三方组件及其许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)；`LICENSE-MIT` 适用于其中注明的部分。
+本项目按 [AGPL-3.0-only](docs/legal/LICENSE) 发布；第三方组件及其许可证见[第三方声明](docs/legal/THIRD_PARTY_NOTICES.md)。

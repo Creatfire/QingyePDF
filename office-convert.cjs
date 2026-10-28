@@ -17,8 +17,9 @@ const isOffice = file => typeof file === 'string' && OFFICE_EXTENSIONS.has(path.
 
 function bundledRoot({ packaged, resources } = {}) { return packaged ? path.join(resources, 'libreoffice') : path.join(__dirname, 'vendor', 'libreoffice'); }
 function sofficePath(options) {
-  const exe = path.join(bundledRoot(options), 'program', process.platform === 'win32' ? 'soffice.com' : 'soffice');
-  return fsSync.existsSync(exe) ? exe : null;
+  const root = bundledRoot(options);
+  const candidates = process.platform === 'darwin' ? [path.join(root, 'LibreOffice.app', 'Contents', 'MacOS', 'soffice'), path.join(root, 'program', 'soffice')] : [path.join(root, 'program', process.platform === 'win32' ? 'soffice.com' : 'soffice')];
+  return candidates.find(exe => fsSync.existsSync(exe)) || null;
 }
 function engineInfo(options) {
   try { const m = JSON.parse(fsSync.readFileSync(path.join(bundledRoot(options), 'manifest.json'), 'utf8').replace(/^﻿/, '')); return { name: m.name, version: m.version }; } catch { return null; }

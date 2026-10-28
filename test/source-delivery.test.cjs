@@ -1,0 +1,33 @@
+'use strict';
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const { spawnSync } = require('node:child_process');
+const root = path.resolve(__dirname, '..');
+const python = process.platform === 'win32' ? 'python' : 'python3';
+
+test('source release refuses missing or corrupt sources and delivery includes both archives', t => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'qingye-release-'));
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+  const write = (name, data) => { const target = path.join(tmp, name); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, data); };
+  for (const file of ['scripts/package-source.py', 'scripts/prepare-delivery.cjs']) write(file, fs.readFileSync(path.join(root, file)));
+  write('package.json', JSON.stringify({ version: '0.20.0' })); write('README.md', 'README'); write('docs/README.md', 'docs');
+  const run = (command, args) => spawnSync(command, args, { cwd: tmp, encoding: 'utf8' });
+  const script = path.join(tmp, 'scripts/package-source.py');
+  assert.notEqual(run(python, [script]).status, 0, 'missing manifest must fail');
+  const names = ['pymupdf', 'mupdf', 'pandoc', 'python-docx', 'openpyxl', 'python-pptx', 'pillow', 'lxml', 'typing_extensions', 'et-xmlfile', 'xlsxwriter', 'pyinstaller', 'flowchart.js', 'raphael', 'eve-raphael', 'underscore', 'js-sequence-diagrams'];
+  const records = names.map(name => { const file = name + '.tgz'; write('third-party-source/' + file, name); return { name, file, sha256: crypto.createHash('sha256').update(name).digest('hex') }; });
+  write('third-party-source/sources.json', JSON.stringify(records));
+  write('third-party-source/pandoc.tgz', 'corrupted');
+  assert.notEqual(run(python, [script]).status, 0, 'corrupt source must fail');
+  write('third-party-source/pandoc.tgz', 'pandoc');
+  const packed = run(python, [script]); assert.equal(packed.status, 0, packed.stderr);
+  write('dist/QingyePDF-0.20.0-Setup-x64.exe', 'installer'); write('dist/QingyePDF-0.20.0-win-x64.zip', 'binary');
+  const delivered = run(process.execPath, [path.join(tmp, 'scripts/prepare-delivery.cjs'), path.join(tmp, 'delivery')]);
+  assert.equal(delivered.status, 0, delivered.stderr);
+  const manifest = JSON.parse(fs.readFileSync(path.join(tmp, 'delivery/SHA256-0.20.0.json')));
+  for (const name of ['QingyePDF-0.20.0-source.zip', 'QingyePDF-0.20.0-dependency-source.zip']) assert.ok(manifest.some(x => x.name === name));
+});

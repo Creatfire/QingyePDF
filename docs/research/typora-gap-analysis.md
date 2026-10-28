@@ -1,5 +1,7 @@
 # Typora 1.14.10 × 青页 PDF 0.13.0：Markdown 功能差距分析
 
+> 历史调研：以 0.13.0 为基线；其中建议和差距不代表当前版本状态。当前能力见 [功能范围](../features/FEATURES.md)。
+
 > 基线：QingyePDF `v0.13.0`（分支 `dev-0.13`）。对照：本机安装的 Typora 1.14.10（Windows x64）。
 > 原始证据在仓库外的 `E:\QINGYEPDF\research\typora\`：`rea/app-graph.json`（REA 静态重建结果）、`catalog/*.tsv`（中英对照的菜单和设置字符串）。
 

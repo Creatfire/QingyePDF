@@ -24,7 +24,7 @@
 
 ## 几条贯穿全局的规则
 
-- **窗口进程不联网。** `session.webRequest` 拦截所有 http(s) 请求；需要联网的两件事（AI、DOI 查询）都由主进程在用户触发时完成。
+- **窗口进程不联网。** `session.webRequest` 拦截所有 http(s) 请求；需要联网的操作（AI、DOI 查询、手动检查更新）都由主进程在用户触发时完成。
 - **窗口进程不直接碰文件系统。** 所有文件操作经 `preload.cjs` 暴露的具体函数，主进程按文档 ID 或最近列表令牌解析路径，并校验调用来源。
 - **修改先进草稿，保存才写盘。** PDF 的结构性修改通过后端生成新字节流，进入每个标签自己的撤销历史；Markdown 编辑器有自己的撤销栈。每隔几秒把未保存内容写入恢复目录。
 - **界面无构建步骤。** `ui/` 是原生 ES 模块，第三方库以预构建文件放在 `vendor/`。
@@ -45,3 +45,7 @@
 ## 安卓版
 
 `mobile/` 用 Capacitor 包装同一套 `ui/`，Node / Electron 接口由 `mobile/src/shims/` 提供，后端 `worker.py` 在 Pyodide 中运行。笔记模式、全库搜索、引用信息在安卓上同样可用：手机竖屏时两个窗格上下排列，命令在“更多 → 笔记模式命令”里；触屏行为（轻点收起工具栏、双击缩放、选中文字的操作条）在 `mobile/src/ui/mobile-ui.js`。
+
+## 0.20 工作流
+
+页面管理由 `ui/page-plan.mjs` 与 `ui/page-manager.mjs` 组织；批注面板由 `ui/annot-panel.mjs` 和 `ui/annot-labels.mjs` 提供。`ui/task-center.mjs` 跟踪任务、队列和文档版本；`workspace-ipc.cjs` 与 `ui/workspaces.mjs` 保存工作区与固定文件。Office 打开和默认转换使用 `office-convert.cjs`，OCR 在 `backend/worker.py` 中补文字层。

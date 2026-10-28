@@ -22,7 +22,7 @@ for dist in metadata.distributions():
                 folder.mkdir(exist_ok=True)
                 shutil.copyfile(source, folder / str(file).replace('/','_').replace('\\','_'))
 (out / 'packages.json').write_text(json.dumps(records, indent=2), encoding='utf-8')
-shutil.copyfile(root / 'LICENSE', out / 'AGPL-3.0.txt')
+shutil.copyfile(root / 'docs' / 'legal' / 'LICENSE', out / 'AGPL-3.0.txt')
 python_notice=Path(sys.base_prefix)/'LICENSE.txt'
 if python_notice.exists():shutil.copyfile(python_notice,out/'CPython-LICENSE.txt')
 source=root/'third-party-source'/'mupdf-1.28.2-source.tar.gz'

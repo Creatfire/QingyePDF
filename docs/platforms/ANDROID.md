@@ -1,6 +1,8 @@
-# 青页 PDF · 安卓版（0.12.0）
+# 青页 PDF · Android
 
-安卓版不是重写：它把桌面版的界面（`ui/`）、阅读引擎（PDF.js）、Markdown 编辑器和主进程模块原样装进一个 Capacitor WebView，只替换“只有桌面才有”的那一层。桌面版代码没有任何改动，`mobile/` 之外只新增了 `.github/workflows/android.yml`。
+> 本文以早期安卓实现和验证记录为基础。当前 Android 项目版本为 0.18.0；0.20.0 未重新构建或验收，具体功能须以实际安装包为准。
+
+安卓版不是重写：它把桌面版的界面（`ui/`）、阅读引擎（PDF.js）、Markdown 编辑器和主进程模块原样装进一个 Capacitor WebView，只替换“只有桌面才有”的那一层。与桌面端共享的代码会随版本演进。
 
 ## 它是怎么工作的
 
@@ -95,4 +97,4 @@ npm run test:e2e     # 手机视口的 Chromium 里跑真实界面（先 npm run
 
 ## 许可
 
-与桌面版相同（AGPL-3.0-only）。安卓版新增的第三方组件见仓库根目录 `THIRD_PARTY_NOTICES.md` 的“安卓版”一节。
+与桌面版相同（AGPL-3.0-only）。安卓版新增的第三方组件见[第三方声明](../legal/THIRD_PARTY_NOTICES.md)的“安卓版”一节。

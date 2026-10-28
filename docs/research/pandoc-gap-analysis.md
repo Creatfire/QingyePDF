@@ -1,5 +1,7 @@
 # Pandoc 3.12 × 青页 PDF 0.13.0：集成差距与优化分析
 
+> 历史调研：以 0.13.0 为基线；其中建议和差距不代表当前版本状态。当前能力见 [功能范围](../features/FEATURES.md)。
+
 > 基线：QingyePDF `v0.13.0`（分支 `dev-0.13`）。对照：随包的官方 Pandoc 3.12（提交 `381230e`，GPL-2.0-or-later，未修改）。
 > Pandoc 是开源软件，不需要逆向：本次通过 `scripts/prepare-pandoc.ps1` 取得官方二进制并校验 SHA-256，然后做能力探测和对照实验，再结合官方手册（`vendor/pandoc/MANUAL.html`）分析。
 > 原始数据在仓库外的 `E:\QINGYEPDF\research\pandoc\`：`probe/`（格式、扩展、高亮、帮助清单）、`exp/`（实验文件）。

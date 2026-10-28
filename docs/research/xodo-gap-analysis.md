@@ -1,5 +1,7 @@
 # Xodo 6.3.4（Windows）× 青页 PDF 0.13.0：PDF 功能差距与优化分析
 
+> 历史调研：以 0.13.0 为基线；其中建议和差距不代表当前版本状态。当前能力见 [功能范围](../features/FEATURES.md)。
+
 > 基线：QingyePDF `v0.13.0`（分支 `dev-0.13`）。对照：本机 Microsoft Store 版 Xodo 6.3.4（`5E8FC25E.XODODOCS`）。
 > 原始证据放在仓库外的 `E:\QINGYEPDF\research\xodo\`：
 > - `pkg/`：从安装包复制的声明式资源（Actions JSON、菜单和设置 JSON、XAML 类型元数据）

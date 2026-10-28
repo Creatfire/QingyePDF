@@ -40,6 +40,9 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements-lock.txt
 
+      - name: Pin npm
+        run: npm install -g npm@11.21.1
+
       - name: Install Node dependencies
         run: npm ci
 

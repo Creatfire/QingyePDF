@@ -3,13 +3,14 @@
 ## 环境
 
 - Windows 10 / 11 x64
-- Node.js 22
+- Node.js 22.12+（推荐 22.23）和 npm 11.21.1；项目锁定 npm 版本以保持 lockfile 的平台约束
 - Python 3.12（冻结 PDF 工具箱后端）
 - PowerShell 7 或 Windows PowerShell 5.1
 
 ## 准备依赖
 
 ```powershell
+npm install -g npm@11.21.1
 npm ci
 node scripts/prepare-pdfjs.mjs      # 下载官方 PDF.js 发行包、校验 SHA-256 并套用青页的两处改动
 ./scripts/prepare-pandoc.ps1        # 下载 Pandoc 3.12 到 vendor/pandoc/pandoc.exe 并校验 SHA-256
@@ -57,12 +58,13 @@ npm run dist:installer              # 只生成安装版
 ```bash
 npm ci
 bash scripts/prepare-pandoc.sh      # Pandoc 3.12 for macOS，按芯片下载并校验
+bash scripts/prepare-libreoffice.sh # 官方 LibreOffice，按芯片下载并校验
 bash scripts/build-backend.sh       # backend/bin/QingyeWorker/QingyeWorker
 npm test && npm start
 npx electron-builder --mac dmg -c.mac.identity=- -c.mac.notarize=false
 ```
 
-详见 [MACOS.md](MACOS.md)。发布用的 dmg 由 `.github/workflows/macos.yml` 在 arm64 和 Intel 运行器上分别构建。
+详见 [MACOS.md](../platforms/MACOS.md)。发布用的 dmg 由 `.github/workflows/macos.yml` 在 arm64 和 Intel 运行器上分别构建。
 
 ## Android
 
@@ -71,7 +73,7 @@ cd mobile && npm ci && npm run apk   # android/app/build/outputs/apk/debug/app-d
 npm test && npm run test:e2e         # 单元测试；手机尺寸的 Chromium 端到端测试
 ```
 
-详见 [mobile/README.md](../mobile/README.md)。
+详见 [mobile/README.md](../platforms/ANDROID.md)。
 
 ## 持续集成
 
@@ -81,8 +83,10 @@ npm test && npm run test:e2e         # 单元测试；手机尺寸的 Chromium �
 
 发布一个版本：
 
-1. 更新 `package.json` 的 `version`、`CHANGELOG.md`、`RELEASE-TARGET.json`。
-2. `git tag v0.12.0 && git push --tags`。
+1. 更新 `package.json` 的 `version`、[更新日志](../history/CHANGELOG.md)、[发布目标](../releases/RELEASE-TARGET.json) 与当前交接记录。
+2. `$version = (Get-Content package.json | ConvertFrom-Json).version
+git tag "v$version"
+git push origin "v$version"`。
 3. 等 CI 完成，在 Releases 页面检查草稿并发布。
 
 ## 图标
@@ -96,3 +100,7 @@ npm test && npm run test:e2e         # 单元测试；手机尺寸的 Chromium �
 ## CodeMirror 离线包
 
 `vendor/codemirror/qingye-codemirror.mjs` 是 CodeMirror 6 的离线打包，供源码模式和代码块编辑器使用（0.19 起包含 24 种代码语言）。需要更新时按 `scripts/build-codemirror-vendor.mjs` 顶部注释安装固定版本的包（可以装在临时目录，用 `--modules` 指过去），再运行该脚本。`@codemirror/state` 和 `@codemirror/view` 必须只有一份（`npm ls @codemirror/state` 只显示一个版本），否则编辑器会报 “Unrecognized extension value”。
+
+## 源码交付
+
+先运行 `python3 scripts/prepare-sources.py` 准备依赖源码，再运行 `python3 scripts/package-source.py`；脚本检查来源清单与各文件哈希，缺失时失败。`npm run deliver` 要求安装包、安装目录 ZIP 和两个源码归档均在 `dist/`。

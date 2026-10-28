@@ -6,7 +6,8 @@
   "license": "AGPL-3.0-only",
   "main": "main.cjs",
   "engines": {
-    "node": ">=22"
+    "node": "^22.12.0 || >=24",
+    "npm": ">=11.21.1 <12"
   },
   "scripts": {
     "start": "electron .",
@@ -39,10 +40,11 @@
     "build:backend:unix": "bash scripts/build-backend.sh",
     "test:013": "node --test test/fixes013.test.cjs",
     "smoke:013": "electron . --fix013-smoke",
-    "prepare:libreoffice": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-libreoffice.ps1"
+    "prepare:libreoffice": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-libreoffice.ps1",
+    "postinstall": "node scripts/ensure-electron.cjs"
   },
   "devDependencies": {
-    "electron": "44.4.5",
+    "electron": "44.10.0",
     "electron-builder": "26.15.3",
     "oxlint": "^1.88.0",
     "resedit": "^3.1.0"
@@ -70,15 +72,10 @@
       "vendor/codemirror/**/*",
       "vendor/mermaid/**/*",
       "vendor/diagrams/**/*",
-      "LICENSE",
-      "LICENSE-MIT",
-      "THIRD_PARTY_NOTICES.md",
       "README.md",
-      "FEATURES.md",
       "test/smoke.cjs",
       "recovery.cjs",
       "diagnostics.cjs",
-      "CHANGELOG.md",
       "test/editing-smoke.cjs",
       "test/usability-smoke.cjs",
       "test/enhancement-smoke.cjs",
@@ -103,8 +100,6 @@
       "ai-api-server.cjs",
       "ai-ipc.cjs",
       "test/conversion-smoke.cjs",
-      "CONVERSION.md",
-      "RELEASE-TARGET.json",
       "test/basic093-smoke.cjs",
       "test/fix093-smoke.cjs",
       "test/fix-close093-smoke.cjs",
@@ -116,7 +111,8 @@
       "test/notes010-smoke.cjs",
       "test/fixes013-smoke.cjs",
       "test/xodo014-smoke.cjs",
-      "test/fixtures/remote-link.pdf"
+      "test/fixtures/remote-link.pdf",
+      "docs/**/*"
     ],
     "extraResources": [
       {
@@ -161,7 +157,6 @@
         "zip"
       ],
       "icon": "build/icon.ico",
-      "signExecutable": false,
       "artifactName": "QingyePDF-${version}-win-x64.${ext}"
     },
     "nsis": {
@@ -173,7 +168,7 @@
       "artifactName": "QingyePDF-${version}-Setup-x64.${ext}"
     },
     "extraMetadata": {
-      "buildRevision": "0.19.1"
+      "buildRevision": "0.20.0"
     },
     "afterPack": "scripts/after-pack.cjs",
     "mac": {
@@ -231,5 +226,10 @@
         "height": 380
       }
     }
+  },
+  "packageManager": "npm@11.21.1",
+  "allowScripts": {
+    "electron": true,
+    "electron-winstaller": true
   }
 }

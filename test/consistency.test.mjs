@@ -18,10 +18,12 @@ const MODULE_EXTENSIONS = ['.cjs'];
 test('release: every file that states the version states the same one', () => {
   const version = json('package.json').version;
   assert.match(version, /^\d+\.\d+\.\d+$/, 'package.json version must be x.y.z');
-  assert.equal(json('RELEASE-TARGET.json').version, version, 'RELEASE-TARGET.json version');
-  assert.equal(versionIn(read('CHANGELOG.md'), /^#\s*(\d+\.\d+\.\d+)/m), version, 'CHANGELOG.md heading');
-  assert.equal(versionIn(read('FEATURES.md'), /^#\s*青页 PDF\s*(\d+\.\d+\.\d+)/m), version, 'FEATURES.md heading');
-  assert.equal(versionIn(read('HANDOFF.md'), /^#\s*青页 PDF\s*(\d+\.\d+\.\d+)/m), version, 'HANDOFF.md heading');
+  assert.equal(json('docs/releases/RELEASE-TARGET.json').version, version, 'RELEASE-TARGET.json version');
+  assert.equal(json('docs/releases/RELEASE-TARGET.json').buildRevision, version, 'release build revision');
+  assert.equal(json('package.json').build.extraMetadata.buildRevision, version, 'packaged build revision');
+  assert.equal(versionIn(read('docs/history/CHANGELOG.md'), /^#\s*(\d+\.\d+\.\d+)/m), version, 'CHANGELOG.md heading');
+  assert.equal(versionIn(read('docs/features/FEATURES.md'), /^#\s*青页 PDF\s*(\d+\.\d+\.\d+)/m), version, 'FEATURES.md heading');
+  assert.equal(versionIn(read('docs/releases/HANDOFF.md'), /^#\s*青页 PDF\s*(\d+\.\d+\.\d+)/m), version, 'HANDOFF.md heading');
 });
 
 test('release: the deferred Android build keeps its own version numbers in step', () => {

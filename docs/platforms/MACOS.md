@@ -1,5 +1,7 @@
 # 青页 PDF · macOS 版
 
+> 0.20.0 未重新构建或验收 macOS，下面是既有平台构建和使用说明。
+
 macOS 版和 Windows 版是同一份代码。它由 GitHub Actions 在 Mac 运行器上构建（`.github/workflows/macos.yml`），产物是两个磁盘映像：
 
 | 文件 | 适用 |
@@ -16,7 +18,7 @@ macOS 版和 Windows 版是同一份代码。它由 GitHub Actions 在 Mac 运�
    - 在“应用程序”里按住 Control 点按 QingyePDF → “打开” → 再点“打开”；较新的系统需要到 **系统设置 → 隐私与安全性**，在底部点“仍要打开”。
    - 或在“终端”里执行 `xattr -dr com.apple.quarantine /Applications/QingyePDF.app`。
 
-   放行一次之后就可以正常双击打开。配置了证书并公证的版本没有这一步，见 [SIGNING.md](SIGNING.md)。
+   放行一次之后就可以正常双击打开。配置了证书并公证的版本没有这一步，见 [SIGNING.md](../development/SIGNING.md)。
 3. 想让 PDF 或 Markdown 默认用青页打开：在访达里选中一个文件，按 ⌘I 打开“显示简介”，在“打开方式”里选择 QingyePDF，再点“全部更改…”。
 
 ## 快捷键
@@ -58,6 +60,7 @@ macOS 版和 Windows 版是同一份代码。它由 GitHub Actions 在 Mac 运�
 ```bash
 npm ci
 bash scripts/prepare-pandoc.sh        # 下载并校验 Pandoc 3.12（按本机芯片选择）
+bash scripts/prepare-libreoffice.sh   # 下载并校验同架构的官方 LibreOffice
 bash scripts/build-backend.sh         # PyInstaller 冻结 PDF 工具箱后端
 npm test
 npm start                             # 开发运行

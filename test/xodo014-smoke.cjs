@@ -354,8 +354,7 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     // A result that arrives after the document was edited again is not applied silently.
     report.checks.staleResult = await run(`(async () => {
       const s = ${G}, storage = s.app.pdfDocument.annotationStorage;
-      const job = qingye.applyEdit(s, { action: 'pages-plan', plan: [{ src: 0, page: 1 }, { src: 0, page: 0 }] }, '测试：处理期间被修改');
-      await new Promise(r => setTimeout(r, 120)); storage.setValue('qy-stale-test', { value: 'edited meanwhile' });
+      const job = qingye.applyEdit(s, { action: 'pages-plan', plan: [{ src: 0, page: 1 }, { src: 0, page: 0 }] }, '测试：处理期间被修改', () => { storage.setValue('qy-stale-test', { value: 'edited meanwhile' }); return true; });
       const result = await job; storage.remove('qy-stale-test');
       const task = qingye.taskCenter.tasks().find(t => t.label === '测试：处理期间被修改');
       return { canceled: !!result.canceled, pages: s.app.pagesCount, task: task?.status, note: task?.note };

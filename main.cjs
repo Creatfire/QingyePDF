@@ -409,7 +409,8 @@ app.whenReady().then(async () => {
       const selected=await waitForAbort(dialog.showSaveDialog(window,{title:T('导出处理结果'),defaultPath:path.join(record.path?path.dirname(record.path):app.getPath('documents'),path.parse(record.name).name+'-'+request.action+extension),filters:[{name:extension.slice(1).toUpperCase(),extensions:[extension.slice(1)]}]}),controller.signal);
       if(selected.canceled) return {canceled:true};
       target=selected.filePath;if(path.extname(target).toLowerCase()!==extension) target+=extension;
-      if([...documents.values()].some(d=>d.path && key(d.path)===key(target))) throw new Error('输出不能覆盖正在打开的文档，请使用新的文件名。');
+      const canonicalTarget = await fs.realpath(target).catch(() => target);
+      if([...documents.values()].some(d=>d.path && (key(d.path)===key(target) || key(d.path)===key(canonicalTarget)))) throw new Error('输出不能覆盖正在打开的文档，请使用新的文件名。');
     }
     const hash=request.batchToken?null:await fingerprint(target);
     if(controller.signal.aborted) throw new Error('任务已取消。');

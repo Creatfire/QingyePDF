@@ -10,7 +10,7 @@
 
 ## 开发环境
 
-见 [README](README.md#从源码运行) 与 [docs/BUILDING.md](docs/BUILDING.md)。界面是原生 ES 模块，没有打包步骤，改完 `ui/` 下的文件重新启动即可看到效果。
+见 [README](../../README.md#从源码运行) 与 [docs/BUILDING.md](BUILDING.md)。界面是原生 ES 模块，没有打包步骤，改完 `ui/` 下的文件重新启动即可看到效果。
 
 ## 提交改动前
 
@@ -19,7 +19,7 @@ npm run verify                 # oxlint + 文档链接检查 + 单元测试，�
 node scripts/ci-smoke.cjs      # 改动了界面或主进程时运行
 ```
 
-- **文档**：全部文档的入口是 [docs/README.md](docs/README.md)（文档地图）。新增文档后在那张表里加一行：给用户看的放 `docs/`，过程记录放 `docs/history/`，调研放 `docs/research/`。根目录的 `README / FEATURES / CHANGELOG / CONVERSION / THIRD_PARTY_NOTICES / RELEASE-TARGET.json` 会随安装包分发（`package.json` 的 `build.files`），不要移动。相对链接由 `npm run check:docs` 检查。
+- **文档**：项目说明按主题放在 `docs/`，入口是 [文档目录](../README.md)。修改后运行 `npm run check:docs`；移动文件时同步更新打包、交付脚本和测试。
 
 - **静态检查**：`npm run lint`（oxlint），只启用正确性一类规则，不做格式化改写。三条规则是刻意关闭的，不要顺手打开：
   - `no-control-regex`：文件名与正文清洗里确实要匹配控制字符（`\x00-\x1f`）。
@@ -36,4 +36,4 @@ node scripts/ci-smoke.cjs      # 改动了界面或主进程时运行
 
 ## 许可
 
-提交的代码按 [AGPL-3.0-only](LICENSE) 授权。
+提交的代码按 [AGPL-3.0-only](../legal/LICENSE) 授权。

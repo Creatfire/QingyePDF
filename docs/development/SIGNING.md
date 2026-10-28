@@ -25,7 +25,7 @@
 
 ## macOS
 
-没有证书时，`macos.yml` 对应用做 ad-hoc 签名：能运行，但用户第一次打开要手动放行（见 [MACOS.md](MACOS.md)）。配置下面的 Secret 后，工作流改为用开发者证书签名并提交 Apple 公证，用户双击即可打开。
+没有证书时，`macos.yml` 对应用做 ad-hoc 签名：能运行，但用户第一次打开要手动放行（见 [MACOS.md](../platforms/MACOS.md)）。配置下面的 Secret 后，工作流改为用开发者证书签名并提交 Apple 公证，用户双击即可打开。
 
 | Secret | 内容 |
 |---|---|

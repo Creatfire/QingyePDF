@@ -31,11 +31,11 @@
 
 # 0.19.1 · 工程护栏：静态检查、测试发现、发布一致性；拆分主进程与界面入口
 
-> 在 0.19.0 之上只做工程质量与代码整理，界面与功能不变。功能范围仍以 0.19.0 为准（见本文件下一节与 [FEATURES.md](FEATURES.md)）。
+> 在 0.19.0 之上只做工程质量与代码整理，界面与功能不变。功能范围仍以 0.19.0 为准（见本文件下一节与 [FEATURES.md](../features/FEATURES.md)）。
 
 **新增的自动检查**
 
-- **静态检查（oxlint）**：`npm run lint`。只启用正确性一类规则（未使用的变量 / 导入 / 参数、多余转义、可疑写法、恒为假的条件等），不做格式化改写，代码风格保持原样。`npm run verify` 等于 `lint + 单测`；CI 在单元测试之前增加 lint 步骤。关闭的三条规则与原因写在 [CONTRIBUTING.md](CONTRIBUTING.md)。
+- **静态检查（oxlint）**：`npm run lint`。只启用正确性一类规则（未使用的变量 / 导入 / 参数、多余转义、可疑写法、恒为假的条件等），不做格式化改写，代码风格保持原样。`npm run verify` 等于 `lint + 单测`；CI 在单元测试之前增加 lint 步骤。关闭的三条规则与原因写在 [CONTRIBUTING.md](../development/CONTRIBUTING.md)。
 - **测试按 glob 发现**：`npm test` 改为 `node --test "test/*.test.*"`，新增测试文件不必再改 `package.json`（原先手工列了 23 个文件，容易漏）。`npm run test:coverage` 输出覆盖率。
 - **发布一致性测试**（`test/consistency.test.mjs`）：版本号在 `package.json`、`RELEASE-TARGET.json`、`CHANGELOG.md`、`FEATURES.md`、`HANDOFF.md` 五处必须一致；Android 的 `versionName` / `versionCode` 必须与 `mobile/package.json` 同步（安卓暂不发布，但这两个数字不能各走各的）；每个顶层 `.cjs` 必须出现在打包清单 `build.files` 里，且清单里每一项都真实存在——新增模块忘记登记会在这里失败，而不是等到用户机器上“找不到模块”。
 - `package.json` 增加 `engines.node >= 22`，并新增 `.nvmrc`。
@@ -50,13 +50,13 @@
 
 **文档**
 
-- [CONTRIBUTING.md](CONTRIBUTING.md)：提交前跑什么、测试怎么加、lint 关闭的规则及原因。
-- [docs/BUILDING.md](docs/BUILDING.md)：lint、覆盖率与一致性测试命令。
-- 新增 [docs/README.md](docs/README.md) 作为**文档地图**：每份文档讲什么、给谁看、放在哪，并写明目录约定（根目录哪些文件随安装包分发、不能移动；其余一律进 `docs/`，历史进 `docs/history/`，调研进 `docs/research/`）。README 与 CONTRIBUTING 都指向它。
-- `docs/FIX-REPORT-0.13.0.md` 归入 [docs/history/](docs/history/)；修好 5 处早已失效的相对链接（`docs/history/` 里几个交接文档按“仓库根目录”写的路径，以及 USER-GUIDE 指向 `CONVERSION.md` 的链接）。
+- [CONTRIBUTING.md](../development/CONTRIBUTING.md)：提交前跑什么、测试怎么加、lint 关闭的规则及原因。
+- [docs/BUILDING.md](../development/BUILDING.md)：lint、覆盖率与一致性测试命令。
+- 新增 [docs/README.md](../README.md) 作为**文档地图**：每份文档讲什么、给谁看、放在哪，并写明目录约定（根目录哪些文件随安装包分发、不能移动；其余一律进 `docs/`，历史进 `docs/history/`，调研进 `docs/research/`）。README 与 CONTRIBUTING 都指向它。
+- `docs/FIX-REPORT-0.13.0.md` 归入 [docs/history/](.)；修好 5 处早已失效的相对链接（`docs/history/` 里几个交接文档按“仓库根目录”写的路径，以及 USER-GUIDE 指向 `CONVERSION.md` 的链接）。
 - 新增 `npm run check:docs`（`scripts/check-docs.cjs`）：检查所有 Markdown 的相对链接是否指向真实文件，跳过代码块与外部链接；已并入 `npm run verify` 与 CI。
-- 新增 [SECURITY.md](SECURITY.md)：报告渠道与威胁模型（本地优先、窗口进程断网、三处联网入口、本地 AI 接口）。
-- 新增 [test/e2e/README.md](test/e2e/README.md)：说明 0.7–0.9 期的 Python + Playwright 脚本是历史验证证据，不在 CI 中运行。
+- 新增 [SECURITY.md](../security/SECURITY.md)：报告渠道与威胁模型（本地优先、窗口进程断网、三处联网入口、本地 AI 接口）。
+- 新增 [test/e2e/README.md](TEST-E2E.md)：说明 0.7–0.9 期的 Python + Playwright 脚本是历史验证证据，不在 CI 中运行。
 
 **验证**
 
@@ -115,10 +115,10 @@
 
 # 0.14.0 · Typora / Xodo / Pandoc 能力对标
 
-研究依据见 [docs/research](docs/research)（Typora、Xodo、Pandoc 三份差距分析）。只学习功能和行为，没有使用这三个软件的代码或资源。
+研究依据见 [docs/research](../research)（Typora、Xodo、Pandoc 三份差距分析）。只学习功能和行为，没有使用这三个软件的代码或资源。
 
 **Markdown 编辑（Typora）**
-- **行内标记按需显示**：正在编辑的段落里，`**粗体**`、`[链接](…)`、`` `代码` `` 等标记只在光标进入或紧挨该格式时出现，其余时间只显示格式化后的文字；原来“整段显示全部标记”的方式保留为偏好设置。
+- **行内标记按需显示**：正在编辑的段落里，`**粗体**`、`[链接](../../…)`、`` `代码` `` 等标记只在光标进入或紧挨该格式时出现，其余时间只显示格式化后的文字；原来“整段显示全部标记”的方式保留为偏好设置。
 - **源代码模式改用 CodeMirror 6**（离线打包在 `vendor/codemirror`）：Markdown 语法着色、自动换行、当前行高亮、括号匹配、可选行号；撤销仍走编辑器自己的历史。
 - **公式自动编号**：不编号 / AMS 规则 / 全部编号三种方式；`\label` 与 `\eqref` / `\ref` 可以交叉引用（以前写了会报 KaTeX 错误）。
 - **大文档**：超过 6 万字符时块按需渲染、屏幕外不排版、结构变化只更新改动的节点。1 MB 文档约 1 秒打开（0.13 七分钟内打不开），打字约 70 ms。
@@ -149,7 +149,7 @@
 - 修复未就绪图片阻断保存、工具等待保存时不能取消、阅读旋转空白；中文文本批注使用嵌入字体外观。
 - 修复 Markdown 代码块光标、快捷键冲突、外部修改保存反馈、失效摘录链接、本地图片刷新与粘贴/拖放；搜索结果直接显示路径。
 - PDF 同目录跨文档链接经本地代理打开；新 AI 批注补齐时间，文档替换时过滤旧编辑器状态，保持撤销有效。
-- 首启说明只出现一次。修复阶段先生成 Windows x64 安装包，发布阶段补齐便携 EXE、完整目录 ZIP、Android APK 和 macOS 两种架构 DMG；测试侧路径/解压编码问题的核验见 [修复报告](docs/history/FIX-REPORT-0.13.0.md)。
+- 首启说明只出现一次。修复阶段先生成 Windows x64 安装包，发布阶段补齐便携 EXE、完整目录 ZIP、Android APK 和 macOS 两种架构 DMG；测试侧路径/解压编码问题的核验见 [修复报告](../bugs/FIX-REPORT-0.13.0.md)。
 
 # 0.12.0 · macOS 版、安卓版的笔记模式与触屏操作
 
