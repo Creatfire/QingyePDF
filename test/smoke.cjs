@@ -156,10 +156,12 @@ exports.run = async ({ window, openFiles, documents, samplePdf, app, recovery, d
   assert.deepEqual(restoredView.crop,[3,4,5,6]); assert.equal(restoredView.reflow,true); assert.equal(restoredView.fontSize,26);
   await run('qingye.activate([...qingye.sessions.keys()][0])');
   // Native fullscreen is asynchronous; verify both entry and the Escape exit path.
+  // The macOS full-screen animation takes over a second each way, so wait for the state, up to 15 s (longer when other apps load the machine).
+  const fullScreenIs = async want => { for (let n = 0; n < 150 && window.isFullScreen() !== want; n++) await new Promise(resolve => setTimeout(resolve,100)); return window.isFullScreen(); };
   await run("qingye.views.change('fullscreen')");
-  await new Promise(resolve => setTimeout(resolve,350)); assert.equal(window.isFullScreen(),true);
+  assert.equal(await fullScreenIs(true),true);
   await run("document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
-  await new Promise(resolve => setTimeout(resolve,350)); assert.equal(window.isFullScreen(),false);
+  assert.equal(await fullScreenIs(false),false);
   // Create a real FreeText editor via PDF.js's editor layer, then save through native IPC.
   const editingPromise = timeout(run(`(async () => {
     const s = [...qingye.sessions.values()][0]; const a = s.app;

@@ -36,6 +36,8 @@ if (process.env.QINGYE_PROFILE_DIR) {
   if (!path.isAbsolute(profile)) throw new Error('QINGYE_PROFILE_DIR must be an absolute directory.');
   require('node:fs').mkdirSync(profile, { recursive: true }); app.setPath('userData', profile);
 }
+// Automated test agents answer native dialogs from files in their session folder (agent-dialogs.cjs).
+if (process.env.QINGYE_AGENT_DIR && path.isAbsolute(process.env.QINGYE_AGENT_DIR)) require('./agent-dialogs.cjs').install(dialog, process.env.QINGYE_AGENT_DIR);
 const smokeRoot=path.resolve(process.env.QINGYE_SMOKE_ROOT||process.env.PORTABLE_EXECUTABLE_DIR||process.cwd());
 if (benchmark) app.setPath('userData',path.join(smokeRoot,'test-output','benchmark-profile-'+process.pid));
 if (smoke) app.setPath('userData', path.join(smokeRoot, 'test-output', 'profile'));
@@ -84,7 +86,7 @@ let finishingClose = false;
 let converterLifecycle;
 let loadComplete;
 let windowShell;
-let window, allowClose = false, rendererReady = false;
+let window, allowClose = false, rendererReady = false, quitting = false;
 // Installer hooks (installer-hooks.cjs): they update the per-user "Open with" entries and exit
 // without a window.
 const installerTask = installerHooks.taskIn(process.argv);
@@ -250,7 +252,8 @@ app.whenReady().then(async () => {
   // The window, its title bar, the application menu and the window controls (window-shell.cjs).
   windowShell = createWindowShell({ T, command, fail, preferences, persist, normalizeWindowStyle, style: windowStyle, isMac, acrylicSupported,
     offscreen: (smoke || safety) && !process.argv.includes('--markdown-smoke'),
-    showOnReady: !smoke && !safety && !benchmark && !firstRunTest, relaunched, canClose: () => allowClose });
+    showOnReady: !smoke && !safety && !benchmark && !firstRunTest, relaunched, canClose: () => allowClose,
+    hideOnClose: () => isMac && !smoke && !safety && !benchmark && !quitting && !windowShell.relaunchRequested() });
   window = windowShell.create();
   windowShell.rebuildMenu();
   windowShell.register(handle);
@@ -622,6 +625,9 @@ app.whenReady().then(async () => {
   loadComplete=window.loadURL('qingye://app/ui/index.html');await loadComplete;
 }).catch(error => fail('startup',error));
 app.on('window-all-closed', () => app.quit());
+// ⌘Q (and the Dock's Quit) closes for real; the red button only hides the window on macOS.
+app.on('before-quit', () => { quitting = true; });
+app.on('activate', () => { if (window && !window.isDestroyed() && !window.isVisible()) window.show(); });
 app.on('before-quit', event => {
   if (!converterLifecycle?.busy) return;
   event.preventDefault();

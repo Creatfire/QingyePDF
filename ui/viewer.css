@@ -87,3 +87,4 @@
 .qyDiffMark.isRemoved { background: rgb(229 57 53 / .32); box-shadow: inset 0 -2px 0 rgb(198 40 40 / .8); }
 .qyDiffMark.isAdded { background: rgb(67 160 71 / .32); box-shadow: inset 0 -2px 0 rgb(46 125 50 / .8); }
 .qyDiffMark.isCurrent { outline: 2px solid #f9a825; outline-offset: 1px; }
+.qyNoteInput, .qyNoteInput * { cursor: auto !important; user-select: text !important; }

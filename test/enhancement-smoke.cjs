@@ -33,7 +33,8 @@ exports.run=async(window,output)=>{
   assert.match(selected,/reader/i,'real mouse selects OCR text');
   const previousClipboard=await Promise.all((await clipboard.read()).filter(item=>item.types.length).map(async item=>new ClipboardItem(Object.fromEntries(await Promise.all(item.types.map(async type=>[type,await item.getType(type)]))))));
   let copied;
-  try{window.webContents.sendInputEvent({type:'keyDown',keyCode:'C',modifiers:['control']});window.webContents.sendInputEvent({type:'keyUp',keyCode:'C',modifiers:['control']});await wait(100);copied=await clipboard.readText();assert.match(copied,/reader/i,'Ctrl+C copies recognized scan text');}finally{if(previousClipboard.length)await clipboard.write(previousClipboard);else clipboard.clear();}
+  try{// On macOS ⌘C is the Edit menu's accelerator, which synthetic key events never reach; run the same menu command.
+    if(process.platform==='darwin')window.webContents.copy();else{window.webContents.sendInputEvent({type:'keyDown',keyCode:'C',modifiers:['control']});window.webContents.sendInputEvent({type:'keyUp',keyCode:'C',modifiers:['control']});}await wait(300);copied=await clipboard.readText();assert.match(copied,/reader/i,'Ctrl+C / ⌘C copies recognized scan text');}finally{if(previousClipboard.length)await clipboard.write(previousClipboard);else clipboard.clear();}
   await fs.writeFile(path.join(output,'scan-text-selected.png'),(await window.webContents.capturePage()).toPNG());
   await click('selectTextButton');await wait(150);
   assert.equal(await run("[...qingye.sessions.values()].at(-1).history.rows.length"),reading.history,'do not OCR an already selectable page');

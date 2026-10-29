@@ -10,7 +10,7 @@
 |---|---|
 | `npm run verify`（oxlint、文档链接、单元测试） | 149 项中 147 项通过，2 项跳过（与 0.20.0 相同的 LibreOffice 实机测试和 Windows 专用测试）。这次运行之后又改过 `test/design-smoke.cjs` 和文档 |
 | `node scripts/ci-smoke.cjs`，9 个源码套件 | 8 个通过；`smoke` 套件失败，原因见第 4 节 |
-| `smoke` 套件临时跳过 3 处 macOS 不适用的检查后运行 | 新增的工具栏检查（菜单、工具中心、搜索、固定、命令面板、“更多”）全部通过；之后停在全屏检查，见第 4 节第 1 条 |
+| `smoke` 套件临时跳过 2 处 macOS 不适用的剪贴板检查后运行 | 全部通过，包括新增的工具栏检查（菜单、工具中心、搜索、固定、命令面板、“更多”）；全屏检查见第 4 节第 1 条 |
 
 ## 2. 自动测试
 
@@ -100,7 +100,7 @@ node scripts/ci-smoke.cjs --packaged
 
 ## 4. 已知问题与未测范围
 
-1. **全屏检查需要确认。** 在 macOS 上临时跳过第 2 条的检查后，`test/smoke.cjs:160`（`views.change('fullscreen')` 后 `window.isFullScreen()`）在本分支失败，即使把等待加到 2 秒也失败；同样跳过这些检查时，未改动的 0.20.0 代码在同一台机器上能通过。原因没有查清：`views.change('fullscreen')` 和主进程的切换代码本次没有改，之前运行的 `design-smoke.cjs` 新增部分会改变窗口尺寸（`setSize(920, 700)` 后恢复），可能有关。请先在 Windows 上跑 `smoke` 套件确认，失败时从这里查。
+1. **全屏检查（已查明，不是产品问题）。** 在 macOS 上 `test/smoke.cjs` 的全屏检查曾在本分支失败。原因是检查固定只等 350 ms，而 macOS 的全屏动画进入和退出都超过 1 秒：改为最多等 4 秒后，进入和用 Esc 退出都正常，整个 `smoke` 套件通过。检查已改为等待状态变化（`fullScreenIs`）。
 2. **macOS 上不适用的旧检查。** `smoke` 套件里 `usability-smoke.cjs` 的原生右键菜单复制 / 粘贴（窗口在后台时系统剪贴板不更新）和 `enhancement-smoke.cjs` 的 Ctrl+C 复制（Mac 上复制是 ⌘C）在本机失败，未改动的代码也一样。它们写给 Windows，Windows 上应能通过。
 3. 停靠的工具面板里，框选区域的工具仍使用面板内的预览图，还不能直接在文档页面上框选。
 4. 桌面窗口最小宽度是 920 px，在这个宽度下通常不需要“更多”；只有固定工具较多时才会出现。

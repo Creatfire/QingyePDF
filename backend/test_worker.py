@@ -91,6 +91,14 @@ def check():
         assert again['tags']==['待核实','引用'] and again['color']=='#2255aa', again
         _,untagged=run({'action':'annot-batch','items':[{'page':again['page'],'xref':again['xref']}],'removeTags':['待核实']},tagged/'result.pdf')
         assert run({'action':'inspect','annotations':True},untagged/'result.pdf')[0]['data']['notes'][0]['tags']==['引用']
+        # 0.21: text boxes take a new colour as their text colour (PyMuPDF has no stroke for FreeText).
+        cjk=root/'test'/'fixtures'/'cjk-freetext.pdf'
+        with fitz.open(cjk) as d:box=next(a.xref for a in d[0].annots() if a.type[1]=='FreeText')
+        _,boxed=run({'action':'annot-batch','items':[{'page':1,'xref':box}],'color':'#2255aa'},cjk)
+        _,updated=run({'action':'annot-update','page':1,'xref':box,'color':'#aa2255','opacity':.8},cjk)
+        for out,rgb in ((boxed,'0.133 0.333 0.667'),(updated,'0.667 0.133 0.333')):
+            with fitz.open(out/'result.pdf') as d:
+                da=d.xref_get_key(box,'DA')[1];assert ' '.join(f'{float(v):.3f}' for v in da.split()[:3])==rgb,da
         # Page manager (0.20): one plan reorders, rotates, copies, drops, adds blank pages and pages of
         # another PDF; bookmarks follow their pages; split by groups; extract images.
         extra=base/'extra.pdf'
@@ -273,6 +281,13 @@ def check():
         assert made['rect'][0]=='Square' and made['rect'][3] and made['ellipse'][0]=='Circle' and made['cloud'][0]=='Square',made
         assert made['line'][0]=='Line' and made['arrow'][2][1]==fitz.PDF_ANNOT_LE_OPEN_ARROW and made['rect'][1]==3,made
         try:run({'action':'draw','shape':'line','page':1,'points':[[.1,.1],[.1,.1]]});assert False
+        except ValueError:pass
+        # 0.21 comments placed on the page are sticky notes holding the text.
+        _,out=run({'action':'draw','shape':'note','page':1,'points':[[.3,.4]],'text':'请核对这一段','author':'王五'})
+        with fitz.open(out/'result.pdf') as d:
+            note=[(a.type[1],a.info['content']) for a in d[0].annots() if a.info['title']=='王五']
+            assert note==[('Text','请核对这一段')],note
+        try:run({'action':'draw','shape':'note','page':1,'points':[[.3,.4]],'text':'  '});assert False
         except ValueError:pass
         _,out=run({'action':'draw','shape':'rect','page':1,'rect':[.1,.1,.4,.3]},source)
         with fitz.open(out/'result.pdf') as d:

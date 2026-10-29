@@ -66,6 +66,7 @@
       "office-task.cjs",
       "reference-ipc.cjs",
       "workspace-ipc.cjs",
+      "agent-dialogs.cjs",
       "ui/**/*",
       "vendor/pdfjs/**/*",
       "vendor/markdown/**/*",

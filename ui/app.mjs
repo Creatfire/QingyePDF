@@ -114,7 +114,8 @@ async function replaceDocument(s,bytes){
     await s.app.open({data:new Uint8Array(bytes),filename:s.name,docBaseUrl:pdfBase(s)});await initialized;await s.app.pdfViewer.firstPagePromise;
     s.imageRects=null;s.imageScan=null;await views.restore(s,state);
     s.app.pdfViewer.pagesRotation=state.rotation||0;s.app.pdfViewer.currentScaleValue=state.zoom||'page-width';s.app.pdfViewer.currentPageNumber=Math.min(state.page,s.app.pagesCount);
-    await s.app.pdfViewer.onePageRendered;await new Promise(resolve=>s.frame.contentWindow.requestAnimationFrame(()=>s.frame.contentWindow.requestAnimationFrame(resolve)));
+    // A tab in the background has a zero-size frame that never renders: wait for a page only when visible.
+    if(s.frame.clientWidth&&s.frame.clientHeight){await s.app.pdfViewer.onePageRendered;await new Promise(resolve=>s.frame.contentWindow.requestAnimationFrame(()=>s.frame.contentWindow.requestAnimationFrame(resolve)));}
     s.savedHash=editingHash(s);s.pendingInput=false;s.structuralDirty=(await contentDigest(bytes))!==s.savedContentDigest;s.recovered=false;
     s.searchText=new Map();s.pageDraft=null;s.draftHash=null;s.emptyOcrPages=new Set();bindStorage(s);
   }catch(error){await s.app.open({data:new Uint8Array(previous),filename:s.name,docBaseUrl:pdfBase(s)});throw error;}
@@ -144,7 +145,7 @@ const draft = createDraftRecovery({ api, sessions, isMd, viewState, syncDirty, c
 const recent = createRecentList({ api, guard, addDocuments, $ });
 // Keyboard shortcuts, and the commands the main process pushes into the window.
 const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai , palette: () => palette, tools });
-const commands = createCommands({ $, sessions, current, activeId: () => activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle });
+const commands = createCommands({ $, sessions, current, activeId: () => activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, closeWindow, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle });
 // The PDF toolbar's menus, pinned tools and overflow (toolbar.mjs), and the command palette (0.21).
 toolbar = createToolbar({ $, guard, status, current: currentPdf, sessions: pdfSessions, tools, pageManager, direct, history, print: () => commands.run('print') });
 palette = createCommandPalette({ guard, commands: paletteCommands });
@@ -484,6 +485,15 @@ async function closeApp() {
   closingApp = true;
   const last=[...sessions.values()].filter(s=>s.loaded).map(s=>({id:s.id})),selected=activeId;
   try { for (const id of [...sessions.keys()]) if (!await closeTab(id)) return false;await api.finishSession(last,selected); api.finishClose(); return true; }
+  finally { closingApp = false; }
+}
+// macOS red button: the same questions about unsaved documents, then the window hides and the app
+// stays in the Dock (clicking it shows the home page again; ⌘Q quits).
+async function closeWindow() {
+  if (closingApp) return false;
+  closingApp = true;
+  const last=[...sessions.values()].filter(s=>s.loaded).map(s=>({id:s.id})),selected=activeId;
+  try { for (const id of [...sessions.keys()]) if (!await closeTab(id)) return false; if (last.length) await api.finishSession(last,selected); await api.windowControl('hide'); return true; }
   finally { closingApp = false; }
 }
 // Settings → Interface style → "Restart now": the usual close flow (unsaved documents are asked about),

@@ -7,7 +7,7 @@ export function moveBranch(rows,from,to){
   rows.splice(to>=end?to-branch.length:to,0,...branch);return rows;
 }
 export function createOutlineEditor({container,currentPage,pageCount,guard,generate}){
-  let rows=[],selected=-1,dragged;const history=createHistory();let inputBefore;
+  let rows=[],selected=-1,dragged;const history=createHistory();let inputBefore;// state before the field being edited; set on focus, or on the first input when changed without focus
   const capture=()=>JSON.stringify(rows);
   function record(before,label){const after=capture();if(before!==after)history.push(before,after,label);updateHistory();}
   function updateHistory(){undo.disabled=!history.canUndo;redo.disabled=!history.canRedo;summary.textContent=history.rows.filter(r=>r.applied).map(r=>r.label).join(" · ");}
@@ -27,8 +27,8 @@ export function createOutlineEditor({container,currentPage,pageCount,guard,gener
   function draw(){list.replaceChildren();
     rows.forEach((r,i)=>{const row=document.createElement('div');row.className='outlineEditRow'+(i===selected?' selected':'');row.style.paddingLeft=(r[0]-1)*18+8+'px';row.draggable=true;row.dataset.index=i;
       const handle=document.createElement('button');handle.textContent='⠿';handle.title='选择或拖动整段目录';handle.onclick=()=>{selected=i;draw();};
-      const title=document.createElement('input');title.value=r[1];title.placeholder='章节标题';title.setAttribute('aria-label',`第 ${i+1} 个章节标题`);title.onfocus=()=>{inputBefore=capture();selected=i;for(const node of list.children)node.classList.toggle('selected',Number(node.dataset.index)===i);};title.oninput=()=>{r[1]=title.value;};title.onchange=()=>record(inputBefore,"修改章节标题");
-      const page=document.createElement('input');page.type='number';page.min=1;page.max=pageCount();page.value=r[2];page.setAttribute('aria-label','目标页码');page.onfocus=()=>{inputBefore=capture();};page.oninput=()=>{r[2]=Number(page.value);};page.onchange=()=>record(inputBefore,"修改章节页码");
+      const title=document.createElement('input');title.value=r[1];title.placeholder='章节标题';title.setAttribute('aria-label',`第 ${i+1} 个章节标题`);title.onfocus=()=>{inputBefore=capture();selected=i;for(const node of list.children)node.classList.toggle('selected',Number(node.dataset.index)===i);};title.oninput=()=>{inputBefore??=capture();r[1]=title.value;};title.onchange=()=>{if(inputBefore!==undefined)record(inputBefore,"修改章节标题");inputBefore=undefined;};
+      const page=document.createElement('input');page.type='number';page.min=1;page.max=pageCount();page.value=r[2];page.setAttribute('aria-label','目标页码');page.onfocus=()=>{inputBefore=capture();};page.oninput=()=>{inputBefore??=capture();r[2]=Number(page.value);};page.onchange=()=>{if(inputBefore!==undefined)record(inputBefore,"修改章节页码");inputBefore=undefined;};
       const level=document.createElement('span');level.textContent=r[0]+'级';row.append(handle,level,title,page);
       row.ondragstart=e=>{dragged=i;e.dataTransfer.setData('text/plain','qingye-outline-'+i);};row.ondragover=e=>{if(dragged!==undefined)e.preventDefault();};row.ondrop=e=>{e.preventDefault();e.stopPropagation();if(dragged===undefined)return;const before=capture();moveBranch(rows,dragged,i);record(before,"移动目录分支");dragged=undefined;selected=-1;draw();};row.ondragend=()=>{dragged=undefined;};list.append(row);
     });if(!rows.length){const p=document.createElement('p');p.textContent='暂无章节，点击“＋ 章节”或“自动识别标题”。';list.append(p);}

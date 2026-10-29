@@ -1,7 +1,7 @@
 // Commands pushed by the main process (menu items, window events, the conversion progress cards).
 // The main process never touches the DOM; everything it wants shown arrives here.
 export function createCommands(ctx) {
-  const { $, sessions, current, activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle } = ctx;
+  const { $, sessions, current, activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, closeWindow, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle } = ctx;
   async function run(command, data) {
     if (command === 'open') return open();
     if (command === 'opened') return addDocuments(data);
@@ -12,6 +12,7 @@ export function createCommands(ctx) {
     if (command === 'save' || command === 'save-as') return reviewSave(current(), command === 'save-as');
     if (command === 'close-tab') return closeTab(activeId());
     if (command === 'close-app') return closeApp();
+    if (command === 'close-window') return closeWindow();
     if (command === 'next-tab' || command === 'previous-tab') return nextTab(command === 'next-tab' ? 1 : -1);
     if (command === 'find') return isMd(current()) ? markdown.openFind(current(), false) : navigation.show('search');
     if (command === 'new-markdown') return newMarkdown();

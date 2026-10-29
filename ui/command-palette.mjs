@@ -2,6 +2,7 @@
 // and tool, so nothing has to be found by browsing menus. The host supplies the command list on
 // every open, so enabled states are current: [{ id, label, group, shortcut, keys, enabled, run }].
 import { rankItems } from './tool-registry.mjs';
+import { shortcutText } from './i18n/i18n.mjs';
 
 export function createCommandPalette({ guard, commands }) {
   const dialog = document.createElement('dialog'); dialog.id = 'commandPalette'; dialog.setAttribute('closedby', 'any'); dialog.setAttribute('aria-label', '命令面板');
@@ -9,6 +10,7 @@ export function createCommandPalette({ guard, commands }) {
     + '<div id="commandList" class="commandList" role="listbox" aria-label="命令"></div>'
     + '<footer class="commandFoot"><span>↑↓ 选择</span><span>Enter 执行</span><span>Esc 关闭</span></footer>';
   document.body.append(dialog);
+  for (const k of document.querySelectorAll('#commandButton kbd')) k.textContent = shortcutText(k.textContent);
   const input = dialog.querySelector('#commandInput'), list = dialog.querySelector('#commandList');
   let items = [], shown = [], index = 0;
   const enabled = item => item.enabled ? !!item.enabled() : true;
@@ -24,7 +26,7 @@ export function createCommandPalette({ guard, commands }) {
       const name = document.createElement('span'); name.className = 'commandName'; name.textContent = item.label;
       const group = document.createElement('span'); group.className = 'commandGroup'; group.textContent = item.group;
       row.append(name, group);
-      if (item.shortcut) { const k = document.createElement('kbd'); k.textContent = item.shortcut; row.append(k); }
+      if (item.shortcut) { const k = document.createElement('kbd'); k.textContent = shortcutText(item.shortcut); row.append(k); }
       row.onpointermove = () => { if (index !== n) { index = n; mark(); } };
       row.onclick = () => runAt(n);
       list.append(row);
@@ -44,6 +46,8 @@ export function createCommandPalette({ guard, commands }) {
   input.addEventListener('keydown', event => {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); if (shown.length) { index = (index + (event.key === 'ArrowDown' ? 1 : -1) + shown.length) % shown.length; mark(); } }
     else if (event.key === 'Enter') { event.preventDefault(); runAt(index); }
+    // A search box clears itself on the first Esc; the footer promises Esc closes the palette.
+    else if (event.key === 'Escape') { event.preventDefault(); dialog.close(); }
   });
   function open(query = '') {
     items = commands(); input.value = query; index = 0; render();

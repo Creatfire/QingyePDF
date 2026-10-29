@@ -9012,7 +9012,7 @@ function renderProgress(index, total) {
   }));
 }
 window.addEventListener("keydown", function (event) {
-  if (event.keyCode === 80 && (event.ctrlKey || event.metaKey) && !event.altKey && (!event.shiftKey || window.chrome || window.opera)) {
+  if (event.keyCode === 80 && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey /* Qingye: Shift+P is the command palette */) {
     window.print();
     event.preventDefault();
     event.stopImmediatePropagation();

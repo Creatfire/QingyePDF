@@ -2005,7 +2005,13 @@
     "页面管理…": "Page manager…",
     "↑↓ 选择": "↑↓ select",
     "Enter 执行": "Enter run",
-    "Esc 关闭": "Esc close"
+    "Esc 关闭": "Esc close",
+    "评论 · 点击页面上要评论的位置，Esc 取消": "Comment · click where the comment goes, Esc to cancel",
+    "评论：点击页面上要评论的位置；Esc 取消。": "Comment: click where the comment goes; Esc to cancel.",
+    "输入评论内容": "Type a comment",
+    "评论内容": "Comment text",
+    "添加评论": "Add comment",
+    "已取消评论。": "Comment canceled."
   },
   "patterns": [
     [

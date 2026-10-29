@@ -589,6 +589,15 @@ def import_document(file, output):
     return {'files': ['result.pdf'], 'note': 'Office 输入采用内容重排，原分页和复杂版式可能变化。' if extension in ('.docx', '.xlsx', '.pptx') else ''}
 
 
+def recolor_annot(annot, stroke):
+    # A text box has no stroke colour in PyMuPDF: its colour is the text colour (DA), set by update().
+    if annot.type[1] == 'FreeText':
+        annot.update(text_color=stroke)
+        return True
+    annot.set_colors(stroke=stroke)
+    return False
+
+
 def embed_freetext_appearances(doc):
     changed = 0
     for page in doc:
@@ -948,10 +957,18 @@ def process(request, input_file, output):
         elif action == 'draw':
             # Shapes drawn in the viewer, written as standard annotations other readers can edit.
             shape = request.get('shape')
-            if shape not in ('rect', 'ellipse', 'line', 'arrow', 'cloud'):
+            if shape not in ('rect', 'ellipse', 'line', 'arrow', 'cloud', 'note'):
                 raise ValueError('不支持的图形。')
             page = doc[int(number(request.get('page'), 1, len(doc), 1)) - 1]
-            if shape in ('line', 'arrow'):
+            if shape == 'note':
+                # A comment placed on the page: a standard sticky note (Text annotation).
+                text = str(request.get('text', '')).strip()[:10000]
+                if not text:
+                    raise ValueError('评论内容不能为空。')
+                x, y = (request.get('points') or [[0.5, 0.5]])[0]
+                point = fitz.Point(number(x, 0, 1, 0.5) * page.rect.width, number(y, 0, 1, 0.5) * page.rect.height) * page.derotation_matrix
+                annot = page.add_text_annot(point, text, icon='Comment')
+            elif shape in ('line', 'arrow'):
                 points = request.get('points') or []
                 if len(points) != 2:
                     raise ValueError('请拖动画出直线。')
@@ -965,8 +982,9 @@ def process(request, input_file, output):
                 rect = region(page, request.get('rect'))
                 annot = page.add_circle_annot(rect) if shape == 'ellipse' else page.add_rect_annot(rect)
             fill = request.get('fill')
-            annot.set_colors(stroke=color(request.get('color', '#d9482b')), fill=color(fill) if fill and shape not in ('line', 'arrow') else None)
-            annot.set_border(width=number(request.get('width'), 0.5, 12, 2), clouds=2 if shape == 'cloud' else -1)
+            annot.set_colors(stroke=color(request.get('color', '#d9482b')), fill=color(fill) if fill and shape not in ('line', 'arrow', 'note') else None)
+            if shape != 'note':
+                annot.set_border(width=number(request.get('width'), 0.5, 12, 2), clouds=2 if shape == 'cloud' else -1)
             opacity = number(request.get('opacity'), 0.1, 1, 1)
             if opacity < 1:
                 annot.set_opacity(opacity)
@@ -992,7 +1010,12 @@ def process(request, input_file, output):
                 ends = [fitz.Point(number(x, 0, 1, 0) * page.rect.width, number(y, 0, 1, 0) * page.rect.height) * page.derotation_matrix * ~page.transformation_matrix for x, y in request.get('points')]
                 doc.xref_set_key(annot.xref, 'L', '[%g %g %g %g]' % (ends[0].x, ends[0].y, ends[1].x, ends[1].y))
                 annot = next(a for a in page.annots() if a.xref == xref)
-            if request.get('color'):
+            text_color = None
+            if request.get('color') and kind == 'FreeText':
+                text_color = color(request.get('color'))  # applied by the update() below
+                if 'fill' in request:
+                    annot.set_colors(fill=color(request['fill']) if request.get('fill') else None)
+            elif request.get('color'):
                 stroke = color(request.get('color'))
                 if 'fill' in request and kind in FILLABLE_ANNOTS:
                     annot.set_colors(stroke=stroke, fill=color(request['fill']) if request.get('fill') else None)
@@ -1006,7 +1029,11 @@ def process(request, input_file, output):
                 annot.set_opacity(number(request.get('opacity'), 0.1, 1, 1))
             if request.get('text') is not None:
                 annot.set_info(content=str(request.get('text'))[:10000], modDate=fitz.get_pdf_now())
-            annot.update()
+            if text_color:
+                annot.update(text_color=text_color)
+                embed_freetext_appearances(doc)  # update() drew CJK text with a Latin font
+            else:
+                annot.update()
             note = '已修改批注。'
         elif action == 'annot-batch':
             # Several annotations at once (0.20 annotation panel): colour, tags to add / remove.
@@ -1015,7 +1042,7 @@ def process(request, input_file, output):
                 raise ValueError('请先选择批注。')
             add, drop = request.get('addTags') or [], set(request.get('removeTags') or [])
             stroke = color(request.get('color')) if request.get('color') else None
-            changed = 0
+            changed, freetext = 0, False
             for item in items:
                 page = doc[int(number(item.get('page'), 1, len(doc), 1)) - 1]
                 xref = int(number(item.get('xref'), 1, 10**9, 0))
@@ -1023,14 +1050,18 @@ def process(request, input_file, output):
                 if annot is None:
                     continue
                 if stroke:
-                    annot.set_colors(stroke=stroke)
                     annot.set_info(modDate=fitz.get_pdf_now())
-                    annot.update()
+                    if recolor_annot(annot, stroke):
+                        freetext = True
+                    else:
+                        annot.update()
                 if add or drop:
                     set_annot_tags(doc, xref, [t for t in annot_tags(doc, xref) if t not in drop] + list(add))
                 changed += 1
             if not changed:
                 raise ValueError('找不到所选批注，可能已被删除。')
+            if freetext:
+                embed_freetext_appearances(doc)  # update() drew CJK text with a Latin font
             note = f'已修改 {changed} 条批注。'
         elif action == 'annot-delete':
             items = request.get('items') or []

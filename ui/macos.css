@@ -134,7 +134,8 @@ body.style-macos dialog, body.style-macos .mdModal, body.style-macos #settingsDi
 body.style-macos dialog::backdrop { background: rgb(0 0 0 / .16); -webkit-backdrop-filter: none; backdrop-filter: none; }
 body.style-macos.dark dialog::backdrop { background: rgb(0 0 0 / .34); }
 body.style-macos dialog[open] { animation: mac-sheet-in .24s cubic-bezier(.2, .9, .3, 1.05); }
-body.style-macos :is(.toolsHeading, .toolsFooter) { background: transparent; }
+/* Sticky over scrolling cards: the sheet's own glass, so nothing shows through the header (0.21). */
+body.style-macos :is(.toolsHeading, .toolsFooter) { background: var(--glass-sheet); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
 body.style-macos .toolsFooter { box-shadow: none; border-top: .5px solid var(--line); }
 
 /* Settings: a macOS System Settings–like sidebar */

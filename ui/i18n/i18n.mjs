@@ -109,5 +109,7 @@ export async function setLanguage(next, { remember = true } = {}) {
   for (const fn of listeners) try { fn(lang); } catch (error) { console.warn(error); }
   return lang;
 }
+// Key hints in <kbd> are skipped by the observer (they may be document content); UI code adapts its own.
+export const shortcutText = text => adapt(text);
 export const onChange = fn => { listeners.add(fn); return () => listeners.delete(fn); };
 export const init = () => setLanguage(choice(), { remember: false });

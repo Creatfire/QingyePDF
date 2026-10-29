@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { patchPdfjs } from './pdfjs-patches.cjs';
+import { patchPdfjs, patchViewer } from './pdfjs-patches.cjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const version = '6.3.289';
@@ -36,5 +36,7 @@ if (!html.includes('../../../ui/viewer.css')) html = html.replace('</head>', '  
 await fs.writeFile(htmlPath, html);
 const enginePath=path.join(vendor,'build','pdf.mjs');
 await fs.writeFile(enginePath,patchPdfjs(await fs.readFile(enginePath,'utf8')));
-await fs.writeFile(path.join(root, 'docs', 'development', 'PDFJS-MODIFICATIONS.md'), `PDF.js ${version}\nSource: ${url}\nArchive SHA-256: ${archiveHash}\n\nQingye modifications: web/viewer.html title and reference to ui/viewer.css; build/pdf.mjs skips serialization of image editors before their bitmap is ready and releases the picker on image-load errors. Reproducible patch: scripts/pdfjs-patches.cjs. Original copyright and license are retained.\n`);
+const viewerPath=path.join(vendor,'web','viewer.mjs');
+await fs.writeFile(viewerPath,patchViewer(await fs.readFile(viewerPath,'utf8')));
+await fs.writeFile(path.join(root, 'docs', 'development', 'PDFJS-MODIFICATIONS.md'), `PDF.js ${version}\nSource: ${url}\nArchive SHA-256: ${archiveHash}\n\nQingye modifications: web/viewer.html title and reference to ui/viewer.css; build/pdf.mjs skips serialization of image editors before their bitmap is ready and releases the picker on image-load errors; web/viewer.mjs prints on Ctrl/⌘+P only, leaving Ctrl/⌘+Shift+P to the command palette. Reproducible patch: scripts/pdfjs-patches.cjs. Original copyright and license are retained.\n`);
 console.log(`Prepared PDF.js ${version}, archive SHA-256 ${archiveHash}`);

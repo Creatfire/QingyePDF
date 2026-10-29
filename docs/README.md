@@ -15,6 +15,8 @@
 - [代码签名](development/SIGNING.md) · [PDF.js 修改记录](development/PDFJS-MODIFICATIONS.md)。
 - [0.20.0 交接与验证](releases/HANDOFF.md) · [发布目标](releases/RELEASE-TARGET.json)。
 - [工具栏与工具中心重构测试文档](testing/TOOLBAR-0.21-TEST.md)：未发布的工具栏改动要测什么、怎么测、已知问题。
+- [macOS 版并行测试文档](testing/MACOS-0.21-TEST.md)：8 个测试 agent 在同一台 Mac 上同时测试的分工、规则与任务卡。
+- [给 8 个测试 agent 的任务说明](testing/MACOS-0.21-AGENT-PROMPTS.md)：可直接粘贴到 agent 会话里的 8 段任务。
 - [安全策略](security/SECURITY.md) · [第三方声明](legal/THIRD_PARTY_NOTICES.md) · [AGPL 许可证](legal/LICENSE) · [MIT 许可证](legal/LICENSE-MIT)。
 
 ## 历史与问题

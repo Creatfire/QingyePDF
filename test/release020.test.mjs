@@ -74,7 +74,7 @@ test('office: a canceled open is canceled on the cache path too', async () => {
     // A stand-in engine file: the cache hit returns before LibreOffice would run.
     const program = path.join(dir, 'resources', 'libreoffice', 'program'); await fs.mkdir(program, { recursive: true });
     await fs.writeFile(path.join(program, process.platform === 'win32' ? 'soffice.com' : 'soffice'), '');
-    const file = path.join(dir, 'a.docx'), source = Buffer.from('word'); await fs.writeFile(file, source);
+    const file = path.join(dir, 'a.docx'), source = Buffer.from('PK\x03\x04word', 'binary'); await fs.writeFile(file, source);
     const cacheDir = path.join(dir, 'cache'); await fs.mkdir(cacheDir);
     await fs.writeFile(path.join(cacheDir, crypto.createHash('sha256').update(source).digest('hex') + '.pdf'), '%PDF-1.4 cached');
     const options = { packaged: true, resources: path.join(dir, 'resources'), profileDir: path.join(dir, 'profile'), cacheDir };

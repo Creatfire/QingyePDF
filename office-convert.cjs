@@ -13,6 +13,13 @@ const { pathToFileURL } = require('node:url');
 const OFFICE_EXTENSIONS = new Set(['.doc', '.docx', '.docm', '.dot', '.dotx', '.odt', '.ott', '.rtf', '.wps', '.wpt',
   '.xls', '.xlsx', '.xlsm', '.xlsb', '.xlt', '.xltx', '.ods', '.ots', '.csv', '.et',
   '.ppt', '.pptx', '.pptm', '.pps', '.ppsx', '.pot', '.potx', '.odp', '.otp', '.dps', '.vsd', '.vsdx', '.pub']);
+// Formats that are ZIP packages (OOXML, OpenDocument). LibreOffice opens anything it cannot parse as
+// plain text, so a damaged or renamed file would "convert" into a page of its bytes; refuse it instead.
+const ZIP_FORMATS = new Set(['.docx', '.docm', '.dotx', '.odt', '.ott', '.xlsx', '.xlsm', '.xlsb', '.xltx', '.ods', '.ots', '.pptx', '.pptm', '.ppsx', '.potx', '.odp', '.otp', '.vsdx']);
+function checkPackage(file, source) {
+  if (!source.length) throw new Error('文件是空的，无法转换。');
+  if (ZIP_FORMATS.has(path.extname(file).toLowerCase()) && source.subarray(0, 4).toString('binary') !== 'PK\x03\x04') throw new Error('文件已损坏，或不是有效的 Office 文档（扩展名与内容不符），无法转换。');
+}
 const isOffice = file => typeof file === 'string' && OFFICE_EXTENSIONS.has(path.extname(file).toLowerCase());
 
 function bundledRoot({ packaged, resources } = {}) { return packaged ? path.join(resources, 'libreoffice') : path.join(__dirname, 'vendor', 'libreoffice'); }
@@ -94,6 +101,7 @@ async function toPdf(file, { packaged = false, resources = '', profileDir, cache
   const source = await fs.readFile(file);
   stopIfCanceled();
   if (source.length > 512 * 1024 * 1024) throw new Error('文件超过 512 MB，无法转换。');
+  checkPackage(file, source);
   const digest = crypto.createHash('sha256').update(source).digest('hex');
   const cached = cacheDir && path.join(cacheDir, digest + '.pdf');
   if (cached) { const hit = await fs.readFile(cached).catch(() => null); if (hit?.length) { stopIfCanceled(); onProgress({ stage: 'cached', text: `${name} 未改动，使用上次的转换结果` }); return { bytes: hit, cached: true, digest }; } }
@@ -149,4 +157,4 @@ async function trimCache(dir, limit = 1024 * 1024 * 1024) {
   for (const f of files.sort((a, b) => a.stat.mtimeMs - b.stat.mtimeMs)) { if (total <= limit) break; await fs.rm(path.join(dir, f.name), { force: true }); total -= f.stat.size; }
 }
 
-module.exports = { OFFICE_EXTENSIONS, isOffice, sofficePath, engineInfo, toPdf, prewarm, isWarm, trimCache, PROFILE_XCU };
+module.exports = { checkPackage, OFFICE_EXTENSIONS, isOffice, sofficePath, engineInfo, toPdf, prewarm, isWarm, trimCache, PROFILE_XCU };

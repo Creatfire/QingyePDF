@@ -30,7 +30,9 @@ function executable() {
   // require('electron') resolves to the executable of the installed Electron on every platform
   // (electron.exe, Electron.app/Contents/MacOS/Electron, electron).
   if (!packaged) return { file: require('electron'), pre: ['.'] };
-  const exe = path.join(root, 'dist', 'win-unpacked', 'QingyePDF.exe');
+  // electron-builder writes dist/win-unpacked on Windows and dist/mac-arm64 (or dist/mac) on macOS.
+  const macDir = process.platform === 'darwin' ? ['mac-arm64', 'mac'].map(d => path.join(root, 'dist', d, 'QingyePDF.app', 'Contents', 'MacOS', 'QingyePDF')).find(f => fs.existsSync(f)) : null;
+  const exe = macDir || path.join(root, 'dist', 'win-unpacked', 'QingyePDF.exe');
   if (!fs.existsSync(exe)) throw new Error('Packaged app not found: ' + exe);
   return { file: exe, pre: [] };
 }
@@ -45,7 +47,9 @@ function run(suite, timeoutMs = 10 * 60 * 1000) {
   const started = Date.now();
   return new Promise(resolve => {
     const log = fs.createWriteStream(path.join(smokeRoot, 'console.log'));
-    const child = spawn(file, [...pre, suite.flag], { cwd: root, env, windowsHide: true });
+    // An ad-hoc signed Mac build would ask for its keychain item on a shared screen; tests use a mock keychain.
+    const keychain = process.platform === 'darwin' ? ['--use-mock-keychain'] : [];
+    const child = spawn(file, [...pre, suite.flag, ...keychain], { cwd: root, env, windowsHide: true });
     child.stdout.pipe(log, { end: false }); child.stderr.pipe(log, { end: false });
     const timer = setTimeout(() => { log.write('\n[ci-smoke] timeout, killing\n'); child.kill(); }, timeoutMs);
     child.on('exit', code => {

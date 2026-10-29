@@ -74,3 +74,15 @@ test('Office association type is optional and covers the common formats', () => 
   for (const ext of ['.docx', '.doc', '.xlsx', '.xls', '.pptx', '.ppt']) assert.ok(TYPES.office.exts.includes(ext), ext);
   for (const ext of TYPES.office.exts) assert.ok(office.isOffice('a' + ext), ext + ' opens through the converter');
 });
+
+test('a damaged or renamed OOXML / OpenDocument file is refused instead of converted as text', () => {
+  const zip = Buffer.from('PK\x03\x04rest', 'binary');
+  assert.doesNotThrow(() => office.checkPackage('a.docx', zip));
+  assert.doesNotThrow(() => office.checkPackage('a.ODS', zip));
+  assert.throws(() => office.checkPackage('broken.docx', Buffer.from('this is not a real docx file')), /已损坏/);
+  assert.throws(() => office.checkPackage('slides.pptx', Buffer.from([0xd0, 0xcf, 0x11, 0xe0])), /已损坏/);
+  assert.throws(() => office.checkPackage('empty.xlsx', Buffer.alloc(0)), /空的/);
+  // Older formats and CSV / RTF are not packages; LibreOffice decides.
+  assert.doesNotThrow(() => office.checkPackage('table.csv', Buffer.from('a,b\n1,2')));
+  assert.doesNotThrow(() => office.checkPackage('old.doc', Buffer.from('{\\rtf1 hello}')));
+});

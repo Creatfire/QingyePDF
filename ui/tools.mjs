@@ -220,7 +220,8 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(!dialog.open){if(dock)dialog.show();else dialog.showModal();}
     syncDock();
   }
-  dialog.addEventListener('close',()=>document.body.classList.remove('toolsDocked'));
+  // close fires after a later present() may have shown the panel again; keep the class then.
+  dialog.addEventListener('close',()=>{if(!dialog.open)document.body.classList.remove('toolsDocked');});
   dialog.addEventListener('keydown',e=>{if(e.key==='Escape'&&docked()&&!busy&&!e.defaultPrevented&&!e.target.closest('select,[role=listbox]')){e.preventDefault();close();}});
   async function open(next,{toolId}={}){
     if(busy)return;toolSession=current()?.loaded?current():null;
@@ -253,7 +254,8 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   async function newWindow(s=current()){if(!s?.loaded)throw new Error('请先打开 PDF。');if(s.dirty)throw new Error('请先保存当前批注，再在新窗口中打开。');await api.newWindow(s.id);}
   // A docked panel follows the active tab; a running job keeps its document.
   function sync(){
-    if(!dialog.open||busy||!docked())return;const s=current()?.loaded?current():null;if(s===toolSession)return;
+    if(!dialog.open||busy||!docked())return;const c=current();if(c&&!c.loaded)return;// a document still opening syncs again once loaded
+    const s=c||null;if(s===toolSession)return;
     if(!s){dialog.close();return;}
     toolSession=s;$('toolDocument').textContent=s.name;$('toolPreviewPage').value=s.app.pdfViewer.currentPageNumber||1;
     if(view==='detail')guard(changed);else renderHome();
@@ -276,7 +278,10 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
     if(a==='redact'){r.fill=$('redactFill').value;if(chosenHits().length)r.marks=chosenHits().map(h=>({page:h.page,rects:h.rects}));}
     return r;
   }
-  function updateSummary(){try{const r=request();$('toolChangeSummary').textContent='操作摘要：'+$('toolAction').selectedOptions[0].textContent+' · 页码：'+(r.pages||'全部')+(r.text?' · 文字：'+r.text.slice(0,70):'')+(r.toc?' · '+r.toc.length+' 个章节':'')+'。处理并导出副本不会覆盖源文件。';}catch{}}
+  // One text node per fixed phrase, so the interface language can translate each; values stay as typed.
+  function updateSummary(){try{const r=request(),part=(text,value)=>{const n=document.createElement('span');n.textContent=text;if(value)n.translate=false;return n;};
+    $('toolChangeSummary').replaceChildren(part('操作摘要：'),part($('toolAction').selectedOptions[0].textContent),part(' · 页码：'),r.pages?part(r.pages,true):part('全部'),
+      ...(r.text?[part(' · 文字：'),part(r.text.slice(0,70),true)]:[]),...(r.toc?[part(' · '+r.toc.length+' ',true),part('个章节')]:[]),part('。处理并导出副本不会覆盖源文件。'));}catch{}}
   dialog.addEventListener('input',updateSummary);dialog.addEventListener('change',updateSummary);
   // A job captures everything it needs from the dialog when it is started, so it can wait in the
   // task center queue (0.20) while another job runs and the dialog shows something else.

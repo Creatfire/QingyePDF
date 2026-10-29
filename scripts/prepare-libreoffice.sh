@@ -17,11 +17,19 @@ stage="$(mktemp -d "${TMPDIR:-/tmp}/qingye-lo-XXXXXX")"
 mount="$stage/mount"
 cleanup() { hdiutil detach "$mount" -quiet 2>/dev/null || true; rm -rf "$stage"; }
 trap cleanup EXIT
-curl --fail --location --silent --show-error -o "$stage/lo.dmg" "$url"
-actual="$(shasum -a 256 "$stage/lo.dmg" | cut -d' ' -f1)"
-[ "$actual" = "$sum" ] || { echo "LibreOffice checksum mismatch: $actual" >&2; exit 1; }
+# The ~320 MB image is kept in .downloads/ and resumed: mirrors sometimes cut long transfers off.
+cache="$root/.downloads/$asset"
+mkdir -p "$root/.downloads"
+if [ ! -f "$cache" ] || [ "$(shasum -a 256 "$cache" | cut -d' ' -f1)" != "$sum" ]; then
+  for attempt in 1 2 3 4 5 6 7 8 9 10; do
+    curl --fail --location --silent --show-error --http1.1 --continue-at - -o "$cache" "$url" && break
+    echo "LibreOffice download interrupted (attempt $attempt), resuming…" >&2; sleep 3
+  done
+fi
+actual="$(shasum -a 256 "$cache" | cut -d' ' -f1)"
+[ "$actual" = "$sum" ] || { rm -f "$cache"; echo "LibreOffice checksum mismatch: $actual" >&2; exit 1; }
 mkdir "$mount"
-hdiutil attach "$stage/lo.dmg" -nobrowse -readonly -mountpoint "$mount" -quiet
+hdiutil attach "$cache" -nobrowse -readonly -mountpoint "$mount" -quiet
 test -x "$mount/LibreOffice.app/Contents/MacOS/soffice"
 mkdir "$stage/libreoffice"
 ditto "$mount/LibreOffice.app" "$stage/libreoffice/LibreOffice.app"

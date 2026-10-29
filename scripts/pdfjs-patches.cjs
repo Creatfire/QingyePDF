@@ -18,4 +18,12 @@ function patchPdfjs(source) {
     '.then(data => this.#getBitmapFetched(data)).catch(error => { warn(`Unable to load image: ${error}`); this.remove(); }).finally(() => this.#getBitmapDone())');
   return source;
 }
-module.exports={patchPdfjs};
+// The viewer prints on Ctrl/⌘+Shift+P in Chrome-like browsers; Electron counts as one, so the app's
+// command palette never got that key inside a document. Print only on Ctrl/⌘+P.
+function patchViewer(source) {
+  const from='(!event.shiftKey || window.chrome || window.opera)';
+  if (source.includes('Qingye: Shift+P is the command palette')) return source;
+  if (!source.includes(from)) throw new Error('Unsupported PDF.js print shortcut; review the patch before upgrading.');
+  return source.replace(from, '!event.shiftKey /* Qingye: Shift+P is the command palette */');
+}
+module.exports={patchPdfjs,patchViewer};

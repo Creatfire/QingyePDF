@@ -10,7 +10,7 @@ const { app, BrowserWindow, Menu, dialog, shell, ipcMain } = require('electron')
  *   startup), isMac, acrylicSupported, offscreen, showOnReady, relaunched, canClose.
  */
 function createWindowShell(ctx) {
-  const { T, command, fail, preferences, persist, normalizeWindowStyle, isMac, offscreen, acrylicSupported, relaunched, canClose } = ctx;
+  const { T, command, fail, preferences, persist, normalizeWindowStyle, isMac, offscreen, acrylicSupported, relaunched, canClose, hideOnClose = () => false } = ctx;
   let style = ctx.style;
   let window, relaunchOnClose = false;
   const drawnCaption = () => style.style === 'macos' && process.platform !== 'darwin';
@@ -42,7 +42,8 @@ function createWindowShell(ctx) {
     });
     window.webContents.on('render-process-gone', (_event, details) => fail('render-process-gone', new Error('Reader process exited: ' + details.reason), details));
     window.webContents.on('did-fail-load', (_event, code, description, url, isMainFrame) => { if (isMainFrame && code !== -3) fail('page-load', new Error(description), { code, url }); });
-    window.on('close', event => { if (!canClose()) { event.preventDefault(); command('close-app'); } });
+    // On macOS closing the window closes its documents and keeps the app in the Dock (hideOnClose).
+    window.on('close', event => { if (!canClose()) { event.preventDefault(); command(hideOnClose() ? 'close-window' : 'close-app'); } });
     window.once('ready-to-show', () => { if (ctx.showOnReady) window.show(); });
     for (const [name, value] of [['maximize', true], ['unmaximize', false]]) window.on(name, () => command('window-maximized', value));
     for (const [name, value] of [['focus', true], ['blur', false]]) window.on(name, () => command('window-focus', value));
@@ -101,6 +102,7 @@ function createWindowShell(ctx) {
       if (action === 'minimize') window.minimize();
       else if (action === 'maximize') { if (window.isMaximized()) window.unmaximize(); else window.maximize(); }
       else if (action === 'close') window.close();
+      else if (action === 'hide') window.hide();
       else throw new Error('未知的窗口操作。');
       return true;
     });
