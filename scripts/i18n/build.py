@@ -20,6 +20,10 @@ if missing: sys.exit(f'missing ids: {missing[:20]} ({len(missing)})')
 
 # Dynamic strings: [regex on the Chinese text, {lang: replacement with $1…}]. Captures are translated too.
 PATTERNS = [
+    (r'^在当前文档中查找“(.+)”$', {'en': 'Find “$1” in this document', 'zh-TW': '在目前文件中尋找「$1」', 'ja': '現在の文書で「$1」を検索', 'ko': '현재 문서에서 "$1" 찾기'}),
+    (r'^在所有文档中搜索“(.+)”$', {'en': 'Search all documents for “$1”', 'zh-TW': '在所有文件中搜尋「$1」', 'ja': 'すべての文書で「$1」を検索', 'ko': '모든 문서에서 "$1" 검색'}),
+    (r'^任务中心，(\d+) 个进行中$', {'en': 'Task center, $1 running', 'zh-TW': '任務中心，$1 個進行中', 'ja': 'タスクセンター、$1 件実行中', 'ko': '작업 센터, $1개 진행 중'}),
+    (r'^筛选 · (\d+)$', {'en': 'Filter · $1', 'zh-TW': '篩選 · $1', 'ja': '絞り込み · $1', 'ko': '필터 · $1'}),
     (r'^(.+) 快捷键$', {'en': '$1 shortcut', 'zh-TW': '$1 快速鍵', 'ja': '$1 のショートカット', 'ko': '$1 단축키'}),
     (r'^([\d,]+) 字 · 约 (\d+) 分钟读完$', {'en': '$1 words · about $2 min read', 'zh-TW': '$1 字 · 約 $2 分鐘讀完', 'ja': '$1 文字 · 約 $2 分で読了', 'ko': '$1자 · 약 $2분 소요'}),
     (r'^([\d,]+) 字 · 行 (\d+), 列 (\d+)$', {'en': '$1 words · Ln $2, Col $3', 'zh-TW': '$1 字 · 第 $2 行，第 $3 欄', 'ja': '$1 文字 · $2 行, $3 列', 'ko': '$1자 · $2행, $3열'}),

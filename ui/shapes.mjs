@@ -37,7 +37,9 @@ export function createShapes({ current, applyEdit, guard, status }) {
   document.body.append(bar);
   let tool = null, drag = null;
 
+  // 0.22: the annotation strip under the toolbar mirrors the active shape, so it hears every change.
   function syncBar() {
+    document.dispatchEvent(new CustomEvent('qy-shape-change'));
     if (!tool) { bar.hidden = true; return; }
     const style = readStyle(), label = labelOf(tool.kind), note = tool.kind === 'note';
     bar.querySelector('.shapeName').textContent = label + (note ? ' · 点击页面上要评论的位置，Esc 取消' : ' · 在页面上拖动绘制，Esc 结束');

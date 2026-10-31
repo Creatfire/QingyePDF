@@ -150,6 +150,8 @@ export function createChrome({ api, current, guard, navigation, status, shapes, 
     strip.replaceChildren(...items);
   }
 
+  document.addEventListener('qy-shape-change', () => syncStrip());
+
   function syncAnnotate() {
     syncStrip();
     const s = current(), button = $('annotateButton');

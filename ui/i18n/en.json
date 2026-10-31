@@ -2026,9 +2026,42 @@
     "已取消。": "Canceled.",
     "下载转换引擎 (MB)": "Downloading conversion engine (MB)",
     "正在用 LibreOffice 按原版式转换…": "Converting with LibreOffice, keeping the original layout…",
-    "已用 LibreOffice 按原版式转换。": "Converted with LibreOffice, keeping the original layout."
+    "已用 LibreOffice 按原版式转换。": "Converted with LibreOffice, keeping the original layout.",
+    "搜索：命令、工具、当前文档和所有文档": "Search commands, tools, this document and all documents",
+    "搜索命令和文档": "Search commands and documents",
+    "搜索文档、内容和命令": "Search documents, content and commands",
+    "应用导航": "App navigation",
+    "文档库：在所有打开过的 PDF 和笔记里搜索": "Library: search every PDF and note you have opened",
+    "文档库": "Library",
+    "工作区：一组一起打开的文档": "Workspaces: documents that open together",
+    "任务": "Tasks",
+    "欢迎回来": "Welcome back",
+    "搜索命令、工具或文字，例如“打印”“水印”，或输入要在文档里找的内容": "Search commands, tools or text, such as “Print” or “Watermark”, or type what to find in your documents",
+    "当前文档": "This document",
+    "Esc 退出": "Esc to exit",
+    "筛选": "Filter",
+    "整理与导出": "Organize and export",
+    "搜索：命令、工具、当前文档和所有文档 · Ctrl+Shift+P": "Search commands, tools, this document and all documents · Ctrl+Shift+P",
+    "文档库：在所有打开过的 PDF 和笔记里搜索 · Ctrl+Shift+F": "Library: search every PDF and note you have opened · Ctrl+Shift+F",
+    "选中批注的操作": "Actions for selected annotations"
   },
   "patterns": [
+    [
+      "^在当前文档中查找“(.+)”$",
+      "Find “$1” in this document"
+    ],
+    [
+      "^在所有文档中搜索“(.+)”$",
+      "Search all documents for “$1”"
+    ],
+    [
+      "^任务中心，(\\d+) 个进行中$",
+      "Task center, $1 running"
+    ],
+    [
+      "^筛选 · (\\d+)$",
+      "Filter · $1"
+    ],
     [
       "^(.+) 快捷键$",
       "$1 shortcut"
