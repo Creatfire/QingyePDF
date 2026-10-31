@@ -8,7 +8,6 @@ contextBridge.exposeInMainWorld('desktop', {
   windowState: () => ipcRenderer.invoke('window-state'),
   // Window style (0.9.2): read once, synchronously, so the first frame is drawn in the right style.
   windowStyle: (() => { try { return ipcRenderer.sendSync('window-style-sync'); } catch { return null; } })(),
-  setWindowStyle: value => ipcRenderer.invoke('set-window-style', value),
   windowControl: action => ipcRenderer.invoke('window-control', String(action)),
   relaunchOnClose: value => ipcRenderer.invoke('relaunch-on-close', !!value),
   open: () => ipcRenderer.invoke('open'),

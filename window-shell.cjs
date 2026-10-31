@@ -13,7 +13,7 @@ function createWindowShell(ctx) {
   const { T, command, fail, preferences, persist, normalizeWindowStyle, isMac, offscreen, acrylicSupported, relaunched, canClose, hideOnClose = () => false } = ctx;
   let style = ctx.style;
   let window, relaunchOnClose = false;
-  const drawnCaption = () => style.style === 'macos' && process.platform !== 'darwin';
+  const drawnCaption = () => false; // 0.22: one interface style; native window buttons on every platform
   const acrylic = () => drawnCaption() && style.vibrancy && acrylicSupported;
   // Windows keeps native caption buttons (snap layouts, accessibility) through the themed title bar
   // overlay. In the MacOS style the renderer draws the traffic lights itself (no overlay), and with
@@ -90,14 +90,6 @@ function createWindowShell(ctx) {
   function register(handle) {
     handle('title-bar-theme', dark => { if (process.platform !== 'darwin' && !drawnCaption() && typeof window.setTitleBarOverlay === 'function') { try { window.setTitleBarOverlay(titleBar(!!dark)); } catch {} } return true; });
     handle('window-state', () => ({ maximized: window.isMaximized(), fullscreen: window.isFullScreen(), focused: window.isFocused() }));
-    // Window style (0.9.2): saved choice, drawn caption buttons, restart to apply.
-    // The window frame cannot change while it is open, so `style` keeps the applied value and only
-    // the saved preference is updated here; preload reads the applied one (window-style-sync below).
-    handle('set-window-style', async value => {
-      if (!value || typeof value !== 'object') throw new Error('界面风格参数无效。');
-      preferences.windowStyle = normalizeWindowStyle(value); await persist();
-      return preferences.windowStyle;
-    });
     handle('window-control', action => {
       if (action === 'minimize') window.minimize();
       else if (action === 'maximize') { if (window.isMaximized()) window.unmaximize(); else window.maximize(); }

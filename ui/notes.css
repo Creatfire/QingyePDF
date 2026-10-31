@@ -5,7 +5,7 @@
 #notesMenu .notesMenuText { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #notesMenu .menuItem .shortcut { flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #notesMenu .menuLabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#notesMenu .notesMenuNote { margin: 2px 10px 8px; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+#notesMenu .notesMenuNote { margin: 2px 10px 8px; font-size: var(--fs-md); line-height: 1.6; color: var(--muted); }
 
 /* Panes: widths come from notes-mode.mjs (inline left / width in %). */
 .viewerPanel.noteLeft { left: 0; }
@@ -20,9 +20,9 @@ body.notesMode .viewerPanel:not(.noteFocus) .mdMenubar { opacity: .72; }
 #notesDivider::before { content: ""; position: absolute; top: 0; bottom: 0; left: 4px; width: 1px; background: var(--line-strong); transition: background var(--fast), width var(--fast), left var(--fast); }
 #notesDivider:hover::before, #notesDivider:focus-visible::before, body.notesResizing #notesDivider::before { left: 3px; width: 3px; background: var(--accent); }
 #notesDivider:focus-visible { outline: none; }
-.notesDividerTools { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 4px; padding: 4px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); opacity: 0; transition: opacity var(--fast); }
+.notesDividerTools { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 4px; padding: 4px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); opacity: 0; transition: opacity var(--fast); }
 #notesDivider:hover .notesDividerTools, #notesDivider:focus-within .notesDividerTools { opacity: 1; }
-.notesDividerTools button { width: 26px; height: 26px; padding: 0; border-radius: 7px; color: var(--muted); --icon-size: 15px; cursor: pointer; }
+.notesDividerTools button { width: 26px; height: 26px; padding: 0; border-radius: var(--radius-sm); color: var(--muted); --icon-size: 15px; cursor: pointer; }
 .notesDividerTools button:hover { background: var(--hover); color: var(--ink); }
 /* While dragging, the panes must not swallow the pointer (PDF frames would). */
 body.notesResizing .viewerPanel { pointer-events: none; }
@@ -50,7 +50,7 @@ body.notesRows #notesDivider:hover::before, body.notesRows #notesDivider:focus-v
 body.notesRows .notesDividerTools { flex-direction: row; }
 body.notesRows.notesResizing { cursor: row-resize; }
 /* Name and save state of each pane in notes mode (0.20). */
-.notePaneChip { position: absolute; top: 8px; right: 14px; z-index: 8; max-width: min(60%, 360px); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--line); color: var(--muted); font-size: 11.5px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; box-shadow: var(--shadow-sm, 0 1px 3px rgb(0 0 0 / .08)); }
+.notePaneChip { position: absolute; top: 8px; right: 14px; z-index: 8; max-width: min(60%, 360px); padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--line); color: var(--muted); font-size: var(--fs-sm); line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; box-shadow: var(--shadow-sm, 0 1px 3px rgb(0 0 0 / .08)); }
 .notePaneChip[hidden] { display: none; }
 .notePaneChip.isDirty { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .notePaneChip.isDirty::before { content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 6px 1px 0; border-radius: 50%; background: var(--accent); vertical-align: middle; }

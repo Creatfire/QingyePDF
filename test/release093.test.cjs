@@ -5,14 +5,16 @@ const os = require('node:os');
 const path = require('node:path');
 const engine = require('../pandoc-engine.cjs');
 
-test('0.9.3 window state: a late initial reply does not override native focus/maximize events', async () => {
+test('0.22 window style: one interface, nothing drawn, native window state still tracked', async () => {
   const { applyWindowStyle } = await import('../ui/window-style.mjs');
-  const previous = global.document, classes = new Set(); let answer;
-  const element = () => ({ setAttribute() {}, append() {}, prepend() {}, addEventListener() {} });
-  global.document = { body: { classList: { add: name => classes.add(name), toggle: (name, on) => on ? classes.add(name) : classes.delete(name) } }, createElement: element, getElementById: element };
+  const previous = global.document, classes = new Set(); let created = 0;
+  global.document = { body: { classList: { add: name => classes.add(name), toggle: (name, on) => on ? classes.add(name) : classes.delete(name) } }, createElement: () => { created++; return {}; }, getElementById: () => null };
   try {
-    const style = applyWindowStyle({ platform: 'win32', windowStyle: { style: 'macos' }, windowState: () => new Promise(resolve => { answer = resolve; }) });
-    style.maximized(true); style.focused(false); answer({ maximized: false, focused: true }); await Promise.resolve(); await Promise.resolve();
+    // A saved 0.9.2 "macos" choice on Windows no longer draws traffic lights.
+    const style = applyWindowStyle({ platform: 'win32', windowStyle: { style: 'macos', drawnCaption: true, vibrancy: true } });
+    assert.equal(created, 0); assert.equal(style.info.drawnCaption, false); assert.equal(style.info.vibrancy, false);
+    assert.ok(![...classes].some(name => name.startsWith('style-')));
+    style.maximized(true); style.focused(false);
     assert.ok(classes.has('windowMaximized')); assert.ok(classes.has('windowInactive'));
     style.focused(true); assert.ok(!classes.has('windowInactive'));
   } finally { if (previous === undefined) delete global.document; else global.document = previous; }

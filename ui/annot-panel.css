@@ -1,26 +1,26 @@
 /* Annotation & excerpt panel (0.20, annot-panel.mjs) in the sidebar's 批注 view. */
 .annotFilters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
 .annotFilters input[type="search"] { grid-column: 1 / -1; }
-.annotFilters select, .annotFilters input { min-width: 0; height: 28px; font-size: 12px; }
+.annotFilters select, .annotFilters input { min-width: 0; height: 28px; font-size: var(--fs-sm); }
 .annotBatch, .annotExport { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 6px; }
-.annotBatch button, .annotExport button { height: 26px; padding: 0 8px; font-size: 12px; }
+.annotBatch button, .annotExport button { height: 26px; padding: 0 8px; font-size: var(--fs-sm); }
 .annotSwatches { display: inline-flex; gap: 3px; margin: 0 2px; }
 .annotBatch .annotSwatch { width: 20px; height: 20px; min-width: 0; padding: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); }
-.annotTagMenu { height: 26px; font-size: 12px; max-width: 120px; }
-.annotCount { margin: 0 0 6px; color: var(--muted); font-size: 12px; }
+.annotTagMenu { height: 26px; font-size: var(--fs-sm); max-width: 120px; }
+.annotCount { margin: 0 0 6px; color: var(--muted); font-size: var(--fs-sm); }
 .annotCards { display: flex; flex-direction: column; gap: 6px; }
-.annotCard { display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: start; padding: 8px 8px 8px 10px; border-radius: 8px; border: 1px solid var(--line); border-left: 4px solid var(--annot-color, var(--line)); background: var(--surface); }
+.annotCard { display: grid; grid-template-columns: auto 1fr; gap: 6px; align-items: start; padding: 8px 8px 8px 10px; border-radius: var(--radius); border: 1px solid var(--line); border-left: 4px solid var(--annot-color, var(--line)); background: var(--surface); }
 .annotCard.isSelected { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
 .annotCard.isCurrent { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent); }
 .annotCard input { margin-top: 3px; }
 .annotCardBody { all: unset; display: flex; flex-direction: column; gap: 4px; min-width: 0; cursor: pointer; }
-.annotCardBody:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
-.annotCardHead { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
-.annotCardHead em { font-style: normal; font-size: 10.5px; padding: 0 6px; border-radius: 999px; line-height: 17px; }
+.annotCardBody:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+.annotCardHead { display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); color: var(--muted); }
+.annotCardHead em { font-style: normal; font-size: var(--fs-xs); padding: 0 6px; border-radius: 999px; line-height: 17px; }
 .annotDone { background: color-mix(in srgb, #2e7d32 14%, transparent); color: #2e7d32; }
 .annotTodo { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--muted); }
-.annotQuote { quotes: "“" "”"; font-size: 12.5px; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-.annotNote { font-size: 12px; color: var(--ink-2, var(--ink)); white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.annotQuote { quotes: "“" "”"; font-size: var(--fs-md); color: var(--ink); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.annotNote { font-size: var(--fs-sm); color: var(--ink-2, var(--ink)); white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .annotTags { display: flex; flex-wrap: wrap; gap: 4px; }
-.annotTags i { font-style: normal; font-size: 10.5px; padding: 0 6px; line-height: 17px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
-.annotEmpty { color: var(--muted); font-size: 12px; }
+.annotTags i { font-style: normal; font-size: var(--fs-xs); padding: 0 6px; line-height: 17px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+.annotEmpty { color: var(--muted); font-size: var(--fs-sm); }

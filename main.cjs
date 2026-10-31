@@ -68,12 +68,11 @@ if(smoke||safety||benchmark)setTimeout(()=>fail('test-timeout',new Error('验证
   setLanguage(saved || 'zh-CN');
   if (saved) app.commandLine.appendSwitch('lang', chromiumLocale(getLanguage()));
 }
-// Window style (0.9.2): "windows" keeps the native caption buttons; "macos" draws traffic lights,
-// larger radii and translucent surfaces. The window frame is chosen at creation, so a change made in
-// Settings is saved here and takes effect after a restart. Automated runs always use the Windows style.
-// On a Mac the MacOS look (with the system's own traffic lights) is the default.
+// Window style: since 0.22 there is one interface on every platform. The 0.9.2 "Windows / MacOS"
+// choice is gone; each platform keeps only its native window buttons (traffic lights on a Mac, the
+// caption overlay elsewhere). A saved 0.9.2 choice is ignored.
 const isMac = process.platform === 'darwin';
-const normalizeWindowStyle = value => ({ style: value?.style === 'macos' || (isMac && value?.style !== 'windows') ? 'macos' : 'windows', vibrancy: !!value?.vibrancy });
+const normalizeWindowStyle = () => ({ style: 'windows', vibrancy: false });
 // Acrylic backgroundMaterial needs Windows 11 22H2 (build 22621) or later.
 const acrylicSupported = process.platform === 'win32' && Number(require('node:os').release().split('.')[2] || 0) >= 22621;
 let windowStyle = normalizeWindowStyle(null);

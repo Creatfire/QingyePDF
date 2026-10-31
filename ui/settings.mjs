@@ -31,13 +31,6 @@ export function createSettings({ api, guard, status, markdown, theme, version, r
           <h3>界面</h3>
           <label class="settingRow"><span><b>显示语言</b><small>菜单、按钮和提示使用的语言；文档内容不受影响。</small></span><select id="setLanguage"></select></label>
           <label class="settingRow"><span><b>界面主题</b><small>标题栏右侧的月亮/太阳按钮可随时切换。</small></span><select id="setTheme"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label>
-          <div class="settingRow styleHeading"><span><b>界面风格</b><small>窗口按钮、圆角与材质。切换后重启青页生效。</small></span></div>
-          <div class="styleChoices" role="radiogroup" aria-label="界面风格">
-            <button type="button" role="radio" data-style="windows"><span class="stylePreview isWindows" aria-hidden="true"><i class="spBar"><i class="spTab"></i><i class="spCaps"><i></i><i></i><i></i></i></i><i class="spBody"><i></i><i></i><i></i></i></span><span class="styleText"><b>Windows</b><small>右上角原生窗口按钮，紧凑直角</small></span></button>
-            <button type="button" role="radio" data-style="macos"><span class="stylePreview isMacos" aria-hidden="true"><i class="spBar"><i class="spLights"><i></i><i></i><i></i></i><i class="spTab"></i></i><i class="spBody"><i></i><i></i><i></i></i></span><span class="styleText"><b>MacOS</b><small>左上角红绿灯、圆角与毛玻璃</small></span></button>
-          </div>
-          <label class="settingRow check" id="setVibrancyRow"><span><b>窗口毛玻璃</b><small id="setVibrancyNote">标题栏、侧栏与首页透出模糊的桌面背景（Windows 11 亚克力材质）。</small></span><input id="setVibrancy" type="checkbox" role="switch"></label>
-          <div class="styleRestart" role="status" hidden><span>新的界面风格将在重启青页后生效。</span><button type="button" id="styleRestartNow" class="primary" data-icon="refresh">立即重启</button></div>
           <h3>启动</h3>
           <label class="settingRow check"><span><b>启动时自动恢复上次的标签</b><small>关闭时仍在打开的文档会在下次启动时重新打开。</small></span><input id="setRestore" type="checkbox" role="switch"></label>
         </section>
@@ -109,37 +102,6 @@ export function createSettings({ api, guard, status, markdown, theme, version, r
   lang.onchange = () => guard(async () => { const code = await setLanguage(lang.value); await api.setLanguage?.(code, lang.value !== 'auto'); status(t('界面语言已切换')); });
   $('#setTheme').onchange = e => theme.set(e.target.value);
   $('#setRestore').onchange = e => set('restoreOnStart', e.target.checked);
-
-  // ——— Interface style (0.9.2) ———
-  let chosenStyle = { ...windowStyle.saved };
-  const styleButtons = [...dialog.querySelectorAll('.styleChoices [role="radio"]')];
-  const vibrancyInput = $('#setVibrancy');
-  function syncStyle() {
-    for (const b of styleButtons) { const on = b.dataset.style === chosenStyle.style; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; }
-    const mac = chosenStyle.style === 'macos';
-    $('#setVibrancyRow').hidden = !mac || api.platform === 'darwin';
-    vibrancyInput.checked = mac && chosenStyle.vibrancy && !!windowStyle.acrylicSupported;
-    vibrancyInput.disabled = !windowStyle.acrylicSupported;
-    $('#setVibrancyNote').textContent = windowStyle.acrylicSupported ? '标题栏、侧栏与首页透出模糊的桌面背景（Windows 11 亚克力材质）。' : '需要 Windows 11 22H2 或更高版本；当前系统使用应用内毛玻璃效果。';
-    const effectiveVibrancy = value => !!value && !!windowStyle.acrylicSupported;
-    $('.styleRestart').hidden = chosenStyle.style === windowStyle.style && (!mac || effectiveVibrancy(chosenStyle.vibrancy) === !!windowStyle.vibrancy);
-  }
-  async function saveStyle(next) {
-    chosenStyle = { ...chosenStyle, ...next }; syncStyle();
-    await api.setWindowStyle?.(chosenStyle);
-    status(t($('.styleRestart').hidden ? '已恢复当前界面风格' : '界面风格已保存，重启青页后生效'));
-  }
-  for (const b of styleButtons) {
-    b.onclick = () => guard(() => saveStyle({ style: b.dataset.style }));
-    b.onkeydown = event => {
-      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
-      event.preventDefault();
-      const next = styleButtons[(styleButtons.indexOf(b) + (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) + styleButtons.length) % styleButtons.length];
-      next.focus(); next.click();
-    };
-  }
-  vibrancyInput.onchange = () => guard(() => saveStyle({ vibrancy: vibrancyInput.checked }));
-  $('#styleRestartNow').onclick = () => guard(async () => { dialog.close(); if (restart) await restart(); });
 
   // ——— PDF ———
   $('#setPdfZoom').onchange = e => set('pdfZoom', e.target.value);

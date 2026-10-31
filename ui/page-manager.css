@@ -1,15 +1,15 @@
 /* Visual page manager (0.20, page-manager.mjs). */
-.pageManager { width: min(1180px, calc(100vw - 32px)); height: min(820px, calc(100vh - 32px)); max-width: none; max-height: none; padding: 0; display: none; flex-direction: column; border-radius: 14px; overflow: hidden; }
+.pageManager { width: min(1180px, calc(100vw - 32px)); height: min(820px, calc(100vh - 32px)); max-width: none; max-height: none; padding: 0; display: none; flex-direction: column; border-radius: var(--radius-lg); overflow: hidden; }
 .pageManager[open] { display: flex; }
 .pmHead { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-.pmHead h2 { margin: 0; font-size: 17px; }
-.pmHead p { margin: 2px 0 0; color: var(--muted); font-size: 12px; max-width: 40ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pmHead h2 { margin: 0; font-size: var(--fs-h); }
+.pmHead p { margin: 2px 0 0; color: var(--muted); font-size: var(--fs-sm); max-width: 40ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pmTools { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .pmTools button { height: 30px; }
 #pmRotateLeft::before { transform: scaleX(-1); }
 .pmSep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
 .pmGrid { flex: 1; overflow: auto; padding: 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 16px; align-content: start; background: var(--surface-2, color-mix(in srgb, var(--ink) 4%, var(--surface))); outline: none; }
-.pmCard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 8px 8px; border-radius: 10px; border: 2px solid transparent; background: var(--surface); cursor: grab; user-select: none; box-shadow: 0 1px 2px rgb(0 0 0 / .06); }
+.pmCard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 8px 8px; border-radius: var(--radius); border: 2px solid transparent; background: var(--surface); cursor: grab; user-select: none; box-shadow: 0 1px 2px rgb(0 0 0 / .06); }
 .pmCard:hover { border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
 .pmCard.isSelected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
 .pmCard.isInserted .pmLabel { color: var(--accent); }
@@ -17,18 +17,18 @@
 .pmCard.dropBefore::before { left: -10px; } .pmCard.dropAfter::after { right: -10px; }
 .pmThumb { height: 160px; display: flex; align-items: center; justify-content: center; }
 .pmThumb canvas { max-width: 130px; max-height: 160px; box-shadow: 0 0 0 1px var(--line), 0 2px 6px rgb(0 0 0 / .08); background: #fff; }
-.pmNum { font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; }
-.pmLabel { font-size: 11px; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pmNum { font-weight: 700; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.pmLabel { font-size: var(--fs-xs); color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pmSplit { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; padding: 10px 18px; border-top: 1px solid var(--line); background: var(--surface); }
 .pmSplit[hidden], .pmSplit label[hidden] { display: none; }
-.pmSplit label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+.pmSplit label { display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-sm); color: var(--muted); }
 .pmSplit input { width: 180px; } .pmSplit #pmEvery { width: 80px; }
-.pmHint { margin: 0; color: var(--muted); font-size: 11.5px; flex-basis: 100%; }
+.pmHint { margin: 0; color: var(--muted); font-size: var(--fs-sm); flex-basis: 100%; }
 .pmFoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
 .pmStatus { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-.pmStatus strong { font-size: 13px; }
-.pmStatus span { color: var(--muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pmStatus strong { font-size: var(--fs-md); }
+.pmStatus span { color: var(--muted); font-size: var(--fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pmActions { display: flex; gap: 6px; flex-wrap: wrap; }
 .toolOpenPages { display: flex; align-items: center; gap: 10px; grid-column: 1 / -1; }
-.toolOpenPages span { color: var(--muted); font-size: 12px; }
+.toolOpenPages span { color: var(--muted); font-size: var(--fs-sm); }
 @media (max-width: 640px) { .pmGrid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); padding: 12px; gap: 10px; } .pmThumb { height: 130px; } }
