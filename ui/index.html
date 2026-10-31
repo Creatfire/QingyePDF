@@ -20,24 +20,31 @@
   <link rel="stylesheet" href="page-manager.css">
   <link rel="stylesheet" href="annot-panel.css">
   <link rel="stylesheet" href="library.css">
+  <link rel="stylesheet" href="shell.css">
   <link rel="stylesheet" href="../vendor/markdown/katex/katex.min.css">
   <script type="module" src="app.mjs"></script>
 </head>
 <body>
   <a class="skipLink" href="#workspace">跳到文档区域</a>
   <header class="titlebar" id="titlebar">
-    <button id="homeButton" class="brand" title="首页" aria-label="青页 PDF 首页"><span class="logo" aria-hidden="true">青</span><span class="brandName">青页 <b>PDF</b></span></button>
     <div class="readingTrail" role="group" aria-label="阅读导航"><button id="readingBack" class="iconOnly" data-icon="left" title="返回阅读位置 · Alt+←" aria-label="返回阅读位置" disabled></button><button id="readingForward" class="iconOnly" data-icon="right" title="前进阅读位置 · Alt+→" aria-label="前进阅读位置" disabled></button></div>
     <nav id="tabs" class="tabs" aria-label="文档标签"></nav>
     <div class="titlebarDrag" aria-hidden="true"></div>
     <div class="titlebarTools">
-      <button id="commandButton" class="commandPill" data-icon="search" title="命令面板：搜索任何工具和命令 · Ctrl+Shift+P" aria-label="命令面板"><span class="label">搜索命令</span><kbd>Ctrl+Shift+P</kbd></button>
-      <button id="convertButton" title="文档转换中心" aria-label="文档转换中心">转换</button>
-      <button id="themeButton" class="iconOnly" data-icon="moon" title="切换深色界面" aria-label="切换深色界面"></button>
-      <button id="settingsButton" class="iconOnly" data-icon="settings" title="设置" aria-label="设置"></button>
-      <button id="helpButton" class="iconOnly" data-icon="help" title="使用帮助" aria-label="使用帮助"></button>
+      <button id="commandButton" class="commandPill" data-icon="search" title="搜索：命令、工具、当前文档和所有文档 · Ctrl+Shift+P" aria-label="搜索命令和文档"><span class="label">搜索文档、内容和命令</span><kbd>Ctrl+Shift+P</kbd></button>
     </div>
   </header>
+  <nav class="rail" id="appRail" aria-label="应用导航">
+    <button id="homeButton" class="railItem" data-icon="home" title="首页" aria-label="首页" aria-current="page"><span class="label">首页</span></button>
+    <button id="libraryButton" class="railItem" data-icon="library" title="文档库：在所有打开过的 PDF 和笔记里搜索 · Ctrl+Shift+F" aria-label="文档库"><span class="label">文档库</span></button>
+    <button id="workspaceButton" class="railItem" data-icon="workspace" title="工作区：一组一起打开的文档" aria-label="工作区"><span class="label">工作区</span></button>
+    <button id="convertButton" class="railItem" data-icon="convert" title="文档转换中心" aria-label="文档转换中心"><span class="label">转换</span></button>
+    <button id="railTasks" class="railItem" data-icon="history" title="任务中心" aria-label="任务中心"><span class="label">任务</span><span class="railBadge" id="railTaskBadge" hidden></span></button>
+    <span class="railGrow" aria-hidden="true"></span>
+    <button id="themeButton" class="railItem" data-icon="moon" title="切换深色界面" aria-label="切换深色界面"><span class="label">外观</span></button>
+    <button id="settingsButton" class="railItem" data-icon="settings" title="设置" aria-label="设置"><span class="label">设置</span></button>
+    <button id="helpButton" class="railItem" data-icon="help" title="使用帮助" aria-label="使用帮助"><span class="label">帮助</span></button>
+  </nav>
   <header class="appbar" id="pdfToolbar" role="toolbar" aria-label="PDF 工具栏">
     <div class="barGroup" data-overflow="keep">
       <button id="openButton" class="primary" data-icon="open" title="打开文档：PDF、Markdown、Word、Excel、PowerPoint · Ctrl+O"><span class="label">打开</span></button>
@@ -80,13 +87,13 @@
     <span class="barSep" aria-hidden="true"></span>
     <button id="aiButton" class="aiToggle" data-icon="sparkle" aria-pressed="false" title="AI 协作 · Ctrl+Shift+A" aria-label="AI 协作" data-overflow="10"><span class="label">AI</span></button>
   </header>
+  <div class="annotStrip" id="annotStrip" role="toolbar" aria-label="批注工具" hidden></div>
   <main id="workspace" tabindex="-1">
     <section id="home" class="home" aria-label="首页">
       <div class="homeContent">
         <header class="homeHeader">
           <div>
-            <p id="greeting" class="homeGreeting">欢迎回来</p>
-            <h1 class="homeTitle">今天想读点什么？</h1>
+            <h1 class="homeTitle"><span id="greeting" class="homeGreeting">欢迎回来</span> <span>今天想读点什么？</span></h1>
           </div>
           <span class="workspaceBadge" title="本机处理、不使用云转换、无账号"><i aria-hidden="true"></i>本地 · 私密 · 开源</span>
         </header>

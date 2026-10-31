@@ -33,6 +33,7 @@ import { createCommands } from './commands.mjs';
 import { createHistoryUi } from './history-ui.mjs';
 import { createToolbar, EDIT_KINDS } from './toolbar.mjs';
 import { createCommandPalette } from './command-palette.mjs';
+import { createRail } from './rail.mjs';
 import { TOOLS, groupLabel, needsPdf } from './tool-registry.mjs';
 import { ANNOTATION_TOOLS } from './chrome.mjs';
 // Display language first, so the UI is translated before it is shown.
@@ -148,7 +149,11 @@ const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: 
 const commands = createCommands({ $, sessions, current, activeId: () => activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, closeWindow, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle });
 // The PDF toolbar's menus, pinned tools and overflow (toolbar.mjs), and the command palette (0.21).
 toolbar = createToolbar({ $, guard, status, current: currentPdf, sessions: pdfSessions, tools, pageManager, direct, history, print: () => commands.run('print') });
-palette = createCommandPalette({ guard, commands: paletteCommands });
+// 0.22 unified search: the same box also searches the current document and every document.
+palette = createCommandPalette({ guard, commands: paletteCommands, searches: query => [
+  ...(currentPdf()?.loaded ? [{ label: `在当前文档中查找“${query}”`, group: '当前文档', icon: 'search', run: () => navigation.search(currentPdf(), query) }] : []),
+  ...(library ? [{ label: `在所有文档中搜索“${query}”`, group: '文档库', icon: 'library', run: () => library.open(query) }] : []),
+] });
 $('commandButton').onclick = () => isMd(current()) && current().loaded ? markdown.command(current(), 'palette') : palette.open();
 const compareBar = document.createElement('div'); compareBar.id='compareBar';compareBar.hidden=true;
 compareBar.innerHTML='<strong>并排比较</strong><label><input id="syncComparePages" type="checkbox" checked>同步页码</label><label><input id="syncCompareZoom" type="checkbox" checked>同步缩放</label><label>右侧页差 <input id="compareOffset" type="number" value="0" min="-100000" max="100000" title="右侧页码 = 左侧页码 + 页差"></label><span id="compareNames"></span><div class="spacer"></div>'
@@ -218,7 +223,8 @@ function tabs() {
   chrome.sync();
   const md = isMd(current()) && current().loaded ? current() : null;
   if (md) markdown.syncChrome(md);
-  $('statusDetail').textContent = currentPdf() ? (currentPdf().path || currentPdf().name) : '';
+  // 0.22: the status bar shows the file name; the full path is in the tooltip.
+  const detail = currentPdf(); $('statusDetail').textContent = detail ? detail.name || '' : ''; $('statusDetail').title = detail ? (detail.path || detail.name || '') : '';
 }
 function resizePdf(s) {
   const viewer=s.app?.pdfViewer;if(!s.loaded||!viewer)return;
@@ -560,7 +566,7 @@ notes = createNotesMode({ sessions, isMd, activeId: () => activeId, activate, en
 workspaces = createWorkspaces({ api, guard, status, sessions, activeId: () => activeId, activate, addDocuments, notes, $ });
 workspaces.refresh().catch(() => {});
 {
-  const button = document.createElement('button'); button.id = 'notesButton'; button.className = 'iconOnly'; button.dataset.icon = 'double'; button.setAttribute('aria-pressed', 'false');
+  const button = document.createElement('button'); button.id = 'notesButton'; button.className = 'iconOnly mdOnly'; button.dataset.icon = 'double'; button.setAttribute('aria-pressed', 'false');
   button.title = '笔记模式：左右双开 · Ctrl+\\'; button.setAttribute('aria-label', '笔记模式'); button.onclick = () => notes.toggle(button, true);
   document.querySelector('.titlebarTools').prepend(button);
   // 0.20: the same action as a labelled button in the PDF toolbar, and "open and take notes" on the home page.
@@ -577,12 +583,11 @@ workspaces.refresh().catch(() => {});
 if (api.libraryStatus) {
   library = createLibrary({ api, guard, status, sessions, isMd, addDocuments, activate, userError,
     searchPdf: async (s, page, term) => { if (s.view.reflow) await views.change('reflow', false, s); s.app.pdfViewer.currentPageNumber = Math.min(page, s.app.pagesCount); await navigation.search(s, term); } });
-  const button = document.createElement('button'); button.id = 'libraryButton'; button.className = 'iconOnly'; button.dataset.icon = 'search';
-  button.title = '全库搜索：所有打开过的 PDF 和笔记 · Ctrl+Shift+F'; button.setAttribute('aria-label', '全库搜索'); button.onclick = () => guard(() => library.open());
-  document.querySelector('.titlebarTools').prepend(button);
+  $('libraryButton').onclick = () => guard(() => library.open());
   $('recentSearch').addEventListener('keydown', event => { if (event.key === 'Enter' && $('recentSearch').value.trim()) { event.preventDefault(); guard(() => library.open($('recentSearch').value.trim())); } });
   $('recentSearch').title = '按 Enter 在所有文档的内容里搜索';
 }
+createRail({ $, guard, activate: id => activate(id), hasLibrary: !!api.libraryStatus });
 const aiTools = createDocTools({ sessions, current, activate, markdown, addDocuments, api, views,navigate:action=>readingTrail.record(action), applyEdit, notes });
 ai = createAiPanel({ api, guard, status, tools: aiTools, current, openSettings: pane => settings.open(pane), partner: () => notes?.partner(activeId) || null });
 window.addEventListener('qingye:ai-config', () => ai.refresh().catch(console.warn));

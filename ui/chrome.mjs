@@ -112,7 +112,46 @@ export function createChrome({ api, current, guard, navigation, status, shapes, 
   annotateMenu.addEventListener('toggle', event => { if (event.newState === 'open') annotateMenu.querySelector('[role^="menuitem"]:not(:disabled)')?.focus(); });
   menuKeys(annotateMenu, () => { annotateMenu.hidePopover(); $('annotateButton').focus(); });
 
+  // ——— Annotation strip (0.22): while a markup tool is active, every tool, the shapes, the list
+  // and "done" sit in a row under the toolbar, so switching tools does not go through the menu.
+  const strip = $('annotStrip');
+  let stripKey = '';
+  function stripButton(label, icon, run, { pressed, disabled, iconOnly = true, title } = {}) {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.icon = icon;
+    b.title = title || label; b.setAttribute('aria-label', label);
+    if (iconOnly) b.className = 'iconOnly'; else { const t = document.createElement('span'); t.className = 'label'; t.textContent = label; b.append(t); }
+    if (pressed !== undefined) b.setAttribute('aria-pressed', String(!!pressed));
+    b.disabled = !!disabled; b.onclick = () => guard(async () => { await run(); syncStrip(); });
+    return b;
+  }
+  const stripSep = () => { const d = document.createElement('span'); d.className = 'stripSep'; d.setAttribute('aria-hidden', 'true'); return d; };
+  function syncStrip() {
+    if (!strip) return;
+    const s = current(), mode = editorMode(s), shape = shapes?.active?.() || '';
+    const show = !!s?.loaded && !s.view?.reflow && (mode > 0 || !!shape);
+    const key = show ? [mode, shape, ...ANNOTATION_TOOLS.map(([, id]) => available(s, id) ? 1 : 0)].join(',') : '';
+    if (key === stripKey) return;
+    stripKey = key; strip.hidden = !show;
+    if (!show) { strip.replaceChildren(); return; }
+    const label = document.createElement('span'); label.className = 'stripLabel'; label.textContent = '批注';
+    const items = [label];
+    for (const [name, id, icon, toolMode] of ANNOTATION_TOOLS) items.push(stripButton(name, icon, () => useTool(current(), id), { pressed: mode === toolMode, disabled: !available(s, id) }));
+    if (shapes) {
+      items.push(stripSep());
+      for (const [kind, name, keyName] of SHAPES) items.push(stripButton(name, kind === 'line' ? 'minus' : kind === 'arrow' ? 'right' : 'shape', () => shapes.start(kind), { pressed: shape === kind, title: keyName ? `${name} · ${keyName}` : name }));
+    }
+    if (openTool) items.push(stripSep(), stripButton('下划线 / 删除线（区域）…', 'strike', () => openTool('annotation')));
+    const end = document.createElement('div'); end.className = 'stripEnd';
+    const hint = document.createElement('span'); hint.className = 'stripHint'; hint.textContent = 'Esc 退出';
+    end.append(hint,
+      stripButton('批注列表', 'outline', () => navigation.show('comments'), { iconOnly: false }),
+      stripButton('完成', 'check', () => { if (shape) shapes.stop(); exitAnnotation(); }, { iconOnly: false }));
+    items.push(end);
+    strip.replaceChildren(...items);
+  }
+
   function syncAnnotate() {
+    syncStrip();
     const s = current(), button = $('annotateButton');
     button.disabled = !s?.loaded || !!s.saving || !!s.view?.reflow;
     const mode = editorMode(s), name = MODE_NAMES[mode];

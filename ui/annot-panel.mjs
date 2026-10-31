@@ -59,8 +59,13 @@ export function createAnnotPanel({ api, snapshot, applyEdit, guard, status, navi
     // so an old page:xref key could point at a different annotation.
     selected: new Set(), content, progress, filters: view?.s === s ? view.filters : { term: '', type: '', color: '', tag: '', pages: '', status: '' } };
     // ——— filters ———
-    const bar = el('div', 'annotFilters'); controls.append(bar);
-    const term = el('input'); term.type = 'search'; term.placeholder = '筛选原文、备注或标签'; term.setAttribute('aria-label', '筛选批注'); term.value = view.filters.term; bar.append(term);
+    // 0.22: the search box stays; type, color, tag, page and status filters fold under 筛选, and the
+    // count of active ones shows on it. Batch actions appear under the list once something is ticked.
+    const top = el('div', 'annotSearchRow'); controls.append(top);
+    const term = el('input'); term.type = 'search'; term.placeholder = '筛选原文、备注或标签'; term.setAttribute('aria-label', '筛选批注'); term.value = view.filters.term; top.append(term);
+    const more = el('details', 'annotFilterMore'); const summary = el('summary', '', '筛选'); summary.dataset.icon = 'outline'; more.append(summary); top.append(more);
+    const bar = el('div', 'annotFilters'); more.append(bar);
+    view.filterSummary = summary;
     const select = (label, options, value, key) => { const sel = el('select'); sel.setAttribute('aria-label', label); for (const [v, t] of [['', label], ...options]) { const o = el('option', '', t); o.value = v; sel.append(o); } sel.value = value; sel.onchange = () => { view.filters[key] = sel.value; draw(); }; bar.append(sel); return sel; };
     const types = [...new Set(notes.map(n => n.type))];
     select('全部类型', types.map(t => [t, ANNOT_LABEL[t] || t]), view.filters.type, 'type');
@@ -72,7 +77,7 @@ export function createAnnotPanel({ api, snapshot, applyEdit, guard, status, navi
     term.oninput = () => { view.filters.term = term.value; draw(); };
     pages.oninput = () => { view.filters.pages = pages.value; draw(); };
     // ——— batch actions ———
-    const batch = el('div', 'annotBatch'); controls.append(batch);
+    const batch = el('div', 'annotBatch'); batch.setAttribute('role', 'toolbar'); batch.setAttribute('aria-label', '选中批注的操作');
     const scope = () => { const chosen = view.notes.filter(n => view.selected.has(keyOf(n))); return chosen.length ? chosen : current(); };
     btn('全选筛选结果', () => { for (const n of current()) view.selected.add(keyOf(n)); draw(); }, batch);
     btn('清除选择', () => { view.selected.clear(); draw(); }, batch);
@@ -87,7 +92,8 @@ export function createAnnotPanel({ api, snapshot, applyEdit, guard, status, navi
     });
     batch.append(tagMenu);
     btn('删除选中批注', async () => { const items = view.notes.filter(n => view.selected.has(keyOf(n)) && n.xref).map(n => ({ page: n.page, xref: n.xref })); if (!items.length) throw new Error('请先勾选要删除的批注。'); const r = await applyEdit(s, { action: 'annot-delete', items }, `删除 ${items.length} 条批注`); if (!r?.canceled) status(r?.note || '已删除批注，可撤销。'); await refresh(); }, batch, { id: 'deleteAnnotations' });
-    const out = el('div', 'annotExport'); controls.append(out);
+    const outBox = el('details', 'annotExportMore'); outBox.append(el('summary', '', '整理与导出')); controls.append(outBox);
+    const out = el('div', 'annotExport'); outBox.append(out);
     btn('将选中批注整理为笔记', async () => {
       const chosen = view.notes.filter(n => view.selected.has(keyOf(n))); if (!chosen.length) throw new Error('请先勾选要整理的批注。');
       const made = await api.notesMarkdown(s.id, chosen);
@@ -96,7 +102,7 @@ export function createAnnotPanel({ api, snapshot, applyEdit, guard, status, navi
     }, out, { id: 'notesToMarkdown' });
     for (const [label, format] of [['导出 Markdown', 'md'], ['导出 Word', 'docx']]) btn(label, async () => { const items = scope(); const r = await api.exportNotes(s.id, items, format, await snapshot(s)); if (r?.path) progress.textContent = `已导出 ${items.length} 条：${r.path}`; }, out, { title: '导出勾选的批注；没有勾选时导出当前筛选结果' });
     btn('刷新', () => refresh(), out);
-    const list = el('div', 'annotCards'); content.append(list); view.list = list;
+    const list = el('div', 'annotCards'); content.append(list, batch); view.list = list; view.batch = batch;
     draw();
   }
   function current() { let pages = null; try { pages = pageFilter(view.filters.pages, view.s.app.pagesCount); } catch { pages = new Set(); } return filterNotes(view.notes, { ...view.filters, pages }, view.excerpted); }
@@ -107,17 +113,25 @@ export function createAnnotPanel({ api, snapshot, applyEdit, guard, status, navi
     if (!r?.canceled) status(r?.note || '已修改批注 · 可撤销');
     await refresh();
   }
+  function syncCounts(found) {
+    const { notes, selected } = view;
+    view.progress.textContent = `${found.length} / ${notes.length} 条批注` + (selected.size ? ` · 已选 ${selected.size} 条` : '') + ' · 包含未保存修改';
+    view.batch?.classList.toggle('hasSelection', selected.size > 0);
+    const active = ['type', 'color', 'tag', 'pages', 'status'].filter(k => view.filters[k]).length;
+    if (view.filterSummary) view.filterSummary.textContent = active ? `筛选 · ${active}` : '筛选';
+  }
   function draw() {
     const { list, notes, selected, excerpted, note } = view, found = current();
     list.replaceChildren();
-    view.progress.textContent = `${found.length} / ${notes.length} 条批注` + (selected.size ? ` · 已选 ${selected.size} 条` : '') + ' · 包含未保存修改';
+    syncCounts(found);
     for (const n of found) {
       const card = el('div', 'annotationSelectRow annotCard'); card.dataset.key = keyOf(n); card.classList.toggle('isSelected', selected.has(keyOf(n)));
       if (n.color) card.style.setProperty('--annot-color', n.color);
       const check = el('input'); check.type = 'checkbox'; check.checked = selected.has(keyOf(n)); check.setAttribute('aria-label', '选择第 ' + n.page + ' 页批注');
-      check.onchange = () => { check.checked ? selected.add(keyOf(n)) : selected.delete(keyOf(n)); card.classList.toggle('isSelected', check.checked); view.progress.textContent = `${found.length} / ${notes.length} 条批注` + (selected.size ? ` · 已选 ${selected.size} 条` : '') + ' · 包含未保存修改'; };
+      check.onchange = () => { check.checked ? selected.add(keyOf(n)) : selected.delete(keyOf(n)); card.classList.toggle('isSelected', check.checked); syncCounts(found); };
       const body = el('button', 'annotCardBody'); body.type = 'button';
-      const head = el('span', 'annotCardHead', `第 ${n.page} 页 · ${ANNOT_LABEL[n.type] || n.type}`); body.append(head);
+      const head = el('span', 'annotCardHead'); body.append(head);
+      const dot = el('i', 'annotDot'); dot.setAttribute('aria-hidden', 'true'); head.append(dot, document.createTextNode(`第 ${n.page} 页 · ${ANNOT_LABEL[n.type] || n.type}`));
       if (note) head.append(el('em', excerpted.has(keyOf(n)) ? 'annotDone' : 'annotTodo', excerpted.has(keyOf(n)) ? '已摘录' : '未摘录'));
       if (n.excerpt) body.append(el('q', 'annotQuote', n.excerpt));
       if (n.text) body.append(el('span', 'annotNote', n.text));
