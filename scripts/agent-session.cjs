@@ -11,6 +11,7 @@
 //   node scripts/agent-session.cjs key    --name A2 Meta+Shift+P      (Escape, Enter, Tab, ArrowDown, F11 …)
 //   node scripts/agent-session.cjs type   --name A2 "text"
 //   node scripts/agent-session.cjs shot   --name A2 out.png
+//   node scripts/agent-session.cjs size   --name A2 920x640 [out.png] [--eval "<js>"]   one look at that viewport size
 //   node scripts/agent-session.cjs queue-open   --name A2 file …   files for the next native open dialog
 //   node scripts/agent-session.cjs queue-answer --name A2 <button index>   for the next message box
 //   node scripts/agent-session.cjs stop   --name A2
@@ -131,6 +132,20 @@ function keyEvent(combo) {
       await c.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', ...e });
       await c.send('Input.dispatchKeyEvent', { type: 'keyUp', ...e });
       console.log('pressed ' + positional[0]);
+    } else if (command === 'size') {
+      // Lays the page out at a viewport size for one look: the override lasts only as long as this
+      // DevTools connection, so the screenshot and the optional --eval check run inside the command.
+      const m = /^(\d{3,4})x(\d{3,4})$/.exec(positional[0] || '') || fail('Size must look like 920x640');
+      await c.send('Emulation.setDeviceMetricsOverride', { width: Number(m[1]), height: Number(m[2]), deviceScaleFactor: 0, mobile: false });
+      await wait(600);
+      const result = { size: [Number(m[1]), Number(m[2])], inner: await evaluate(c, '[innerWidth, innerHeight]') };
+      if (flags.eval) result.eval = await evaluate(c, flags.eval);
+      if (positional[1]) {
+        const out = path.resolve(positional[1]); const { data } = await c.send('Page.captureScreenshot', { format: 'png' });
+        fs.mkdirSync(path.dirname(out), { recursive: true }); fs.writeFileSync(out, Buffer.from(data, 'base64')); result.shot = out;
+      }
+      await c.send('Emulation.clearDeviceMetricsOverride');
+      console.log(JSON.stringify(result, null, 1));
     } else if (command === 'type') {
       await c.send('Input.insertText', { text: positional.join(' ') }); console.log('typed');
     } else if (command === 'click') {
