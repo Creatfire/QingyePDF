@@ -85,6 +85,9 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: LibreOffice download path (real package, install, convert)
+        run: node scripts/check-office-engine.cjs
+
       - name: Electron smoke suites
         shell: pwsh
         run: node scripts/ci-smoke.cjs --report test-output/ci-smoke.json

@@ -88,6 +88,9 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: LibreOffice download path (real package, install, convert)
+        run: node scripts/check-office-engine.cjs
+
       # The window suites were written against Windows; on a Mac they are informative for now.
       - name: Electron smoke suites
         continue-on-error: true
@@ -115,6 +118,7 @@ jobs:
           test -x "$app/Contents/Resources/backend/QingyeWorker"
           test -x "$app/Contents/Resources/pandoc/pandoc"
           test -f "$app/Contents/Resources/ocr/chi_sim.traineddata"
+          test ! -e "$app/Contents/Resources/libreoffice"
           codesign --verify --deep --verbose=2 "$app" || echo "::warning::codesign verification failed"
           # The bundled engines must start from inside the bundle.
           "$app/Contents/Resources/pandoc/pandoc" --version | head -1

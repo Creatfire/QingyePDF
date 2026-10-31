@@ -64,7 +64,7 @@ export function createTools({ current, sessions, guard, commit, api, addDocument
   const usesRegion=a=>regions.has(a)||(a==='ocr'&&$('toolOcrRegion')?.checked);
   const hints={
     export:'完全本地转换。DOCX 导出可编辑文字与图片；XLSX 识别表格；PPTX 为页面图像。复杂版式和公式不保证保真。',
-    import:'Office、图片、文本、HTML、EPUB、XPS、CBZ、SVG 转 PDF。Office 文件默认用内置 LibreOffice 保留原版式，与直接打开的结果一致；也可以选择内容重排。',
+    import:'Office、图片、文本、HTML、EPUB、XPS、CBZ、SVG 转 PDF。Office 文件默认用 LibreOffice 保留原版式，与直接打开的结果一致；也可以选择内容重排。',
     organize:'页码可重复或倒序，例如 3,1-2,2。合并按列表中选中的文档顺序追加；原文件保留。',
     compress:'清理未使用对象并压缩流、字体。可选图像降采样；无法变小时保留原始数据。',
     ocr:'本地中英文 OCR：保留原页面、矢量与批注，只补充透明的可搜索文字层。只有页码等少量文字的扫描页也会识别。需要重新生成更清晰的页面图像，请用“扫描件纠偏与背景清理”并勾选识别文字。',

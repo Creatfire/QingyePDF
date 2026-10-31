@@ -1,7 +1,7 @@
 // Progress cards for Office files opened as PDF (0.19): one card per conversion with the current
 // stage, elapsed time, an indeterminate bar and a cancel button; a batch shows its whole queue. The
 // same corner also offers "convert again" when the original Word / Excel / PowerPoint file changes.
-const STAGE_LABEL = { waiting: '等待中', reading: '读取文件', queued: '排队中', starting: '启动转换引擎', converting: '转换为 PDF', cached: '使用缓存', loading: '载入 PDF', done: '完成', error: '失败', canceled: '已取消' };
+const STAGE_LABEL = { waiting: '等待中', reading: '读取文件', downloading: '下载转换引擎', installing: '安装转换引擎', queued: '排队中', starting: '启动转换引擎', converting: '转换为 PDF', cached: '使用缓存', loading: '载入 PDF', done: '完成', error: '失败', canceled: '已取消' };
 const FINISHED = new Set(['done', 'error', 'canceled']);
 
 export function createOfficeProgress({ api, guard, status }) {
@@ -17,7 +17,7 @@ export function createOfficeProgress({ api, guard, status }) {
       const s = seconds(card);
       card.el.querySelector('.officeJobTime').textContent = s + ' 秒';
       // A long conversion is still working: say so instead of looking frozen.
-      if (s >= 30 && !card.slowShown) { card.slowShown = true; card.el.querySelector('.officeJobHint').textContent = '文件较大或较复杂，仍在转换，请稍候；也可以取消。'; }
+      if (s >= 30 && !card.slowShown && card.stage !== 'downloading' && card.stage !== 'installing') { card.slowShown = true; card.el.querySelector('.officeJobHint').textContent = '文件较大或较复杂，仍在转换，请稍候；也可以取消。'; }
     }
     if (![...cards.values()].some(c => !FINISHED.has(c.stage))) { clearInterval(ticker); ticker = null; }
   }

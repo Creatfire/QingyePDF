@@ -1,19 +1,32 @@
-// Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by the bundled
-// LibreOffice; the original file is never modified and Save asks where to write the PDF.
+// Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by LibreOffice
+// (downloaded on first use, office-engine.cjs); the original file is never modified and Save asks where to write the PDF.
 // Each conversion is a job the renderer shows as a progress card (stage, elapsed time, cancel).
 'use strict';
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const officeEngine = require('./office-engine.cjs');
 const { randomUUID, createHash } = require('node:crypto');
 
 /**
  * @param ctx app, T, command, documents, metadata, documentById, preferences, persist, key,
- *   watchFile(id, file, onChange), officeConvert, quiet (automated runs skip warm-up).
+ *   watchFile(id, file, onChange), officeConvert, fetch (for the engine download), confirmEngine(pkg),
+ *   quiet (automated runs skip warm-up and never download).
  */
 function createOfficeTasks(ctx) {
-  const { app, T, command, documents, metadata, documentById, preferences, persist, key, watchFile, officeConvert, quiet } = ctx;
+  const { app, T, TF, command, documents, metadata, documentById, preferences, persist, key, watchFile, officeConvert, fetch, confirmEngine, quiet } = ctx;
   const jobs = new Map();
-  const options = () => ({ packaged: app.isPackaged, resources: process.resourcesPath, profileDir: path.join(app.getPath('userData'), 'libreoffice-profile'), cacheDir: path.join(app.getPath('userData'), 'office-cache') });
+  const engineDir = () => path.join(app.getPath('userData'), 'engines', 'libreoffice');
+  let installer = null;
+  const canInstall = () => !quiet && !!officeEngine.packageFor();
+  // Same question and same download for every entry: opening a file, the tools, the conversion center.
+  const ensureEngine = ({ signal, onProgress } = {}) => {
+    installer ??= officeEngine.createInstaller({ engineDir: engineDir(), fetch, confirm: confirmEngine });
+    return installer({ signal, onProgress: p => onProgress?.(engineProgress(p)) });
+  };
+  const engineProgress = p => p.stage === 'installing'
+    ? { stage: 'installing', text: T('正在安装转换引擎，请稍候…'), done: 0, total: 1 }
+    : { stage: 'downloading', text: TF('正在下载转换引擎：{received} / {total} MB（{percent}%）', { received: officeEngine.MB(p.received), total: officeEngine.MB(p.total), percent: Math.floor(p.received / p.total * 100) }), done: officeEngine.MB(p.received), total: officeEngine.MB(p.total) };
+  const options = () => ({ packaged: app.isPackaged, resources: process.resourcesPath, engineDir: engineDir(), ensureEngine: canInstall() ? ensureEngine : undefined, profileDir: path.join(app.getPath('userData'), 'libreoffice-profile'), cacheDir: path.join(app.getPath('userData'), 'office-cache') });
   const progress = data => command('office-progress', data);
 
   function newJob(file) {
@@ -70,7 +83,7 @@ function createOfficeTasks(ctx) {
       finally { jobs.delete(job.id); }
     });
   }
-  return { options, newJob, open, scheduleWarmup, register, jobs };
+  return { options, canInstall, newJob, open, scheduleWarmup, register, jobs };
 }
 
 module.exports = { createOfficeTasks };

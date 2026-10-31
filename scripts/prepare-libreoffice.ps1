@@ -1,4 +1,5 @@
-# Prepares the bundled LibreOffice engine (MPL-2.0) used to open Word / Excel / PowerPoint files as PDF.
+# Prepares LibreOffice (MPL-2.0) for development and tests; releases download it on demand (office-engine.cjs,
+# keep the version and checksums in step).
 # Downloads the pinned official Windows x64 MSI, checks its SHA-256 and extracts the program files with
 # an administrative install (msiexec /a): nothing is registered or installed on the build machine.
 # Result: vendor/libreoffice/{program,share,...}, plus manifest.json. Not committed (see .gitignore).

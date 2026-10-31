@@ -54,6 +54,9 @@ PATTERNS = [
     (r'^已保存 (\d+) 个文件(.*)$', {'en': 'Saved $1 files$2', 'zh-TW': '已儲存 $1 個檔案$2', 'ja': '$1 個のファイルを保存しました$2', 'ko': '파일 $1개를 저장했습니다$2'}),
     (r'^主题文件夹中有 (\d+) 个自定义主题，可在“主题”菜单选择$', {'en': '$1 custom themes in the themes folder; choose them from the "Theme" menu', 'zh-TW': '主題資料夾中有 $1 個自訂主題，可在「主題」功能表選擇', 'ja': 'テーマフォルダーに $1 個のカスタムテーマがあります。「テーマ」メニューから選べます', 'ko': '테마 폴더에 사용자 지정 테마 $1개가 있습니다. "테마" 메뉴에서 선택하세요'}),
     (r'^(专注模式|打字机模式)：(开|关)$', {'en': '$1: $2', 'zh-TW': '$1：$2', 'ja': '$1：$2', 'ko': '$1: $2'}),
+    # 0.21 engine download: messages with a size or a cause in them
+    (r'^下载转换引擎失败（(.+)）。请检查网络后重试，已下载的部分会保留。$', {'en': 'Could not download the conversion engine ($1). Check your network and try again; the part already downloaded is kept.', 'zh-TW': '下載轉換引擎失敗（$1）。請檢查網路後重試，已下載的部分會保留。', 'ja': '変換エンジンをダウンロードできませんでした（$1）。ネットワークを確認してもう一度お試しください。ダウンロード済みの部分は保持されます。', 'ko': '변환 엔진을 다운로드하지 못했습니다($1). 네트워크를 확인하고 다시 시도해 주세요. 이미 받은 부분은 유지됩니다.'}),
+    (r'^磁盘空间不足：转换引擎需要约 (\d+) MB。$', {'en': 'Not enough disk space: the conversion engine needs about $1 MB.', 'zh-TW': '磁碟空間不足：轉換引擎需要約 $1 MB。', 'ja': 'ディスク容量が不足しています。変換エンジンには約 $1 MB 必要です。', 'ko': '디스크 공간이 부족합니다. 변환 엔진에는 약 $1 MB가 필요합니다.'}),
     # 0.21 toolbar: pin buttons, the redo menu, the pin limit
     (r'^固定到工具栏 (.+)$', {'en': 'Pin $1 to the toolbar', 'zh-TW': '將 $1 釘選到工具列', 'ja': '$1 をツールバーにピン留め', 'ko': '$1을(를) 도구 모음에 고정'}),
     (r'^取消固定 (.+)$', {'en': 'Unpin $1', 'zh-TW': '取消釘選 $1', 'ja': '$1 のピン留めを解除', 'ko': '$1 고정 해제'}),

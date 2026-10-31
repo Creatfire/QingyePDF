@@ -1,5 +1,5 @@
-// Opens Word / Excel / PowerPoint (and other office formats) as PDF with the bundled LibreOffice
-// (MPL-2.0, vendor/libreoffice → resources/libreoffice). The source file is copied into a private
+// Opens Word / Excel / PowerPoint (and other office formats) as PDF with LibreOffice (MPL-2.0), which
+// the first conversion downloads (office-engine.cjs; vendor/libreoffice in a source checkout). The source file is copied into a private
 // staging folder and converted headless with an isolated, macro-locked user profile; the original is
 // never touched. Results are cached by content digest so reopening an unchanged file is instant.
 const fs = require('node:fs/promises');
@@ -9,6 +9,7 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 const { pathToFileURL } = require('node:url');
+const { installDir, executableIn } = require('./office-engine.cjs');
 
 const OFFICE_EXTENSIONS = new Set(['.doc', '.docx', '.docm', '.dot', '.dotx', '.odt', '.ott', '.rtf', '.wps', '.wpt',
   '.xls', '.xlsx', '.xlsm', '.xlsb', '.xlt', '.xltx', '.ods', '.ots', '.csv', '.et',
@@ -22,14 +23,14 @@ function checkPackage(file, source) {
 }
 const isOffice = file => typeof file === 'string' && OFFICE_EXTENSIONS.has(path.extname(file).toLowerCase());
 
-function bundledRoot({ packaged, resources } = {}) { return packaged ? path.join(resources, 'libreoffice') : path.join(__dirname, 'vendor', 'libreoffice'); }
-function sofficePath(options) {
-  const root = bundledRoot(options);
-  const candidates = process.platform === 'darwin' ? [path.join(root, 'LibreOffice.app', 'Contents', 'MacOS', 'soffice'), path.join(root, 'program', 'soffice')] : [path.join(root, 'program', process.platform === 'win32' ? 'soffice.com' : 'soffice')];
-  return candidates.find(exe => fsSync.existsSync(exe)) || null;
+// QINGYE_LIBREOFFICE_DIR lets the packaged smoke suites use the engine the build machine prepared.
+function engineRoots({ packaged, resources, engineDir } = {}) {
+  return [process.env.QINGYE_LIBREOFFICE_DIR, packaged ? path.join(resources, 'libreoffice') : path.join(__dirname, 'vendor', 'libreoffice'), engineDir && installDir(engineDir)].filter(Boolean);
 }
+const engineRoot = options => engineRoots(options).find(root => fsSync.existsSync(executableIn(root)));
+function sofficePath(options) { const root = engineRoot(options); return root ? executableIn(root) : null; }
 function engineInfo(options) {
-  try { const m = JSON.parse(fsSync.readFileSync(path.join(bundledRoot(options), 'manifest.json'), 'utf8').replace(/^﻿/, '')); return { name: m.name, version: m.version }; } catch { return null; }
+  try { const m = JSON.parse(fsSync.readFileSync(path.join(engineRoot(options), 'manifest.json'), 'utf8').replace(/^\uFEFF/, '')); return { name: m.name, version: m.version }; } catch { return null; }
 }
 
 // User profile: never run document macros, no first-start wizard, no update checks or remote fetches.
@@ -86,14 +87,14 @@ const convertArgs = (profileDir, stage, input) => ['--headless', '--invisible', 
   `-env:UserInstallation=${pathToFileURL(profileDir).href}`, '--convert-to', 'pdf', '--outdir', stage, input];
 
 /**
- * Converts `file` to PDF bytes. options: { packaged, resources, profileDir, cacheDir, signal,
- * timeout, onProgress }. onProgress receives { stage, text } with stage reading → cached | queued →
- * starting (first conversion of the session) | converting. Throws a readable error if LibreOffice is
- * missing or the file cannot be read.
+ * Converts `file` to PDF bytes. options: { packaged, resources, engineDir, ensureEngine, profileDir,
+ * cacheDir, signal, timeout, onProgress }. onProgress receives { stage, text } with stage reading →
+ * cached | (downloading → installing, when the engine is fetched) | queued → starting (first
+ * conversion of the session) | converting. ensureEngine({ signal, onProgress }) installs a missing
+ * engine. Throws a readable error if there is no engine or the file cannot be read.
  */
-async function toPdf(file, { packaged = false, resources = '', profileDir, cacheDir, signal, timeout = 180000, onProgress = () => {} } = {}) {
-  const exe = sofficePath({ packaged, resources }), name = path.basename(file);
-  if (!exe) throw new Error('内置的 LibreOffice 转换引擎缺失，请重新安装青页。');
+async function toPdf(file, { packaged = false, resources = '', engineDir, ensureEngine, profileDir, cacheDir, signal, timeout = 180000, onProgress = () => {} } = {}) {
+  const name = path.basename(file);
   // Canceling means the same on every path: before reading, after reading and on a cache hit.
   const stopIfCanceled = () => { if (signal?.aborted) throw abortError(); };
   stopIfCanceled();
@@ -105,6 +106,11 @@ async function toPdf(file, { packaged = false, resources = '', profileDir, cache
   const digest = crypto.createHash('sha256').update(source).digest('hex');
   const cached = cacheDir && path.join(cacheDir, digest + '.pdf');
   if (cached) { const hit = await fs.readFile(cached).catch(() => null); if (hit?.length) { stopIfCanceled(); onProgress({ stage: 'cached', text: `${name} 未改动，使用上次的转换结果` }); return { bytes: hit, cached: true, digest }; } }
+  // After the cache: a file converted earlier opens without the engine, and a damaged one is refused
+  // before anything is downloaded for it.
+  if (!sofficePath({ packaged, resources, engineDir }) && ensureEngine) await ensureEngine({ signal, onProgress });
+  const exe = sofficePath({ packaged, resources, engineDir });
+  if (!exe) throw new Error('LibreOffice 转换引擎尚未安装，无法转换此文件。');
   if (pending) onProgress({ stage: 'queued', text: `${name} 正在排队，等待前一个文件转换完成…` });
   return queued(async () => {
     if (signal?.aborted) throw abortError();
@@ -131,8 +137,8 @@ async function toPdf(file, { packaged = false, resources = '', profileDir, cache
 
 // Warm-up: one tiny conversion while the app is idle creates the user profile and pulls the engine
 // into the OS file cache, so the first real Office file opens in ~2 s instead of ~7 s.
-async function prewarm({ packaged = false, resources = '', profileDir } = {}) {
-  const exe = sofficePath({ packaged, resources });
+async function prewarm({ packaged = false, resources = '', engineDir, profileDir } = {}) {
+  const exe = sofficePath({ packaged, resources, engineDir });
   if (!exe || warmed || pending) return false;
   return serial(async () => {
     if (warmed) return false;

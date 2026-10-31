@@ -1,19 +1,19 @@
 # 文档目录
 
-当前产品说明以 Windows 0.20.0 为基线；历史记录和对标调研描述的是当时的版本，不代表当前验收结果。
+当前产品说明以 0.21.0 为基线；历史记录和对标调研描述的是当时的版本，不代表当前验收结果。
 
 ## 使用与功能
 
 - [使用手册](guide/USER-GUIDE.md)：安装、阅读、批注、笔记、Markdown、OCR、工具箱和 AI。
 - [功能范围与限制](features/FEATURES.md)：当前能力、边界和平台状态。
 - [文档转换](features/CONVERSION.md)：转换流程、参数、资源和引擎。
-- [macOS](platforms/MACOS.md) · [Android](platforms/ANDROID.md)：平台差异和历史验证状态；0.20.0 未重建或验收。
+- [macOS](platforms/MACOS.md) · [Android](platforms/ANDROID.md)：平台差异和验证状态；Android 在 0.21.0 未重建或验收。
 
 ## 开发与发布
 
 - [参与开发](development/CONTRIBUTING.md) · [构建、测试与发布](development/BUILDING.md) · [架构](development/ARCHITECTURE.md)。
 - [代码签名](development/SIGNING.md) · [PDF.js 修改记录](development/PDFJS-MODIFICATIONS.md)。
-- [0.20.0 交接与验证](releases/HANDOFF.md) · [发布目标](releases/RELEASE-TARGET.json)。
+- [0.21.0 交接与验证](releases/HANDOFF.md) · [发布目标](releases/RELEASE-TARGET.json)。
 - [工具栏与工具中心重构测试文档](testing/TOOLBAR-0.21-TEST.md)：未发布的工具栏改动要测什么、怎么测、已知问题。
 - [macOS 版并行测试文档](testing/MACOS-0.21-TEST.md)：8 个测试 agent 在同一台 Mac 上同时测试的分工、规则与任务卡。
 - [给 8 个测试 agent 的任务说明](testing/MACOS-0.21-AGENT-PROMPTS.md)：可直接粘贴到 agent 会话里的 8 段任务。

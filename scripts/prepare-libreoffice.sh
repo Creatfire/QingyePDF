@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Prepare the official macOS LibreOffice app, pinned to a checked release and architecture.
+# Prepare the official macOS LibreOffice app, pinned to a checked release and architecture, for development
+# and tests; releases download it on demand (office-engine.cjs, keep the version and checksums in step).
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 [ "$(uname -s)" = Darwin ] || { echo 'This script requires macOS.' >&2; exit 1; }

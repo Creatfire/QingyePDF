@@ -1,6 +1,6 @@
-# 青页 PDF 0.20.0 功能范围
+# 青页 PDF 0.21.0 功能范围
 
-当前交付目标是 Windows 10 / 11 x64 的 0.20.0 安装版和安装目录 ZIP。Android 和 macOS 代码保留在仓库中，但本版未重新构建或验收；Android 项目版本为 0.18.0，不能据此宣称与 Windows 功能一致。操作说明见 [用户手册](../guide/USER-GUIDE.md)，本版验证与未测项见 [交接记录](../releases/HANDOFF.md)。
+当前交付目标是 Windows 10 / 11 x64 的 0.21.0 安装版和安装目录 ZIP，以及 macOS（Apple 芯片、Intel）的 DMG。Android 代码保留在仓库中，但本版未重新构建或验收；Android 项目版本为 0.18.0，不能据此宣称与 Windows 功能一致。操作说明见 [用户手册](../guide/USER-GUIDE.md)，本版验证与未测项见 [交接记录](../releases/HANDOFF.md)。
 
 ## 能力与限制
 
@@ -23,7 +23,7 @@
 | PDF to Office Conversion | DOCX、XLSX、PPTX | DOCX 为文本/图片；XLSX 为识别表格/逐行文本；PPTX 为页面图像（按所选 DPI，横竖页保持比例） |
 | PDF to Images | PNG、JPEG、SVG；多页输出 ZIP | PNG/JPEG 支持 36–300 DPI，单页最多 4000 万像素 |
 | PDF to Files / HTML | TXT、CSV、HTML | 文本层提取；HTML 可保留页面定位和内嵌图像 |
-| Office / Images to PDF | 直接打开 DOC/DOCX、XLS/XLSX/CSV、PPT/PPTX、ODT/ODS/ODP、RTF、WPS 文件（随包 LibreOffice，保留版式，有进度与取消）；工具箱和文档转换中心的 Office → PDF 默认同样走 LibreOffice（可选内容重排）；工具箱转换 PNG/JPEG/BMP/TIFF/WebP、TXT/HTML/EPUB/XPS/CBZ/SVG | 首次转换约 5–8 秒，预热后 1–3 秒；版式取决于 LibreOffice 对文件的兼容程度，缺少的字体会被替换 |
+| Office / Images to PDF | 直接打开 DOC/DOCX、XLS/XLSX/CSV、PPT/PPTX、ODT/ODS/ODP、RTF、WPS 文件（LibreOffice，首次使用时询问并下载，保留版式，有进度与取消）；工具箱和文档转换中心的 Office → PDF 默认同样走 LibreOffice（可选内容重排）；工具箱转换 PNG/JPEG/BMP/TIFF/WebP、TXT/HTML/EPUB/XPS/CBZ/SVG | 首次转换约 5–8 秒，预热后 1–3 秒；版式取决于 LibreOffice 对文件的兼容程度，缺少的字体会被替换 |
 | 编辑 | 区域原文替换、图形、标准高亮/下划线/删除线、创建文本和复选框表单 | 不提供原字体保持的逐字符编辑、段落自动重排或复杂表单逻辑 |
 | 页面编辑 | 合并、拆分、提取、删除、重排、复制、空白页、永久旋转、CropBox 裁剪 | 输出新副本；CropBox 不删除区域外内容 |
 | PDF Redaction | 删除区域文字、图像、相交图形；清理元数据、附件、脚本 | 移除与涂黑区域相交的批注、表单和链接；以新文件重写，不是覆盖黑色矩形；应复核相邻内容 |

@@ -1535,7 +1535,7 @@
     "请保留图片扩展名。": "Keep the image file extension.",
     "已取消打开。": "Opening canceled.",
     "转换超时：文件可能过大或过于复杂。": "Conversion timed out: the file may be too large or complex.",
-    "内置的 LibreOffice 转换引擎缺失，请重新安装青页。": "The bundled LibreOffice converter is missing. Reinstall Qingye PDF.",
+    "LibreOffice 转换引擎尚未安装，无法转换此文件。": "The LibreOffice conversion engine is not installed, so this file cannot be converted.",
     "文件超过 512 MB，无法转换。": "The file is larger than 512 MB and cannot be converted.",
     "无效的内容。": "Invalid content.",
     "无效的附加资源名称。": "Invalid attached resource name.",
@@ -1582,7 +1582,7 @@
     "已按更新后的原文件重新转换 · 可撤销": "Converted again from the updated original · can be undone",
     "打开 PDF、Markdown 或 Word / Excel / PPT 文件（也可以直接拖进窗口），或者先看看右侧的示例。": "Open a PDF, Markdown or Word / Excel / PPT file (or drag it into the window), or start with the samples on the right.",
     "以 PDF 打开": "Opens as PDF",
-    "青页可以直接打开 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 文件。Office 文件由内置的 LibreOffice 转换后以 PDF 形式打开，原文件不会被改动；第一次转换需要几秒钟。\n\n所有文档处理都在本机完成，不联网、不上传文件。": "Qingye opens PDF, Markdown and Office files such as Word, Excel and PowerPoint. Office files are converted by the bundled LibreOffice and open as PDFs; the original files are never changed. The first conversion takes a few seconds.\n\nAll processing happens on this computer. Nothing is uploaded.",
+    "青页可以直接打开 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 文件。Office 文件由 LibreOffice 转换后以 PDF 形式打开，原文件不会被改动；第一次打开 Office 文件时，会询问是否下载转换引擎（约 300–400 MB，只需一次）。\n\n所有文档处理都在本机完成，不上传文件。": "Qingye opens PDF and Markdown files, as well as Office files such as Word, Excel and PowerPoint. Office files are converted by LibreOffice and open as PDF; the originals are not changed. The first time you open an Office file, you are asked whether to download the conversion engine (about 300–400 MB, once only).\n\nAll document processing happens on this computer. Files are not uploaded.",
     "打开文档：PDF、Markdown、Word、Excel、PowerPoint · Ctrl+O": "Open document: PDF, Markdown, Word, Excel, PowerPoint · Ctrl+O",
     "打开 PDF、Markdown、Word、Excel 或 PowerPoint 文档 · Ctrl+O": "Open a PDF, Markdown, Word, Excel or PowerPoint document · Ctrl+O",
     "正在整理粘贴内容…": "Cleaning up pasted content…",
@@ -1752,7 +1752,7 @@
     "只能显示本次处理生成的文件。": "Only files created by these tools can be shown.",
     "一次最多插入 20 个 PDF。": "You can insert up to 20 PDFs at a time.",
     "单文件处理目前支持最大 512 MB。": "Single files up to 512 MB are supported.",
-    "内置的 LibreOffice 转换引擎缺失，请重新安装青页；或在“版式”中选择内容重排。": "The bundled LibreOffice converter is missing. Reinstall Qingye PDF, or choose content reflow under “Layout”.",
+    "LibreOffice 转换引擎尚未安装；可以在“版式”中选择内容重排。": "The LibreOffice conversion engine is not installed. You can choose content reflow under Layout.",
     "处理结果已过期": "Result is out of date",
     "“{name}”在处理期间有新的修改。": "“{name}” was changed while it was being processed.",
     "应用“{label}”的结果会丢弃处理期间的修改（可撤销）。": "Applying the result of “{label}” discards the changes made meanwhile (can be undone).",
@@ -1798,7 +1798,7 @@
     "固定到首页": "Pin to home",
     "将所有标签保存为工作区…": "Save all tabs as a workspace…",
     "Office 文件转 PDF": "Office files to PDF",
-    "保留原版式（内置 LibreOffice，与直接打开一致）": "Keep the layout (bundled LibreOffice, same as opening the file)",
+    "保留原版式（LibreOffice，与直接打开一致）": "Keep the original layout (LibreOffice, same as opening directly)",
     "内容重排（Pandoc，分页和版式会变化）": "Reflow content (Pandoc; pages and layout change)",
     "页面管理（排序、旋转、插入、拆分）": "Page manager (reorder, rotate, insert, split)",
     "边读边记：PDF 与 Markdown 笔记左右并排 · Ctrl+\\": "Read and take notes: PDF and Markdown note side by side · Ctrl+\\",
@@ -1868,7 +1868,7 @@
     "缩略图网格中拖动排序、旋转、复制、删除、插入其他 PDF、拆分": "Drag to reorder, rotate, copy, delete, insert other PDFs and split in a thumbnail grid",
     "已有正文的页面也识别（可能出现重复文字）": "Also recognise pages with body text (text may appear twice)",
     "只识别框选区域（当前页）": "Recognise only the selected area (current page)",
-    "Office、图片、文本、HTML、EPUB、XPS、CBZ、SVG 转 PDF。Office 文件默认用内置 LibreOffice 保留原版式，与直接打开的结果一致；也可以选择内容重排。": "Office, images, text, HTML, EPUB, XPS, CBZ and SVG to PDF. Office files keep their layout through the bundled LibreOffice, the same as opening them; content reflow is also available.",
+    "Office、图片、文本、HTML、EPUB、XPS、CBZ、SVG 转 PDF。Office 文件默认用 LibreOffice 保留原版式，与直接打开的结果一致；也可以选择内容重排。": "Office, images, text, HTML, EPUB, XPS, CBZ and SVG to PDF. Office files keep their original layout through LibreOffice by default, the same as opening them directly; content reflow is also available.",
     "本地中英文 OCR：保留原页面、矢量与批注，只补充透明的可搜索文字层。只有页码等少量文字的扫描页也会识别。需要重新生成更清晰的页面图像，请用“扫描件纠偏与背景清理”并勾选识别文字。": "Local Chinese/English OCR: the original pages, vectors and annotations stay; only an invisible searchable text layer is added. Scans that only have a page number or similar little text are recognised too. To re-render clearer page images, use “Deskew and clean scans” with text recognition.",
     "操作摘要：": "Summary: ",
     "已加入任务队列，可在状态栏的“任务”中查看。": "Added to the task queue; see “Tasks” in the status bar.",
@@ -2011,7 +2011,22 @@
     "输入评论内容": "Type a comment",
     "评论内容": "Comment text",
     "添加评论": "Add comment",
-    "已取消评论。": "Comment canceled."
+    "已取消评论。": "Comment canceled.",
+    "下载转换引擎": "Download conversion engine",
+    "安装转换引擎": "Install conversion engine",
+    "转换 Office 文件需要先下载 LibreOffice 转换引擎": "Converting Office files requires the LibreOffice conversion engine",
+    "下载约 {download} MB，来自 LibreOffice 官方站点（download.documentfoundation.org），安装后约占 {disk} MB，只需下载一次。转换在本机完成，你的文件不会上传。": "Downloads about {download} MB from the official LibreOffice site (download.documentfoundation.org) and takes about {disk} MB once installed. This happens only once. Conversion runs on this computer, and your files are not uploaded.",
+    "下载并继续": "Download and continue",
+    "正在安装转换引擎，请稍候…": "Installing the conversion engine, please wait…",
+    "正在下载转换引擎：{received} / {total} MB（{percent}%）": "Downloading the conversion engine: {received} / {total} MB ({percent}%)",
+    "下载的转换引擎未通过 SHA-256 校验，已删除，请重试。": "The downloaded engine failed the SHA-256 check and was deleted. Please try again.",
+    "另一个安装程序正在运行，请等它结束后重试。": "Another installer is running. Try again when it has finished.",
+    "解压后的转换引擎不完整。": "The unpacked conversion engine is incomplete.",
+    "这个系统没有可用的转换引擎。": "No conversion engine is available for this system.",
+    "已取消。": "Canceled.",
+    "下载转换引擎 (MB)": "Downloading conversion engine (MB)",
+    "正在用 LibreOffice 按原版式转换…": "Converting with LibreOffice, keeping the original layout…",
+    "已用 LibreOffice 按原版式转换。": "Converted with LibreOffice, keeping the original layout."
   },
   "patterns": [
     [
@@ -2149,6 +2164,14 @@
     [
       "^(专注模式|打字机模式)：(开|关)$",
       "$1: $2"
+    ],
+    [
+      "^下载转换引擎失败（(.+)）。请检查网络后重试，已下载的部分会保留。$",
+      "Could not download the conversion engine ($1). Check your network and try again; the part already downloaded is kept."
+    ],
+    [
+      "^磁盘空间不足：转换引擎需要约 (\\d+) MB。$",
+      "Not enough disk space: the conversion engine needs about $1 MB."
     ],
     [
       "^固定到工具栏 (.+)$",

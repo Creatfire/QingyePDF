@@ -172,10 +172,16 @@ function remember(record, state = record.state) {
   } : {};
   preferences.recent = [{ path: record.path, name: record.name, state: record.state, opened: Date.now() }, ...preferences.recent.filter(r => key(r.path) !== key(record.path))].slice(0, 30);
 }
-// Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by the bundled
-// LibreOffice; the original file is never modified and Save asks where to write the PDF.
+// Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by LibreOffice
+// (downloaded on first use); the original file is never modified and Save asks where to write the PDF.
 // The whole conversion domain (jobs, progress cards, re-convert, idle warm-up) lives in office-task.cjs.
-const office = createOfficeTasks({ app, T, command, documents, metadata, documentById, preferences, persist, key, watchFile, officeConvert, quiet: smoke || safety || benchmark });
+// Asked before the first conversion: nothing is downloaded without the user's yes (office-engine.cjs).
+async function confirmEngine(pkg) {
+  const { MB } = require('./office-engine.cjs');
+  const { response } = await dialog.showMessageBox(window, { type: 'question', title: T('下载转换引擎'), message: T('转换 Office 文件需要先下载 LibreOffice 转换引擎'), detail: TF('下载约 {download} MB，来自 LibreOffice 官方站点（download.documentfoundation.org），安装后约占 {disk} MB，只需下载一次。转换在本机完成，你的文件不会上传。', { download: MB(pkg.size), disk: MB(pkg.installed) }), buttons: [T('下载并继续'), T('取消')], defaultId: 0, cancelId: 1, noLink: true });
+  return response === 0;
+}
+const office = createOfficeTasks({ app, T, TF, command, documents, metadata, documentById, preferences, persist, key, watchFile, officeConvert, confirmEngine, fetch: (url, options) => session.fromPartition('qingye-engine-download').fetch(url, { ...options, cache: 'no-store' }), quiet: smoke || safety || benchmark });
 async function openFiles(files) {
   const opened = [];
   // Every Office file gets its progress card at once, so a batch shows its whole queue.
@@ -386,10 +392,10 @@ app.whenReady().then(async () => {
     const safe={...request}; delete safe.mergeInputs; delete safe.extraPdfs;
     const jobId=typeof request.jobId==='string'?request.jobId.slice(0,80):randomUUID();if(runningJobs.has(jobId))throw new Error('任务编号重复。');const controller=new AbortController();runningJobs.set(jobId,controller);if(canceledJobs.delete(jobId))controller.abort();
     try {
-    // Office imports keep their layout through the bundled LibreOffice; other formats use the backend.
-    const officeInput=request.action==='import'&&officeConvert.isOffice(record.path),viaOffice=officeInput&&request.officeLayout!=='reflow'&&officeConvert.sofficePath(office.options());
-    if(officeInput&&!viaOffice&&request.officeLayout!=='reflow')throw new Error(T('内置的 LibreOffice 转换引擎缺失，请重新安装青页；或在“版式”中选择内容重排。'));
-    const result=viaOffice?{files:[{name:'result.pdf',bytes:(await officeConvert.toPdf(record.path,{...office.options(),signal:controller.signal})).bytes}],note:'已用内置 LibreOffice 按原版式转换。'}
+    // Office imports keep their layout through LibreOffice (downloaded on first use); other formats use the backend.
+    const viaOffice=request.action==='import'&&officeConvert.isOffice(record.path)&&request.officeLayout!=='reflow';
+    if(viaOffice&&!officeConvert.sofficePath(office.options())&&!office.canInstall())throw new Error(T('LibreOffice 转换引擎尚未安装；可以在“版式”中选择内容重排。'));
+    const result=viaOffice?{files:[{name:'result.pdf',bytes:(await officeConvert.toPdf(record.path,{...office.options(),signal:controller.signal,onProgress:p=>{if(p.stage==='downloading'||p.stage==='installing')window.webContents.send('job-progress',jobId,{label:p.stage==='downloading'?'下载转换引擎 (MB)':'安装转换引擎',done:p.done,total:p.total});}})).bytes}],note:'已用 LibreOffice 按原版式转换。'}
       :await runOffline({bytes:value,request:safe,packaged:app.isPackaged,resources:process.resourcesPath,assets,inputs,inputName:record.name,signal:controller.signal,onProgress:data=>window.webContents.send('job-progress',jobId,data)});
     if(controller.signal.aborted) throw new Error('任务已取消。');
     if(request.action==='inspect'||request.action==='redact-find') return {data:result.data,note:result.note};
@@ -562,7 +568,7 @@ app.whenReady().then(async () => {
     return paths;
   });
   const mdIpc = require('./markdown-ipc.cjs'); const mdCtx = { handle, getWindow: () => window, dialog, shell, app, BrowserWindow, documents, documentById, openFiles, atomicWrite, fingerprint, digest, preferences, persist, watchMarkdown, key, command,
-    officePdf: async (file, signal, progress) => { if (!officeConvert.isOffice(file) || !officeConvert.sofficePath(office.options())) return null; progress?.('正在用内置 LibreOffice 按原版式转换…'); return (await officeConvert.toPdf(file, { ...office.options(), signal })).bytes; } };
+    officePdf: async (file, signal, progress) => { if (!officeConvert.isOffice(file) || (!officeConvert.sofficePath(office.options()) && !office.canInstall())) return null; progress?.('正在用 LibreOffice 按原版式转换…'); return (await officeConvert.toPdf(file, { ...office.options(), signal, onProgress: p => { if (p.stage === 'downloading' || p.stage === 'installing') progress?.(p.text); } })).bytes; } };
   mdIpc.register(mdCtx);
   converterLifecycle = require('./converter-ipc.cjs').register(mdCtx);
   require('./ai-ipc.cjs').register({ ...mdCtx, session, safeStorage, testMode: smoke || safety || benchmark });

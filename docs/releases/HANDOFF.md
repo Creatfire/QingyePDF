@@ -1,64 +1,41 @@
-# 青页 PDF 0.20.0 开发交接
+# 青页 PDF 0.21.0 开发交接
 
-基于 0.19.1（分支 `release-0.20`，从 `release-0.19.1` 的 `602f816` 开出），按《青页PDF-审查与功能改进建议》制作：先修审查中复现的六个问题，再统一 Office 转 PDF 与 OCR 的默认行为、整理参数与笔记入口，最后加入页面管理、批注面板、任务中心和工作区。改动清单见 [CHANGELOG](../history/CHANGELOG.md)，用户说明见 [docs/USER-GUIDE.md](../guide/USER-GUIDE.md) 的“页面管理、批注与任务”。
+基于 0.20.0。主要改动：工具栏、工具中心和命令面板重构；修复 macOS 并行测试发现的问题；LibreOffice 不再随安装包提供，改为第一次转换时下载。上一版的交接见 [0.20.0 交接](../history/HANDOFF-0.20.0.md)，改动清单见[更新日志](../history/CHANGELOG.md)。
 
-## 运行与验证
-
-```powershell
-npm ci; node node_modules/electron/install.js
-node scripts/prepare-pdfjs.mjs; ./scripts/prepare-pandoc.ps1; ./scripts/prepare-libreoffice.ps1; ./scripts/build-backend.ps1
-npm run verify                                    # oxlint + 文档链接检查 + 单元测试
-.backend-build/Scripts/python.exe backend/test_worker.py
-node scripts/ci-smoke.cjs                         # 9 个套件；缺少成功标记或选择为空都判失败
-npm run dist
-node scripts/ci-smoke.cjs --packaged              # 打包后的 7 个套件
-```
-
-0.20.0 验证结果：见文末“验证记录”。
-
-## 审查问题的修复位置
-
-| 问题 | 修复 | 回归测试 |
-|---|---|---|
-| 取消保存后失去草稿保护 | `ui/draft-recovery.mjs`：保存中的文档以 `dirty:true`、不带内容进入清单，`recovery.cjs` 保留上一份草稿 | `test/release020.test.mjs`：备份 → 保存中 → 取消 → 再备份 → 另一个实例恢复 |
-| 搜索摘要错位 | `library-index.cjs`：摘要用全文偏移 `base + at` | 同上，第二段命中 |
-| 长笔记截断 | `indexPages()`：Markdown 用文档总量上限，截断写入 `truncated` 并在结果中显示；`INDEX_VERSION = 2` 使旧索引重建；渲染端每页多取 1 个字符以便判断截断 | 同上 |
-| Office 缓存忽略取消 | `office-convert.cjs`：读取前、读取后、缓存返回前检查 `signal` | 同上，伪造引擎文件 + 缓存命中 |
-| 相同密集页误报 | `ui/compare-diff.mjs`：先裁首尾再判断计算量；超限返回 `null`，调用方记入 `incomplete` | 同上，2500 个相同 token |
-| PPT 拉伸 / DPI 无效 | `backend/worker.py`：按比例居中、使用 `dpi`；`ui/tools.mjs` 的 `data-formats` 只在 PNG / JPEG / PPT 显示 DPI | `backend/test_worker.py`：横竖混排、DPI 72 / 200 |
-
-## 0.20 新模块与改动点
+## LibreOffice 按需下载
 
 | 位置 | 作用 |
 |---|---|
-| `ui/page-plan.mjs` / `ui/page-manager.mjs` | 页面计划（纯函数，可测）与全屏缩略图网格；后端 `pages-plan`（一次生成最终页序，书签跟随首次出现的位置）、`pages-split`、`pages-images`；插入的 PDF 以 `extraPdfs` 传给主进程，主进程追加到 `inputs` |
-| `ui/annot-panel.mjs` / `ui/annot-labels.mjs` | 批注卡片、筛选、批量操作、卡片与页面选择联动（`annotEdit.selectXref` / `onSelect`）；后端 `annot-batch`，标签存在注释字典的 `/QingyeTags`（`\x1f` 分隔） |
-| `ui/task-center.mjs` | 状态栏“任务”、任务列表、队列、近期记录（localStorage）；`applyEdit` 对长任务（`TRACKED_ACTIONS`）建任务并检查文档版本；主进程 `reveal-output` 只显示本窗口工具写出的文件，`confirm-stale-result` 询问是否应用过期结果 |
-| `workspace-ipc.cjs` / `ui/workspaces.mjs` | 工作区与固定文档（存在偏好文件 `workspaces` / `pinned`，读入时校验）；`workspace-open` 返回找不到的文件，`workspace-relocate` 重新选择；`libraryFiles()` 让全库搜索包含这些文件 |
-| `pandoc-engine.cjs` `layoutPdf` / `converter-ipc.cjs` | 转换中心的 Office → PDF 走 LibreOffice（`officeLayout: 'reflow'` 或带 Pandoc 附加参数时仍用 Pandoc） |
-| `backend/worker.py` OCR | `page_text_state()`（scan / mixed / text），`add_ocr_layer` 统计识别 / 跳过 / 空页并支持 `region`；工具箱 `ocr` 改为只补文字层；`ui/ocr-coverage.mjs` 的 `classifyPage()` 与后端同一规则 |
-| `ui/notes-mode.mjs` | 窗格名称与保存状态标签（`refresh()`）、标签右键菜单扩展点 `tabExtras` |
-| `scripts/ci-smoke.cjs` | 必须有 `status: 'passed'`；未知或空的套件选择直接失败 |
+| `office-engine.cjs` | 固定版本和 SHA-256；下载（续传、断线重试、卡住 60 秒算断线）、解压（Mac 用 `hdiutil` + `ditto`，Windows 用 `msiexec /a` 后按 `prepare-libreoffice.ps1` 裁剪）、一次改名装到 `<用户数据>/engines/libreoffice/<版本>`；`createInstaller` 保证多个文件共用一次询问和一次下载 |
+| `office-convert.cjs` | 依次查找 `QINGYE_LIBREOFFICE_DIR`、随包目录（开发时为 `vendor/libreoffice`）、用户数据目录。`toPdf` 在缓存未命中且文件通过检查后才调用 `ensureEngine` |
+| `office-task.cjs`、`main.cjs` | 询问对话框、独立会话 `qingye-engine-download`、进度文字；工具中心和转换中心共用同一入口 |
+| `scripts/check-office-engine.cjs` | 用真实安装包走一遍安装和转换，CI 在各平台运行 |
 
-踩过的坑：`window.prompt()` 在 Electron 里不存在（返回 null），文字输入一律用 `ui/markdown/typora-dialogs.mjs` 的 `promptText`；`app.mjs` 里传给工厂函数的回调如果引用后面才声明的 `const`，要包一层箭头函数，否则启动时 TDZ 报错、窗口一直停在加载状态（冒烟测试只会表现为 420 秒超时）；批注每次修改都会保存并重编对象号，所以批注面板的勾选在刷新后清空，不能按 `page:xref` 保留。
+升级 LibreOffice 时，要同时改 `office-engine.cjs` 和两个 `prepare-libreoffice` 脚本，`test/office-engine.test.cjs` 会检查两边一致。
+
+`vendor/libreoffice` 只用于开发和测试，不进安装包。自动化运行（`--*-smoke`）不会询问也不会下载。
 
 ## 没有验证的部分
 
-- 安装程序本身（选项页、文件关联、卸载保留数据）仍沿用 0.19.0 的结论，本版没有在干净系统上实际安装。
-- 任务中心的“在文件夹中显示”、工作区的“重新定位”文件对话框在冒烟测试中没有真正弹出（测试走的是无对话框路径或单元测试的伪造对话框）。
-- 页面管理对几百页以上大文档的性能只做了代码层面的懒加载，没有实测。
+- **Windows 上普通用户权限下的 `msiexec /a`**：CI 运行环境通常有管理员权限，测不出来；开发机上也没有 Windows。需要在普通账户的 Windows 上实际试一次。
+- **经系统代理下载**：下载走 Chromium 网络栈，应当使用系统代理，但没有在代理环境测试。
+- 钥匙串口令框：要配置 Developer ID 证书和公证才会消失，未配置时仍然存在。
+- 标题栏毛玻璃效果和 macOS 红色按钮的新行为没有人工确认。
 - 新增界面文字的英、繁、日、韩译文没有母语者校对。
-- 安卓与 macOS 未构建（安卓版本号仍为 0.18.0）。
+- 安卓未构建（版本号仍为 0.18.0）。
 
-## 已知限制 / 后续
+## 已知问题
 
-- 审查文档第 6.4 节（完整的对比审阅流程）、6.5（OCR 页面状态面板）、6.6（转换与压缩的单页试处理）、5.3（PDF 转 Word 阅读顺序）留待后续版本。
-- 页面管理的拆分只作用于已应用的文档；插入的外部 PDF 不参与拆分预览。
-- 任务中心的记录只在本窗口；多窗口各自记录。
+- 笔记模式冒烟套件（`notes010-smoke.cjs:52`）偶发失败，重跑通过；撤掉界面改动后同样出现，不是本版引入。
+- macOS 测试中的轻微问题未处理，见 [测试结果](../testing/MACOS-0.21-RESULTS.md)。
 
 ## 验证记录
 
-- `npm run verify`：oxlint 0 错误、文档链接检查通过、单元测试 141 项通过（1 项仅 POSIX 跳过）。
-- 后端 `backend/test_worker.py`：98 个任务通过（新增 OCR 混合页 / 区域、PPT 比例与 DPI、页面计划 / 拆分 / 提取图片、批注标签）。
-- 源码冒烟 9 个套件全部通过；打包后（`dist/win-unpacked`）7 个套件全部通过。
-- 产物：`QingyePDF-0.20.0-Setup-x64.exe`（约 345 MB）、`QingyePDF-0.20.0-win-x64.zip`（约 466 MB），校验值在 `dist/SHA256SUMS-0.20.0.txt`。未推送、未发布。
+以下是 Apple 芯片 Mac 上的本机结果；Windows 和 Intel Mac 的结果以发布标签的 GitHub Actions 运行为准。
+
+- `npm run verify`：单元测试 160 项通过，1 项跳过，0 失败。后端 `backend/test_worker.py`：102 个任务通过。
+- `scripts/check-office-engine.cjs`：真实安装包安装并转换通过。
+- 打包版实测：打开 `.docx` 时询问一次，从官方站点下载（约 29 分钟，取决于镜像速度），校验、安装（约 800 MB）后正确打开为 PDF；安装失败后重试不会重新下载；重启后打开 `.pptx` 直接转换，不再询问。
+- 打包版冒烟 7 个套件：只有 smoke 和 notes 出现过失败，单独重跑都通过。其间 smoke 套件有几次在约 25 秒处失败：一次提前退出（exit 0、状态仍为 running，原因不明），四次是 `capturePage` 报 `UnknownVizError`，集中在同一段时间，之后 3 次连续通过（此前也有 5 次连续通过）。`UnknownVizError` 来自窗口截图，疑与当时屏幕或窗口状态有关，未能确认。
+- 产物：`QingyePDF-0.21.0-mac-arm64.dmg` 约 238 MB（0.20 同配置约 534 MB），应用解压后约 629 MB。
+- 真实测试发现并修复：`hdiutil` 拒绝把镜像挂载到外接卷上的目录，挂载点改到系统临时目录。

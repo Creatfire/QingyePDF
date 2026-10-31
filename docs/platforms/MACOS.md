@@ -1,6 +1,6 @@
 # 青页 PDF · macOS 版
 
-> 0.20.0 未重新构建或验收 macOS，下面是既有平台构建和使用说明。
+> 0.21.0 提供 DMG。未配置开发者证书时是临时签名，首次打开要手动允许，访问钥匙串时可能弹出口令框。LibreOffice 不在 DMG 里，第一次转换 Office 文件时询问并下载。
 
 macOS 版和 Windows 版是同一份代码。它由 GitHub Actions 在 Mac 运行器上构建（`.github/workflows/macos.yml`），产物是两个磁盘映像：
 
@@ -60,7 +60,7 @@ macOS 版和 Windows 版是同一份代码。它由 GitHub Actions 在 Mac 运�
 ```bash
 npm ci
 bash scripts/prepare-pandoc.sh        # 下载并校验 Pandoc 3.12（按本机芯片选择）
-bash scripts/prepare-libreoffice.sh   # 下载并校验同架构的官方 LibreOffice
+bash scripts/prepare-libreoffice.sh   # 开发和测试用：下载并校验同架构的官方 LibreOffice（不进安装包）
 bash scripts/build-backend.sh         # PyInstaller 冻结 PDF 工具箱后端
 npm test
 npm start                             # 开发运行

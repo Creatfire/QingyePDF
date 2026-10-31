@@ -5,7 +5,7 @@ export function createCommands(ctx) {
   async function run(command, data) {
     if (command === 'open') return open();
     if (command === 'opened') return addDocuments(data);
-    if (command === 'first-run') { status('欢迎使用青页 PDF'); return message('首次启动说明', '青页可以直接打开 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 文件。Office 文件由内置的 LibreOffice 转换后以 PDF 形式打开，原文件不会被改动；第一次转换需要几秒钟。\n\n所有文档处理都在本机完成，不联网、不上传文件。'); }
+    if (command === 'first-run') { status('欢迎使用青页 PDF'); return message('首次启动说明', '青页可以直接打开 PDF、Markdown，以及 Word、Excel、PowerPoint 等 Office 文件。Office 文件由 LibreOffice 转换后以 PDF 形式打开，原文件不会被改动；第一次打开 Office 文件时，会询问是否下载转换引擎（约 300–400 MB，只需一次）。\n\n所有文档处理都在本机完成，不上传文件。'); }
     if (command === 'status') return status(String(data || ''));
     if (command === 'office-progress') return officeProgress.update(data);
     if (command === 'office-source-changed') return officeProgress.sourceChanged(data, () => reconvertOffice(data.id));

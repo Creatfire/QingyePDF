@@ -1,6 +1,11 @@
-# 未发布 · 工具栏与工具中心重构（计划 0.21）
+# 0.21.0 · 工具栏与工具中心重构；LibreOffice 改为按需下载
 
-> 在 0.20.0 之上重排 PDF 工具栏和工具箱：常用操作放到工具栏上，工具箱改为按任务分组、可搜索的工具中心。版本号仍为 0.20.0，发布时再定。测试方法见 [工具栏重构测试文档](../testing/TOOLBAR-0.21-TEST.md)。
+> 在 0.20.0 之上重排 PDF 工具栏和工具箱：常用操作放到工具栏上，工具箱改为按任务分组、可搜索的工具中心；LibreOffice 不再随安装包提供。测试方法见 [工具栏重构测试文档](../testing/TOOLBAR-0.21-TEST.md)。
+
+**LibreOffice 按需下载**
+- 安装包不再包含 LibreOffice。第一次转换 Office 文件时（直接打开、工具中心、文档转换中心）会询问是否下载，确认后才联网；不下载也能使用 PDF、Markdown 等其他功能，工具中心和转换中心可以选“内容重排”。
+- 下载的是固定版本 26.2.6 的官方安装包（download.documentfoundation.org），Mac 约 300 MB、Windows 约 370 MB；校验 SHA-256 后安装到用户数据目录的 `engines/libreoffice`，只需一次。进度显示在进度卡片上，可以取消，断线后自动续传，取消后下次接着下载。
+- 此后的转换仍在本机完成，不联网、不上传文件。已经转换过的文件走缓存，不需要引擎；损坏的文件会先报错，不会为它下载。
 
 **工具栏**
 - 新增“打印”按钮（Ctrl+P）。“另存为”和“文档属性”收进“保存 ▾”；“编辑历史”和最近几次修改收进“重做 ▾”。
@@ -33,6 +38,7 @@
 - 冒烟测试：macOS 上用“编辑 ▸ 拷贝”的同一命令检查复制；全屏状态最多等 15 秒；`ci-smoke.cjs` 在 macOS 上加 `--use-mock-keychain`，打包版不再被钥匙串口令框挡住。测试驱动 `agent-session.cjs` 的右键点击现在能触发右键菜单，连接 DevTools 端口时有超时。
 
 **工程**
+- 新增 `office-engine.cjs`、`test/office-engine.test.cjs`；`scripts/check-office-engine.cjs` 用真实安装包走一遍安装和转换，CI 在 Windows 和两种 Mac 上都运行。打包版冒烟测试用 `QINGYE_LIBREOFFICE_DIR` 借用构建机准备好的引擎。
 - 新增 `ui/tool-registry.mjs`（工具表：工具栏菜单、工具中心、固定按钮、命令面板共用）、`ui/toolbar.mjs`、`ui/command-palette.mjs`；`test/toolbar021.test.mjs`。
 - `test/usability-smoke.cjs` 改为经“工具 ▾ → 全部工具…”打开工具中心；`test/design-smoke.cjs` 增加菜单、工具中心搜索与固定、命令面板、“更多”的检查与截图。
 - 新增界面文字的英、繁、日、韩译文（`scripts/i18n/src/17-toolbar-021.tsv`）和 4 条动态文字规则，未经母语者校对。

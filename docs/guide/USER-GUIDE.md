@@ -1,10 +1,10 @@
 # 青页 PDF 使用说明
 
-本文介绍 Windows 0.20.0 的使用方式。平台支持与验证状态见 [功能范围](../features/FEATURES.md)；macOS 和 Android 的构建与操作差异分别见 [macOS](../platforms/MACOS.md) 和 [Android](../platforms/ANDROID.md)。
+本文介绍 0.21.0 的使用方式（以 Windows 为例）。平台支持与验证状态见 [功能范围](../features/FEATURES.md)；macOS 和 Android 的构建与操作差异分别见 [macOS](../platforms/MACOS.md) 和 [Android](../platforms/ANDROID.md)。
 
 ## 安装与打开文件
 
-Windows 10 / 11 x64 可使用安装版，或解压安装目录 ZIP 后运行 `QingyePDF.exe`。通过首页、Ctrl+O 或拖放打开 PDF、Markdown 和支持的 Office 文件。Office 文件由 LibreOffice 在本机转换成 PDF，保存时另存为 PDF，原文件不被修改。
+Windows 10 / 11 x64 可使用安装版，或解压安装目录 ZIP 后运行 `QingyePDF.exe`。通过首页、Ctrl+O 或拖放打开 PDF、Markdown 和支持的 Office 文件。Office 文件由 LibreOffice 在本机转换成 PDF，保存时另存为 PDF，原文件不被修改；第一次转换时会询问是否下载转换引擎（约 300–400 MB，只需一次）。
 
 安装程序可选择桌面快捷方式和文件关联；卸载时可选择保留用户数据。设置 → 关于 → 检查更新需要用户主动点击。
 
@@ -75,7 +75,7 @@ OCR、导出转换、压缩、涂黑、页面整理等较长的处理开始后�
 
 ### 打开 Office 文件
 
-- Word、Excel、PowerPoint、WPS、OpenDocument、RTF、CSV 文件可以像 PDF 一样打开（Ctrl+O、拖入窗口、资源管理器“打开方式”），由随包的 LibreOffice 在本机转换成 PDF，尽量保留原文件版式。原文件不会被改动；PDF 标签是未保存的新文档，保存时另存为 PDF。
+- Word、Excel、PowerPoint、WPS、OpenDocument、RTF、CSV 文件可以像 PDF 一样打开（Ctrl+O、拖入窗口、资源管理器“打开方式”），由 LibreOffice 在本机转换成 PDF（第一次转换时询问并下载引擎），尽量保留原文件版式。原文件不会被改动；PDF 标签是未保存的新文档，保存时另存为 PDF。
 - 转换时右下角显示进度卡片：文件名、已用秒数和当前阶段。点“取消”放弃这次打开；超过 30 秒会提示仍在转换（很大的表格或演示文稿可能需要更久）。
 - 第一次转换要启动转换引擎，约 5–8 秒。用过一次以后，青页每次启动 15 秒后会在空闲时预热引擎，之后打开一般 1–3 秒。
 - 打开后如果原文件被修改，右下角会提示“原文件已更新”，点“重新转换”用新内容替换当前标签（可撤销；未保存的批注会丢失，提示里会说明）。

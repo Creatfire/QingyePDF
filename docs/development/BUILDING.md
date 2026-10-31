@@ -14,7 +14,7 @@ npm install -g npm@11.21.1
 npm ci
 node scripts/prepare-pdfjs.mjs      # 下载官方 PDF.js 发行包、校验 SHA-256 并套用青页的两处改动
 ./scripts/prepare-pandoc.ps1        # 下载 Pandoc 3.12 到 vendor/pandoc/pandoc.exe 并校验 SHA-256
-./scripts/prepare-libreoffice.ps1   # 下载 LibreOffice 26.2.6 MSI、校验 SHA-256，解出程序文件到 vendor/libreoffice（约 640 MB）
+./scripts/prepare-libreoffice.ps1   # 开发和测试用（不进安装包）：下载 LibreOffice 26.2.6 MSI、校验 SHA-256，解出程序文件到 vendor/libreoffice（约 640 MB）
 ./scripts/build-backend.ps1         # 建立 .backend-build 虚拟环境，PyInstaller 生成 backend/bin/QingyeWorker/
 ```
 
@@ -58,7 +58,7 @@ npm run dist:installer              # 只生成安装版
 ```bash
 npm ci
 bash scripts/prepare-pandoc.sh      # Pandoc 3.12 for macOS，按芯片下载并校验
-bash scripts/prepare-libreoffice.sh # 官方 LibreOffice，按芯片下载并校验
+bash scripts/prepare-libreoffice.sh # 开发和测试用（不进安装包）：官方 LibreOffice，按芯片下载并校验
 bash scripts/build-backend.sh       # backend/bin/QingyeWorker/QingyeWorker
 npm test && npm start
 npx electron-builder --mac dmg -c.mac.identity=- -c.mac.notarize=false

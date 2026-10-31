@@ -1,19 +1,22 @@
 {
   "app": "QingyePDF",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "renumberedFrom": "0.15.0",
   "supersedes": "v0.17.0 (abandoned broken line; archived on archive/0.17-broken-line)",
   "platform": [
-    "win32"
+    "win32",
+    "darwin"
   ],
   "architecture": [
-    "x64"
+    "x64",
+    "arm64"
   ],
   "target": [
     "nsis",
-    "zip"
+    "zip",
+    "dmg"
   ],
-  "artifactName": "QingyePDF-0.20.0-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.21.0-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -26,39 +29,38 @@
     "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
   ],
   "acceptance": [
-    "0.20.0: verify passed, 141 unit tests with one POSIX-only skip; backend 98 tasks; 9 source and 7 packaged smoke suites passed, as recorded in HANDOFF.md.",
-    "Installer was not installed on a clean system; Android and macOS were not rebuilt for 0.20.0."
+    "0.21.0: see HANDOFF.md for local results; Windows and Intel Mac builds are produced and tested by GitHub Actions only."
   ],
   "newFeatures": [
-    "Fixes from the 0.19.1 review: draft kept during a canceled save, library snippets and long-note indexing, Office cache cancellation, compare of dense identical pages, PPT aspect ratio and DPI",
-    "One Office-to-PDF path (LibreOffice) in every entry; OCR adds a text layer only, recognises mixed pages and regions",
-    "Visual page manager, annotation & excerpt panel with tags, unified task center with queue and version binding, document workspaces and pinned documents"
+    "Toolbar, tool center and command palette redesign",
+    "LibreOffice downloaded on first use instead of bundled",
+    "Fixes from the macOS parallel test"
   ],
   "engineeringChanges": [
-    "Static analysis: oxlint with correctness rules only (npm run lint, npm run verify); CI runs lint before the unit tests",
-    "Tests are discovered by glob (test/*.test.*) instead of a hand-maintained list; npm run test:coverage added",
-    "test/consistency.test.mjs: version stated in five places must agree, Android versionName/versionCode must match mobile/package.json, every top-level .cjs must be listed in build.files and every listed file must exist",
-    "main.cjs split 818 -> 616 lines into qingye-protocol.cjs, window-shell.cjs, installer-hooks.cjs, office-task.cjs, reference-ipc.cjs",
-    "ui/app.mjs split 713 -> 558 lines into ui/recent-list.mjs, ui/theme.mjs, ui/draft-recovery.mjs, ui/shortcuts.mjs, ui/commands.mjs, ui/history-ui.mjs",
-    "Library search: Markdown paragraph line numbers counted incrementally (was O(n^2) per query) and folded text cached (24 MB cap)"
+    "office-engine.cjs: confirmed download with resume, SHA-256 check and atomic install",
+    "scripts/check-office-engine.cjs exercises the real package in CI on each platform"
   ],
-  "buildRevision": "0.20.0",
+  "buildRevision": "0.21.0",
   "fixes": [
-    "Library search: a long Markdown note recomputed every paragraph's line number from the start of the document on every keystroke; the folded index text was rebuilt for each query"
+    "See docs/history/CHANGELOG.md"
   ],
   "crossBuilt": false,
   "otherArtifacts": [
-    "QingyePDF-0.20.0-win-x64.zip"
+    "QingyePDF-0.21.0-win-x64.zip",
+    "QingyePDF-0.21.0-mac-arm64.dmg",
+    "QingyePDF-0.21.0-mac-x64.dmg"
   ],
   "testSideCorrections": [],
   "pdfjsModified": true,
   "notBuilt": [
-    "Android and macOS were not rebuilt for 0.20.0 (no mobile changes; macOS needs the GitHub Actions runners)"
+    "Android was not rebuilt for 0.21.0 (no mobile changes)"
   ],
   "libreOffice": {
     "version": "26.2.6",
     "license": "MPL-2.0",
-    "bundled": true,
-    "modified": false
-  }
+    "bundled": false,
+    "modified": false,
+    "onDemand": true
+  },
+  "runtimeLibreOfficeDownload": true
 }
