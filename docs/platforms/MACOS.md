@@ -1,6 +1,6 @@
 # 青页 PDF · macOS 版
 
-> 0.21.0 提供 DMG。未配置开发者证书时是临时签名，首次打开要手动允许，访问钥匙串时可能弹出口令框。LibreOffice 不在 DMG 里，第一次转换 Office 文件时询问并下载。
+> 0.23.0-beta.1 是未签名的测试版，只提供 Apple 芯片的 DMG 和 ZIP；正式版提供 DMG。未配置开发者证书时是临时签名，首次打开要手动允许，访问钥匙串时可能弹出口令框。LibreOffice 不在 DMG 里，第一次转换 Office 文件时询问并下载。
 
 macOS 版和 Windows 版是同一份代码。它由 GitHub Actions 在 Mac 运行器上构建（`.github/workflows/macos.yml`），产物是两个磁盘映像：
 

@@ -1,4 +1,4 @@
-# 青页 PDF 0.21.0 功能范围
+# 青页 PDF 0.23.0-beta.1 功能范围
 
 当前交付目标是 Windows 10 / 11 x64 的 0.21.0 安装版和安装目录 ZIP，以及 macOS（Apple 芯片、Intel）的 DMG。Android 代码保留在仓库中，但本版未重新构建或验收；Android 项目版本为 0.18.0，不能据此宣称与 Windows 功能一致。操作说明见 [用户手册](../guide/USER-GUIDE.md)，本版验证与未测项见 [交接记录](../releases/HANDOFF.md)。
 

@@ -20,6 +20,14 @@ if missing: sys.exit(f'missing ids: {missing[:20]} ({len(missing)})')
 
 # Dynamic strings: [regex on the Chinese text, {lang: replacement with $1…}]. Captures are translated too.
 PATTERNS = [
+    (r'^第 (\d+) 页，共 (\d+) 页$', {'en': 'Page $1 of $2', 'zh-TW': '第 $1 頁，共 $2 頁', 'ja': '$2 ページ中 $1 ページ', 'ko': '$2페이지 중 $1페이지'}),
+    (r'^(.+) 读过$', {'en': 'Read $1', 'zh-TW': '$1 讀過', 'ja': '$1 に読了', 'ko': '$1 읽음'}),
+    (r'^(\d+) 个书签$', {'en': '$1 bookmarks', 'zh-TW': '$1 個書籤', 'ja': 'ブックマーク $1 件', 'ko': '책갈피 $1개'}),
+    (r'^(\d+) 条批注$', {'en': '$1 annotations', 'zh-TW': '$1 條註解', 'ja': '注釈 $1 件', 'ko': '주석 $1개'}),
+    (r'^从第 (\d+) 页继续$', {'en': 'Continue from page $1', 'zh-TW': '從第 $1 頁繼續', 'ja': '$1 ページから続ける', 'ko': '$1페이지부터 계속'}),
+    (r'^全部 (\d+)$', {'en': 'All $1', 'zh-TW': '全部 $1', 'ja': 'すべて $1', 'ko': '전체 $1'}),
+    (r'^共 (\d+) 页$', {'en': '$1 pages', 'zh-TW': '共 $1 頁', 'ja': '全 $1 ページ', 'ko': '총 $1페이지'}),
+    (r'^第 (\d+) 页$', {'en': 'Page $1', 'zh-TW': '第 $1 頁', 'ja': '$1 ページ', 'ko': '$1페이지'}),
     (r'^改为 (#[0-9a-fA-F]{6})$', {'en': 'Change to $1', 'zh-TW': '改為 $1', 'ja': '$1 に変更', 'ko': '$1(으)로 변경'}),
     (r'^在当前文档中查找“(.+)”$', {'en': 'Find “$1” in this document', 'zh-TW': '在目前文件中尋找「$1」', 'ja': '現在の文書で「$1」を検索', 'ko': '현재 문서에서 "$1" 찾기'}),
     (r'^在所有文档中搜索“(.+)”$', {'en': 'Search all documents for “$1”', 'zh-TW': '在所有文件中搜尋「$1」', 'ja': 'すべての文書で「$1」を検索', 'ko': '모든 문서에서 "$1" 검색'}),

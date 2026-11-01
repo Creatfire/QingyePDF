@@ -5,7 +5,7 @@ exports.run=async(window,output)=>{
  const run=code=>window.webContents.executeJavaScript(code,true);
  const settle=()=>new Promise(r=>setTimeout(r,550));
  const capture=async name=>{await settle();await fs.writeFile(path.join(output,name+'.png'),(await window.webContents.capturePage()).toPNG());};
- const check=async()=>assert.deepEqual(await run(`(()=>{const els=[...document.querySelectorAll('.appbar button,.quickTool,.actionTile,.homeHeader,.recentPanel,.sideCard')];return els.filter(e=>{const r=e.getBoundingClientRect();return r.width&& (r.left<0||r.right>innerWidth+1);}).map(e=>e.id||e.className)})()`),[],'controls stay inside viewport');
+ const check=async()=>assert.deepEqual(await run(`(()=>{const els=[...document.querySelectorAll('.appbar button,.toolPills button,.omniBox,.readingCard,.bookItem,.homeSection')];return els.filter(e=>{const r=e.getBoundingClientRect();return r.width&& (r.left<0||r.right>innerWidth+1);}).map(e=>e.id||e.className)})()`),[],'controls stay inside viewport');
  const theme=await run("document.body.classList.contains('dark')");
  await run("qingye.activate(null); if(document.body.classList.contains('dark')) document.getElementById('themeButton').click()");
  assert.equal(await run("document.body.dataset.mode+':'+getComputedStyle(document.getElementById('pdfToolbar')).display"),'home:none','home has no PDF toolbar');

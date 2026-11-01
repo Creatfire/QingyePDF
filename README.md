@@ -2,7 +2,7 @@
 
 青页 PDF 是一款本地优先的 PDF 阅读与 Markdown 笔记工具。可以在同一窗口阅读、批注和整理笔记，也可以进行 OCR、页面管理和文档转换。
 
-当前版本为 **0.21.0**，提供 Windows 10 / 11 x64 和 macOS（Apple 芯片、Intel）的安装包。仓库中保留 Android 的代码和历史说明，0.21.0 未对 Android 重新构建或验收。Office 文件转换用的 LibreOffice 不在安装包里，第一次转换时询问并下载（约 300–400 MB）。
+当前版本为 **0.23.0-beta.1**（测试版），提供 Windows 10 / 11 x64 和 macOS（Apple 芯片、Intel）的安装包。仓库中保留 Android 的代码和历史说明，0.21.0 未对 Android 重新构建或验收。Office 文件转换用的 LibreOffice 不在安装包里，第一次转换时询问并下载（约 300–400 MB）。
 
 ![PDF 与 Markdown 笔记并排](docs/images/notes-split.png)
 

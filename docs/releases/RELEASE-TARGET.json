@@ -1,22 +1,19 @@
 {
   "app": "QingyePDF",
-  "version": "0.21.0",
+  "version": "0.23.0-beta.1",
   "renumberedFrom": "0.15.0",
   "supersedes": "v0.17.0 (abandoned broken line; archived on archive/0.17-broken-line)",
   "platform": [
-    "win32",
     "darwin"
   ],
   "architecture": [
-    "x64",
     "arm64"
   ],
   "target": [
-    "nsis",
-    "zip",
-    "dmg"
+    "dmg",
+    "zip"
   ],
-  "artifactName": "QingyePDF-0.21.0-Setup-x64.exe",
+  "artifactName": "QingyePDF-0.23.0-beta.1-mac-arm64.dmg",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -29,31 +26,28 @@
     "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
   ],
   "acceptance": [
-    "0.21.0: see HANDOFF.md for local results; Windows and Intel Mac builds are produced and tested by GitHub Actions only."
+    "0.23.0-beta.1: unsigned macOS arm64 test build; Windows and Intel Mac are not built for this beta."
   ],
   "newFeatures": [
-    "Toolbar, tool center and command palette redesign",
-    "LibreOffice downloaded on first use instead of bundled",
-    "Fixes from the macOS parallel test"
+    "Home page redone: one input for files, content and commands; the reading card; a shelf; notes and excerpts; common tools"
   ],
   "engineeringChanges": [
-    "office-engine.cjs: confirmed download with resume, SHA-256 check and atomic install",
-    "scripts/check-office-engine.cjs exercises the real package in CI on each platform"
+    "home-ipc.cjs: page thumbnails (at most 30) and highlights kept in the user-data folder, forgotten with the recent entry",
+    "Recent entries also store the page count and the current chapter",
+    "test/home-smoke.cjs and test/home023.test.mjs"
   ],
-  "buildRevision": "0.21.0",
+  "buildRevision": "0.23.0-beta.1",
   "fixes": [
     "See docs/history/CHANGELOG.md"
   ],
   "crossBuilt": false,
   "otherArtifacts": [
-    "QingyePDF-0.21.0-win-x64.zip",
-    "QingyePDF-0.21.0-mac-arm64.dmg",
-    "QingyePDF-0.21.0-mac-x64.dmg"
+    "QingyePDF-0.23.0-beta.1-mac-arm64.zip"
   ],
   "testSideCorrections": [],
   "pdfjsModified": true,
   "notBuilt": [
-    "Android was not rebuilt for 0.21.0 (no mobile changes)"
+    "Android, Windows and Intel Mac were not built for 0.23.0-beta.1"
   ],
   "libreOffice": {
     "version": "26.2.6",

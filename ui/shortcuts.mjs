@@ -34,6 +34,10 @@ export function createShortcuts(ctx) {
     if (ctrl && event.shiftKey && !event.altKey && event.code === 'KeyT' && ctx.tools) action = () => ctx.tools.open();
     if (ctrl && event.code === 'KeyW') action = async () => { if (closeInProgress) return; closeInProgress = true; try { await closeTab(s?.id); } finally { closeInProgress = false; } };
     if (ctrl && event.shiftKey && event.code === 'KeyA' && document.body.dataset.mode !== 'home') action = () => ai.toggle();
+    // 0.23: the home page's one input. A dialog over the page keeps its own keys.
+    const onHome = document.body.dataset.mode === 'home' && !document.querySelector('dialog[open]');
+    if (ctrl && !event.shiftKey && !event.altKey && event.code === 'KeyK' && onHome && ctx.home?.()) action = () => ctx.home().focus();
+    if (!ctrl && !event.altKey && event.key === '/' && onHome && ctx.home?.() && !event.isComposing && !event.target?.closest?.('input,textarea,select,[contenteditable]')) action = () => ctx.home().focus('/');
     if (ctrl && event.code === 'Tab') action = () => nextTab(event.shiftKey ? -1 : 1);
     if (ctrl && /^[1-9]$/.test(event.key) && !(isMd(s) && event.target?.closest?.('.mdEditor'))) action = () => activate([...sessions.keys()][Number(event.key) - 1] || activeId());
     if (action) { event.preventDefault(); event.stopImmediatePropagation(); guard(action); }

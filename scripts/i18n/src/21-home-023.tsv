@@ -1,0 +1,41 @@
+2060	It's late, 	夜深了，	夜遅くまで、	늦은 밤이네요, 
+2061	Good morning, 	早安，	おはようございます、	좋은 아침이에요, 
+2062	Good day, 	午安，	こんにちは、	안녕하세요, 
+2063	Good afternoon, 	午安，	こんにちは、	안녕하세요, 
+2064	Good evening, 	晚安，	こんばんは、	좋은 저녁이에요, 
+2065	keep reading	接著讀	続きを読み	이어서 읽어
+2066	.	吧。	ましょう。	볼까요.
+2067	Open a file, search everything, or type a command…	開啟檔案、搜尋全文，或輸入命令…	ファイルを開く、全文検索、コマンド入力…	파일 열기, 전체 검색 또는 명령 입력…
+2068	Open a file, search everything, or type a command	開啟檔案、搜尋全文，或輸入命令	ファイルを開く、全文検索、コマンド入力	파일 열기, 전체 검색 또는 명령 입력
+2069	type a command	輸入命令	コマンドを入力	명령 입력
+2070	drop files into the window	將檔案拖入視窗	ファイルをウィンドウにドロップ	파일을 창으로 끌어오기
+2071	+ New note	＋ 新增筆記	＋ 新しいノート	＋ 새 노트
+2072	Start with a document	從一份文件開始	文書から始めましょう	문서로 시작하기
+2073	This is where you will pick up where you left off. Files are only processed on this computer.	這裡會接著顯示你讀到的地方。檔案只在這台電腦上處理。	ここに読みかけの場所が表示されます。ファイルはこのコンピュータ上でのみ処理されます。	읽던 위치가 여기에 표시됩니다. 파일은 이 컴퓨터에서만 처리됩니다.
+2074	New note	新增筆記	新しいノート	새 노트
+2075	Open sample	開啟範例	サンプルを開く	샘플 열기
+2076	Shelf	書架	本棚	책장
+2077	Filter by collection	依合集篩選	コレクションで絞り込み	컬렉션별 필터
+2078	All documents	全部文件	すべての文書	모든 문서
+2079	Excerpts	摘錄	抜粋	발췌
+2080	All excerpts	全部摘錄	すべての抜粋	모든 발췌
+2081	Common tools	常用工具	よく使うツール	자주 쓰는 도구
+2082	Compress	壓縮	圧縮	압축
+2083	Export to Office	匯出為 Office	Office に書き出す	Office로 내보내기
+2084	Encrypt	加密	暗号化	암호화
+2085	Files are only processed on this computer	檔案只在這台電腦上處理	ファイルはこのコンピュータ上でのみ処理されます	파일은 이 컴퓨터에서만 처리됩니다
+2086	Reading	正在讀	読書中	읽는 중
+2087	Reading progress	閱讀進度	読書の進捗	읽기 진행률
+2088	Continue reading	繼續閱讀	続きを読む	계속 읽기
+2089	Side by side with notes	和筆記並排	ノートと並べる	노트와 나란히
+2090	Save open tabs as a collection	將開啟的分頁儲存為合集	開いているタブをコレクションとして保存	열린 탭을 컬렉션으로 저장
+2091	Open some documents first, then save them as a collection.	請先開啟文件，再將它們儲存為合集。	先に文書を開いてから、コレクションとして保存してください。	먼저 문서를 연 다음 컬렉션으로 저장하세요.
+2092	Nothing pinned yet. Right-click a tab to pin it.	還沒有釘選的文件。在分頁上按右鍵即可釘選。	ピン留めした文書はまだありません。タブを右クリックするとピン留めできます。	고정된 문서가 없습니다. 탭을 마우스 오른쪽 버튼으로 클릭하면 고정할 수 있습니다.
+2093	Documents you open will line up here.	開啟過的文件會排在這裡。	開いた文書がここに並びます。	연 문서가 여기에 놓입니다.
+2094	This collection has no documents yet.	這個合集裡還沒有文件。	このコレクションにはまだ文書がありません。	이 컬렉션에는 아직 문서가 없습니다.
+2095	File has moved	檔案不在原位置	ファイルが見つかりません	파일이 이동됨
+2096	No notes yet. Markdown documents are listed here.	還沒有筆記。Markdown 文件會列在這裡。	ノートはまだありません。Markdown 文書がここに表示されます。	아직 노트가 없습니다. Markdown 문서가 여기에 표시됩니다.
+2097	No excerpts yet. Your PDF highlights are listed here.	還沒有摘錄。你在 PDF 裡的醒目提示會列在這裡。	抜粋はまだありません。PDF のハイライトがここに表示されます。	아직 발췌가 없습니다. PDF의 강조 표시가 여기에 표시됩니다.
+2098	Matches in content	內容中的符合項目	内容の一致	내용 일치
+2099	Your excerpts and notes	你的摘錄和筆記	抜粋とノート	내 발췌와 노트
+2100	Open a PDF, Markdown, Word, Excel or PowerPoint file, or drop it into the window.	開啟 PDF、Markdown 或 Word / Excel / PPT 檔案，也可以直接拖入視窗。	PDF、Markdown、Word、Excel、PowerPoint ファイルを開くか、ウィンドウにドロップしてください。	PDF, Markdown, Word, Excel, PowerPoint 파일을 열거나 창으로 끌어오세요.

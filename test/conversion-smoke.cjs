@@ -9,7 +9,7 @@ exports.run = async ({ window, app, dialog, diagnostics, output }) => {
   const info = await run('desktop.converterInfo()'); assert.equal(info.bundled, true); assert.equal(info.version, 'pandoc 3.12'); assert.equal(info.readers.length, 51); assert.equal(info.writers.length, 76);
   const report = { version: app.getVersion(), engine: info.version, readers: info.readers.length, writers: info.writers.length, exports: {} };
   try {
-    await run('document.getElementById("homeConvertButton").click()'); await until('document.getElementById("convertTo").options.length === 79');
+    await run('document.getElementById("convertButton").click()'); await until('document.getElementById("convertTo").options.length === 79');
     assert.equal(await run('document.getElementById("converterDialog").open'), true); assert.equal(await run('document.getElementById("convertFrom").options.length'), 52);
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [input] });
     await run('document.getElementById("convertPickInputs").click()'); await until('document.querySelectorAll("#convertFiles li").length === 1');

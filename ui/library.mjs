@@ -44,18 +44,19 @@ export function createLibrary({ api, guard, status, sessions, isMd, addDocuments
     }
     return pages;
   }
-  /** Reads the text of one PDF: from the open tab when there is one, otherwise from the file. */
-  async function extract(item, alive) {
+  /** Runs fn on one PDF: the document of the open tab when there is one, otherwise read from the file. */
+  async function withPdf(item, fn) {
     const open = item.openId && sessions.get(item.openId);
-    if (open?.loaded && !isMd(open) && open.app?.pdfDocument) return pagesOf(open.app.pdfDocument, alive);
+    if (open?.loaded && !isMd(open) && open.app?.pdfDocument) return fn(open.app.pdfDocument);
     const lib = await engine(), bytes = await api.libraryRead(item.id);
     const base = new URL('../vendor/pdfjs/web/', import.meta.url).href;
     const task = lib.getDocument({ data: new Uint8Array(bytes), enableScripting: false, isEvalSupported: false, cMapUrl: base + 'cmaps/', cMapPacked: true, standardFontDataUrl: base + 'standard_fonts/', wasmUrl: base + 'wasm/', stopAtErrors: false });
     let locked = false; task.onPassword = () => { locked = true; task.destroy().catch(() => {}); };
-    try { return await pagesOf(await task.promise, alive); }
+    try { return await fn(await task.promise); }
     catch (error) { throw locked ? new Error('这个 PDF 有打开密码，未加入全库搜索。') : error; }
     finally { await task.destroy().catch(() => {}); }
   }
+  const extract = (item, alive) => withPdf(item, doc => pagesOf(doc, alive));
   /** Brings the index up to date. Resolves with { indexed, skipped }; safe to call repeatedly. */
   function refresh() {
     return indexing ||= (async () => {
@@ -140,5 +141,5 @@ export function createLibrary({ api, guard, status, sessions, isMd, addDocuments
     if ($('libraryQuery').value.trim()) await run();
     return building;
   }
-  return { open, close: () => dialog.close(), refresh, search: async query => { $('libraryQuery').value = query; await run(); return lastResult; }, openHit: (doc, hit, query) => openHit(doc, hit, query), dialog, get result() { return lastResult; } };
+  return { open, close: () => dialog.close(), refresh, withPdf, search: async query => { $('libraryQuery').value = query; await run(); return lastResult; }, openHit: (doc, hit, query) => openHit(doc, hit, query), dialog, get result() { return lastResult; } };
 }

@@ -158,10 +158,14 @@ exports.run = async ({ window, openFiles, documents, samplePdf, app, recovery, d
   // Native fullscreen is asynchronous; verify both entry and the Escape exit path.
   // The macOS full-screen animation takes over a second each way, so wait for the state, up to 15 s (longer when other apps load the machine).
   const fullScreenIs = async want => { for (let n = 0; n < 150 && window.isFullScreen() !== want; n++) await new Promise(resolve => setTimeout(resolve,100)); return window.isFullScreen(); };
-  await run("qingye.views.change('fullscreen')");
-  assert.equal(await fullScreenIs(true),true);
-  await run("document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
-  assert.equal(await fullScreenIs(false),false);
+  // A locked Mac never enters native full screen. QINGYE_SMOKE_NO_FULLSCREEN=1 skips only this check, and says so.
+  if (process.env.QINGYE_SMOKE_NO_FULLSCREEN) console.log('SKIPPED: native full screen not checked (QINGYE_SMOKE_NO_FULLSCREEN)');
+  else {
+    await run("qingye.views.change('fullscreen')");
+    assert.equal(await fullScreenIs(true),true);
+    await run("document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
+    assert.equal(await fullScreenIs(false),false);
+  }
   // Create a real FreeText editor via PDF.js's editor layer, then save through native IPC.
   const editingPromise = timeout(run(`(async () => {
     const s = [...qingye.sessions.values()][0]; const a = s.app;

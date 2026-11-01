@@ -402,5 +402,5 @@ export function createNotesMode({ sessions, isMd, activeId, activate, endCompare
     clearTimeout(syncTimer); if (immediate) run(); else syncTimer = setTimeout(run, 200);
     return true;
   }
-  return { rows, has, shown, place, layout, refresh, start, end, swap, closed, toggle, tabMenu, partner, notesFor, insertBlock, excerpt, excerptSelection, selectionSource, excerptRegion, pickRegion, stopPicking, picking: () => !!picking, syncAnnotations, pageChanged, setSync, syncing: () => syncOn, pdfOfSplit, active: () => !!split, ids: () => split ? [...split.ids] : null, ratio: () => split?.ratio ?? null, setRatio, menu };
+  return { rememberedPath, rows, has, shown, place, layout, refresh, start, end, swap, closed, toggle, tabMenu, partner, notesFor, insertBlock, excerpt, excerptSelection, selectionSource, excerptRegion, pickRegion, stopPicking, picking: () => !!picking, syncAnnotations, pageChanged, setSync, syncing: () => syncOn, pdfOfSplit, active: () => !!split, ids: () => split ? [...split.ids] : null, ratio: () => split?.ratio ?? null, setRatio, menu };
 }

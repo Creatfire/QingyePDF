@@ -2046,9 +2046,82 @@
     "选中批注的操作": "Actions for selected annotations",
     "加标签：": "Add tag:",
     "去掉：": "Remove:",
-    "去掉标签：": "Remove tag:"
+    "去掉标签：": "Remove tag:",
+    "夜深了，": "It's late, ",
+    "早上好，": "Good morning, ",
+    "中午好，": "Good day, ",
+    "下午好，": "Good afternoon, ",
+    "晚上好，": "Good evening, ",
+    "接着读": "keep reading",
+    "吧。": ".",
+    "打开文件、搜索全文，或输入命令…": "Open a file, search everything, or type a command…",
+    "打开文件、搜索全文，或输入命令": "Open a file, search everything, or type a command",
+    "输入命令": "type a command",
+    "拖文件进窗口": "drop files into the window",
+    "＋ 新建笔记": "+ New note",
+    "从一份文档开始": "Start with a document",
+    "这里会接着显示你读到的地方。文件只在这台电脑上处理。": "This is where you will pick up where you left off. Files are only processed on this computer.",
+    "新建笔记": "New note",
+    "打开示例": "Open sample",
+    "书架": "Shelf",
+    "按合集筛选": "Filter by collection",
+    "全部文档": "All documents",
+    "摘录": "Excerpts",
+    "全部摘录": "All excerpts",
+    "常用工具": "Common tools",
+    "压缩": "Compress",
+    "导出为 Office": "Export to Office",
+    "加密": "Encrypt",
+    "文件只在这台电脑上处理": "Files are only processed on this computer",
+    "正在读": "Reading",
+    "阅读进度": "Reading progress",
+    "继续阅读": "Continue reading",
+    "和笔记并排": "Side by side with notes",
+    "把打开的标签保存为合集": "Save open tabs as a collection",
+    "先打开文档，再把它们保存为合集。": "Open some documents first, then save them as a collection.",
+    "还没有固定的文档。在标签上单击右键可以固定。": "Nothing pinned yet. Right-click a tab to pin it.",
+    "打开过的文档会排在这里。": "Documents you open will line up here.",
+    "这个合集里还没有文档。": "This collection has no documents yet.",
+    "文件不在原位置": "File has moved",
+    "还没有笔记。Markdown 文档会列在这里。": "No notes yet. Markdown documents are listed here.",
+    "还没有摘录。你在 PDF 里的高亮会列在这里。": "No excerpts yet. Your PDF highlights are listed here.",
+    "内容中的匹配": "Matches in content",
+    "你的摘录和笔记": "Your excerpts and notes",
+    "打开 PDF、Markdown 或 Word / Excel / PPT 文件，也可以直接拖进窗口。": "Open a PDF, Markdown, Word, Excel or PowerPoint file, or drop it into the window."
   },
   "patterns": [
+    [
+      "^第 (\\d+) 页，共 (\\d+) 页$",
+      "Page $1 of $2"
+    ],
+    [
+      "^(.+) 读过$",
+      "Read $1"
+    ],
+    [
+      "^(\\d+) 个书签$",
+      "$1 bookmarks"
+    ],
+    [
+      "^(\\d+) 条批注$",
+      "$1 annotations"
+    ],
+    [
+      "^从第 (\\d+) 页继续$",
+      "Continue from page $1"
+    ],
+    [
+      "^全部 (\\d+)$",
+      "All $1"
+    ],
+    [
+      "^共 (\\d+) 页$",
+      "$1 pages"
+    ],
+    [
+      "^第 (\\d+) 页$",
+      "Page $1"
+    ],
     [
       "^改为 (#[0-9a-fA-F]{6})$",
       "Change to $1"

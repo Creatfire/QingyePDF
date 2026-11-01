@@ -34,6 +34,7 @@ import { createHistoryUi } from './history-ui.mjs';
 import { createToolbar, EDIT_KINDS } from './toolbar.mjs';
 import { createCommandPalette } from './command-palette.mjs';
 import { createRail } from './rail.mjs';
+import { createHome } from './home.mjs';
 import { TOOLS, groupLabel, needsPdf } from './tool-registry.mjs';
 import { ANNOTATION_TOOLS } from './chrome.mjs';
 // Display language first, so the UI is translated before it is shown.
@@ -49,7 +50,7 @@ const sessions = new Map();
 let activeId = null, closingApp = false, compareIds = null, comparingPage = false;
 const theme = createTheme({ api, sessions, $ });
 const contentDigest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes)))).map(n=>n.toString(16).padStart(2,'0')).join('');
-let statusHook = null, ai = null, notes = null, library = null, citations = null, workspaces = null, toolbar = null, palette = null;
+let statusHook = null, home = null, ai = null, notes = null, library = null, citations = null, workspaces = null, toolbar = null, palette = null;
 const status = text => { $('statusText').textContent = text; statusHook?.(text); };
 function message(title, detail) {
   $('messageTitle').textContent = title;
@@ -145,7 +146,7 @@ const draft = createDraftRecovery({ api, sessions, isMd, viewState, syncDirty, c
 // Home page: the recent list (recent-list.mjs).
 const recent = createRecentList({ api, guard, addDocuments, $ });
 // Keyboard shortcuts, and the commands the main process pushes into the window.
-const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai , palette: () => palette, tools, annotation: () => chrome.annotation });
+const shortcuts = createShortcuts({ home: () => home, $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai , palette: () => palette, tools, annotation: () => chrome.annotation });
 const commands = createCommands({ $, sessions, current, activeId: () => activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, closeWindow, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle });
 // The PDF toolbar's menus, pinned tools and overflow (toolbar.mjs), and the command palette (0.21).
 toolbar = createToolbar({ $, guard, status, current: currentPdf, sessions: pdfSessions, tools, pageManager, direct, history, print: () => commands.run('print') });
@@ -187,7 +188,7 @@ async function compare(left,right) {
 function viewState(s) {
   if (isMd(s)) return s.editor ? markdown.state(s) : s.state;
   const v = s.app?.pdfViewer;
-  return v ? { page: v.currentPageNumber, zoom: String(v.currentScaleValue), rotation: v.pagesRotation, scrollTop: s.app.appConfig.mainContainer.querySelector('#viewerContainer')?.scrollTop || 0, ...views.state(s), ...s.compareView, bookmarks:s.bookmarks||s.state?.bookmarks||[] } : s.state;
+  return v ? { page: v.currentPageNumber, zoom: String(v.currentScaleValue), rotation: v.pagesRotation, scrollTop: s.app.appConfig.mainContainer.querySelector('#viewerContainer')?.scrollTop || 0, ...views.state(s), ...s.compareView, bookmarks:s.bookmarks||s.state?.bookmarks||[], pages: s.app.pagesCount, chapter: home?.chapterOf(s) || '' } : s.state;
 }
 function tabs() {
   $('tabs').replaceChildren();
@@ -241,7 +242,7 @@ function activate(id, { keepFocus = false } = {}) {
   notes?.place(id);
   const shown = compareIds ? null : notes?.shown(id) || null;
   const previous = current();
-  if (previous?.loaded) api.remember(previous.id, viewState(previous)).catch(console.warn);
+  if (previous?.loaded) { api.remember(previous.id, viewState(previous)).catch(console.warn); if (previous.id !== id) home?.captureAndShow(previous); }
   activeId = id;
   document.body.classList.toggle('comparing',!!compareIds);compareBar.hidden=!compareIds;
   if(compareIds)$('compareNames').textContent=compareIds.map(key=>sessions.get(key).name).join(' ↔ ');
@@ -262,7 +263,7 @@ function activate(id, { keepFocus = false } = {}) {
   navigation.sync();
   tabs();
   status(id === null ? '准备就绪' : isMd(current()) ? (current().dirty ? '有未保存的修改' : 'Markdown 文档') : current()?.loaded ? (current().dirty ? '有未保存的批注' : '文档已打开') : '正在打开文档…');
-  if (id === null) { recent.refresh(); workspaces?.refresh().catch(() => {}); }
+  if (id === null) { recent.refresh(); workspaces?.refresh().catch(() => {}); home?.refresh().catch(console.warn); }
   ai?.sync();
 }
 function editingHash(s) { return JSON.stringify([...(s.app.pdfDocument.annotationStorage.serializable.map || [])].sort(([a], [b]) => a.localeCompare(b))); }
@@ -379,6 +380,7 @@ async function addDocument(info) {
     s.app.pdfViewer.currentPageNumber = Math.max(1, Math.min(s.app.pagesCount, resume && state.page || 1));
     if (resume && state.scrollTop) s.app.appConfig.mainContainer.querySelector('#viewerContainer').scrollTop = state.scrollTop;
     s.loaded = true;
+    home?.trackDocument(s);
     navigation.bind(s);
     let measuredWidth = -1, resizeFrame;
     s.resizeObserver = new frame.contentWindow.ResizeObserver(entries => {
@@ -476,6 +478,7 @@ async function closeTab(id) {
     if (choice === 'cancel') return false;
     if (choice === 'save' && !await saveSession(s, false)) return false;
   }
+  await home?.captureSoon(s);
   await api.closeDocument(s.id, viewState(s));
   // Do not run PDF.js's default auto-download on close; the native prompt handled it.
   s.app && (s.app._annotationStorageModified = false);
@@ -511,7 +514,7 @@ $('openButton').onclick = $('welcomeOpen').onclick = () => guard(open);
 $('exampleButton').onclick = () => guard(async () => addDocuments(await api.example()));
 function newMarkdown() { return guard(async () => addDocuments(await api.newMarkdown())); }
 $('newMarkdownButton').onclick = () => newMarkdown();
-$('convertButton').onclick = $('homeConvertButton').onclick = () => guard(() => converter.open());
+$('convertButton').onclick = () => guard(() => converter.open());
 $('markdownExampleButton').onclick = () => guard(async () => addDocuments(await api.markdownExample()));
 window.addEventListener('focus', () => { if ([...sessions.values()].some(isMd)) api.checkMarkdown().catch(() => {}); });
 function reviewSave(s,saveAs){if(isMd(s))return guard(()=>saveSession(s,saveAs));if(tools.isBusy()){status('本地处理正在进行，请等待完成后保存。');return false;}return s?.dirty&&s.history?.rows.some(r=>r.applied)?history.show(()=>saveSession(s,saveAs)):guard(()=>saveSession(s,saveAs));}
@@ -527,7 +530,7 @@ for (const button of document.querySelectorAll('[data-home-action]')) button.onc
 };
 for (const button of document.querySelectorAll('[data-tool]')) button.onclick = () => guard(async () => {
   if (!currentPdf()?.loaded) { await open(); if (!currentPdf()?.loaded) return; }
-  await tools.open(button.dataset.tool);
+  await tools.launch(button.dataset.tool);
 });
 let dragDepth = 0;
 document.addEventListener('dragenter', event => { if (event.dataTransfer.types.includes('Files')) { dragDepth++; document.body.classList.add('fileDragging'); } });
@@ -535,7 +538,7 @@ document.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth
 for (const name of ['drop','dragend']) document.addEventListener(name, () => { dragDepth=0; document.body.classList.remove('fileDragging'); });
 window.addEventListener('blur', () => { dragDepth=0; document.body.classList.remove('fileDragging'); });
 // Only offer "restore" when the last session actually left tabs behind.
-const restoreButton=document.createElement('button');restoreButton.id='restoreButton';restoreButton.className='actionTile';restoreButton.innerHTML='<span class="tileGlyph" data-icon="history" aria-hidden="true"></span><span class="tileText"><strong>恢复上次标签</strong><small></small></span>';restoreButton.hidden=true;restoreButton.onclick=()=>guard(async()=>{await addDocuments(await api.restoreSession());restoreButton.hidden=true;});document.querySelector('.homeActions').append(restoreButton);
+const restoreButton=document.createElement('button');restoreButton.id='restoreButton';restoreButton.className='omniLink';restoreButton.innerHTML='<strong>恢复上次标签</strong><small></small>';restoreButton.hidden=true;restoreButton.onclick=()=>guard(async()=>{await addDocuments(await api.restoreSession());restoreButton.hidden=true;});$('homeRestoreSlot').append(restoreButton);
 (api.lastSessionCount?.()??Promise.resolve(1)).then(n=>{restoreButton.hidden=!n;if(n){restoreButton.title=`重新打开上次关闭时的 ${n} 个标签`;restoreButton.querySelector('small').textContent=`上次关闭时的 ${n} 个标签`;}}).catch(()=>{restoreButton.hidden=false;restoreButton.querySelector('small').textContent='重新打开上次关闭时的标签';});
 const recoveryBox=document.createElement('section');recoveryBox.id='recoveryBox';document.getElementById('home').prepend(recoveryBox);
 api.recoveryList().then(items=>{for(const item of items){const row=document.createElement('div');row.className='recoveryRow';const label=document.createElement('span');label.textContent=`发现未正常关闭的会话：${item.names.join('、')}（${item.drafts} 份草稿）`;row.append(label);for(const [text,action] of [['恢复',async()=>{await addDocuments(await api.restoreSession(item.token));row.remove();}],['删除备份',async()=>{await api.discardRecovery(item.token);row.remove();}]]){const b=document.createElement('button');b.textContent=text;b.onclick=()=>guard(action);row.append(b);}recoveryBox.append(row);}}).catch(console.warn);
@@ -561,15 +564,8 @@ workspaces.refresh().catch(() => {});
   const button = document.createElement('button'); button.id = 'notesButton'; button.className = 'iconOnly mdOnly'; button.dataset.icon = 'double'; button.setAttribute('aria-pressed', 'false');
   button.title = '笔记模式：左右双开 · Ctrl+\\'; button.setAttribute('aria-label', '笔记模式'); button.onclick = () => notes.toggle(button, true);
   document.querySelector('.titlebarTools').prepend(button);
-  // 0.20: the same action as a labelled button in the PDF toolbar, and "open and take notes" on the home page.
+  // 0.20: the same action as a labelled button in the PDF toolbar.
   $('pdfNotesButton').onclick = () => notes.toggle($('pdfNotesButton'), true);
-  $('homeNotesButton').onclick = () => guard(async () => {
-    const opened = await api.open(); if (!opened.length) return;
-    await addDocuments(opened);
-    const s = sessions.get(opened[0].id); if (!s) return;
-    for (let n = 0; n < 100 && !s.loaded; n++) await new Promise(r => setTimeout(r, 50));
-    if (s.loaded) notes.toggle($('pdfNotesButton').offsetParent ? $('pdfNotesButton') : button, true);
-  });
 }
 // Library search (0.11.0): every PDF and Markdown document in the recent list. Desktop only.
 if (api.libraryStatus) {
@@ -580,6 +576,8 @@ if (api.libraryStatus) {
   $('recentSearch').title = '按 Enter 在所有文档的内容里搜索';
 }
 createRail({ $, guard, activate: id => activate(id), hasLibrary: !!api.libraryStatus });
+// The home page (0.23, home.mjs). Its input searches through the library above and the palette's commands.
+home = createHome({ api, guard, status, sessions, isMd, $, open, newMarkdown, addDocuments, activate, commands: paletteCommands, library: () => library, workspaces: () => workspaces, notes: () => notes });
 const aiTools = createDocTools({ sessions, current, activate, markdown, addDocuments, api, views,navigate:action=>readingTrail.record(action), applyEdit, notes });
 ai = createAiPanel({ api, guard, status, tools: aiTools, current, openSettings: pane => settings.open(pane), partner: () => notes?.partner(activeId) || null });
 window.addEventListener('qingye:ai-config', () => ai.refresh().catch(console.warn));
@@ -641,5 +639,5 @@ function paletteCommands() {
     { label: '使用帮助', group: '应用', icon: 'help', run: () => $('helpButton').click() },
   ];
 }
-window.qingye = { toolbar, palette, workspaces, taskCenter, pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
+window.qingye = { home, toolbar, palette, workspaces, taskCenter, pageManager, shapes, markup, annotEdit, compareDiff, notes, library, citations, ai, aiTools, converter, settings, i18n, newMarkdown, open, chrome, markdown, addDocuments, sessions, activate, saveSession, closeTab, syncDirty, commit, sameEdits, views, viewState, navigation, tools, compare, checkpoint: draft.checkpoint, direct, textSelection, applyEdit, historyStep: history.step, replaceDocument,readingTrail,locatePdfSource };
 api.ready();

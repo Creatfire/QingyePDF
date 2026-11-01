@@ -1,6 +1,6 @@
 # 文档目录
 
-当前产品说明以 0.21.0 为基线；历史记录和对标调研描述的是当时的版本，不代表当前验收结果。
+当前产品说明以 0.23.0-beta.1 为基线；历史记录和对标调研描述的是当时的版本，不代表当前验收结果。
 
 ## 使用与功能
 
@@ -13,7 +13,7 @@
 
 - [参与开发](development/CONTRIBUTING.md) · [构建、测试与发布](development/BUILDING.md) · [架构](development/ARCHITECTURE.md)。
 - [代码签名](development/SIGNING.md) · [PDF.js 修改记录](development/PDFJS-MODIFICATIONS.md)。
-- [0.21.0 交接与验证](releases/HANDOFF.md) · [发布目标](releases/RELEASE-TARGET.json)。
+- [0.23.0-beta.1 交接与验证](releases/HANDOFF.md) · [发布目标](releases/RELEASE-TARGET.json)。
 - [工具栏与工具中心重构测试文档](testing/TOOLBAR-0.21-TEST.md)：未发布的工具栏改动要测什么、怎么测、已知问题。
 - [macOS 版并行测试文档](testing/MACOS-0.21-TEST.md)：8 个测试 agent 在同一台 Mac 上同时测试的分工、规则与任务卡。
 - [给 8 个测试 agent 的任务说明](testing/MACOS-0.21-AGENT-PROMPTS.md)：可直接粘贴到 agent 会话里的 8 段任务。

@@ -64,10 +64,6 @@ export function createChrome({ api, current, guard, navigation, status, shapes, 
   const fullscreen = value => document.body.classList.toggle('isFullscreen', !!value);
   api.windowState?.().then(state => fullscreen(state?.fullscreen)).catch(() => {});
 
-  // Greeting on the home page follows the local time of day.
-  const hour = new Date().getHours();
-  $('greeting').textContent = hour < 6 ? '夜深了，慢慢读' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好';
-
   const anchor = anchorPopover;
   anchor($('viewPanel'), 'viewButton', 'right');
   anchor($('annotateMenu'), 'annotateButton', 'left');

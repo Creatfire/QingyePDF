@@ -12,7 +12,7 @@ export function createWorkspaces({ api, guard, status, sessions, activeId, activ
     <div class="pinnedHeading"><h3>固定文档</h3><small>在标签上单击右键可以固定</small></div>
     <div id="pinnedList" class="pinnedList" role="list" aria-label="固定文档"></div>
     <p id="workspaceHint" class="workspaceHint">把论文、合同、会议材料等一组文档（包括笔记模式的左右搭配）保存为工作区，下次一键回到原样。</p>`;
-  $('recentHeading')?.closest('.recentPanel')?.before(panel);
+  $('homeWorkspaces')?.append(panel);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const when = ms => { if (!ms) return ''; const d = new Date(ms); return `${d.getMonth() + 1} 月 ${d.getDate()} 日 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
 

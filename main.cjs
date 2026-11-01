@@ -18,6 +18,7 @@ const { createOfficeTasks } = require('./office-task.cjs');
 const { createWindowShell } = require('./window-shell.cjs');
 const referenceIpc = require('./reference-ipc.cjs');
 const workspaceIpc = require('./workspace-ipc.cjs');
+const homeIpc = require('./home-ipc.cjs');
 const bootStarted=performance.now();
 let recovery;
 const recoveryTokens=new Map();
@@ -25,7 +26,7 @@ const runningJobs=new Map();
 const canceledJobs=new Set();
 
 qingyeProtocol.registerSchemes(protocol);
-const smoke = process.argv.includes('--smoke-test')||process.argv.includes('--edit-smoke')||process.argv.includes('--markdown-smoke')||process.argv.includes('--conversion-smoke')||process.argv.includes('--basic-smoke')||process.argv.includes('--fix-smoke')||process.argv.includes('--fix-close-smoke')||process.argv.includes('--features-smoke')||process.argv.includes('--notes-smoke')||process.argv.includes('--links-smoke')||process.argv.includes('--fix013-smoke')||process.argv.includes('--x014-smoke')||process.argv.includes('--markdown-profile');
+const smoke = process.argv.includes('--smoke-test')||process.argv.includes('--home-smoke')||process.argv.includes('--edit-smoke')||process.argv.includes('--markdown-smoke')||process.argv.includes('--conversion-smoke')||process.argv.includes('--basic-smoke')||process.argv.includes('--fix-smoke')||process.argv.includes('--fix-close-smoke')||process.argv.includes('--features-smoke')||process.argv.includes('--notes-smoke')||process.argv.includes('--links-smoke')||process.argv.includes('--fix013-smoke')||process.argv.includes('--x014-smoke')||process.argv.includes('--markdown-profile');
 const safety = process.argv.includes('--safety-smoke');
 const safetyRole = process.env.QINGYE_SAFETY_ROLE || 'main';
 const benchmark=process.argv.includes('--startup-benchmark');
@@ -132,6 +133,7 @@ function imageDimensions(header) {
 }
 const producedOutputs = new Set(), documents = new Map(), closedDocuments=new Map(), recentTokens = new Map(), assetTokens = new Map(), batchTokens = new Map();
 let preferences = { schemaVersion: 1, recent: [] };
+let home = null;
 let preferenceQueue = Promise.resolve();
 const key = file => path.resolve(file).toLowerCase();
 const metadata = record => ({ id: record.id, name: record.name, path: record.path, state: record.state, kind: record.kind || 'pdf', ...(record.kind === 'markdown' ? { eol: record.eol, encoding: record.encoding } : {}) });
@@ -167,6 +169,9 @@ function remember(record, state = record.state) {
     crop: Array.isArray(state.crop) && state.crop.length === 4 ? state.crop.map(x => Math.max(0, Math.min(40, Number(x) || 0))) : [0, 0, 0, 0],
     reflow: !!state.reflow,
     fontSize: Math.max(14, Math.min(36, Number(state.fontSize) || 20)),
+    // 0.23: for the home page's "正在读" card.
+    pages: Math.max(0, Math.min(1000000, Math.floor(Number(state.pages) || 0))),
+    chapter: typeof state.chapter === 'string' ? state.chapter.slice(0, 200) : '',
     bookmarks: Array.isArray(state.bookmarks) ? state.bookmarks.filter(b=>Number.isInteger(b.page)&&b.page>0&&typeof b.title==='string').slice(0,10000).map(b=>({page:Math.min(1000000,b.page),title:b.title.slice(0,200)})) : [],
   } : {};
   preferences.recent = [{ path: record.path, name: record.name, state: record.state, opened: Date.now() }, ...preferences.recent.filter(r => key(r.path) !== key(record.path))].slice(0, 30);
@@ -275,7 +280,7 @@ app.whenReady().then(async () => {
   handle('assoc-unregister', () => associations.unregister());
   handle('assoc-choose', kind => associations.choose(String(kind)));
   handle('assoc-open-settings', () => associations.openSettings());
-  handle('recent-clear', async () => { preferences.recent = []; recentTokens.clear(); await persist(); return true; });
+  handle('recent-clear', async () => { preferences.recent = []; recentTokens.clear(); await persist(); await home?.clear(); return true; });
   handle('open-data-folder', async () => { const error = await shell.openPath(app.getPath('userData')); if (error) throw new Error(error); return true; });
   handle('open', async () => {
     const result = await dialog.showOpenDialog(window, { title: T('打开文档'), filters: [{ name: T('所有支持的文档'), extensions: ['pdf', ...markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1)), ...[...officeConvert.OFFICE_EXTENSIONS].map(e => e.slice(1))] }, { name: T('PDF 文档'), extensions: ['pdf'] }, { name: T('Office 文档（以 PDF 打开）'), extensions: [...officeConvert.OFFICE_EXTENSIONS].map(e => e.slice(1)) }, { name: T('Markdown 文档'), extensions: markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1)) }], properties: ['openFile', 'multiSelections'] });
@@ -434,7 +439,7 @@ app.whenReady().then(async () => {
     return { id: token, name: item.name, path: item.path, kind, ext: path.extname(item.path).slice(1).toLowerCase(), opened: Number(item.opened) || 0, page: kind === 'pdf' ? Number(item.state?.page) || 0 : 0 };
   }));
   // Home page: remove one entry from the recent list (the file itself is untouched).
-  handle('recent-remove', async id => { const file = recentTokens.get(id); if (!file) return false; preferences.recent = preferences.recent.filter(r => key(r.path) !== key(file)); recentTokens.delete(id); await persist(); return true; });
+  handle('recent-remove', async id => { const file = recentTokens.get(id); if (!file) return false; preferences.recent = preferences.recent.filter(r => key(r.path) !== key(file)); recentTokens.delete(id); await persist(); await home?.forget(file); return true; });
   handle('open-recent', id => { const file = recentTokens.get(id); if (!file) throw new Error('最近文件不存在。'); return openFiles([file]); });
   handle('example', async () => {
     // The home page opens the illustrated feature guide (ui/sample-guide.pdf, built by
@@ -482,6 +487,7 @@ app.whenReady().then(async () => {
   // ——— 0.11.0: library search across the recent list, and reference details ———
   // Full-library search, DOI lookup and .bib export live in reference-ipc.cjs.
   // Workspaces and pinned documents (0.20) live in workspace-ipc.cjs; their files are searchable too.
+  home = homeIpc.register({ handle, app, preferences, recentTokens, documentById, key, markdownFiles, officeConvert, atomicWrite, fingerprint });
   const workspaces = workspaceIpc.register({ handle, preferences, persist, documents, documentById, openFiles, dialog, getWindow: () => window, key });
   referenceIpc.register({ handle, app, T, dialog, getWindow: () => window, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint, libraryFiles: workspaces.libraryFiles });
   handle('notes-markdown', (id,notes) => {const record=documentById(id);if(record.kind==='markdown')throw new Error('请选择 PDF 批注。');return newMarkdown(path.parse(record.name).name+'-批注笔记.md',notesMarkdown(record,notes)).map(info=>({...info,unsaved:true}));});
@@ -594,6 +600,7 @@ app.whenReady().then(async () => {
     if(benchmark){await loadComplete;await fs.mkdir(path.join(smokeRoot,'test-output'),{recursive:true});await fs.writeFile(path.join(smokeRoot,'test-output','startup-timing.json'),JSON.stringify({mainReadyMs:Math.round(performance.now()-bootStarted),version:app.getVersion(),cachedRuntime:process.execPath,runId:diagnostics.runId}));diagnostics.success();allowClose=true;app.quit();return;}
     if (smoke) {
       if(process.argv.includes('--markdown-profile')){try{await require('./test/profile-enter.cjs').run({window,openFiles,output:path.join(smokeRoot,'test-output/profile')});diagnostics.success();app.exit(0);}catch(error){fail('profile',error);}return;}
+      if(process.argv.includes('--home-smoke')){try{await require('./test/home-smoke.cjs').run({window,app,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/home')});diagnostics.success();app.exit(0);}catch(error){fail('home',error);}return;}
       if(process.argv.includes('--x014-smoke')){try{await require('./test/xodo014-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/xodo014')});diagnostics.success();app.exit(0);}catch(error){fail('xodo014',error);}return;}
       if(process.argv.includes('--fix013-smoke')){try{await require('./test/fixes013-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/fixes013')});diagnostics.success();app.exit(0);}catch(error){fail('fixes013',error);}return;}
       if(process.argv.includes('--links-smoke')){try{await require('./test/links011-smoke.cjs').run({window,app,dialog,openFiles,samplePdf,output:path.join(smokeRoot,'test-output/links011')});diagnostics.success();app.exit(0);}catch(error){fail('links011',error);}return;}

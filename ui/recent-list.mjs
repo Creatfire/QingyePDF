@@ -1,5 +1,14 @@
 // Home page: the recent list — filter by document type, filter by name, remove an entry
 // (removing only forgets the entry; the file itself is untouched).
+export function when(ms) {
+  if (!ms) return '';
+  const d = new Date(ms), now = new Date(), day = 86400000, start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const hm = d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  if (ms >= start) return '今天 ' + hm;
+  if (ms >= start - day) return '昨天 ' + hm;
+  if (ms >= start - 6 * day) return Math.ceil((start - ms) / day) + ' 天前';
+  return d.getFullYear() === now.getFullYear() ? `${d.getMonth() + 1} 月 ${d.getDate()} 日` : `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
 export function createRecentList({ api, guard, addDocuments, $ }) {
   let items = [], filter = 'all', limit = 12;
   const isMdPath = p => /\.(md|markdown|mdown|mkdn?|mdwn)$/i.test(p || '');
@@ -13,15 +22,6 @@ export function createRecentList({ api, guard, addDocuments, $ }) {
     if (/^(ppt|pptx|pptm|pps|ppsx|odp|dps)$/.test(ext)) return ['PPT', 'powerpoint'];
     return [/^(odt|ott)$/.test(ext) ? 'ODT' : ext === 'rtf' ? 'RTF' : 'DOC', 'word'];
   }
-  function when(ms) {
-    if (!ms) return '';
-    const d = new Date(ms), now = new Date(), day = 86400000, start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const hm = d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
-    if (ms >= start) return '今天 ' + hm;
-    if (ms >= start - day) return '昨天 ' + hm;
-    if (ms >= start - 6 * day) return Math.ceil((start - ms) / day) + ' 天前';
-    return d.getFullYear() === now.getFullYear() ? `${d.getMonth() + 1} 月 ${d.getDate()} 日` : `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-  }
   function render() {
     const term = $('recentSearch').value.trim().toLowerCase(), list = $('recent');
     const shown = items.filter(i => (filter === 'all' || kindOf(i) === filter) && (!term || i.name.toLowerCase().includes(term) || i.path.toLowerCase().includes(term)));
@@ -30,7 +30,7 @@ export function createRecentList({ api, guard, addDocuments, $ }) {
       const empty = document.createElement('div'); empty.className = 'emptyRecent';
       const title = document.createElement('strong'), hint = document.createElement('span');
       title.textContent = items.length ? '没有符合条件的文件' : '还没有打开过文件';
-      hint.textContent = items.length ? '换个关键词或类型试试。' : '打开 PDF、Markdown 或 Word / Excel / PPT 文件（也可以直接拖进窗口），或者先看看右侧的示例。';
+      hint.textContent = items.length ? '换个关键词或类型试试。' : '打开 PDF、Markdown 或 Word / Excel / PPT 文件，也可以直接拖进窗口。';
       empty.append(title, hint); list.append(empty); return;
     }
     for (const item of shown.slice(0, limit)) {

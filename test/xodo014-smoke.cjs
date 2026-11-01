@@ -143,6 +143,8 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
     target.dispatchEvent(new PointerEvent('pointerdown', at)); target.dispatchEvent(new PointerEvent('pointerup', at));
   })()`);
   const squareBefore = await run(squareRect);
+  // The page is still redrawing after the shape edit, and a redraw clears the selection.
+  await pause(1500);
   await click(0.32, 0.62);
   await until(`qingye.annotEdit.selected()?.kind === 'Square' && !document.querySelector('.annotEditBar').hidden`, 'rectangle selected');
   await pause(200); await fs.writeFile(path.join(output, 'annot-selected.png'), (await window.webContents.capturePage()).toPNG());
@@ -246,7 +248,7 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
       return { rows, tile: document.querySelector('#welcomeOpen strong').textContent };
     })()`);
     assert.deepEqual(report.checks.recentOffice.rows, [{ badge: 'DOC', kind: 'recentIcon word', name: '季度 报告.docx', asPdf: true }]);
-    assert.equal(report.checks.recentOffice.tile, '打开文档');
+    assert.equal(report.checks.recentOffice.tile, '打开');
 
     // Cancelling a conversion leaves no tab and no error dialog.
     const other = path.join(output, '另一份.docx');

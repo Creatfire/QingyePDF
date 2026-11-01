@@ -1,6 +1,6 @@
 {
   "name": "qingye-pdf",
-  "version": "0.21.0",
+  "version": "0.23.0-beta.1",
   "description": "Local-first open-source PDF reader with tabs and annotations",
   "author": "Qingye PDF contributors",
   "license": "AGPL-3.0-only",
@@ -67,6 +67,7 @@
       "office-engine.cjs",
       "reference-ipc.cjs",
       "workspace-ipc.cjs",
+      "home-ipc.cjs",
       "agent-dialogs.cjs",
       "ui/**/*",
       "vendor/pdfjs/**/*",
@@ -109,6 +110,7 @@
       "notes-markdown.cjs",
       "library-index.cjs",
       "test/links011-smoke.cjs",
+      "test/home-smoke.cjs",
       "test/features094-smoke.cjs",
       "test/notes010-smoke.cjs",
       "test/fixes013-smoke.cjs",
@@ -163,7 +165,7 @@
       "artifactName": "QingyePDF-${version}-Setup-x64.${ext}"
     },
     "extraMetadata": {
-      "buildRevision": "0.21.0"
+      "buildRevision": "0.23.0-beta.1"
     },
     "afterPack": "scripts/after-pack.cjs",
     "mac": {
