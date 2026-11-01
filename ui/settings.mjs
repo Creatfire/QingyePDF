@@ -9,7 +9,7 @@ export const DEFAULTS = { restoreOnStart: false, pdfZoom: 'page-width', pdfResum
 export function readSettings() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return { ...DEFAULTS }; } }
 function writeSettings(values) { try { localStorage.setItem(KEY, JSON.stringify(values)); } catch {} }
 
-export function createSettings({ api, guard, status, markdown, theme, version, refreshRecent, windowStyle = { style: 'windows', vibrancy: false, saved: { style: 'windows', vibrancy: false } }, restart }) {
+export function createSettings({ api, guard, status, markdown, theme, version, refreshRecent }) {
   const values = readSettings();
   const set = (name, value) => { values[name] = value; writeSettings(values); };
   const dialog = document.createElement('dialog');
@@ -177,7 +177,6 @@ export function createSettings({ api, guard, status, markdown, theme, version, r
     lang.value = languageChoice();
     $('#setTheme').value = theme.mode();
     $('#setRestore').checked = !!values.restoreOnStart;
-    syncStyle();
     $('#setPdfZoom').value = values.pdfZoom; $('#setPdfResume').checked = !!values.pdfResume;
     $('#setAnnotAuthor').value = values.annotAuthor || ''; $('#setMarkupBar').checked = values.markupBar !== false; $('#setMarkupCopyText').checked = !!values.markupCopyText; $('#setAnnotKeys').checked = values.annotKeys !== false; $('#setAnnotEdit').checked = values.annotEdit !== false;
     $('#setMdRead').checked = !!mdPrefs().get('openInReadMode'); $('#setMdAutoSave').checked = !!mdPrefs().get('autoSave');

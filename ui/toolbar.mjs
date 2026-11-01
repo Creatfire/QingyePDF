@@ -120,6 +120,8 @@ export function createToolbar({ $, guard, status, current, sessions, tools, page
     });
   }
   new ResizeObserver(fit).observe(bar);
+  // 0.22: labels change width with the interface language while the bar keeps its own width.
+  new MutationObserver(() => setTimeout(fit, 60)).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
   $('moreMenu').addEventListener('beforetoggle', event => {
     if (event.newState !== 'open') return;
     const menu = $('moreMenu'); menu.replaceChildren(menuLabel('放不下的按钮'));

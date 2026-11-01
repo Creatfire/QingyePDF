@@ -6,7 +6,7 @@
   --font-display: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --bg: #f1f5f2; --titlebar: #e9efeb; --surface: #fcfdfc; --surface-2: #f7faf8; --surface-3: #edf2ef;
   --hover: #e9f1ec; --active: #dcebe2; --line: #dfe7e2; --line-strong: #c8d5ce;
-  --ink: #142019; --ink-2: #2f4038; --muted: #56685f; --faint: #6f8077;
+  --ink: #142019; --ink-2: #2f4038; --muted: #56685f; --faint: #5f7067;
   --accent: #1d7a57; --accent-hover: #166a4b; --accent-strong: #11543b; --accent-2: #3fae80;
   --accent-soft: #e1f1e8; --accent-soft-2: #c9e6d6; --on-accent: #ffffff;
   --viewer-bg: #e5ebe7; --glass: rgb(255 255 255 / .86);
@@ -354,13 +354,13 @@ body.navigationOpen #compareBar { left: var(--nav-w); }
 @keyframes tab-in { from { opacity: 0; translate: 0 4px; } }
 @keyframes spin { to { rotate: 360deg; } }
 
-/* Responsive command bar: labels give way to icons as the window narrows */
-@media (max-width: 1260px) {
+/* Responsive command bar: labels give way to icons as the window narrows. 0.22: the breakpoints
+   include the 68px left rail, so the toolbar itself narrows at the same widths as in 0.21. */
+@media (max-width: 1328px) {
   #saveButton .label, #printButton .label, #pinnedTools .label { display: none; }
   #saveButton, #printButton, #pinnedTools button { width: 34px; padding: 0 !important; }
-  .commandPill .label, .commandPill kbd { display: none; }
 }
-@media (max-width: 1060px) {
+@media (max-width: 1128px) {
   .appbar .barGroup .label { display: none; }
   .appbar button:not(.primary):not(#annotateButton):not(#directButton):not(#toolsButton):not(#viewButton):not(.caretButton):not(.pointerTools button) { width: 34px; padding: 0; }
   #directButton, #toolsButton, #viewButton { padding: 0 6px 0 8px; }

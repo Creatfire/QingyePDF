@@ -20,6 +20,7 @@ if missing: sys.exit(f'missing ids: {missing[:20]} ({len(missing)})')
 
 # Dynamic strings: [regex on the Chinese text, {lang: replacement with $1…}]. Captures are translated too.
 PATTERNS = [
+    (r'^改为 (#[0-9a-fA-F]{6})$', {'en': 'Change to $1', 'zh-TW': '改為 $1', 'ja': '$1 に変更', 'ko': '$1(으)로 변경'}),
     (r'^在当前文档中查找“(.+)”$', {'en': 'Find “$1” in this document', 'zh-TW': '在目前文件中尋找「$1」', 'ja': '現在の文書で「$1」を検索', 'ko': '현재 문서에서 "$1" 찾기'}),
     (r'^在所有文档中搜索“(.+)”$', {'en': 'Search all documents for “$1”', 'zh-TW': '在所有文件中搜尋「$1」', 'ja': 'すべての文書で「$1」を検索', 'ko': '모든 문서에서 "$1" 검색'}),
     (r'^任务中心，(\d+) 个进行中$', {'en': 'Task center, $1 running', 'zh-TW': '任務中心，$1 個進行中', 'ja': 'タスクセンター、$1 件実行中', 'ko': '작업 센터, $1개 진행 중'}),

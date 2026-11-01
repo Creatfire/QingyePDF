@@ -135,7 +135,8 @@ export function createChrome({ api, current, guard, navigation, status, shapes, 
     if (!show) { strip.replaceChildren(); return; }
     const label = document.createElement('span'); label.className = 'stripLabel'; label.textContent = '批注';
     const items = [label];
-    for (const [name, id, icon, toolMode] of ANNOTATION_TOOLS) items.push(stripButton(name, icon, () => useTool(current(), id), { pressed: mode === toolMode, disabled: !available(s, id) }));
+    // The comment tool is Qingye's own note tool (shapes.mjs), so it shows as pressed while that runs.
+    for (const [name, id, icon, toolMode] of ANNOTATION_TOOLS) items.push(stripButton(name, icon, () => useTool(current(), id), { pressed: id === 'editorCommentButton' ? shape === 'note' : mode === toolMode, disabled: !available(s, id) }));
     if (shapes) {
       items.push(stripSep());
       for (const [kind, name, keyName] of SHAPES) items.push(stripButton(name, kind === 'line' ? 'minus' : kind === 'arrow' ? 'right' : 'shape', () => shapes.start(kind), { pressed: shape === kind, title: keyName ? `${name} · ${keyName}` : name }));
@@ -156,7 +157,7 @@ export function createChrome({ api, current, guard, navigation, status, shapes, 
     syncStrip();
     const s = current(), button = $('annotateButton');
     button.disabled = !s?.loaded || !!s.saving || !!s.view?.reflow;
-    const mode = editorMode(s), name = MODE_NAMES[mode];
+    const mode = editorMode(s), name = MODE_NAMES[mode] || (shapes?.active?.() === 'note' ? '评论' : '');
     button.classList.toggle('modeActive', !!name); button.querySelector('.label').textContent = name || '批注';
     if (name) { button.dataset.mode = '· ' + name; button.setAttribute('aria-label', `批注工具（当前：${name}）`); }
     else { delete button.dataset.mode; button.setAttribute('aria-label', '批注工具'); }
@@ -203,5 +204,7 @@ export function createChrome({ api, current, guard, navigation, status, shapes, 
     return s.pager;
   }
 
-  return { sync: syncAnnotate, attachPager, exitAnnotation, fullscreen, useTool, available, readerButton };
+  // Esc (shortcuts.mjs) ends whatever the strip shows: a shape or note tool, then the PDF.js editor mode.
+  const annotation = { active: s => !!s?.loaded && (editorMode(s) > 0 || !!shapes?.active?.()), exit: s => { if (shapes?.active?.()) shapes.stop(); exitAnnotation(s); syncAnnotate(); } };
+  return { sync: syncAnnotate, attachPager, exitAnnotation, fullscreen, useTool, available, readerButton, annotation };
 }

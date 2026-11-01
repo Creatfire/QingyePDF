@@ -49,7 +49,7 @@ exports.run=async({window,app,openFiles,samplePdf,output})=>{
   assert.deepEqual((await visible()).sort(),[pdfId,mdId].sort());assert.equal(await run('qingye.notes.active()'),true);report.linkInPlace=true;
 
   // Activating a third document replaces the pane of the same kind (PDF replaces PDF).
-  await run(`qingye.activate(${JSON.stringify(otherId)})`);assert.deepEqual(await run('qingye.notes.ids()'),[otherId,mdId]);assert.deepEqual((await visible()).sort(),[otherId,mdId].sort());
+  await run(`qingye.activate(${JSON.stringify(otherId)})`);await until(`JSON.stringify(qingye.notes.ids())===${JSON.stringify(JSON.stringify([otherId,mdId]))}`,'pane swap');assert.deepEqual(await run('qingye.notes.ids()'),[otherId,mdId]);assert.deepEqual((await visible()).sort(),[otherId,mdId].sort());
   await run(`qingye.activate(${JSON.stringify(pdfId)})`);assert.deepEqual(await run('qingye.notes.ids()'),[pdfId,mdId]);report.replacePane=true;
 
   // AI tools: both panes are listed with their side, either can be read, and the note can be written

@@ -33,7 +33,16 @@ export function createTaskCenter({ api, guard, status, activate }) {
   pill.onclick = () => { panel.togglePopover(); placePanel(); draw(); };
   panel.querySelector('#taskClear').onclick = () => { tasks = tasks.filter(t => t.status === 'running' || t.status === 'queued'); save(); draw(); };
   const save = () => persist(tasks.filter(t => !['running', 'queued'].includes(t.status)).map(({ id, label, doc, status: st, note, summary, path, started, finished, items }) => ({ id, label, doc, status: st, note, summary, path, started, finished, items: (items || []).slice(0, 20) })));
-  function placePanel() { const r = pill.getBoundingClientRect(); panel.style.right = Math.max(8, innerWidth - r.right) + 'px'; panel.style.bottom = Math.max(8, innerHeight - r.top + 6) + 'px'; }
+  function placePanel() {
+    // 0.22: with no running task the status-bar pill is hidden; the panel then opens beside the
+    // 任务 button of the left rail instead of being measured from an empty rectangle.
+    const rail = document.getElementById('railTasks');
+    if (pill.hidden && rail && rail.offsetParent) {
+      const r = rail.getBoundingClientRect(); panel.style.right = 'auto'; panel.style.left = Math.round(r.right + 8) + 'px';
+      panel.style.bottom = Math.max(8, innerHeight - r.bottom) + 'px'; return;
+    }
+    const r = pill.getBoundingClientRect(); panel.style.left = 'auto'; panel.style.right = Math.max(8, innerWidth - r.right) + 'px'; panel.style.bottom = Math.max(8, innerHeight - r.top + 6) + 'px';
+  }
   const elapsed = t => { const s = Math.round(((t.finished || Date.now()) - t.started) / 1000); return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${s % 60} 秒`; };
 
   function draw() {

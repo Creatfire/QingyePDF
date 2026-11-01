@@ -9,6 +9,9 @@ export function createShortcuts(ctx) {
     const notes = ctx.notes(), library = ctx.library(), ai = ctx.ai();
     if (event.key === 'Escape') {
       if ($('viewPanel').matches(':popover-open')) { $('viewPanel').hidePopover(); event.preventDefault(); event.stopImmediatePropagation(); return; }
+      // 0.22: the annotation strip says "Esc 退出"; a text field or an open editor keeps its own Esc.
+      const annotation = ctx.annotation?.();
+      if (annotation?.active(s) && !event.target?.closest?.('input,textarea,[contenteditable="true"],.qyNoteInput,dialog,[popover]')) { event.preventDefault(); event.stopImmediatePropagation(); annotation.exit(s); return; }
       api.exitFullscreen().catch(console.warn);
     }
     const ctrl = event.ctrlKey || event.metaKey;
@@ -16,7 +19,7 @@ export function createShortcuts(ctx) {
     if (ctrl && (event.code === 'KeyZ' || event.code === 'KeyY') && !event.target.closest('input,textarea,[contenteditable=true]')) { event.preventDefault(); event.stopImmediatePropagation(); guard(() => historyStep(event.code === 'KeyY' || event.shiftKey)); return; }
     let action;
     if (ctrl && event.code === 'KeyO') action = () => open();
-    if (ctrl && !event.shiftKey && event.code === 'Backslash' && notes) action = () => notes.toggle();
+    if (ctrl && !event.shiftKey && event.code === 'Backslash' && notes) action = () => (isMd(s) || !$('pdfNotesButton')?.offsetParent ? notes.toggle() : notes.toggle($('pdfNotesButton'), true));
     if (ctrl && event.shiftKey && event.code === 'KeyE' && s?.loaded && !isMd(s) && notes?.notesFor(s)) action = () => notes.excerptSelection(s);
     if (ctrl && event.shiftKey && event.code === 'KeyU' && notes?.pdfOfSplit()) action = () => notes.pickRegion();
     if (ctrl && event.shiftKey && !event.altKey && event.code === 'KeyF' && library) action = () => library.open();

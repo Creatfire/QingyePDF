@@ -10,7 +10,7 @@ const { app, BrowserWindow, Menu, dialog, shell, ipcMain } = require('electron')
  *   startup), isMac, acrylicSupported, offscreen, showOnReady, relaunched, canClose.
  */
 function createWindowShell(ctx) {
-  const { T, command, fail, preferences, persist, normalizeWindowStyle, isMac, offscreen, acrylicSupported, relaunched, canClose, hideOnClose = () => false } = ctx;
+  const { T, command, fail, preferences, isMac, offscreen, acrylicSupported, relaunched, canClose, hideOnClose = () => false } = ctx;
   let style = ctx.style;
   let window, relaunchOnClose = false;
   const drawnCaption = () => false; // 0.22: one interface style; native window buttons on every platform

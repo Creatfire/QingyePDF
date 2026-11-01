@@ -145,7 +145,7 @@ const draft = createDraftRecovery({ api, sessions, isMd, viewState, syncDirty, c
 // Home page: the recent list (recent-list.mjs).
 const recent = createRecentList({ api, guard, addDocuments, $ });
 // Keyboard shortcuts, and the commands the main process pushes into the window.
-const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai , palette: () => palette, tools });
+const shortcuts = createShortcuts({ $, api, guard, sessions, current, activeId: () => activeId, isMd, activate, nextTab, closeTab, open, newMarkdown, reviewSave, historyStep: history.step, readingTrail, notes: () => notes, library: () => library, markdown, navigation, ai: () => ai , palette: () => palette, tools, annotation: () => chrome.annotation });
 const commands = createCommands({ $, sessions, current, activeId: () => activeId, isMd, open, addDocuments, status, message, officeProgress, reconvertOffice, reviewSave, closeTab, closeApp, closeWindow, nextTab, newMarkdown, markdown, navigation, chrome, windowStyle });
 // The PDF toolbar's menus, pinned tools and overflow (toolbar.mjs), and the command palette (0.21).
 toolbar = createToolbar({ $, guard, status, current: currentPdf, sessions: pdfSessions, tools, pageManager, direct, history, print: () => commands.run('print') });
@@ -502,14 +502,6 @@ async function closeWindow() {
   try { for (const id of [...sessions.keys()]) if (!await closeTab(id)) return false; if (last.length) await api.finishSession(last,selected); await api.windowControl('hide'); return true; }
   finally { closingApp = false; }
 }
-// Settings → Interface style → "Restart now": the usual close flow (unsaved documents are asked about),
-// then the main process starts Qingye again and the new instance reopens these tabs.
-async function restartApp() {
-  await api.relaunchOnClose?.(true);
-  let closed = false;
-  try { closed = await closeApp(); } finally { if (!closed) await api.relaunchOnClose?.(false).catch(() => {}); }
-  return closed;
-}
 function nextTab(direction = 1) {
   const ids = [...sessions.keys()]; if (!ids.length) return;
   const index = ids.indexOf(activeId); activate(ids[(index + direction + ids.length) % ids.length]);
@@ -547,7 +539,7 @@ const restoreButton=document.createElement('button');restoreButton.id='restoreBu
 (api.lastSessionCount?.()??Promise.resolve(1)).then(n=>{restoreButton.hidden=!n;if(n){restoreButton.title=`重新打开上次关闭时的 ${n} 个标签`;restoreButton.querySelector('small').textContent=`上次关闭时的 ${n} 个标签`;}}).catch(()=>{restoreButton.hidden=false;restoreButton.querySelector('small').textContent='重新打开上次关闭时的标签';});
 const recoveryBox=document.createElement('section');recoveryBox.id='recoveryBox';document.getElementById('home').prepend(recoveryBox);
 api.recoveryList().then(items=>{for(const item of items){const row=document.createElement('div');row.className='recoveryRow';const label=document.createElement('span');label.textContent=`发现未正常关闭的会话：${item.names.join('、')}（${item.drafts} 份草稿）`;row.append(label);for(const [text,action] of [['恢复',async()=>{await addDocuments(await api.restoreSession(item.token));row.remove();}],['删除备份',async()=>{await api.discardRecovery(item.token);row.remove();}]]){const b=document.createElement('button');b.textContent=text;b.onclick=()=>guard(action);row.append(b);}recoveryBox.append(row);}}).catch(console.warn);
-const settings = createSettings({ api, guard, status, markdown, refreshRecent: recent.refresh, version: () => productVersion, windowStyle: windowStyle.info, restart: restartApp,
+const settings = createSettings({ api, guard, status, markdown, refreshRecent: recent.refresh, version: () => productVersion,
   theme: {
     mode: theme.mode, set: theme.setMode,
   } });

@@ -17,7 +17,7 @@ body.isFullscreen > .rail { display: none; }
 .rail .railItem { position: relative; flex: none; width: 56px; min-height: 52px; padding: 7px 0 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; border-radius: var(--radius); background: none; color: var(--muted); font-size: var(--fs-xs); line-height: 1.2; --icon-size: 20px; }
 .rail .railItem:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
 .rail .railItem[aria-current="page"] { background: var(--active); color: var(--accent); font-weight: 600; }
-.rail .railItem .label { white-space: nowrap; }
+.rail .railItem .label { white-space: nowrap; max-width: 60px; overflow: hidden; text-overflow: ellipsis; }
 .rail .railGrow { flex: 1; min-height: var(--s3); }
 .rail .railBadge { position: absolute; top: 4px; right: 9px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent); color: var(--on-accent); font-size: var(--fs-xs); line-height: 16px; font-weight: 600; text-align: center; }
 .rail .railItem[hidden], .rail .railBadge[hidden] { display: none; }
@@ -41,7 +41,7 @@ body:not([data-mode="md"]) .titlebarTools .mdOnly { display: none; }
 .annotStrip button:hover:not(:disabled) { background: var(--hover); }
 .annotStrip button[aria-pressed="true"] { background: var(--active); color: var(--accent); }
 .annotStrip .stripSep { flex: none; width: 1px; height: 20px; margin: 0 var(--s1); background: var(--line); }
-.annotStrip .stripEnd { margin-left: auto; display: flex; align-items: center; gap: var(--s2); }
+.annotStrip .stripEnd { margin-left: var(--s4); padding-left: var(--s3); border-left: 1px solid var(--line); display: flex; align-items: center; gap: var(--s2); }
 .annotStrip .stripHint { color: var(--muted); font-size: var(--fs-sm); white-space: nowrap; }
 
 /* ——— Status bar: message left, page navigator in the middle, tasks and file name right ——— */

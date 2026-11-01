@@ -15,3 +15,6 @@
 2054	Search commands, tools, this document and all documents · Ctrl+Shift+P	搜尋：命令、工具、目前文件和所有文件 · Ctrl+Shift+P	検索：コマンド、ツール、現在の文書、すべての文書 · Ctrl+Shift+P	검색: 명령, 도구, 현재 문서 및 모든 문서 · Ctrl+Shift+P
 2055	Library: search every PDF and note you have opened · Ctrl+Shift+F	文件庫：在所有開啟過的 PDF 和筆記中搜尋 · Ctrl+Shift+F	ライブラリ：開いたことのあるすべての PDF とノートを検索 · Ctrl+Shift+F	문서 라이브러리: 열었던 모든 PDF와 노트에서 검색 · Ctrl+Shift+F
 2056	Actions for selected annotations	選取註解的操作	選択した注釈の操作	선택한 주석 작업
+2057	Add tag:	加標籤：	タグを追加：	태그 추가:
+2058	Remove:	移除：	削除：	제거:
+2059	Remove tag:	移除標籤：	タグを削除：	태그 제거:

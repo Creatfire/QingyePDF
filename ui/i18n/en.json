@@ -2043,9 +2043,16 @@
     "整理与导出": "Organize and export",
     "搜索：命令、工具、当前文档和所有文档 · Ctrl+Shift+P": "Search commands, tools, this document and all documents · Ctrl+Shift+P",
     "文档库：在所有打开过的 PDF 和笔记里搜索 · Ctrl+Shift+F": "Library: search every PDF and note you have opened · Ctrl+Shift+F",
-    "选中批注的操作": "Actions for selected annotations"
+    "选中批注的操作": "Actions for selected annotations",
+    "加标签：": "Add tag:",
+    "去掉：": "Remove:",
+    "去掉标签：": "Remove tag:"
   },
   "patterns": [
+    [
+      "^改为 (#[0-9a-fA-F]{6})$",
+      "Change to $1"
+    ],
     [
       "^在当前文档中查找“(.+)”$",
       "Find “$1” in this document"
@@ -2521,6 +2528,18 @@
     [
       "^工作区名称（会记住打开的文档、笔记模式的搭配和当前标签）：\\s*(.+)$",
       "Workspace name (remembers the open documents, the notes-mode pair and the active tab): $1"
+    ],
+    [
+      "^加标签：\\s*(.+)$",
+      "Add tag: $1"
+    ],
+    [
+      "^去掉：\\s*(.+)$",
+      "Remove: $1"
+    ],
+    [
+      "^去掉标签：\\s*(.+)$",
+      "Remove tag: $1"
     ]
   ]
 }
