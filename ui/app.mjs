@@ -311,7 +311,7 @@ document.addEventListener('webviewerloaded', event => {
   });
 });
 async function addDocument(info) {
-  if (sessions.has(info.id)) { activate(info.id); return; }
+  if (sessions.has(info.id)) { sessions.get(info.id).thumbCaptured = null; activate(info.id); return; }
   if (info.kind === 'markdown') {
     if (typeof info.text !== 'string') return;
     const placeholder = { ...info, kind: 'markdown', loaded: false, dirty: false, panel: document.createElement('div') };
@@ -325,6 +325,8 @@ async function addDocument(info) {
     } catch (error) { sessions.delete(info.id); await api.closeDocument(info.id, info.state).catch(() => {}); activate(null); throw error; }
     return;
   }
+  // Already open, but its tab is still queued in an earlier batch: that batch brings it up.
+  if (!info.bytes) return;
   const panel = document.createElement('div'); panel.className = 'viewerPanel';
   const frame = document.createElement('iframe'); frame.title = info.name;
   frame.src = '../vendor/pdfjs/web/viewer.html?file=';

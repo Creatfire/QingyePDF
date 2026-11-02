@@ -148,7 +148,9 @@ function persist() {
   });
   return preferenceQueue;
 }
-function remember(record, state = record.state) {
+// `touch` moves the document to the front of the recent list: only reading it does that. Background
+// saves of the view state (draft checkpoints, closing a tab) update the entry where it is.
+function remember(record, state = record.state, { touch = true } = {}) {
   if (!record.path) return;
   if (record.kind === 'markdown') {
     const s = state && typeof state === 'object' ? state : {};
@@ -174,8 +176,17 @@ function remember(record, state = record.state) {
     chapter: typeof state.chapter === 'string' ? state.chapter.slice(0, 200) : '',
     bookmarks: Array.isArray(state.bookmarks) ? state.bookmarks.filter(b=>Number.isInteger(b.page)&&b.page>0&&typeof b.title==='string').slice(0,10000).map(b=>({page:Math.min(1000000,b.page),title:b.title.slice(0,200)})) : [],
   } : {};
+  // A document removed from the list while open stays out of it until it is opened again.
+  if (!touch || (record.forgotten && key(record.forgotten) === key(record.path))) {
+    const entry = preferences.recent.find(r => key(r.path) === key(record.path));
+    if (entry) entry.state = record.state;
+    return;
+  }
   preferences.recent = [{ path: record.path, name: record.name, state: record.state, opened: Date.now() }, ...preferences.recent.filter(r => key(r.path) !== key(record.path))].slice(0, 30);
 }
+/** Pinned and workspace files stay on the shelf after leaving the recent list, so they keep their cover. */
+const onShelf = file => [...(preferences.pinned || []), ...(preferences.workspaces || []).flatMap(w => w.items)].some(item => key(item.path) === key(file));
+const markForgotten = (record, file) => { if (key(record.source || record.path || '') === key(file)) record.forgotten = file; };
 // Word / Excel / PowerPoint and other office files open as an unsaved PDF converted by LibreOffice
 // (downloaded on first use); the original file is never modified and Save asks where to write the PDF.
 // The whole conversion domain (jobs, progress cards, re-convert, idle warm-up) lives in office-task.cjs.
@@ -187,9 +198,18 @@ async function confirmEngine(pkg) {
 }
 const office = createOfficeTasks({ app, T, TF, command, documents, metadata, documentById, preferences, persist, key, watchFile, officeConvert, confirmEngine, fetch: (url, options) => session.fromPartition('qingye-engine-download').fetch(url, { ...options, cache: 'no-store' }), quiet: smoke || safety || benchmark });
 async function openFiles(files) {
-  const opened = [];
   // Every Office file gets its progress card at once, so a batch shows its whole queue.
-  const jobs = new Map(files.filter(file => officeConvert.isOffice(file)).map(file => [file, office.newJob(file)]));
+  const officeFiles = files.filter(file => officeConvert.isOffice(file)), others = files.filter(file => !officeConvert.isOffice(file));
+  const jobs = new Map(officeFiles.map(file => [file, office.newJob(file)]));
+  // A conversion can take minutes (the first one downloads the engine): the rest of the batch doesn't wait for it.
+  if (officeFiles.length && others.length) {
+    openBatch(officeFiles, jobs).then(opened => { if (opened.length) command('opened', opened); }).catch(error => console.warn('Office batch:', error.message));
+    return openBatch(others, jobs);
+  }
+  return openBatch(files, jobs);
+}
+async function openBatch(files, jobs) {
+  const opened = [];
   for (const candidate of files) {
     try {
       const markdown = typeof candidate === 'string' && markdownFiles.isMarkdown(candidate);
@@ -198,7 +218,7 @@ async function openFiles(files) {
       const file = await fs.realpath(candidate);
       if (isOfficeFile) { opened.push(await office.open(file, jobs.get(candidate))); continue; }
       let record = [...documents.values()].find(r => r.path && key(r.path) === key(file));
-      if (record) { opened.push(metadata(record)); continue; }
+      if (record) { if (record.forgotten) { record.forgotten = null; remember(record); } opened.push(metadata(record)); continue; }
       if (markdown) {
         const raw = await fs.readFile(file), decoded = markdownFiles.decodeMarkdown(raw);
         record = { id: randomUUID(), kind: 'markdown', name: path.basename(file), path: file, hash: digest(raw), encoding: decoded.encoding, bom: decoded.bom, eol: decoded.eol, state: preferences.recent.find(r => key(r.path) === key(file))?.state || {} };
@@ -280,7 +300,7 @@ app.whenReady().then(async () => {
   handle('assoc-unregister', () => associations.unregister());
   handle('assoc-choose', kind => associations.choose(String(kind)));
   handle('assoc-open-settings', () => associations.openSettings());
-  handle('recent-clear', async () => { preferences.recent = []; recentTokens.clear(); await persist(); await home?.clear(); return true; });
+  handle('recent-clear', async () => { for (const r of preferences.recent) for (const record of documents.values()) markForgotten(record, r.path); preferences.recent = []; recentTokens.clear(); await persist(); await home?.clear(onShelf); return true; });
   handle('open-data-folder', async () => { const error = await shell.openPath(app.getPath('userData')); if (error) throw new Error(error); return true; });
   handle('open', async () => {
     const result = await dialog.showOpenDialog(window, { title: T('打开文档'), filters: [{ name: T('所有支持的文档'), extensions: ['pdf', ...markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1)), ...[...officeConvert.OFFICE_EXTENSIONS].map(e => e.slice(1))] }, { name: T('PDF 文档'), extensions: ['pdf'] }, { name: T('Office 文档（以 PDF 打开）'), extensions: [...officeConvert.OFFICE_EXTENSIONS].map(e => e.slice(1)) }, { name: T('Markdown 文档'), extensions: markdownFiles.MARKDOWN_EXTENSIONS.map(e => e.slice(1)) }], properties: ['openFile', 'multiSelections'] });
@@ -291,7 +311,7 @@ app.whenReady().then(async () => {
   office.register(handle);
   handle('checkpoint',async (items,activeId) => {
     if(!Array.isArray(items)||items.length>64)throw new Error('恢复标签数量过多。');
-    const entries=items.filter(item=>documents.has(item.id)).map(item=>{const r=documentById(item.id);remember(r,item.state);const markdown=r.kind==='markdown';return {id:r.id,name:r.name,path:r.path,hash:r.hash,state:r.state,dirty:!!item.dirty,...(markdown?{kind:'markdown'}:{}),...(markdown&&typeof item.text==='string'?{text:item.text,...(typeof item.history==='string'?{history:item.history}:{})}:!markdown&&item.bytes?{bytes:pdfBytes(item.bytes)}:{})};});
+    const entries=items.filter(item=>documents.has(item.id)).map(item=>{const r=documentById(item.id);remember(r,item.state,{touch:false});const markdown=r.kind==='markdown';return {id:r.id,name:r.name,path:r.path,hash:r.hash,state:r.state,dirty:!!item.dirty,...(markdown?{kind:'markdown'}:{}),...(markdown&&typeof item.text==='string'?{text:item.text,...(typeof item.history==='string'?{history:item.history}:{})}:!markdown&&item.bytes?{bytes:pdfBytes(item.bytes)}:{})};});
     await recovery.checkpoint(entries,activeId);await persist();return true;
   });
   handle('recovery-list',async () => {
@@ -439,7 +459,7 @@ app.whenReady().then(async () => {
     return { id: token, name: item.name, path: item.path, kind, ext: path.extname(item.path).slice(1).toLowerCase(), opened: Number(item.opened) || 0, page: kind === 'pdf' ? Number(item.state?.page) || 0 : 0 };
   }));
   // Home page: remove one entry from the recent list (the file itself is untouched).
-  handle('recent-remove', async id => { const file = recentTokens.get(id); if (!file) return false; preferences.recent = preferences.recent.filter(r => key(r.path) !== key(file)); recentTokens.delete(id); await persist(); await home?.forget(file); return true; });
+  handle('recent-remove', async id => { const file = recentTokens.get(id); if (!file) return false; preferences.recent = preferences.recent.filter(r => key(r.path) !== key(file)); recentTokens.delete(id); for (const record of documents.values()) markForgotten(record, file); await persist(); if (!onShelf(file)) await home?.forget(file); return true; });
   handle('open-recent', id => { const file = recentTokens.get(id); if (!file) throw new Error('最近文件不存在。'); return openFiles([file]); });
   handle('example', async () => {
     // The home page opens the illustrated feature guide (ui/sample-guide.pdf, built by
@@ -487,7 +507,7 @@ app.whenReady().then(async () => {
   // ——— 0.11.0: library search across the recent list, and reference details ———
   // Full-library search, DOI lookup and .bib export live in reference-ipc.cjs.
   // Workspaces and pinned documents (0.20) live in workspace-ipc.cjs; their files are searchable too.
-  home = homeIpc.register({ handle, app, preferences, recentTokens, documentById, key, markdownFiles, officeConvert, atomicWrite, fingerprint });
+  home = homeIpc.register({ handle, app, preferences, recentTokens, documentById, key, markdownFiles, officeConvert, atomicWrite, fingerprint, onShelf });
   const workspaces = workspaceIpc.register({ handle, preferences, persist, documents, documentById, openFiles, dialog, getWindow: () => window, key });
   referenceIpc.register({ handle, app, T, dialog, getWindow: () => window, preferences, recentTokens, documents, key, markdownFiles, atomicWrite, fingerprint, libraryFiles: workspaces.libraryFiles });
   handle('notes-markdown', (id,notes) => {const record=documentById(id);if(record.kind==='markdown')throw new Error('请选择 PDF 批注。');return newMarkdown(path.parse(record.name).name+'-批注笔记.md',notesMarkdown(record,notes)).map(info=>({...info,unsaved:true}));});
@@ -586,7 +606,7 @@ app.whenReady().then(async () => {
   handle('confirm-stale-result',async (name,label)=>{if(smoke||safety)return false;const result=await dialog.showMessageBox(window,{type:'warning',title:T('处理结果已过期'),message:TF('“{name}”在处理期间有新的修改。',{name:String(name||'').slice(0,200)}),detail:TF('应用“{label}”的结果会丢弃处理期间的修改（可撤销）。',{label:String(label||'').slice(0,120)}),buttons:[T('放弃这次结果'),T('仍然应用')],defaultId:0,cancelId:0,noLink:true});return result.response===1;});
   handle('confirm-discard-edit',async name=>{const result=await dialog.showMessageBox(window,{type:'question',title:T('未应用的页面编辑'),message:name?TF('“{name}”的页面编辑尚未应用。是否放弃并继续？',{name:String(name).slice(0,200)}):T('当前页面编辑尚未应用。是否放弃并继续？'),buttons:[T('继续编辑'),T('放弃未应用内容')],defaultId:0,cancelId:0,noLink:true});return result.response===1;});
   handle('remember', async (id, state) => {const record=documents.get(id);if(record){remember(record, state); await persist();} });
-  handle('close-document', async (id, state) => { const record = documentById(id); if (record.saving) throw new Error('正在保存，请稍后关闭。'); remember(record, state); unwatchMarkdown(id);closedDocuments.set(id,record); documents.delete(id);await recovery.checkpoint(recovery.entries.filter(e=>e.id!==id),null); await persist().catch(error => console.warn('Reading state:', error.message)); });
+  handle('close-document', async (id, state) => { const record = documents.get(id); if (!record) return; if (record.saving) throw new Error('正在保存，请稍后关闭。'); remember(record, state, { touch: false }); unwatchMarkdown(id);closedDocuments.set(id,record); documents.delete(id);await recovery.checkpoint(recovery.entries.filter(e=>e.id!==id),null); await persist().catch(error => console.warn('Reading state:', error.message)); });
   ipcMain.on('finish-close', async event => { if (event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame || finishingClose) return; finishingClose = true; await converterLifecycle?.shutdown(); await preferenceQueue.catch(() => {}); allowClose = true;
     // "Restart now" in Settings → Interface style. The portable exe runs from a temporary folder, so
     // restart the portable launcher instead; --qingye-relaunch restores the tabs that were just closed.

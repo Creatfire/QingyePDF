@@ -40,7 +40,7 @@ function createOfficeTasks(ctx) {
   async function open(file, job = newJob(file)) {
     try {
       const existing = [...documents.values()].find(r => r.source && key(r.source) === key(file));
-      if (existing) { progress({ id: job.id, stage: 'done', text: T('已打开') }); return metadata(existing); }
+      if (existing) { if (existing.forgotten) { existing.forgotten = null; remember(file); } progress({ id: job.id, stage: 'done', text: T('已打开') }); return metadata(existing); }
       const result = await officeConvert.toPdf(file, { ...options(), signal: job.controller.signal, onProgress: p => progress({ id: job.id, name: job.name, ...p }) });
       const record = { id: randomUUID(), name: path.parse(file).name + '.pdf', path: null, hash: null, source: file, sourceDigest: result.digest, state: {} };
       documents.set(record.id, record); remember(file); watchSource(record);

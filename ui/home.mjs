@@ -313,7 +313,7 @@ export function createHome({ api, guard, status, sessions, isMd, $, open, newMar
     const scale = Math.min(472 / base.width, 640 / base.height), viewport = page.getViewport({ scale, rotation: (page.rotate + viewer.pagesRotation) % 360 });
     const canvas = s.frame.contentDocument.createElement('canvas'); canvas.width = Math.ceil(viewport.width); canvas.height = Math.ceil(viewport.height);
     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-    await api.homeThumbPut(s.id, number, canvas.toDataURL('image/jpeg', .78));
+    if (!await api.homeThumbPut(s.id, number, canvas.toDataURL('image/jpeg', .78))) return false;
     s.thumbCaptured = number;
     return true;
   }

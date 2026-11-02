@@ -8,7 +8,7 @@ exports.run=async({window,app,openFiles,samplePdf,output})=>{
   const until=async(code,label=code)=>{for(let n=0;n<200;n++){if(await run(code))return;await pause(100);}throw Error('home check timed out: '+label);};
   const text=id=>run(`document.getElementById(${JSON.stringify(id)}).innerText`);
   const noOverflow=()=>run(`(()=>{const h=document.getElementById('home');return h.scrollWidth<=h.clientWidth&&document.documentElement.scrollWidth<=innerWidth})()`);
-  const report={version:app.getVersion(),emptyState:false,reading:false,shelf:false,notesAndExcerpts:false,input:false,narrow:false,languages:false,forget:false};
+  const report={version:app.getVersion(),emptyState:false,reading:false,shelf:false,notesAndExcerpts:false,input:false,narrow:false,languages:false,recentOrder:false,forget:false};
 
   // 1. Nothing opened yet: the empty state offers the three ways in, and the page stays in its width.
   await run('qingye.activate(null);qingye.home.refresh()');await until(`!document.getElementById('homeEmpty').hidden`,'empty state');
@@ -89,7 +89,20 @@ exports.run=async({window,app,openFiles,samplePdf,output})=>{
   assert.match(await text('homeReading'),/Page 1 of 2/);assert.match(await text('homeReading'),/Continue from page 1/);
   await run(`qingye.i18n.setLanguage('zh-CN',{remember:false})`);await run('qingye.home.refresh()');await pause(150);report.languages=true;
 
-  // 8. Forgetting a recent entry forgets its page image and its quoted text.
+  // 8. Only reading reorders the list: a draft checkpoint leaves it alone, and a document removed while open stays out until reopened.
+  const names=()=>run(`desktop.recent().then(list=>list.map(x=>x.name))`);
+  await run(`qingye.activate(${JSON.stringify(second.id)})`);await pause(200);await run('qingye.activate(null)');await pause(200);
+  const order=await names();assert.equal(order[0],'Quokka handbook.pdf');
+  await run('qingye.checkpoint()');assert.deepEqual(await names(),order);
+  await run(`desktop.recent().then(list=>desktop.recentRemove(list.find(x=>x.name==='Quokka handbook.pdf').id))`);
+  await run(`qingye.activate(${JSON.stringify(second.id)})`);await pause(200);await run('qingye.activate(null)');await pause(200);await run('qingye.checkpoint()');
+  assert.equal((await names()).includes('Quokka handbook.pdf'),false);
+  await add([other]);await run('qingye.activate(null)');await pause(200);assert.equal((await names())[0],'Quokka handbook.pdf');
+  // An open file whose tab is still queued comes back without bytes: no empty tab, no error.
+  await run(`qingye.addDocuments([{id:'queued',name:'queued.pdf',path:'/queued.pdf',state:{}}])`);assert.equal(await run(`qingye.sessions.has('queued')`),false);
+  report.recentOrder=true;
+
+  // 9. Forgetting a recent entry forgets its page image and its quoted text.
   const id=await run(`qingye.home.feed.books.find(b=>b.name==='Zebrafish atlas.pdf').id`);
   assert.equal(await run(`desktop.homeThumb(${JSON.stringify(id)}).then(Boolean)`),true);
   await run(`qingye.closeTab(${JSON.stringify(first.id)})`);await run('qingye.activate(null)');await pause(200);

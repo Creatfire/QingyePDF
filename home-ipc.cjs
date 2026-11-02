@@ -78,11 +78,18 @@ function createHomeData({ directory, write, keyOf }) {
     await load(); index.thumbs = index.thumbs.filter(t => !same(t.path, file)); index.marks = index.marks.filter(m => !same(m.path, file));
     await fs.rm(thumbFile(file), { force: true }).catch(() => {}); await save();
   }
-  async function clear() { await load(); index = { thumbs: [], marks: [] }; await fs.rm(path.join(directory, 'thumbs'), { recursive: true, force: true }).catch(() => {}); await save(); }
+  async function clear(keep = () => false) {
+    await load();
+    const thumbs = index.thumbs.filter(t => keep(t.path));
+    if (thumbs.length) { for (const t of index.thumbs) if (!keep(t.path)) await fs.rm(thumbFile(t.path), { force: true }).catch(() => {}); }
+    else await fs.rm(path.join(directory, 'thumbs'), { recursive: true, force: true }).catch(() => {});
+    index = { thumbs, marks: index.marks.filter(m => keep(m.path)) };
+    await save();
+  }
   return { putThumb, getThumb, putMarks, info, forget, clear };
 }
 
-function register({ handle, app, preferences, recentTokens, documentById, key, markdownFiles, officeConvert, atomicWrite, fingerprint }) {
+function register({ handle, app, preferences, recentTokens, documentById, key, markdownFiles, officeConvert, atomicWrite, fingerprint, onShelf }) {
   const write = async (file, bytes) => atomicWrite(file, Buffer.from(bytes), await fingerprint(file));
   const data = createHomeData({ directory: path.join(app.getPath('userData'), 'home'), write, keyOf: key });
   const tokenFor = file => { let token = [...recentTokens].find(([, p]) => p === file)?.[0]; if (!token) { token = randomUUID(); recentTokens.set(token, file); } return token; };
@@ -107,7 +114,7 @@ function register({ handle, app, preferences, recentTokens, documentById, key, m
   });
   handle('home-thumb', id => data.getThumb(fileOf(id)));
   // The window renders the page; only the path known for that open document is written for.
-  handle('home-thumb-put', async (documentId, page, dataUrl) => { const record = documentById(documentId), file = record.source || record.path; if (!file) return false; return data.putThumb(file, page, dataUrl); });
+  handle('home-thumb-put', async (documentId, page, dataUrl) => { const record = documentById(documentId), file = record.source || record.path; if (!file) return false; if (record.forgotten && key(record.forgotten) === key(file) && !onShelf(file)) return false; return data.putThumb(file, page, dataUrl); });
   handle('home-marks-put', async (id, sig, marks) => { await data.putMarks(fileOf(id), sig, marks); return true; });
   /** Previews of the most recent notes, and which PDF each one links back to. */
   handle('home-notes', async () => {
@@ -121,6 +128,6 @@ function register({ handle, app, preferences, recentTokens, documentById, key, m
     }
     return out;
   });
-  return { forget: file => data.forget(file), clear: () => data.clear() };
+  return { forget: file => data.forget(file), clear: keep => data.clear(keep) };
 }
 module.exports = { register, createHomeData, notePreview, cleanMarks, MAX_THUMBS };

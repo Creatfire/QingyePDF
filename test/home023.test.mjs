@@ -100,6 +100,9 @@ test('home store: at most 30 thumbnails, forgetting removes the files, concurren
     const kept = saved.thumbs[0].path;
     assert.equal(await again.getThumb(kept), jpeg);
     await again.forget(kept); assert.equal(await again.getThumb(kept), null);
+    await again.putThumb('/pinned.pdf', 1, jpeg); await again.putThumb('/other.pdf', 1, jpeg);
+    await again.clear(file => file === '/pinned.pdf');
+    assert.equal(await again.getThumb('/pinned.pdf'), jpeg); assert.equal(await again.getThumb('/other.pdf'), null);
     await again.clear(); assert.equal(existsSync(join(directory, 'thumbs')), false); assert.deepEqual((await again.info('/doc3.pdf')).marks, null);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

@@ -17,7 +17,7 @@ export function createOfficeProgress({ api, guard, status }) {
       const s = seconds(card);
       card.el.querySelector('.officeJobTime').textContent = s + ' 秒';
       // A long conversion is still working: say so instead of looking frozen.
-      if (s >= 30 && !card.slowShown && card.stage !== 'downloading' && card.stage !== 'installing') { card.slowShown = true; card.el.querySelector('.officeJobHint').textContent = '文件较大或较复杂，仍在转换，请稍候；也可以取消。'; }
+      if (s >= 30 && !card.slowShown && card.stage !== 'waiting' && card.stage !== 'downloading' && card.stage !== 'installing') { card.slowShown = true; card.el.querySelector('.officeJobHint').textContent = '文件较大或较复杂，仍在转换，请稍候；也可以取消。'; }
     }
     if (![...cards.values()].some(c => !FINISHED.has(c.stage))) { clearInterval(ticker); ticker = null; }
   }
