@@ -1,19 +1,24 @@
 {
   "app": "QingyePDF",
-  "version": "0.23.0-beta.1",
+  "version": "0.23.0",
   "renumberedFrom": "0.15.0",
   "supersedes": "v0.17.0 (abandoned broken line; archived on archive/0.17-broken-line)",
   "platform": [
-    "darwin"
+    "win32",
+    "darwin",
+    "android"
   ],
   "architecture": [
+    "x64",
     "arm64"
   ],
   "target": [
+    "nsis",
+    "zip",
     "dmg",
-    "zip"
+    "apk"
   ],
-  "artifactName": "QingyePDF-0.23.0-beta.1-mac-arm64.dmg",
+  "artifactName": "QingyePDF-0.23.0-Setup-x64.exe",
   "strategy": "reuse bundled official Pandoc engine with Qingye GUI",
   "pandocVersion": "3.12",
   "runtimePandocDependency": true,
@@ -26,7 +31,7 @@
     "MacOS (drawn traffic lights, rounded corners, glass; optional Windows 11 acrylic)"
   ],
   "acceptance": [
-    "0.23.0-beta.1: unsigned macOS arm64 test build; Windows and Intel Mac are not built for this beta."
+    "0.23.0: GitHub Actions builds Windows x64, macOS arm64 and Intel, and Android."
   ],
   "newFeatures": [
     "Home page redone: one input for files, content and commands; the reading card; a shelf; notes and excerpts; common tools"
@@ -34,21 +39,23 @@
   "engineeringChanges": [
     "home-ipc.cjs: page thumbnails (at most 30) and highlights kept in the user-data folder, forgotten with the recent entry",
     "Recent entries also store the page count and the current chapter",
-    "test/home-smoke.cjs and test/home023.test.mjs"
+    "test/home-smoke.cjs and test/home023.test.mjs",
+    "Home note previews drop a trailing incomplete UTF-8 sequence before decoding"
   ],
-  "buildRevision": "0.23.0-beta.1",
+  "buildRevision": "0.23.0",
   "fixes": [
     "See docs/history/CHANGELOG.md"
   ],
   "crossBuilt": false,
   "otherArtifacts": [
-    "QingyePDF-0.23.0-beta.1-mac-arm64.zip"
+    "QingyePDF-0.23.0-win-x64.zip",
+    "QingyePDF-0.23.0-mac-arm64.dmg",
+    "QingyePDF-0.23.0-mac-x64.dmg",
+    "QingyePDF-0.23.0-android.apk"
   ],
   "testSideCorrections": [],
   "pdfjsModified": true,
-  "notBuilt": [
-    "Android, Windows and Intel Mac were not built for 0.23.0-beta.1"
-  ],
+  "notBuilt": [],
   "libreOffice": {
     "version": "26.2.6",
     "license": "MPL-2.0",

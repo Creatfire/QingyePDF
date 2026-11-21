@@ -1,6 +1,6 @@
-# 青页 PDF 0.23.0-beta.1 开发交接
+# 青页 PDF 0.23.0 开发交接
 
-测试版，基于 `ui-redesign-0.22`，只构建 macOS arm64（未签名）。改动见 [更新记录](../history/CHANGELOG.md)。
+基于 `homepage-mix-0.23`。发布标签 `v0.23.0` 由 GitHub Actions 构建 Windows 安装包与 ZIP、macOS arm64 与 Intel DMG、Android APK。改动见 [更新记录](../history/CHANGELOG.md)。
 
 | 位置 | 作用 |
 |---|---|
