@@ -34,11 +34,20 @@ function notePreview(text, fallback = '') {
     if (line && body.length < 2) body.push(line.slice(0, 160));
   }
   const link = /\]\(<?file:\/\/([^)>\s#]*)#page=\d+/.exec(String(text || ''));
-  let source = null;
-  if (link) { try { const file = fileURLToPath('file://' + link[1]); source = { name: path.basename(file), path: file }; } catch { /* a malformed link is simply not a source */ } }
-  return { title: title || fallback, lines: body, source };
+  return { title: title || fallback, lines: body, source: link ? sourceFromLink(link[1]) : null };
 }
 const plain = line => line.replace(/^\s*(?:>+\s*|[-*+]\s+|\d+[.)]\s+)*/, '').replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*_`~]+/g, '').replace(/\s+/g, ' ').trim();
+// Windows fileURLToPath rejects a file URL with no drive letter. The name is only shown on the
+// home page, so a link written on another system still yields a file name.
+function sourceFromLink(raw) {
+  try { const file = fileURLToPath('file://' + raw); return { name: path.basename(file), path: file }; }
+  catch (error) {
+    if (error.code !== 'ERR_INVALID_FILE_URL_PATH') return null;
+    let pathname; try { pathname = decodeURIComponent(raw); } catch { return null; }
+    const name = pathname.split(/[/\\]/).filter(Boolean).pop();
+    return name ? { name, path: pathname } : null;
+  }
+}
 
 /** Validates what the window read from a PDF. */
 function cleanMarks(marks) {

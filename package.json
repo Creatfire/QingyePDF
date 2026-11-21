@@ -1,6 +1,6 @@
 {
   "name": "qingye-pdf",
-  "version": "0.23.1",
+  "version": "0.23.2",
   "description": "Local-first open-source PDF reader with tabs and annotations",
   "author": "Qingye PDF contributors",
   "license": "AGPL-3.0-only",
@@ -165,7 +165,7 @@
       "artifactName": "QingyePDF-${version}-Setup-x64.${ext}"
     },
     "extraMetadata": {
-      "buildRevision": "0.23.1"
+      "buildRevision": "0.23.2"
     },
     "afterPack": "scripts/after-pack.cjs",
     "mac": {
