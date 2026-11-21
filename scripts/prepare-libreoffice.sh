@@ -4,10 +4,10 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 [ "$(uname -s)" = Darwin ] || { echo 'This script requires macOS.' >&2; exit 1; }
-version=26.2.6
+version=26.2.7
 case "${QINGYE_ARCH:-$(uname -m)}" in
-  arm64|aarch64) arch=aarch64; sum=94bb3248df074c225490a8a6d1d9dc87c7d6783dbb7a8e9f0d0c3d94348552af ;;
-  x86_64|x64) arch=x86-64; sum=135b8a95b8133396d54bf8e726dbc0066145efa0d785963fc3d4592acbfcfe5b ;;
+  arm64|aarch64) arch=aarch64; sum=58601808ae2b919c82dc7c4d6a26389de0e167f344ca48e5b6c9189218eb95ae ;;
+  x86_64|x64) arch=x86-64; sum=26a830205c617cc624b2a83783ef46434a4d6c337c3a873f79c43012171f83de ;;
   *) echo 'Unsupported architecture.' >&2; exit 1 ;;
 esac
 asset="LibreOffice_${version}_MacOS_${arch}.dmg"

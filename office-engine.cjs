@@ -11,12 +11,12 @@ const os = require('node:os');
 const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 
-const VERSION = '26.2.6';
+const VERSION = '26.2.7';
 const BASE = `https://download.documentfoundation.org/libreoffice/stable/${VERSION}/`;
 const PACKAGES = {
-  'darwin-arm64': { file: `LibreOffice_${VERSION}_MacOS_aarch64.dmg`, dir: 'mac/aarch64', sha256: '94bb3248df074c225490a8a6d1d9dc87c7d6783dbb7a8e9f0d0c3d94348552af', size: 297798926, installed: 800 * 1024 * 1024 },
-  'darwin-x64': { file: `LibreOffice_${VERSION}_MacOS_x86-64.dmg`, dir: 'mac/x86_64', sha256: '135b8a95b8133396d54bf8e726dbc0066145efa0d785963fc3d4592acbfcfe5b', size: 308308875, installed: 800 * 1024 * 1024 },
-  'win32-x64': { file: `LibreOffice_${VERSION}_Win_x86-64.msi`, dir: 'win/x86_64', sha256: 'f9877032fd908beb9c0ddf06df4af5c2e85f419c42e14876c4cce5aae5fb2660', size: 373252096, installed: 640 * 1024 * 1024 },
+  'darwin-arm64': { file: `LibreOffice_${VERSION}_MacOS_aarch64.dmg`, dir: 'mac/aarch64', sha256: '58601808ae2b919c82dc7c4d6a26389de0e167f344ca48e5b6c9189218eb95ae', size: 297813809, installed: 800 * 1024 * 1024 },
+  'darwin-x64': { file: `LibreOffice_${VERSION}_MacOS_x86-64.dmg`, dir: 'mac/x86_64', sha256: '26a830205c617cc624b2a83783ef46434a4d6c337c3a873f79c43012171f83de', size: 308070986, installed: 800 * 1024 * 1024 },
+  'win32-x64': { file: `LibreOffice_${VERSION}_Win_x86-64.msi`, dir: 'win/x86_64', sha256: '480fecf759fc6393bd614fbf43753eb95a8198fc1a065d41b727e3b664cd1e59', size: 373121024, installed: 640 * 1024 * 1024 },
 };
 const packageFor = (platform = process.platform, arch = process.arch) => PACKAGES[`${platform}-${arch}`] || null;
 const packageUrl = pkg => BASE + pkg.dir + '/' + pkg.file;

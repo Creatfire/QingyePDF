@@ -5,8 +5,8 @@
 # Result: vendor/libreoffice/{program,share,...}, plus manifest.json. Not committed (see .gitignore).
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'  # the 5.1 progress bar makes large downloads very slow
-$version = '26.2.6'
-$sha256 = 'f9877032fd908beb9c0ddf06df4af5c2e85f419c42e14876c4cce5aae5fb2660'
+$version = '26.2.7'
+$sha256 = '480fecf759fc6393bd614fbf43753eb95a8198fc1a065d41b727e3b664cd1e59'
 $msiName = "LibreOffice_${version}_Win_x86-64.msi"
 $url = "https://download.documentfoundation.org/libreoffice/stable/$version/win/x86_64/$msiName"
 

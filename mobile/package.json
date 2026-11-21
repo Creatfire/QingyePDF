@@ -1,6 +1,6 @@
 {
   "name": "qingye-pdf-mobile",
-  "version": "0.23.0",
+  "version": "0.23.1",
   "private": true,
   "description": "Qingye PDF for Android (Capacitor shell around the shared ui/)",
   "license": "AGPL-3.0-only",
