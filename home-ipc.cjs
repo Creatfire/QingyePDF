@@ -8,6 +8,17 @@ const { createHash, randomUUID } = require('node:crypto');
 const { fileURLToPath } = require('node:url');
 
 const MAX_THUMBS = 30, MAX_MARKS = 40, MAX_THUMB_BYTES = 1024 * 1024, MAX_NOTES = 10, NOTE_HEAD = 64 * 1024;
+// A preview reads only the head of a note. Cutting a UTF-8 file mid-character makes the whole head
+// look like GB18030, so drop an unfinished sequence at the end before decoding.
+function previewBuffer(buffer, truncated) {
+  if (!truncated || !buffer.length) return buffer;
+  let i = buffer.length - 1, cont = 0;
+  while (i >= 0 && cont < 3 && (buffer[i] & 0xc0) === 0x80) { i--; cont++; }
+  if (i < 0) return buffer.subarray(0, 0);
+  const lead = buffer[i];
+  const need = (lead & 0x80) === 0 ? 1 : (lead & 0xe0) === 0xc0 ? 2 : (lead & 0xf0) === 0xe0 ? 3 : (lead & 0xf8) === 0xf0 ? 4 : 0;
+  return !need || i + need > buffer.length ? buffer.subarray(0, i) : buffer;
+}
 const MAX_HIGHLIGHTS = 40, MAX_HIGHLIGHT_CHARS = 240;
 
 /** Title, the first two lines of text, and the first PDF the note links back to. */
@@ -122,7 +133,7 @@ function register({ handle, app, preferences, recentTokens, documentById, key, m
     for (const item of preferences.recent.filter(r => markdownFiles.isMarkdown(r.path)).slice(0, MAX_NOTES)) {
       try {
         const handleFile = await fs.open(item.path, 'r');
-        try { const buffer = Buffer.alloc(NOTE_HEAD), { bytesRead } = await handleFile.read(buffer, 0, NOTE_HEAD, 0); out.push({ id: tokenFor(item.path), name: item.name, path: item.path, opened: Number(item.opened) || 0, ...notePreview(markdownFiles.decodeMarkdown(buffer.subarray(0, bytesRead)).text, item.name.replace(/\.[^.]+$/, '')) }); }
+        try { const buffer = Buffer.alloc(NOTE_HEAD), { bytesRead } = await handleFile.read(buffer, 0, NOTE_HEAD, 0); const head = buffer.subarray(0, bytesRead); out.push({ id: tokenFor(item.path), name: item.name, path: item.path, opened: Number(item.opened) || 0, ...notePreview(markdownFiles.decodeMarkdown(previewBuffer(head, bytesRead === NOTE_HEAD)).text, item.name.replace(/\.[^.]+$/, '')) }); }
         finally { await handleFile.close(); }
       } catch { /* a moved note just has no preview */ }
     }
@@ -130,4 +141,4 @@ function register({ handle, app, preferences, recentTokens, documentById, key, m
   });
   return { forget: file => data.forget(file), clear: keep => data.clear(keep) };
 }
-module.exports = { register, createHomeData, notePreview, cleanMarks, MAX_THUMBS };
+module.exports = { register, createHomeData, notePreview, previewBuffer, cleanMarks, MAX_THUMBS };

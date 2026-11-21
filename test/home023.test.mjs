@@ -7,7 +7,8 @@ import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import { greetingFor, dateLabel, shelfCount, progressOf, pickReading, chapterForPage, flattenOutline, highlightText, pdfDate, readMarks, groupResults } from '../ui/home.mjs';
 const require = createRequire(import.meta.url);
-const { createHomeData, notePreview, cleanMarks, MAX_THUMBS } = require('../home-ipc.cjs');
+const { createHomeData, notePreview, previewBuffer, cleanMarks, MAX_THUMBS } = require('../home-ipc.cjs');
+const markdownFiles = require('../markdown-files.cjs');
 const root = new URL('../', import.meta.url);
 
 test('greeting and date follow the clock and the language', () => {
@@ -75,6 +76,14 @@ test('note preview: title, two lines, and the PDF it links back to', () => {
   assert.equal(p.source.name, '读 书.pdf');
   assert.equal(notePreview('plain text', 'name').title, 'name'); assert.equal(notePreview('', 'name').source, null);
   assert.equal(notePreview('[bad](file://%E0%A4%A#page=1)', 'n').source, null, 'a malformed link is not a source');
+});
+test('a preview cut through a UTF-8 character stays UTF-8', () => {
+  const bytes = Buffer.from('# 工程造价管理\n\n工厂运营表单', 'utf8');
+  const cut = bytes.subarray(0, 16);
+  assert.equal(markdownFiles.decodeMarkdown(cut).text.includes('工程'), false);
+  const text = markdownFiles.decodeMarkdown(previewBuffer(cut, true)).text;
+  assert.equal(text.startsWith('# 工程造价'), true);
+  assert.equal(previewBuffer(bytes, false).equals(bytes), true);
 });
 test('marks from the window are bounded and validated', () => {
   const many = Array.from({ length: 100 }, (_, i) => ({ page: i + 1, text: 'x'.repeat(1000), at: 5 }));
