@@ -1,6 +1,6 @@
-# 青页 PDF 0.23.2 开发交接
+# 青页 PDF 0.23.3 开发交接
 
-基于 `homepage-mix-0.23`。发布标签 `v0.23.2` 由 GitHub Actions 构建 Windows 安装包与 ZIP、macOS arm64 与 Intel DMG、Android APK。`v0.23.0` 的桌面构建因 LibreOffice 26.2.6 官方地址失效而没有安装包；`v0.23.1` 的 Windows 测试在没有盘符的 file 链接上失败。改动见 [更新记录](../history/CHANGELOG.md)。
+基于 `homepage-mix-0.23`。发布标签 `v0.23.3` 由 GitHub Actions 构建 Windows 安装包与 ZIP、macOS arm64 与 Intel DMG、Android APK。`v0.23.0` 的桌面构建因 LibreOffice 26.2.6 官方地址失效而没有安装包；`v0.23.1` 的 Windows 测试在没有盘符的 file 链接上失败；`v0.23.2` 的 Windows 冒烟测试在移动矩形后超时，没有安装包。改动见 [更新记录](../history/CHANGELOG.md)。
 
 | 位置 | 作用 |
 |---|---|

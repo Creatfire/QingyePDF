@@ -1,6 +1,6 @@
-# 青页 PDF 0.23.2 功能范围
+# 青页 PDF 0.23.3 功能范围
 
-当前交付是 Windows 10 / 11 x64 的安装版和安装目录 ZIP、macOS（Apple 芯片、Intel）的 DMG，以及 Android 0.23.2。Android 与桌面共用界面，本版由发布流程重新构建；触屏和系统集成仍以 [Android 说明](../platforms/ANDROID.md) 为准。操作说明见 [用户手册](../guide/USER-GUIDE.md)，验证与未测项见 [交接记录](../releases/HANDOFF.md)。
+当前交付是 Windows 10 / 11 x64 的安装版和安装目录 ZIP、macOS（Apple 芯片、Intel）的 DMG，以及 Android 0.23.3。Android 与桌面共用界面，本版由发布流程重新构建；触屏和系统集成仍以 [Android 说明](../platforms/ANDROID.md) 为准。操作说明见 [用户手册](../guide/USER-GUIDE.md)，验证与未测项见 [交接记录](../releases/HANDOFF.md)。
 
 ## 能力与限制
 

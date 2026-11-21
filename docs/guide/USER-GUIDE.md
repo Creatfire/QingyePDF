@@ -1,6 +1,6 @@
 # 青页 PDF 使用说明
 
-本文介绍 0.23.2 的使用方式（以 Windows 为例）。平台支持与验证状态见 [功能范围](../features/FEATURES.md)；macOS 和 Android 的构建与操作差异分别见 [macOS](../platforms/MACOS.md) 和 [Android](../platforms/ANDROID.md)。
+本文介绍 0.23.3 的使用方式（以 Windows 为例）。平台支持与验证状态见 [功能范围](../features/FEATURES.md)；macOS 和 Android 的构建与操作差异分别见 [macOS](../platforms/MACOS.md) 和 [Android](../platforms/ANDROID.md)。
 
 ## 安装与打开文件
 

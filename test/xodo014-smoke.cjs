@@ -169,8 +169,18 @@ exports.run = async ({ window, app, openFiles, samplePdf, output }) => {
   report.checks.presetSwatches = await run(`[...document.querySelectorAll('.shapeBar:not(.annotEditBar) .shapePreset')].map(b => b.style.getPropertyValue('--preset'))`);
   assert.equal(report.checks.presetSwatches[0], '#1565c0', 'newest preset first');
   await run(`qingye.shapes.stop()`);
-  // Delete with the Delete key.
-  await click(0.42, 0.62);
+  // Delete with the Delete key. Click the annotation's real center: a fixed fraction misses after the move.
+  await until(`!${P}.editBusy && !qingye.shapes.active()`, 'idle before deleting the rectangle');
+  await run(`(async () => {
+    const s = ${P}, doc = s.frame.contentDocument, view = s.app.pdfViewer.getPageView(0), vp = view.viewport;
+    const annot = (await (await s.app.pdfDocument.getPage(1)).getAnnotations()).find(a => a.subtype === 'Square');
+    const [x0, y0] = vp.convertToViewportPoint(annot.rect[0], annot.rect[1]), [x1, y1] = vp.convertToViewportPoint(annot.rect[2], annot.rect[3]);
+    const wrap = doc.querySelector('.page[data-page-number="1"] .canvasWrapper'), w = wrap.getBoundingClientRect();
+    const at = { clientX: w.left + ((x0 + x1) / 2) * w.width / vp.width, clientY: w.top + ((y0 + y1) / 2) * w.height / vp.height, button: 0, bubbles: true, cancelable: true };
+    const hit = doc.elementFromPoint(at.clientX, at.clientY);
+    const target = hit && !hit.closest('.qyAnnotSel') ? hit : wrap;
+    target.dispatchEvent(new PointerEvent('pointerdown', at)); target.dispatchEvent(new PointerEvent('pointerup', at));
+  })()`);
   await until(`qingye.annotEdit.selected()?.kind === 'Square'`, 'selected for deletion');
   await run(`${P}.frame.contentDocument.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true }))`);
   await until(`(${count('Square')}).then(n => n === 0)`, 'rectangle deleted with Delete');
